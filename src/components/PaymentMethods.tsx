@@ -33,7 +33,7 @@ export const PaymentMethods = ({
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="grid grid-cols-2 gap-3 animate-fade-in">
       {paymentMethods.map((method) => (
         <PaymentMethod
           key={method.id}

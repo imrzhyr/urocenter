@@ -20,18 +20,16 @@ export const PaymentMethod = ({
     <div
       onClick={onSelect}
       className={cn(
-        "p-4 border rounded-lg cursor-pointer transition-all",
+        "p-3 border rounded-lg cursor-pointer transition-all transform hover:scale-105",
         selected
-          ? "border-primary bg-primary/5"
+          ? "border-primary bg-primary/5 shadow-lg"
           : "border-gray-200 hover:border-primary/50"
       )}
     >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <img src={logo} alt={name} className="w-12 h-12 object-contain" />
-          <span className="font-medium">{name}</span>
-        </div>
-        {selected && <Check className="w-5 h-5 text-primary" />}
+      <div className="flex flex-col items-center space-y-2">
+        <img src={logo} alt={name} className="w-10 h-10 object-contain" />
+        <span className="text-sm font-medium">{name}</span>
+        {selected && <Check className="w-4 h-4 text-primary" />}
       </div>
     </div>
   );

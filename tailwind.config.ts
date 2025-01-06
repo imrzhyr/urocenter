@@ -67,11 +67,28 @@ export default {
           "0%": { opacity: "0", transform: "translateY(10px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
+        wave: {
+          "0%": { transform: "translateX(0)" },
+          "50%": { transform: "translateX(-25%)" },
+          "100%": { transform: "translateX(0)" },
+        },
+        typewriter: {
+          "0%": { width: "0" },
+          "100%": { width: "100%" },
+        },
+        blink: {
+          "0%": { borderColor: "transparent" },
+          "50%": { borderColor: "black" },
+          "100%": { borderColor: "transparent" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.3s ease-out",
+        "wave": "wave 10s ease-in-out infinite",
+        "typewriter": "typewriter 2s steps(40) forwards",
+        "blink": "blink 1s step-end infinite",
       },
     },
   },
