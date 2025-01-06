@@ -36,20 +36,26 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
       setIsLoading(true);
 
       const formattedPhone = formatPhoneNumber(phone);
-      console.log("Attempting sign in with:", { formattedPhone, password });
+      console.log("Sign in attempt - Raw values:", { phone, password });
+      console.log("Sign in attempt - Formatted values:", { formattedPhone, password });
 
-      const { data: profile, error: profileError } = await supabase
+      // First, let's check if the profile exists
+      const { data: profiles, error: profileQueryError } = await supabase
         .from('profiles')
         .select('*')
-        .eq('phone', formattedPhone)
-        .eq('password', password)
-        .maybeSingle();
+        .eq('phone', formattedPhone);
 
-      if (profileError) {
-        console.error("Profile query error:", profileError);
+      console.log("Profile query result:", { profiles, profileQueryError });
+
+      if (profileQueryError) {
+        console.error("Profile query error:", profileQueryError);
         toast.error("Could not verify credentials");
         return;
       }
+
+      // Find the matching profile with the correct password
+      const profile = profiles?.find(p => p.password === password);
+      console.log("Password match result:", { found: !!profile });
 
       if (!profile) {
         toast.error("Invalid phone number or password");
