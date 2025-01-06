@@ -25,9 +25,18 @@ export const useMessageOperations = (patientId: string | undefined) => {
         return false;
       }
 
+      // For regular users, use their own ID as user_id
+      // For admin users, use the patientId parameter
+      const messageUserId = profile.role === 'admin' ? patientId : profile.id;
+
+      if (!messageUserId) {
+        toast.error('Could not determine message recipient');
+        return false;
+      }
+
       const newMessage = {
         content,
-        user_id: patientId || profile.id,
+        user_id: messageUserId,
         is_from_doctor: profile.role === 'admin',
         file_url: fileData?.url,
         file_name: fileData?.name,
