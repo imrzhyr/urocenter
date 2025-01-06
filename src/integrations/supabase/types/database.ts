@@ -1,3 +1,4 @@
+import { Json, UserRole } from './common';
 import { MedicalReport, MedicalReportInsert, MedicalReportUpdate } from './medical-reports';
 import { Message, MessageInsert, MessageUpdate } from './messages';
 import { Profile, ProfileInsert, ProfileUpdate } from './profiles';
@@ -34,7 +35,3 @@ export type Database = {
     };
   };
 };
-
-export type { UserRole } from './profiles';
-export type { Functions } from './functions';
-export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
