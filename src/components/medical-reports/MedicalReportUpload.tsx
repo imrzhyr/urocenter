@@ -117,7 +117,7 @@ export const MedicalReportUpload = () => {
           disabled={isUploading}
         >
           <Camera className="w-4 h-4 mr-2" />
-          Take Picture
+          {isUploading ? "Uploading..." : "Take Picture"}
         </Button>
       </div>
     </div>
