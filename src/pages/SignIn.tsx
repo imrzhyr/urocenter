@@ -17,36 +17,63 @@ const SignIn = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const formatPhoneNumber = (phone: string) => {
-    // Remove any non-digit characters
+    // First, remove any non-digit characters
     let cleaned = phone.replace(/\D/g, '');
     
     // Remove leading zeros
     cleaned = cleaned.replace(/^0+/, '');
     
-    // Add country code if not present
+    // If the number starts with 7, add the country code
+    if (cleaned.startsWith('7')) {
+      cleaned = '964' + cleaned;
+    }
+    
+    // If it doesn't have the country code, add it
     if (!cleaned.startsWith('964')) {
       cleaned = '964' + cleaned;
     }
     
-    // Add + prefix
-    return '+' + cleaned;
+    // Add + prefix if not present
+    if (!cleaned.startsWith('+')) {
+      cleaned = '+' + cleaned;
+    }
+
+    console.log('Formatted phone number:', {
+      input: phone,
+      output: cleaned
+    });
+    
+    return cleaned;
+  };
+
+  const validateInput = () => {
+    if (!phone) {
+      toast.error("Please enter your phone number");
+      return false;
+    }
+    if (!password) {
+      toast.error("Please enter your password");
+      return false;
+    }
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return false;
+    }
+    return true;
   };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!phone || !password) {
-      toast.error("Please enter both phone number and password");
-      return;
-    }
+    if (!validateInput()) return;
 
     try {
       setIsLoading(true);
       const formattedPhone = formatPhoneNumber(phone);
       
-      // Log the attempt for debugging
-      console.log('Attempting sign in with:', {
-        phone: formattedPhone,
+      console.log('Sign in attempt:', {
+        rawPhone: phone,
+        formattedPhone: formattedPhone,
         passwordLength: password.length
       });
 
@@ -56,12 +83,15 @@ const SignIn = () => {
       });
 
       if (error) {
-        console.error('Auth error details:', error);
+        console.error('Auth error details:', {
+          error,
+          attemptedPhone: formattedPhone
+        });
         
         if (error.message.includes("Invalid login credentials")) {
-          toast.error("Invalid phone number or password");
+          toast.error("Invalid phone number or password. Please check your credentials and try again.");
         } else {
-          toast.error(error.message);
+          toast.error(`Authentication error: ${error.message}`);
         }
         return;
       }
@@ -69,14 +99,15 @@ const SignIn = () => {
       if (data?.user) {
         console.log('Sign in successful:', {
           userId: data.user.id,
-          phone: data.user.phone
+          phone: data.user.phone,
+          metadata: data.user.user_metadata
         });
         toast.success("Signed in successfully!");
         navigate("/dashboard");
       }
     } catch (error: any) {
-      console.error('Unexpected error:', error);
-      toast.error("An unexpected error occurred");
+      console.error('Unexpected error during sign in:', error);
+      toast.error("An unexpected error occurred. Please try again later.");
     } finally {
       setIsLoading(false);
     }
