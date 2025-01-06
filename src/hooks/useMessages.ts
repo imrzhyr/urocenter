@@ -14,31 +14,31 @@ export interface Message {
 export const useMessages = () => {
   const [messages, setMessages] = useState<Message[]>([]);
 
-  const fetchMessages = async () => {
-    try {
-      const { data: messages, error } = await supabase
-        .from('messages')
-        .select('*')
-        .order('created_at', { ascending: true });
-
-      if (error) {
-        console.error('Error fetching messages:', error);
-        toast.error('Error loading messages');
-        return;
-      }
-
-      setMessages(messages || []);
-    } catch (error: any) {
-      console.error('Error:', error);
-      toast.error('An unexpected error occurred');
-    }
-  };
-
   useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('messages')
+          .select('*')
+          .order('created_at', { ascending: true });
+
+        if (error) {
+          console.error('Error fetching messages:', error);
+          toast.error('Error loading messages');
+          return;
+        }
+
+        setMessages(data || []);
+      } catch (error: any) {
+        console.error('Error:', error);
+        toast.error('An unexpected error occurred');
+      }
+    };
+
     // Initial fetch
     fetchMessages();
 
-    // Enable realtime for the messages table
+    // Enable realtime subscription
     const channel = supabase
       .channel('messages_changes')
       .on(
@@ -73,7 +73,6 @@ export const useMessages = () => {
         }
       });
 
-    // Cleanup subscription
     return () => {
       console.log('Cleaning up subscription');
       supabase.removeChannel(channel);
