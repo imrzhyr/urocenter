@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { formatPhoneNumber } from "@/utils/phoneUtils";
+import { formatPhoneNumber, normalizePhoneNumber } from "@/utils/phoneUtils";
 
 export const useAuth = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -10,12 +10,15 @@ export const useAuth = () => {
     try {
       setIsLoading(true);
       const formattedPhone = formatPhoneNumber(phone);
+      const normalizedPhone = normalizePhoneNumber(phone);
 
+      console.log("Attempting to sign in with phone:", formattedPhone);
+      
       // First verify the phone exists
-      const { data: profile, error: profileError } = await supabase
+      const { data: profiles, error: profileError } = await supabase
         .from('profiles')
         .select('id, phone, password, role')
-        .eq('phone', formattedPhone)
+        .filter('phone', 'ilike', `%${normalizedPhone}`)
         .maybeSingle();
 
       if (profileError) {
@@ -24,14 +27,14 @@ export const useAuth = () => {
         return null;
       }
 
-      if (!profile) {
+      if (!profiles) {
         console.log("No profile found for phone:", formattedPhone);
         toast.error("Invalid phone number or password");
         return null;
       }
 
       // Then verify the password
-      if (profile.password !== password) {
+      if (profiles.password !== password) {
         console.log("Password mismatch for phone:", formattedPhone);
         toast.error("Invalid phone number or password");
         return null;
@@ -41,13 +44,13 @@ export const useAuth = () => {
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ last_login: new Date().toISOString() })
-        .eq('phone', formattedPhone);
+        .eq('phone', profiles.phone);
 
       if (updateError) {
         console.error("Failed to update last login:", updateError);
       }
 
-      return profile;
+      return profiles;
 
     } catch (error) {
       console.error("Sign in error:", error);
