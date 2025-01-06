@@ -26,16 +26,16 @@ export const VerificationButton = ({
 
     try {
       setIsLoading(true);
-      // Using email authentication with phone as the email
-      const { data, error } = await supabase.auth.signUp({
-        email: `${phone.replace(/\D/g, '')}@example.com`,
-        password,
-        options: {
-          data: {
-            phone: phone, // Store the phone number in user metadata
-          },
-        },
-      });
+      
+      // Insert directly into profiles table
+      const { error } = await supabase
+        .from('profiles')
+        .insert([
+          { 
+            phone,
+            auth_method: 'phone'
+          }
+        ]);
 
       if (error) {
         console.error("Signup error:", error);
@@ -43,10 +43,9 @@ export const VerificationButton = ({
         return;
       }
 
-      if (data?.user) {
-        toast.success("Account created successfully!");
-        navigate("/profile");
-      }
+      toast.success("Account created successfully!");
+      navigate("/profile");
+      
     } catch (error: any) {
       console.error("Unexpected error:", error);
       toast.error("An unexpected error occurred");
