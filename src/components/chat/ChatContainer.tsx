@@ -5,6 +5,7 @@ import { ChatInput } from "@/components/chat/ChatInput";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useMessages } from "@/hooks/useMessages";
 import { uploadFile } from "@/utils/fileUpload";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ChatContainerProps {
   patientId?: string;
@@ -30,6 +31,15 @@ export const ChatContainer = ({ patientId }: ChatContainerProps) => {
     
     setIsLoading(true);
     try {
+      // First set the user context
+      const userPhone = localStorage.getItem('userPhone');
+      if (!userPhone) {
+        toast.error('Please sign in to send messages');
+        return;
+      }
+
+      await supabase.rpc('set_user_context', { user_phone: userPhone });
+
       let fileData;
       if (selectedFile) {
         fileData = await uploadFile(selectedFile);
@@ -40,6 +50,8 @@ export const ChatContainer = ({ patientId }: ChatContainerProps) => {
       if (success) {
         setMessage('');
         setSelectedFile(null);
+      } else {
+        toast.error('Failed to send message');
       }
     } catch (error: any) {
       console.error('Error sending message:', error);

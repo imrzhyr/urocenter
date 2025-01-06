@@ -10,6 +10,7 @@ export interface Message {
   file_url?: string;
   file_name?: string;
   file_type?: string;
+  status: string;
 }
 
 export const useMessages = (patientId?: string) => {
@@ -48,10 +49,8 @@ export const useMessages = (patientId?: string) => {
           .order('created_at', { ascending: true });
 
         if (profile.role === 'admin' && patientId) {
-          // Admin viewing specific patient's messages
           query = query.eq('user_id', patientId);
         } else if (profile.role === 'patient') {
-          // Patient viewing their own messages
           query = query.eq('user_id', profile.id);
         }
 
@@ -64,7 +63,6 @@ export const useMessages = (patientId?: string) => {
           return;
         }
 
-        console.log('Initial messages loaded:', initialMessages);
         setMessages(initialMessages || []);
 
         // Set up real-time subscription
@@ -80,16 +78,12 @@ export const useMessages = (patientId?: string) => {
               filter: `user_id=eq.${channelId}`
             },
             (payload) => {
-              console.log('Real-time update received:', payload);
-              
               if (payload.eventType === 'INSERT') {
                 setMessages((prev) => [...prev, payload.new as Message]);
               }
             }
           )
-          .subscribe((status) => {
-            console.log('Subscription status:', status);
-          });
+          .subscribe();
 
       } catch (error) {
         console.error('Error in useMessages:', error);
@@ -103,7 +97,6 @@ export const useMessages = (patientId?: string) => {
 
     return () => {
       if (channel) {
-        console.log('Cleaning up subscription');
         supabase.removeChannel(channel);
       }
     };
@@ -117,13 +110,15 @@ export const useMessages = (patientId?: string) => {
     }
 
     try {
-      const { data: profile } = await supabase
+      // Get user profile
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('id, role')
         .eq('phone', userPhone)
         .maybeSingle();
 
-      if (!profile) {
+      if (profileError || !profile) {
+        console.error('Error fetching profile:', profileError);
         toast.error('User profile not found');
         return false;
       }
@@ -136,24 +131,16 @@ export const useMessages = (patientId?: string) => {
         file_url: fileData?.url,
         file_name: fileData?.name,
         file_type: fileData?.type,
-        created_at: new Date().toISOString()
+        status: 'not_seen'
       };
 
-      // Optimistically add message to state
-      const optimisticMessage = { ...newMessage, id: crypto.randomUUID() };
-      setMessages(prev => [...prev, optimisticMessage]);
-
       // Send message to database
-      const { error: insertError, data: insertedMessage } = await supabase
+      const { error: insertError } = await supabase
         .from('messages')
-        .insert([newMessage])
-        .select()
-        .single();
+        .insert([newMessage]);
 
       if (insertError) {
         console.error('Error sending message:', insertError);
-        // Remove optimistic message if there was an error
-        setMessages(prev => prev.filter(msg => msg.id !== optimisticMessage.id));
         toast.error('Failed to send message');
         return false;
       }
