@@ -1,12 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ComplaintInput } from "./medical-reports/ComplaintInput";
 import type { Profile } from "@/hooks/useProfile";
 
@@ -48,20 +42,21 @@ export const ProfileForm = ({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="gender">Gender *</Label>
-        <Select 
-          value={profile.gender} 
+        <Label>Gender *</Label>
+        <RadioGroup
+          value={profile.gender}
           onValueChange={(value) => onProfileChange('gender', value)}
-          required
+          className="flex gap-4"
         >
-          <SelectTrigger className="w-full transition-all hover:bg-accent">
-            <SelectValue placeholder="Select gender" />
-          </SelectTrigger>
-          <SelectContent className="bg-card border-none shadow-lg">
-            <SelectItem value="male" className="cursor-pointer hover:bg-accent transition-colors">Male</SelectItem>
-            <SelectItem value="female" className="cursor-pointer hover:bg-accent transition-colors">Female</SelectItem>
-          </SelectContent>
-        </Select>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="male" id="male" />
+            <Label htmlFor="male" className="cursor-pointer">Male</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="female" id="female" />
+            <Label htmlFor="female" className="cursor-pointer">Female</Label>
+          </div>
+        </RadioGroup>
         {!profile.gender && (
           <p className="text-sm text-muted-foreground">This field is required</p>
         )}

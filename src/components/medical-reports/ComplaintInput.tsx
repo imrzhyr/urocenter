@@ -9,10 +9,12 @@ interface ComplaintInputProps {
 }
 
 const complaintExamples = [
-  "I have been experiencing back pain for 3 months",
-  "I have frequent headaches",
-  "My knee hurts when I walk",
-  "I have difficulty sleeping",
+  "Frequent urination and lower back pain - possible kidney issue",
+  "Blood in urine and flank pain - consult urologist",
+  "Kidney stones with severe abdominal pain",
+  "Difficulty urinating and frequent urges - prostate concern",
+  "Swelling in legs and decreased urination - nephrology consultation",
+  "Lower urinary tract symptoms with burning sensation",
 ];
 
 export const ComplaintInput = ({ complaint, setComplaint, required }: ComplaintInputProps) => {
@@ -37,7 +39,7 @@ export const ComplaintInput = ({ complaint, setComplaint, required }: ComplaintI
       if (!isDeleting && currentIndex === example.length) {
         setTimeout(() => {
           isDeleting = true;
-        }, 2000);
+        }, 1500);
       }
 
       if (isDeleting && currentIndex === 0) {
@@ -45,16 +47,20 @@ export const ComplaintInput = ({ complaint, setComplaint, required }: ComplaintI
         currentExampleIndex = (currentExampleIndex + 1) % complaintExamples.length;
       }
 
-      const speed = isDeleting ? 50 : 100;
+      const speed = isDeleting ? 30 : 50;
       setTimeout(typeWriter, speed);
     };
 
     typeWriter();
+
+    return () => {
+      setCurrentText("");
+    };
   }, []);
 
   return (
     <div className="space-y-2">
-      <Label htmlFor="complaint">Medical Complaint</Label>
+      <Label htmlFor="complaint">Medical Complaint *</Label>
       <Input
         id="complaint"
         value={complaint}

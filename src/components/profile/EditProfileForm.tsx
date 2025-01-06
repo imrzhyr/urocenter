@@ -48,7 +48,7 @@ export const EditProfileForm = () => {
     const success = await updateProfile(formData);
     if (success) {
       toast.success("Profile updated successfully");
-      navigate("/dashboard");
+      navigate("/medical-information");
     }
   };
 
@@ -64,7 +64,7 @@ export const EditProfileForm = () => {
     <div className="min-h-screen flex flex-col bg-background">
       <div className="p-4 flex justify-between items-center">
         <button 
-          onClick={() => navigate("/dashboard")} 
+          onClick={() => navigate(-1)} 
           className="p-2 hover:bg-muted rounded-full transition-colors"
         >
           <ArrowLeft className="w-6 h-6" />
@@ -92,7 +92,7 @@ export const EditProfileForm = () => {
               className="w-full"
               disabled={!isFormValid() || isLoading}
             >
-              {isLoading ? "Updating..." : "Update Profile"}
+              {isLoading ? "Updating..." : "Continue to Medical Information"}
             </Button>
           </form>
         </div>
