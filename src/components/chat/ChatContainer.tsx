@@ -17,7 +17,7 @@ export const ChatContainer = ({ patientId }: ChatContainerProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useAuthRedirect();
-  const { messages, addMessage } = useMessages(patientId);
+  const { messages, addMessage, pendingMessages } = useMessages(patientId);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -82,7 +82,7 @@ export const ChatContainer = ({ patientId }: ChatContainerProps) => {
             fileUrl={msg.file_url}
             fileName={msg.file_name}
             fileType={msg.file_type}
-            status={msg.status}
+            status={pendingMessages.has(msg.id) ? 'pending' : msg.status}
             userId={patientId || ''}
           />
         ))}

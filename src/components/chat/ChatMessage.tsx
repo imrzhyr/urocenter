@@ -1,5 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { FileIcon, ImageIcon } from "lucide-react";
+import { FileIcon, ImageIcon, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -26,6 +26,7 @@ export const ChatMessage = ({
   userId
 }: ChatMessageProps) => {
   const isImage = fileType?.startsWith('image/');
+  const isPending = status === 'pending';
 
   const handleMarkAsResolved = async () => {
     try {
@@ -61,7 +62,12 @@ export const ChatMessage = ({
               : 'bg-blue-600 text-white'
           }`}
         >
-          <p className="text-sm leading-relaxed">{content}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-sm leading-relaxed">{content}</p>
+            {isPending && (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            )}
+          </div>
           {fileUrl && (
             <div className="mt-2">
               {isImage ? (
@@ -86,7 +92,7 @@ export const ChatMessage = ({
             </div>
           )}
         </div>
-        {isFromDoctor && status !== 'resolved' && (
+        {isFromDoctor && status !== 'resolved' && !isPending && (
           <Button
             variant="outline"
             size="sm"

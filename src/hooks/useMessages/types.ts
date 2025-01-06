@@ -17,3 +17,9 @@ export interface FileData {
   name: string;
   type: string;
 }
+
+export interface MessageState {
+  messages: Message[];
+  isLoading: boolean;
+  error: Error | null;
+}

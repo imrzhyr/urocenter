@@ -7,7 +7,7 @@ import { setMessageContext } from './useMessageContext';
 import { Message } from './types';
 
 export const useMessages = (patientId?: string) => {
-  const { messages, setMessages, addMessage } = useMessageOperations(patientId);
+  const { messages, setMessages, addMessage, pendingMessages } = useMessageOperations(patientId);
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -64,7 +64,11 @@ export const useMessages = (patientId?: string) => {
     setMessages(prev => [...prev, newMessage]);
   });
 
-  return { messages, addMessage };
+  return { 
+    messages, 
+    addMessage,
+    pendingMessages 
+  };
 };
 
 export type { Message, FileData } from './types';

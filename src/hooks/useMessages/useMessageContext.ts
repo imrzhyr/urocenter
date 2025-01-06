@@ -1,12 +1,19 @@
 import { supabase } from "@/integrations/supabase/client";
 
-export const setMessageContext = async (userPhone: string): Promise<boolean> => {
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000;
+
+export const setMessageContext = async (userPhone: string, retryCount = 0): Promise<boolean> => {
   try {
     const { error } = await supabase.rpc('set_user_context', { 
       user_phone: userPhone 
     });
     
     if (error) {
+      if (retryCount < MAX_RETRIES) {
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * (retryCount + 1)));
+        return setMessageContext(userPhone, retryCount + 1);
+      }
       console.error('Error setting user context:', error);
       return false;
     }
@@ -23,7 +30,7 @@ export const getUserProfile = async (userPhone: string) => {
       .from('profiles')
       .select('id, role')
       .eq('phone', userPhone)
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
     return profile;
