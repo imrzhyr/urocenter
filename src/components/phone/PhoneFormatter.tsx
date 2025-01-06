@@ -10,11 +10,8 @@ export const PhoneFormatter = ({ value, onChange, readOnly = false }: PhoneForma
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let val = e.target.value;
     
-    // Remove any non-numeric characters except spaces
-    val = val.replace(/[^\d\s]/g, "");
-    
-    // Remove all spaces to get just the numbers
-    val = val.replace(/\s/g, "");
+    // Remove any non-numeric characters
+    val = val.replace(/\D/g, "");
     
     // Remove the country code if present
     if (val.startsWith('964')) {
@@ -35,11 +32,8 @@ export const PhoneFormatter = ({ value, onChange, readOnly = false }: PhoneForma
   const formatPhoneNumber = (phone: string) => {
     if (!phone) return "";
     
-    // Remove any spaces first
-    const cleaned = phone.replace(/\s/g, "");
-    
     // Format the number as XXX XXX XXXX
-    const match = cleaned.match(/^(\d{1,3})?(\d{1,3})?(\d{1,4})?$/);
+    const match = phone.match(/^(\d{1,3})?(\d{1,3})?(\d{1,4})?$/);
     
     if (!match) return phone;
 
@@ -54,14 +48,13 @@ export const PhoneFormatter = ({ value, onChange, readOnly = false }: PhoneForma
       </div>
       <Input
         id="phone"
-        type="text"
+        type="tel"
         className="rounded-l-none"
         value={formatPhoneNumber(value)}
         onChange={handleChange}
         placeholder="7XX XXX XXXX"
-        readOnly={readOnly}
+        readOnly={false}
         autoComplete="tel"
-        inputMode="numeric"
       />
     </div>
   );
