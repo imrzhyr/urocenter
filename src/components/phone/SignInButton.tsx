@@ -48,13 +48,13 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
         console.error("Error updating last login:", updateError);
       }
 
+      // Force navigation to dashboard
+      window.location.href = "/dashboard";
       toast.success("Signed in successfully!");
-      navigate("/dashboard", { replace: true });
       
     } catch (error: any) {
       console.error("Unexpected error:", error);
       toast.error("An unexpected error occurred");
-    } finally {
       setIsLoading(false);
     }
   };
