@@ -16,14 +16,21 @@ const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  const formatPhoneNumber = (phone: string) => {
+    // Remove any leading zeros
+    const cleanPhone = phone.replace(/^0+/, '');
+    // Add the country code if not present
+    return cleanPhone.startsWith('+964') ? cleanPhone : `+964${cleanPhone}`;
+  };
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
       setIsLoading(true);
-      const formattedPhone = phone.startsWith('0') 
-        ? `+964${phone.slice(1)}` 
-        : `+964${phone}`;
+      const formattedPhone = formatPhoneNumber(phone);
+
+      console.log('Attempting sign in with phone:', formattedPhone); // Debug log
 
       const { error } = await supabase.auth.signInWithPassword({
         phone: formattedPhone,
@@ -35,6 +42,7 @@ const SignIn = () => {
       toast.success("Signed in successfully!");
       navigate("/dashboard");
     } catch (error: any) {
+      console.error('Sign in error:', error); // Debug log
       toast.error(error.message);
     } finally {
       setIsLoading(false);
