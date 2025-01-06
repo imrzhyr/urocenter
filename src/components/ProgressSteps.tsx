@@ -13,7 +13,7 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
           <div key={step} className="flex flex-col items-center">
             <div
               className={cn(
-                "w-8 h-8 flex items-center justify-center rounded-full border-2",
+                "w-8 h-8 flex items-center justify-center rounded-full border-2 transition-all duration-300",
                 index < currentStep
                   ? "bg-primary border-primary text-white"
                   : index === currentStep
@@ -25,7 +25,7 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
             </div>
             <span
               className={cn(
-                "mt-2 text-sm",
+                "mt-2 text-sm transition-colors duration-300",
                 index <= currentStep ? "text-primary" : "text-gray-300"
               )}
             >
