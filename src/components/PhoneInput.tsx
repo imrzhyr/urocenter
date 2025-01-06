@@ -50,10 +50,6 @@ export const PhoneInput = ({ value, onChange, isSignUp = false }: PhoneInputProp
       <div className="flex justify-end">
         <VerificationButton phone={value} password={password} isSignUp={isSignUp} />
       </div>
-
-      <p className="text-sm text-muted-foreground">
-        Enter your Iraqi phone number starting with 7
-      </p>
     </div>
   );
 };

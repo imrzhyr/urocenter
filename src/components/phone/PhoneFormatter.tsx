@@ -34,7 +34,7 @@ export const PhoneFormatter = ({ value, onChange, readOnly = false }: PhoneForma
         className="rounded-l-none flex-1"
         value={formatPhoneNumber(value)}
         onChange={handleChange}
-        placeholder="7XXX XXX XXXX"
+        placeholder="XXXX XXX XXXX"
         readOnly={readOnly}
       />
     </div>
