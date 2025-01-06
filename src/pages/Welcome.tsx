@@ -8,16 +8,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { HowItWorks } from "@/components/HowItWorks";
+import { WaveBackground } from "@/components/WaveBackground";
 
 const Welcome = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex flex-col bg-accent">
-      <div className="p-4 flex justify-end">
+    <div className="min-h-screen flex flex-col relative overflow-hidden">
+      <WaveBackground />
+      
+      <div className="p-4 flex justify-end relative z-10">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" className="bg-white/80 hover:bg-white/90">
               <Globe className="w-5 h-5" />
             </Button>
           </DropdownMenuTrigger>
@@ -28,7 +31,7 @@ const Welcome = () => {
         </DropdownMenu>
       </div>
       
-      <div className="flex-1 flex flex-col items-center justify-center p-6 animate-fade-in">
+      <div className="flex-1 flex flex-col items-center justify-center p-6 relative z-10">
         <div className="w-full max-w-md space-y-8 text-center">
           <div className="space-y-2">
             <h1 className="text-4xl font-bold tracking-tight text-primary">
@@ -43,7 +46,7 @@ const Welcome = () => {
 
           <div className="space-y-4 pt-4">
             <Button
-              className="w-full text-lg py-6"
+              className="w-full text-lg py-6 bg-primary hover:bg-primary/90"
               onClick={() => navigate("/signup")}
             >
               Get Started
@@ -52,7 +55,7 @@ const Welcome = () => {
               Already have an account?{" "}
               <button
                 onClick={() => navigate("/signin")}
-                className="text-primary hover:underline"
+                className="text-primary hover:underline font-medium"
               >
                 Sign In
               </button>
