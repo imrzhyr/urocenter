@@ -9,11 +9,11 @@ interface ComplaintInputProps {
 }
 
 const complaintExamples = [
-  "Kidney pain with frequent urination - Nephrology",
-  "Blood in urine with flank pain - Urology",
+  "Kidney pain with frequent urination",
+  "Blood in urine with flank pain",
   "Difficulty urinating with prostate concerns",
   "Recurring kidney stones with severe pain",
-  "Lower urinary tract symptoms - Urology",
+  "Lower urinary tract symptoms",
   "Swelling in legs with decreased urination",
 ];
 
@@ -61,12 +61,12 @@ export const ComplaintInput = ({
   return (
     <div className="space-y-2">
       <Label htmlFor="complaint">Medical Complaint *</Label>
-      <Input
+      <textarea
         id="complaint"
         value={complaint}
         onChange={(e) => setComplaint(e.target.value)}
         placeholder={placeholderText}
-        className="placeholder:text-muted-foreground/80 animate-typewriter"
+        className="w-full min-h-[120px] p-3 rounded-md border border-input bg-background text-sm placeholder:text-muted-foreground/80 animate-typewriter focus:outline-none focus:ring-2 focus:ring-ring"
         required={required}
       />
     </div>

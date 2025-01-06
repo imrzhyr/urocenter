@@ -53,9 +53,6 @@ export const ProfileForm = ({
             <Label htmlFor="female" className="cursor-pointer">Female</Label>
           </div>
         </RadioGroup>
-        {!profile.gender && (
-          <p className="text-sm text-muted-foreground">This field is required</p>
-        )}
       </div>
 
       <div className="space-y-2">
@@ -70,9 +67,6 @@ export const ProfileForm = ({
           min="0"
           max="150"
         />
-        {!profile.age && (
-          <p className="text-sm text-muted-foreground">This field is required</p>
-        )}
       </div>
 
       <ComplaintInput 
@@ -80,9 +74,6 @@ export const ProfileForm = ({
         setComplaint={(value) => onProfileChange('complaint', value)} 
         required
       />
-      {!profile.complaint && (
-        <p className="text-sm text-muted-foreground">This field is required</p>
-      )}
     </div>
   );
 };
