@@ -16,8 +16,8 @@ import {
 
 const SignIn = () => {
   const navigate = useNavigate();
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("07702428154");
+  const [password, setPassword] = useState("rzhyr123");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
