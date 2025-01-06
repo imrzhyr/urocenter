@@ -54,7 +54,6 @@ export type Database = {
           id: string
           is_from_doctor: boolean | null
           is_read: boolean | null
-          status: string
           updated_at: string | null
           user_id: string
         }
@@ -67,7 +66,6 @@ export type Database = {
           id?: string
           is_from_doctor?: boolean | null
           is_read?: boolean | null
-          status?: string
           updated_at?: string | null
           user_id: string
         }
@@ -80,7 +78,6 @@ export type Database = {
           id?: string
           is_from_doctor?: boolean | null
           is_read?: boolean | null
-          status?: string
           updated_at?: string | null
           user_id?: string
         }
@@ -106,7 +103,6 @@ export type Database = {
           last_login: string | null
           password: string
           phone: string | null
-          role: Database["public"]["Enums"]["user_role"]
           updated_at: string | null
         }
         Insert: {
@@ -120,7 +116,6 @@ export type Database = {
           last_login?: string | null
           password: string
           phone?: string | null
-          role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string | null
         }
         Update: {
@@ -134,7 +129,6 @@ export type Database = {
           last_login?: string | null
           password?: string
           phone?: string | null
-          role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string | null
         }
         Relationships: []
@@ -150,15 +144,6 @@ export type Database = {
           user_id: string
         }[]
       }
-      get_admin_stats: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          total_patients: number
-          total_messages: number
-          unread_messages: number
-          resolved_chats: number
-        }[]
-      }
       set_user_context: {
         Args: {
           user_phone: string
@@ -167,7 +152,7 @@ export type Database = {
       }
     }
     Enums: {
-      user_role: "admin" | "patient"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never
