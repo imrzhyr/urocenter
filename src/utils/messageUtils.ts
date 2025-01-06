@@ -18,7 +18,7 @@ export const createOptimisticMessage = (
   is_from_doctor: isFromDoctor,
   is_read: false,
   created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString(), // Added the missing updated_at field
+  updated_at: new Date().toISOString(),
   file_url: fileData?.url || null,
   file_name: fileData?.name || null,
   file_type: fileData?.type || null,
