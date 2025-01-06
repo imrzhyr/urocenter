@@ -69,31 +69,37 @@ export type Database = {
       profiles: {
         Row: {
           age: string | null
+          auth_method: string | null
           complaint: string | null
           created_at: string | null
           full_name: string | null
           gender: string | null
           id: string
+          last_login: string | null
           phone: string | null
           updated_at: string | null
         }
         Insert: {
           age?: string | null
+          auth_method?: string | null
           complaint?: string | null
           created_at?: string | null
           full_name?: string | null
           gender?: string | null
           id: string
+          last_login?: string | null
           phone?: string | null
           updated_at?: string | null
         }
         Update: {
           age?: string | null
+          auth_method?: string | null
           complaint?: string | null
           created_at?: string | null
           full_name?: string | null
           gender?: string | null
           id?: string
+          last_login?: string | null
           phone?: string | null
           updated_at?: string | null
         }
