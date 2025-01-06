@@ -21,19 +21,19 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
       return;
     }
 
-    setIsLoading(true);
-
     try {
-      // Check if profile exists with this phone number and password
+      setIsLoading(true);
+
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('id')
+        .select('*')
         .eq('phone', phone)
         .eq('password', password)
         .maybeSingle();
 
       if (profileError) {
-        toast.error("An error occurred while signing in");
+        console.error("Profile query error:", profileError);
+        toast.error("Could not verify credentials");
         return;
       }
 
@@ -42,15 +42,25 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
         return;
       }
 
-      // Create a session in localStorage to maintain login state
-      localStorage.setItem('user_id', profile.id);
-      localStorage.setItem('phone', phone);
+      // Update last login timestamp
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ last_login: new Date().toISOString() })
+        .eq('phone', phone);
+
+      if (updateError) {
+        console.error("Failed to update last login:", updateError);
+      }
+
+      // Store the phone number in localStorage
+      localStorage.setItem('userPhone', phone);
       
       toast.success("Signed in successfully!");
-      navigate("/dashboard", { replace: true });
-    } catch (error) {
-      console.error("Sign in error:", error);
-      toast.error("An error occurred while signing in");
+      navigate("/dashboard");
+
+    } catch (error: any) {
+      console.error("Unexpected error:", error);
+      toast.error("An unexpected error occurred");
     } finally {
       setIsLoading(false);
     }

@@ -28,11 +28,17 @@ export const VerificationButton = ({
       setIsLoading(true);
 
       // Check if profile already exists
-      const { data: existingProfile } = await supabase
+      const { data: existingProfile, error: queryError } = await supabase
         .from('profiles')
         .select('phone')
         .eq('phone', phone)
-        .single();
+        .maybeSingle();
+
+      if (queryError) {
+        console.error("Profile query error:", queryError);
+        toast.error("Could not check existing profiles");
+        return;
+      }
 
       if (existingProfile) {
         toast.error("An account with this phone number already exists");
