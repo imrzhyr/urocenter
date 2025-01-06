@@ -16,7 +16,7 @@ export const PhoneInput = ({ value, onChange, isSignUp = false }: PhoneInputProp
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="space-y-2">
         <Label htmlFor="phone">Phone Number</Label>
         <div className="flex gap-2">
@@ -47,9 +47,11 @@ export const PhoneInput = ({ value, onChange, isSignUp = false }: PhoneInputProp
         </div>
       )}
 
-      <div className="flex justify-end">
-        <VerificationButton phone={value} password={password} isSignUp={isSignUp} />
-      </div>
+      {isSignUp && (
+        <div className="pt-4">
+          <VerificationButton phone={value} password={password} isSignUp={isSignUp} />
+        </div>
+      )}
     </div>
   );
 };
