@@ -24,26 +24,27 @@ import {
 
 const Dashboard = () => {
   const [fullName, setFullName] = useState("");
-  const [notifications, setNotifications] = useState(3); // Example notification count
+  const [notifications, setNotifications] = useState(3);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-          navigate("/signin");
+        // Get the most recent profile since we're not using auth
+        const { data: profiles, error } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (error) {
+          console.error("Error fetching profile:", error);
           return;
         }
 
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("full_name")
-          .eq("id", user.id)
-          .single();
-
-        if (profile?.full_name) {
-          setFullName(profile.full_name);
+        if (profiles?.full_name) {
+          setFullName(profiles.full_name);
         }
       } catch (error) {
         console.error("Error fetching user profile:", error);
@@ -53,14 +54,9 @@ const Dashboard = () => {
     fetchUserProfile();
   }, [navigate]);
 
-  const handleLogout = async () => {
-    try {
-      await supabase.auth.signOut();
-      toast.success("Logged out successfully");
-      navigate("/signin");
-    } catch (error) {
-      toast.error("Error logging out");
-    }
+  const handleLogout = () => {
+    navigate("/signin");
+    toast.success("Logged out successfully");
   };
 
   // Health Stats Data (example data)
