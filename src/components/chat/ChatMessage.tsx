@@ -1,8 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { FileIcon, ImageIcon, Loader2 } from "lucide-react";
+import { FileIcon, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 
 interface ChatMessageProps {
   id: string;
@@ -16,32 +14,14 @@ interface ChatMessageProps {
 }
 
 export const ChatMessage = ({ 
-  id,
   content, 
   isFromDoctor, 
   fileUrl, 
   fileName, 
   fileType,
-  status,
-  userId
+  status
 }: ChatMessageProps) => {
   const isImage = fileType?.startsWith('image/');
-  const isPending = status === 'pending';
-
-  const handleMarkAsResolved = async () => {
-    try {
-      const { error } = await supabase
-        .from('messages')
-        .update({ status: 'resolved' })
-        .eq('user_id', userId);
-
-      if (error) throw error;
-      toast.success("Chat marked as resolved");
-    } catch (error) {
-      console.error('Error marking chat as resolved:', error);
-      toast.error("Failed to mark chat as resolved");
-    }
-  };
 
   return (
     <div className={`flex ${isFromDoctor ? 'justify-start' : 'justify-end'} mb-4`}>
@@ -62,12 +42,7 @@ export const ChatMessage = ({
               : 'bg-blue-600 text-white'
           }`}
         >
-          <div className="flex items-center gap-2">
-            <p className="text-sm leading-relaxed">{content}</p>
-            {isPending && (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            )}
-          </div>
+          <p className="text-sm leading-relaxed">{content}</p>
           {fileUrl && (
             <div className="mt-2">
               {isImage ? (
@@ -92,11 +67,11 @@ export const ChatMessage = ({
             </div>
           )}
         </div>
-        {isFromDoctor && status !== 'resolved' && !isPending && (
+        {isFromDoctor && status !== 'resolved' && (
           <Button
             variant="outline"
             size="sm"
-            onClick={handleMarkAsResolved}
+            onClick={() => console.log('Mark as resolved clicked')}
             className="text-xs"
           >
             Mark as Resolved
