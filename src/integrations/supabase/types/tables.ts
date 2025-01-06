@@ -6,6 +6,8 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
+export type UserRole = 'admin' | 'patient';
+
 export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row'];
 export type TablesInsert<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Insert'];
 export type TablesUpdate<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Update'];
@@ -49,6 +51,7 @@ interface Database {
           id: string;
           is_from_doctor: boolean | null;
           is_read: boolean | null;
+          status: string;
           updated_at: string | null;
           user_id: string;
         };
@@ -61,6 +64,7 @@ interface Database {
           id?: string;
           is_from_doctor?: boolean | null;
           is_read?: boolean | null;
+          status?: string;
           updated_at?: string | null;
           user_id: string;
         };
@@ -73,6 +77,7 @@ interface Database {
           id?: string;
           is_from_doctor?: boolean | null;
           is_read?: boolean | null;
+          status?: string;
           updated_at?: string | null;
           user_id?: string;
         };
@@ -89,6 +94,7 @@ interface Database {
           last_login: string | null;
           password: string;
           phone: string | null;
+          role: UserRole;
           updated_at: string | null;
         };
         Insert: {
@@ -102,6 +108,7 @@ interface Database {
           last_login?: string | null;
           password: string;
           phone?: string | null;
+          role?: UserRole;
           updated_at?: string | null;
         };
         Update: {
@@ -115,6 +122,7 @@ interface Database {
           last_login?: string | null;
           password?: string;
           phone?: string | null;
+          role?: UserRole;
           updated_at?: string | null;
         };
       };

@@ -6,10 +6,12 @@ import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { MessagesCard } from "@/components/dashboard/MessagesCard";
 import { MedicalReportsCard } from "@/components/dashboard/MedicalReportsCard";
 import { RecentActivityCard } from "@/components/dashboard/RecentActivityCard";
+import { AdminStatsCard } from "@/components/dashboard/AdminStatsCard";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const checkProfile = async () => {
@@ -34,6 +36,7 @@ const Dashboard = () => {
           return;
         }
 
+        setIsAdmin(profile.role === 'admin');
         setIsLoading(false);
       } catch (error) {
         console.error("Error checking profile:", error);
@@ -52,11 +55,21 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gradient-to-r from-blue-50 via-white to-sky-50">
       <DashboardHeader />
       <main className="container py-6 space-y-6">
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <MessagesCard />
-          <MedicalReportsCard />
-          <RecentActivityCard />
-        </div>
+        {isAdmin ? (
+          <>
+            <AdminStatsCard />
+            <div className="grid gap-6 md:grid-cols-2">
+              <MessagesCard />
+              <RecentActivityCard />
+            </div>
+          </>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <MessagesCard />
+            <MedicalReportsCard />
+            <RecentActivityCard />
+          </div>
+        )}
       </main>
     </div>
   );
