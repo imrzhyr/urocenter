@@ -17,33 +17,65 @@ const SignIn = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const formatPhoneNumber = (phone: string) => {
-    // Remove any leading zeros
-    const cleanPhone = phone.replace(/^0+/, '');
+    // Remove any non-digit characters first
+    let cleaned = phone.replace(/\D/g, '');
+    // Remove leading zeros
+    cleaned = cleaned.replace(/^0+/, '');
     // Add the country code if not present
-    return cleanPhone.startsWith('+964') ? cleanPhone : `+964${cleanPhone}`;
+    if (!cleaned.startsWith('964')) {
+      cleaned = '964' + cleaned;
+    }
+    return '+' + cleaned;
   };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!phone || !password) {
+      toast.error("Please enter both phone number and password");
+      return;
+    }
+
     try {
       setIsLoading(true);
       const formattedPhone = formatPhoneNumber(phone);
 
-      console.log('Attempting sign in with phone:', formattedPhone); // Debug log
+      console.log('Attempting sign in with:', {
+        phone: formattedPhone,
+        passwordLength: password.length
+      });
 
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         phone: formattedPhone,
         password: password,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Auth error details:', {
+          status: error.status,
+          message: error.message,
+          name: error.name
+        });
+        
+        if (error.message.includes("Invalid login credentials")) {
+          toast.error("Invalid phone number or password. Please try again.");
+        } else {
+          toast.error(error.message);
+        }
+        return;
+      }
 
-      toast.success("Signed in successfully!");
-      navigate("/dashboard");
+      if (data?.user) {
+        console.log('Sign in successful:', {
+          userId: data.user.id,
+          phone: data.user.phone
+        });
+        toast.success("Signed in successfully!");
+        navigate("/dashboard");
+      }
     } catch (error: any) {
-      console.error('Sign in error:', error); // Debug log
-      toast.error(error.message);
+      console.error('Unexpected error:', error);
+      toast.error("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
