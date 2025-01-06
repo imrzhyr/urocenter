@@ -3,12 +3,38 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ChatMessage } from "@/components/chat/ChatMessage";
 import { ChatInput } from "@/components/chat/ChatInput";
+import { useNavigate } from "react-router-dom";
 
 export const ChatContainer = () => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const navigate = useNavigate();
+
+  // Check authentication status when component mounts
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error("Please sign in to access the chat");
+        navigate("/signin");
+      }
+    };
+
+    checkAuth();
+
+    // Subscribe to auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
+        navigate("/signin");
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate]);
 
   const fetchMessages = async () => {
     try {
@@ -81,11 +107,11 @@ export const ChatContainer = () => {
     setIsLoading(true);
 
     try {
-      // Get the current authenticated user
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      const { data: { session } } = await supabase.auth.getSession();
       
-      if (userError || !user) {
-        toast.error('You must be logged in to send messages');
+      if (!session) {
+        toast.error('Please sign in to send messages');
+        navigate("/signin");
         return;
       }
 
@@ -103,7 +129,7 @@ export const ChatContainer = () => {
       const messageData = {
         content: message.trim(),
         is_from_doctor: false,
-        user_id: user.id, // Use the auth user ID directly
+        user_id: session.user.id,
         file_url: fileData?.url,
         file_name: fileData?.name,
         file_type: fileData?.type
