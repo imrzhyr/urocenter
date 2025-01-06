@@ -40,3 +40,21 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Add smooth scrolling and prevent layout shifts during transitions */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+/* Ensure content doesn't jump during page transitions */
+#root {
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
