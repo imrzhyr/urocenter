@@ -4,6 +4,7 @@ import { PhoneFormatter } from "./phone/PhoneFormatter";
 import { VerificationButton } from "./phone/VerificationButton";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface PhoneInputProps {
   value: string;
@@ -12,6 +13,7 @@ interface PhoneInputProps {
 }
 
 export const PhoneInput = ({ value, onChange, isSignUp = false }: PhoneInputProps) => {
+  const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
@@ -48,9 +50,20 @@ export const PhoneInput = ({ value, onChange, isSignUp = false }: PhoneInputProp
       )}
 
       {isSignUp && (
-        <div className="pt-4">
-          <VerificationButton phone={value} password={password} isSignUp={isSignUp} />
-        </div>
+        <>
+          <div>
+            <VerificationButton phone={value} password={password} isSignUp={isSignUp} />
+          </div>
+          <div className="text-center text-sm text-muted-foreground">
+            Already have an account?{" "}
+            <button
+              onClick={() => navigate("/signin")}
+              className="text-primary hover:underline font-medium"
+            >
+              Sign in
+            </button>
+          </div>
+        </>
       )}
     </div>
   );

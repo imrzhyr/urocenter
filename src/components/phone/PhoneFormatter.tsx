@@ -8,7 +8,15 @@ interface PhoneFormatterProps {
 
 export const PhoneFormatter = ({ value, onChange, readOnly = false }: PhoneFormatterProps) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value.replace(/\D/g, "");
+    let val = e.target.value.replace(/\D/g, "");
+    // Remove the country code if present
+    if (val.startsWith('964')) {
+      val = val.slice(3);
+    }
+    // Remove leading zero if present
+    if (val.startsWith('0')) {
+      val = val.slice(1);
+    }
     if (val.length <= 10) {
       onChange(val);
     }
