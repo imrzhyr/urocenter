@@ -18,7 +18,7 @@ export const useMessages = (patientId?: string) => {
           .from('profiles')
           .select('id, role')
           .eq('phone', userPhone)
-          .maybeSingle();
+          .single();
 
         if (!profile) return;
 
@@ -29,7 +29,7 @@ export const useMessages = (patientId?: string) => {
 
         if (profile.role === 'admin' && patientId) {
           query = query.eq('user_id', patientId);
-        } else if (profile.role === 'patient') {
+        } else if (profile.role !== 'admin') {
           query = query.eq('user_id', profile.id);
         }
 

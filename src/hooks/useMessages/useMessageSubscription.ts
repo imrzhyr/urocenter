@@ -11,26 +11,32 @@ export const useMessageSubscription = (
     if (!userPhone) return;
 
     const setupSubscription = async () => {
-      // Get user profile to determine if admin
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('phone', userPhone)
-        .single();
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id, role')
+          .eq('phone', userPhone)
+          .single();
 
-      let channel;
-      
-      if (profile?.role === 'admin') {
-        // Admin listens to all messages or specific patient messages
-        channel = supabase
-          .channel('admin_messages')
+        if (!profile) return;
+
+        const channelId = profile.role === 'admin' 
+          ? patientId 
+            ? `admin_messages_${patientId}`
+            : 'admin_all_messages'
+          : `user_messages_${profile.id}`;
+
+        const channel = supabase
+          .channel(channelId)
           .on(
             'postgres_changes',
             {
               event: 'INSERT',
               schema: 'public',
               table: 'messages',
-              ...(patientId ? { filter: `user_id=eq.${patientId}` } : {})
+              filter: profile.role === 'admin'
+                ? patientId ? `user_id=eq.${patientId}` : undefined
+                : `user_id=eq.${profile.id}`
             },
             (payload) => {
               console.log('New message received:', payload);
@@ -40,47 +46,19 @@ export const useMessageSubscription = (
           .subscribe((status) => {
             console.log('Subscription status:', status);
           });
-      } else {
-        // Regular users only listen to their own messages
-        const { data: userProfile } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('phone', userPhone)
-          .single();
 
-        if (userProfile) {
-          channel = supabase
-            .channel(`user_messages_${userProfile.id}`)
-            .on(
-              'postgres_changes',
-              {
-                event: 'INSERT',
-                schema: 'public',
-                table: 'messages',
-                filter: `user_id=eq.${userProfile.id}`
-              },
-              (payload) => {
-                console.log('New message received:', payload);
-                onNewMessage(payload.new as Message);
-              }
-            )
-            .subscribe((status) => {
-              console.log('Subscription status:', status);
-            });
-        }
-      }
-
-      return () => {
-        if (channel) {
+        return () => {
           console.log('Cleaning up subscription');
           supabase.removeChannel(channel);
-        }
-      };
+        };
+      } catch (error) {
+        console.error('Error setting up subscription:', error);
+      }
     };
 
     const cleanup = setupSubscription();
     return () => {
-      cleanup.then(cleanupFn => cleanupFn?.());
+      cleanup?.then(cleanupFn => cleanupFn?.());
     };
   }, [patientId, onNewMessage]);
 };

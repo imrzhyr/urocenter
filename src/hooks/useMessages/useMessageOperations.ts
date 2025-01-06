@@ -18,7 +18,7 @@ export const useMessageOperations = (patientId: string | undefined) => {
         .from('profiles')
         .select('id, role')
         .eq('phone', userPhone)
-        .maybeSingle();
+        .single();
 
       if (!profile) {
         toast.error('User profile not found');
@@ -34,7 +34,9 @@ export const useMessageOperations = (patientId: string | undefined) => {
         return false;
       }
 
-      const newMessage = {
+      // Create optimistic message
+      const optimisticMessage: Message = {
+        id: crypto.randomUUID(),
         content,
         user_id: messageUserId,
         is_from_doctor: profile.role === 'admin',
@@ -45,22 +47,37 @@ export const useMessageOperations = (patientId: string | undefined) => {
         created_at: new Date().toISOString()
       };
 
-      // Insert the message into the database
+      // Add optimistic message to UI
+      setMessages(prev => [...prev, optimisticMessage]);
+
+      // Send message to database
       const { error: insertError, data: insertedMessage } = await supabase
         .from('messages')
-        .insert([newMessage])
+        .insert([{
+          content,
+          user_id: messageUserId,
+          is_from_doctor: profile.role === 'admin',
+          file_url: fileData?.url,
+          file_name: fileData?.name,
+          file_type: fileData?.type,
+          status: 'not_seen'
+        }])
         .select()
         .single();
 
       if (insertError) {
         console.error('Error sending message:', insertError);
+        // Remove optimistic message if there was an error
+        setMessages(prev => prev.filter(msg => msg.id !== optimisticMessage.id));
         toast.error('Failed to send message');
         return false;
       }
 
-      // Add the message to the local state
+      // Replace optimistic message with actual message from database
       if (insertedMessage) {
-        setMessages(prev => [...prev, insertedMessage]);
+        setMessages(prev => prev.map(msg => 
+          msg.id === optimisticMessage.id ? insertedMessage : msg
+        ));
       }
 
       return true;
