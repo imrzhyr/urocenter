@@ -5,6 +5,7 @@ import { ProfileForm } from "@/components/ProfileForm";
 import { PaymentMethods } from "@/components/PaymentMethods";
 import { ArrowLeft, Globe } from "lucide-react";
 import { Auth } from "@supabase/auth-ui-react";
+import { ThemeSupa } from '@supabase/auth-ui-shared'
 import { supabase } from "@/integrations/supabase/client";
 import {
   DropdownMenu,
@@ -98,7 +99,7 @@ const SignUp = () => {
               <Auth
                 supabaseClient={supabase}
                 appearance={{
-                  theme: 'default',
+                  theme: ThemeSupa,
                   variables: {
                     default: {
                       colors: {
