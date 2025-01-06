@@ -13,7 +13,7 @@ export const sendMessage = async (
   }
 
   try {
-    // Set up user context
+    // Set up user context first
     const { error: contextError } = await supabase.rpc('set_user_context', {
       user_phone: userPhone
     });
@@ -45,7 +45,7 @@ export const sendMessage = async (
       fileData = await uploadFile(selectedFile);
     }
 
-    // Send message
+    // Send message with the correct user_id
     const { error: insertError } = await supabase
       .from('messages')
       .insert({
