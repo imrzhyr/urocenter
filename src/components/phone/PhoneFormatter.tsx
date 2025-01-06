@@ -9,14 +9,17 @@ interface PhoneFormatterProps {
 export const PhoneFormatter = ({ value, onChange, readOnly = false }: PhoneFormatterProps) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let val = e.target.value.replace(/\D/g, "");
+    
     // Remove the country code if present
     if (val.startsWith('964')) {
       val = val.slice(3);
     }
+    
     // Remove leading zero if present
     if (val.startsWith('0')) {
       val = val.slice(1);
     }
+    
     if (val.length <= 10) {
       onChange(val);
     }
@@ -44,6 +47,7 @@ export const PhoneFormatter = ({ value, onChange, readOnly = false }: PhoneForma
         onChange={handleChange}
         placeholder="07XX XXX XXXX"
         readOnly={readOnly}
+        inputMode="numeric"
       />
     </div>
   );
