@@ -98,11 +98,11 @@ export const MedicalReportUpload = () => {
   return (
     <div className="space-y-2">
       <Label>Medical Reports</Label>
-      <div className="flex gap-2">
+      <div className="grid grid-cols-2 gap-2">
         <Button
           type="button"
           variant="outline"
-          className="flex-1 hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+          className="w-full hover:bg-primary hover:text-primary-foreground transition-all duration-300"
           onClick={handleFileSelect}
           disabled={isUploading}
         >
@@ -112,7 +112,7 @@ export const MedicalReportUpload = () => {
         <Button
           type="button"
           variant="outline"
-          className="flex-1 hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+          className="w-full hover:bg-primary hover:text-primary-foreground transition-all duration-300"
           onClick={handleCameraCapture}
           disabled={isUploading}
         >
