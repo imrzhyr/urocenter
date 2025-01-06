@@ -7,10 +7,14 @@ export interface Message {
   id: string;
   content: string;
   is_from_doctor: boolean;
+  is_read?: boolean;
+  created_at?: string;
+  updated_at?: string;
   file_url?: string;
   file_name?: string;
   file_type?: string;
   status: string;
+  user_id: string;
 }
 
 export const useMessages = (patientId?: string) => {
@@ -29,6 +33,9 @@ export const useMessages = (patientId?: string) => {
       }
 
       try {
+        // Set user context first
+        await supabase.rpc('set_user_context', { user_phone: userPhone });
+
         // Get user profile
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
@@ -110,6 +117,9 @@ export const useMessages = (patientId?: string) => {
     }
 
     try {
+      // Set user context first
+      await supabase.rpc('set_user_context', { user_phone: userPhone });
+
       // Get user profile
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
