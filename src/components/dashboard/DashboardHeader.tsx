@@ -51,7 +51,7 @@ export const DashboardHeader = () => {
     <div className="p-4 flex justify-between items-center bg-card border-b sticky top-0 z-10">
       <div className="flex items-center gap-2">
         <h1 className="text-xl font-semibold">
-          {fullName ? `Welcome, ${fullName}` : 'Welcome'}
+          Welcome{fullName && `, ${fullName}`}
         </h1>
         <div className="relative">
           <Bell 
