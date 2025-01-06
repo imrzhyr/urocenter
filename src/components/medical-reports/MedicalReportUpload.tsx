@@ -29,10 +29,15 @@ export const MedicalReportUpload = () => {
         return;
       }
 
-      const fileName = `${crypto.randomUUID()}-${file.name}`;
+      // Create a folder structure using the user's ID
+      const fileName = `${profileData.id}/${crypto.randomUUID()}-${file.name}`;
+      
       const { error: uploadError } = await supabase.storage
         .from('medical_reports')
-        .upload(fileName, file);
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
       if (uploadError) throw uploadError;
 
