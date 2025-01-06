@@ -19,11 +19,13 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
     // Remove any non-digit characters
     const digits = phone.replace(/\D/g, '');
     
-    // If it doesn't start with +964, add it
-    if (!phone.startsWith('+964')) {
-      return `+964${digits}`;
+    // If it starts with 964, add the + prefix
+    if (digits.startsWith('964')) {
+      return `+${digits}`;
     }
-    return phone;
+    
+    // If it doesn't start with 964, add +964 prefix
+    return `+964${digits}`;
   };
 
   const handleSignIn = async () => {
@@ -36,7 +38,7 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
       setIsLoading(true);
 
       const formattedPhone = formatPhoneNumber(phone);
-      console.log("Sign in attempt with:", { formattedPhone });
+      console.log("Sign in attempt with:", { formattedPhone, password });
 
       // Query the profiles table to find the user
       const { data: profile, error: profileError } = await supabase
