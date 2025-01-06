@@ -19,9 +19,14 @@ export const sendMessage = async (
       .from('profiles')
       .select('id')
       .eq('phone', userPhone)
-      .single();
+      .maybeSingle();
 
-    if (profileError || !profile) {
+    if (profileError) {
+      console.error('Error fetching profile:', profileError);
+      throw new Error('Could not verify user profile');
+    }
+
+    if (!profile) {
       throw new Error('User profile not found');
     }
 
