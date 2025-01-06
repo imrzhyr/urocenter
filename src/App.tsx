@@ -7,7 +7,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Welcome from "./pages/Welcome";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
-import Verify from "./pages/Verify";
 import Profile from "./pages/Profile";
 import Payment from "./pages/Payment";
 import Dashboard from "./pages/Dashboard";
@@ -26,7 +25,6 @@ const App = () => (
             <Route path="/" element={<Welcome />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/signin" element={<SignIn />} />
-            <Route path="/verify" element={<Verify />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/payment" element={<Payment />} />
             <Route path="/dashboard" element={<Dashboard />} />

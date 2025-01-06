@@ -3,21 +3,33 @@ import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 interface VerificationButtonProps {
   phone: string;
+  password: string;
   isSignUp?: boolean;
 }
 
-export const VerificationButton = ({ phone, isSignUp }: VerificationButtonProps) => {
+export const VerificationButton = ({ phone, password, isSignUp }: VerificationButtonProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const handleSendCode = async () => {
+  const handleSignUp = async () => {
     if (phone.length !== 11) {
       toast({
         title: "Invalid phone number",
         description: "Please enter a valid Iraqi phone number",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (password.length < 6) {
+      toast({
+        title: "Invalid password",
+        description: "Password must be at least 6 characters long",
         variant: "destructive",
       });
       return;
@@ -28,30 +40,22 @@ export const VerificationButton = ({ phone, isSignUp }: VerificationButtonProps)
       const phoneWithoutZero = phone.startsWith('0') ? phone.slice(1) : phone;
       const formattedPhone = `+964${phoneWithoutZero}`;
 
-      const { error } = await supabase.auth.signInWithOtp({
+      const { error } = await supabase.auth.signUp({
         phone: formattedPhone,
+        password: password,
       });
 
-      if (error) {
-        // Check if it's the Twilio verification error
-        if (error.message.includes("unverified numbers")) {
-          toast({
-            title: "Development Mode Notice",
-            description: "In development mode, phone numbers need to be verified in Twilio first. For testing, use code '123456'.",
-          });
-          // Still navigate to verify page in development
-          return;
-        }
-        throw error;
-      }
+      if (error) throw error;
 
       toast({
-        title: "Verification code sent",
-        description: "Please check your phone for the verification code",
+        title: "Success",
+        description: "Account created successfully!",
       });
+
+      navigate("/profile");
     } catch (error: any) {
       toast({
-        title: "Error sending code",
+        title: "Signup failed",
         description: error.message,
         variant: "destructive",
       });
@@ -64,13 +68,13 @@ export const VerificationButton = ({ phone, isSignUp }: VerificationButtonProps)
 
   return (
     <Button 
-      onClick={handleSendCode} 
-      disabled={phone.length !== 11}
+      onClick={handleSignUp} 
+      disabled={phone.length !== 11 || password.length < 6 || isLoading}
     >
       {isLoading ? (
         <Loader2 className="w-4 h-4 animate-spin mr-2" />
       ) : null}
-      Send Code
+      Sign Up
     </Button>
   );
 };
