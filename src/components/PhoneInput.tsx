@@ -44,10 +44,9 @@ export const PhoneInput = ({ value, onChange, isSignUp = false }: PhoneInputProp
 
     try {
       setIsLoading(true);
-      // If the number starts with 0, remove it before adding the country code
-      const formattedPhone = value.startsWith('0') 
-        ? `+964${value.slice(1)}` 
-        : `+964${value}`;
+      // Remove the leading zero if present and add the country code
+      const phoneWithoutZero = value.startsWith('0') ? value.slice(1) : value;
+      const formattedPhone = `+964${phoneWithoutZero}`;
 
       const { error } = await supabase.auth.signInWithOtp({
         phone: formattedPhone,
@@ -89,7 +88,7 @@ export const PhoneInput = ({ value, onChange, isSignUp = false }: PhoneInputProp
           {isSignUp && (
             <Button 
               onClick={handleSendCode} 
-              disabled={value.length !== 10 || isLoading}
+              disabled={value.length !== 10}
             >
               {isLoading ? (
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
