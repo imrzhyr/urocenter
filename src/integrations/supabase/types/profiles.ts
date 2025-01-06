@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'patient';
+import { UserRole } from './common';
 
 export interface Profile {
   age: string | null;
