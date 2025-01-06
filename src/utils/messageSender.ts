@@ -14,6 +14,18 @@ export const sendMessage = async (
       throw new Error('Please sign in to send messages');
     }
 
+    // Set the user phone in Supabase context
+    await supabase.auth.setSession({
+      access_token: '',
+      refresh_token: '',
+    });
+    
+    // Set custom claims for RLS
+    await supabase.rpc('set_claim', {
+      claim: 'phone',
+      value: userPhone
+    });
+
     // Get the user's profile to get their ID
     const { data: profile, error: profileError } = await supabase
       .from('profiles')

@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { ChatMessage } from "@/components/chat/ChatMessage";
 import { ChatInput } from "@/components/chat/ChatInput";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useMessages } from "@/hooks/useMessages";
 import { sendMessage } from "@/utils/messageSender";
+import { initializeUserContext } from "@/utils/supabaseUtils";
 
 export const ChatContainer = () => {
   const [message, setMessage] = useState("");
@@ -13,6 +14,10 @@ export const ChatContainer = () => {
 
   useAuthRedirect();
   const { messages } = useMessages();
+
+  useEffect(() => {
+    initializeUserContext();
+  }, []);
 
   const handleSendMessage = async () => {
     if (!message.trim() && !selectedFile) return;
