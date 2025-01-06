@@ -17,7 +17,7 @@ export const VerificationButton = ({ phone, password, isSignUp }: VerificationBu
   const navigate = useNavigate();
 
   const handleSignUp = async () => {
-    if (phone.length !== 11) {
+    if (!phone || phone.length !== 11) {
       toast({
         title: "Invalid phone number",
         description: "Please enter a valid Iraqi phone number",
@@ -26,7 +26,7 @@ export const VerificationButton = ({ phone, password, isSignUp }: VerificationBu
       return;
     }
 
-    if (password.length < 6) {
+    if (!password || password.length < 6) {
       toast({
         title: "Invalid password",
         description: "Password must be at least 6 characters long",
@@ -67,14 +67,15 @@ export const VerificationButton = ({ phone, password, isSignUp }: VerificationBu
 
   if (!isSignUp) return null;
 
+  const isDisabled = !phone || phone.length !== 11 || !password || password.length < 6 || isLoading;
+
   return (
     <Button 
       onClick={handleSignUp} 
-      disabled={phone.length !== 11 || password.length < 6 || isLoading}
+      disabled={isDisabled}
+      className="w-full"
     >
-      {isLoading ? (
-        <Loader2 className="w-4 h-4 animate-spin mr-2" />
-      ) : null}
+      {isLoading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
       Sign Up
     </Button>
   );
