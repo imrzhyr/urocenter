@@ -1,9 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useForm } from "react-hook-form";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useProfile } from "@/hooks/useProfile";
 
 type ProfileFormData = {
   fullName: string;
@@ -14,8 +16,18 @@ type ProfileFormData = {
 
 const Profile = () => {
   const navigate = useNavigate();
+  const { profile, updateProfile } = useProfile();
   
-  const handleSubmit = async (data: ProfileFormData) => {
+  const form = useForm<ProfileFormData>({
+    defaultValues: {
+      fullName: profile.full_name || "",
+      gender: profile.gender || "",
+      age: profile.age || "",
+      complaint: profile.complaint || "",
+    },
+  });
+
+  const onSubmit = async (data: ProfileFormData) => {
     try {
       const userPhone = localStorage.getItem('userPhone');
       if (!userPhone) {
@@ -47,37 +59,63 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="container py-6">
-        <h1 className="text-2xl font-bold">Profile</h1>
-        <Form onSubmit={handleSubmit}>
-          <FormItem>
-            <FormLabel htmlFor="fullName">Full Name</FormLabel>
-            <FormControl>
-              <Input id="fullName" name="fullName" required />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-          <FormItem>
-            <FormLabel htmlFor="gender">Gender</FormLabel>
-            <FormControl>
-              <Input id="gender" name="gender" required />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-          <FormItem>
-            <FormLabel htmlFor="age">Age</FormLabel>
-            <FormControl>
-              <Input id="age" name="age" required />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-          <FormItem>
-            <FormLabel htmlFor="complaint">Complaint</FormLabel>
-            <FormControl>
-              <Input id="complaint" name="complaint" required />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-          <Button type="submit" className="mt-4">Update Profile</Button>
+        <h1 className="text-2xl font-bold mb-6">Profile</h1>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="fullName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Full Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="gender"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Gender</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="age"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Age</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="complaint"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Complaint</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button type="submit" className="w-full">Update Profile</Button>
+          </form>
         </Form>
       </div>
     </div>
