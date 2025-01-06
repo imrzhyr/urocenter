@@ -13,12 +13,12 @@ export const PaymentMethods = ({
     {
       id: "fastpay",
       name: "FastPay",
-      logo: "https://play-lh.googleusercontent.com/TIc_uYoFJaXO6Qy9-qPMLN1HtXUqkDOkBwVbfl9pDxvnZMRHZm5Iu6gV5SLR2ZV6Yw=w240-h480-rw",
+      logo: "https://play-lh.googleusercontent.com/jfe6HM11XAMvkGtHgnYqExKPZEf8DcZ9bG9KJ-xt_pU9e8Jl2K-7M8ZYhxKUHhhnLQ=w240-h480-rw",
     },
     {
       id: "zaincash",
       name: "ZainCash",
-      logo: "https://play-lh.googleusercontent.com/FvG7-sFDHvhHy-qGk8VGz6fb6yr4T5lGv7zR8fVqZGVhkNnHcZG6ndXwJcHFrBGkEA=w240-h480-rw",
+      logo: "https://www.zaincash.iq/images/logo.png",
     },
     {
       id: "fib",
@@ -28,7 +28,7 @@ export const PaymentMethods = ({
     {
       id: "qicard",
       name: "Qi Card",
-      logo: "https://play-lh.googleusercontent.com/mMNL4Ld_Pc_Kd0XEz_rGsqGQVvgbmxQyLOJDJCxeqSTwOgiCQGLFGGLGhFIJpvA_Yw=w240-h480-rw",
+      logo: "https://www.qi.iq/assets/images/qi-logo.png",
     },
   ];
 
