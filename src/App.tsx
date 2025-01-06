@@ -15,21 +15,21 @@ const PageWrapper = ({ children }: { children: React.ReactNode }) => {
   const variants = {
     initial: {
       opacity: 0,
-      scale: 0.98,
+      x: -20,
       position: "absolute" as const,
       width: "100%",
       height: "100%",
     },
     animate: {
       opacity: 1,
-      scale: 1,
+      x: 0,
       position: "absolute" as const,
       width: "100%",
       height: "100%",
     },
     exit: {
       opacity: 0,
-      scale: 1.02,
+      x: 20,
       position: "absolute" as const,
       width: "100%",
       height: "100%",
@@ -43,9 +43,8 @@ const PageWrapper = ({ children }: { children: React.ReactNode }) => {
       animate="animate"
       exit="exit"
       transition={{
-        type: "tween",
-        ease: "easeInOut",
-        duration: 0.3,
+        duration: 0.15,
+        ease: [0.645, 0.045, 0.355, 1.000]
       }}
     >
       {children}
