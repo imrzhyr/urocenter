@@ -27,28 +27,35 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
       // Check if profile exists with this phone number and password
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id')
         .eq('phone', phone)
         .eq('password', password)
         .maybeSingle();
 
-      if (profileError || !profile) {
+      if (profileError) throw profileError;
+
+      if (!profile) {
         toast.error("Invalid phone number or password");
         setIsLoading(false);
         return;
       }
 
-      // Store the phone number in localStorage for subsequent profile checks
-      localStorage.setItem('userPhone', phone);
+      // Sign in by creating a session for this profile
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: `${phone}@example.com`,
+        password: password,
+      });
+
+      if (signInError) throw signInError;
 
       toast.success("Signed in successfully!");
       navigate("/dashboard", { replace: true });
     } catch (error) {
-      console.error("Unexpected error:", error);
-      toast.error("An unexpected error occurred");
+      console.error("Error signing in:", error);
+      toast.error("Failed to sign in");
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
   };
 
   return (

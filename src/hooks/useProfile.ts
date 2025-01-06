@@ -28,7 +28,7 @@ export const useProfile = () => {
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('full_name, gender, age, complaint')
-        .eq('id', session.user.id)
+        .eq('phone', session.user.email?.replace('@example.com', ''))
         .maybeSingle();
 
       if (profileError) throw profileError;
@@ -63,7 +63,7 @@ export const useProfile = () => {
           ...updatedProfile,
           updated_at: new Date().toISOString(),
         })
-        .eq('id', session.user.id);
+        .eq('phone', session.user.email?.replace('@example.com', ''));
 
       if (updateError) throw updateError;
 
