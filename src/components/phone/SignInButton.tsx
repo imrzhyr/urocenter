@@ -42,20 +42,14 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
         return;
       }
 
-      // Sign in by creating a session using phone authentication
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        phone: phone,
-        password: password,
-      });
-
-      if (signInError) {
-        toast.error("An error occurred while signing in");
-        return;
-      }
-
+      // Create a session in localStorage to maintain login state
+      localStorage.setItem('user_id', profile.id);
+      localStorage.setItem('phone', phone);
+      
       toast.success("Signed in successfully!");
       navigate("/dashboard", { replace: true });
     } catch (error) {
+      console.error("Sign in error:", error);
       toast.error("An error occurred while signing in");
     } finally {
       setIsLoading(false);
