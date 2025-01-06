@@ -7,6 +7,9 @@ export interface Message {
   file_type?: string;
   status: string;
   user_id: string;
+  created_at?: string;
+  updated_at?: string;
+  is_read?: boolean;
 }
 
 export interface FileData {
