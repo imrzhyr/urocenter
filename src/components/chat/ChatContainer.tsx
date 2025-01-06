@@ -11,37 +11,19 @@ export const ChatContainer = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const fetchMessages = async () => {
-    const userPhone = localStorage.getItem('userPhone');
-    if (!userPhone) {
-      toast.error('You must be logged in to view messages');
-      return;
-    }
-
     try {
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('phone', userPhone)
-        .single();
-
-      if (profileError) {
-        console.error('Error fetching profile:', profileError);
-        toast.error('Error fetching profile');
-        return;
-      }
-
-      const { data, error } = await supabase
+      const { data: messages, error } = await supabase
         .from('messages')
         .select('*')
         .order('created_at', { ascending: true });
 
       if (error) {
         console.error('Error fetching messages:', error);
-        toast.error('Error fetching messages');
+        toast.error('Error loading messages');
         return;
       }
 
-      setMessages(data || []);
+      setMessages(messages || []);
     } catch (error: any) {
       console.error('Error:', error);
       toast.error('An unexpected error occurred');
@@ -97,41 +79,31 @@ export const ChatContainer = () => {
     if (!message.trim() && !selectedFile) return;
     
     setIsLoading(true);
-    const userPhone = localStorage.getItem('userPhone');
-    
-    if (!userPhone) {
-      toast.error('You must be logged in to send messages');
-      setIsLoading(false);
-      return;
-    }
 
     try {
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('phone', userPhone)
-        .single();
-
-      if (profileError) {
-        console.error('Error fetching profile:', profileError);
-        toast.error('Error fetching profile');
-        return;
-      }
-
-      if (!profile) {
-        toast.error('Profile not found');
+      // Get the current authenticated user
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !user) {
+        toast.error('You must be logged in to send messages');
         return;
       }
 
       let fileData = null;
       if (selectedFile) {
-        fileData = await uploadFile(selectedFile);
+        try {
+          fileData = await uploadFile(selectedFile);
+        } catch (error) {
+          console.error('Error uploading file:', error);
+          toast.error('Failed to upload file');
+          return;
+        }
       }
 
       const messageData = {
         content: message.trim(),
         is_from_doctor: false,
-        user_id: profile.id,
+        user_id: user.id, // Use the auth user ID directly
         file_url: fileData?.url,
         file_name: fileData?.name,
         file_type: fileData?.type
