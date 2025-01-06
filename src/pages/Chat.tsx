@@ -1,20 +1,28 @@
-import { useNavigate, useParams } from "react-router-dom";
-import { ChatHeader } from "@/components/chat/ChatHeader";
-import { PatientInfoContainer } from "@/components/chat/PatientInfoContainer";
-import { ChatContainer } from "@/components/chat/ChatContainer";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { MessageSquare } from "lucide-react";
 
 const Chat = () => {
   const navigate = useNavigate();
-  const { patientId } = useParams();
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
-      <div className="p-4 bg-white/80 backdrop-blur-sm border-b border-blue-100 shadow-sm">
-        <ChatHeader onBack={() => navigate(-1)} />
-        {patientId && <PatientInfoContainer patientId={patientId} />}
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 p-4">
+      <div className="text-center space-y-4 max-w-md">
+        <MessageSquare className="w-16 h-16 text-blue-500 mx-auto" />
+        <h1 className="text-2xl font-bold text-gray-900">
+          Chat Coming Soon!
+        </h1>
+        <p className="text-gray-600">
+          We're working hard to bring you a new and improved chat experience. 
+          Check back soon!
+        </p>
+        <Button 
+          onClick={() => navigate(-1)}
+          className="mt-8"
+        >
+          Go Back
+        </Button>
       </div>
-
-      <ChatContainer patientId={patientId} />
     </div>
   );
 };
