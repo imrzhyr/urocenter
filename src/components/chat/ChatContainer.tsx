@@ -114,29 +114,32 @@ export const ChatContainer = () => {
         fileData = await uploadFile(selectedFile);
       }
 
-      const { error } = await supabase
-        .from('messages')
-        .insert({
-          content: message.trim(),
-          is_from_doctor: false,
-          user_id: profile.id,
-          file_url: fileData?.url,
-          file_name: fileData?.name,
-          file_type: fileData?.type
-        });
+      const messageData = {
+        content: message.trim(),
+        is_from_doctor: false,
+        user_id: profile.id,
+        file_url: fileData?.url,
+        file_name: fileData?.name,
+        file_type: fileData?.type
+      };
 
-      if (error) {
-        throw error;
+      const { error: insertError } = await supabase
+        .from('messages')
+        .insert(messageData);
+
+      if (insertError) {
+        throw insertError;
       }
 
       setMessage('');
       setSelectedFile(null);
-    } catch (error) {
+      
+    } catch (error: any) {
       console.error('Error sending message:', error);
       toast.error('Failed to send message');
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
