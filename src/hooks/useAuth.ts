@@ -9,10 +9,9 @@ export const useAuth = () => {
   const signIn = async (phone: string, password: string) => {
     try {
       setIsLoading(true);
-      const formattedPhone = formatPhoneNumber(phone);
       const normalizedPhone = normalizePhoneNumber(phone);
-
-      console.log("Attempting to sign in with phone:", formattedPhone);
+      
+      console.log("Attempting to sign in with normalized phone:", normalizedPhone);
       
       // First verify the phone exists
       const { data: profiles, error: profileError } = await supabase
@@ -28,14 +27,16 @@ export const useAuth = () => {
       }
 
       if (!profiles) {
-        console.log("No profile found for phone:", formattedPhone);
+        console.log("No profile found for phone:", normalizedPhone);
         toast.error("Invalid phone number or password");
         return null;
       }
 
+      console.log("Found profile with phone:", profiles.phone);
+
       // Then verify the password
       if (profiles.password !== password) {
-        console.log("Password mismatch for phone:", formattedPhone);
+        console.log("Password mismatch for phone:", normalizedPhone);
         toast.error("Invalid phone number or password");
         return null;
       }

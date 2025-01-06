@@ -22,3 +22,9 @@ export interface MessageInsert {
   status?: string;
   user_id: string;
 }
+
+export interface FileData {
+  url: string;
+  name: string;
+  type: string;
+}
