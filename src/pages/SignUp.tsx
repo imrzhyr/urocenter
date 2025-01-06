@@ -1,18 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { PhoneInput } from "@/components/PhoneInput";
 import { ProgressSteps } from "@/components/ProgressSteps";
+import { ProfileForm } from "@/components/ProfileForm";
+import { PaymentMethods } from "@/components/PaymentMethods";
 import { ArrowLeft, Globe } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,7 +24,7 @@ const SignUp = () => {
   const [gender, setGender] = useState("");
   const [age, setAge] = useState("");
   const [complaint, setComplaint] = useState("");
-  const [language, setLanguage] = useState("en");
+  const [paymentMethod, setPaymentMethod] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,6 +32,14 @@ const SignUp = () => {
       setCurrentStep(currentStep + 1);
     } else {
       navigate("/dashboard");
+    }
+  };
+
+  const handleBack = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    } else {
+      navigate(-1);
     }
   };
 
@@ -68,48 +69,16 @@ const SignUp = () => {
         );
       case 2:
         return (
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="fullName">Full Name</Label>
-              <Input
-                id="fullName"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="Enter your full name"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="gender">Gender</Label>
-              <Select value={gender} onValueChange={setGender}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select gender" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="male">Male</SelectItem>
-                  <SelectItem value="female">Female</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="age">Age</Label>
-              <Input
-                id="age"
-                type="number"
-                value={age}
-                onChange={(e) => setAge(e.target.value)}
-                placeholder="Enter your age"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="complaint">Medical Complaint</Label>
-              <Input
-                id="complaint"
-                value={complaint}
-                onChange={(e) => setComplaint(e.target.value)}
-                placeholder="Describe your medical condition"
-              />
-            </div>
-          </div>
+          <ProfileForm
+            fullName={fullName}
+            setFullName={setFullName}
+            gender={gender}
+            setGender={setGender}
+            age={age}
+            setAge={setAge}
+            complaint={complaint}
+            setComplaint={setComplaint}
+          />
         );
       case 3:
         return (
@@ -118,20 +87,10 @@ const SignUp = () => {
               <h3 className="font-semibold mb-2">Consultation Fee</h3>
               <p className="text-2xl font-bold">25,000 IQD</p>
             </div>
-            <div className="space-y-4">
-              <Button className="w-full" variant="outline">
-                Pay with FastPay
-              </Button>
-              <Button className="w-full" variant="outline">
-                Pay with ZainCash
-              </Button>
-              <Button className="w-full" variant="outline">
-                Pay with FIB
-              </Button>
-              <Button className="w-full" variant="outline">
-                Pay with Qi Card
-              </Button>
-            </div>
+            <PaymentMethods
+              selectedMethod={paymentMethod}
+              onSelectMethod={setPaymentMethod}
+            />
           </div>
         );
       default:
@@ -143,7 +102,7 @@ const SignUp = () => {
     <div className="min-h-screen flex flex-col bg-background">
       <div className="p-4 flex justify-between items-center">
         <button
-          onClick={() => navigate(-1)}
+          onClick={handleBack}
           className="p-2 hover:bg-muted rounded-full"
         >
           <ArrowLeft className="w-6 h-6" />
@@ -155,12 +114,8 @@ const SignUp = () => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => setLanguage("en")}>
-              English
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setLanguage("ar")}>
-              العربية
-            </DropdownMenuItem>
+            <DropdownMenuItem>English</DropdownMenuItem>
+            <DropdownMenuItem>العربية</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -193,7 +148,8 @@ const SignUp = () => {
                 (currentStep === 0 && phone.length < 11) ||
                 (currentStep === 1 && verificationCode.length < 6) ||
                 (currentStep === 2 &&
-                  (!fullName || !gender || !age || !complaint))
+                  (!fullName || !gender || !age || !complaint)) ||
+                (currentStep === 3 && !paymentMethod)
               }
             >
               {currentStep < steps.length - 1 ? "Continue" : "Complete Payment"}
