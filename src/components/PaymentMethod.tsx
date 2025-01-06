@@ -36,6 +36,7 @@ export const PaymentMethod = ({
             alt={name}
             className="w-16 h-12 object-contain"
             onError={() => setImageError(true)}
+            loading="eager"
           />
         ) : (
           <div className="w-16 h-12 bg-gray-100 rounded flex items-center justify-center text-gray-400 text-xs">
