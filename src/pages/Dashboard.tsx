@@ -21,6 +21,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 const Dashboard = () => {
   const [fullName, setFullName] = useState("");
@@ -72,7 +73,7 @@ const Dashboard = () => {
       <div className="p-4 flex justify-between items-center bg-card border-b sticky top-0 z-10">
         <div className="flex items-center gap-2">
           <h1 className="text-xl font-semibold">
-            Welcome, {fullName || "Patient"}
+            Welcome{fullName ? `, ${fullName}` : ''}
           </h1>
           <div className="relative">
             <Bell 
@@ -90,7 +91,10 @@ const Dashboard = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">
-                <User className="w-5 h-5" />
+                <Avatar>
+                  <AvatarImage src="/lovable-uploads/06b7c9e0-66fd-4a8e-8025-584b2a539eae.png" alt="Dr. Ali Kamal" />
+                  <AvatarFallback>AK</AvatarFallback>
+                </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
