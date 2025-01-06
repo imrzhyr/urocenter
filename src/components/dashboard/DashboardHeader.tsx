@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Bell, User, Settings, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,8 +17,32 @@ export const DashboardHeader = () => {
   const [fullName, setFullName] = useState("");
   const [notifications, setNotifications] = useState(3);
 
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      const userPhone = localStorage.getItem('userPhone');
+      if (!userPhone) return;
+
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('phone', userPhone)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error fetching profile:', error);
+        return;
+      }
+
+      if (profile?.full_name) {
+        setFullName(profile.full_name);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
+
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    localStorage.removeItem('userPhone');
     navigate("/signin");
     toast.success("Logged out successfully");
   };
@@ -27,7 +51,7 @@ export const DashboardHeader = () => {
     <div className="p-4 flex justify-between items-center bg-card border-b sticky top-0 z-10">
       <div className="flex items-center gap-2">
         <h1 className="text-xl font-semibold">
-          Welcome{fullName ? `, ${fullName}` : ''}
+          {fullName ? `Welcome, ${fullName}` : 'Welcome'}
         </h1>
         <div className="relative">
           <Bell 
