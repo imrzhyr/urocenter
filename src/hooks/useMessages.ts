@@ -35,23 +35,37 @@ export const useMessages = () => {
   };
 
   useEffect(() => {
+    // Initial fetch
     fetchMessages();
+
+    // Set up real-time subscription
     const channel = supabase
       .channel('messages_channel')
       .on(
         'postgres_changes',
         {
-          event: 'INSERT',
+          event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
           schema: 'public',
           table: 'messages'
         },
         (payload) => {
-          const newMessage = payload.new as Message;
-          setMessages(prev => [...prev, newMessage]);
+          console.log('Real-time update received:', payload);
+          
+          // Handle different types of changes
+          if (payload.eventType === 'INSERT') {
+            setMessages(prev => [...prev, payload.new as Message]);
+          } else if (payload.eventType === 'DELETE') {
+            setMessages(prev => prev.filter(msg => msg.id !== payload.old.id));
+          } else if (payload.eventType === 'UPDATE') {
+            setMessages(prev => 
+              prev.map(msg => msg.id === payload.new.id ? payload.new as Message : msg)
+            );
+          }
         }
       )
       .subscribe();
 
+    // Cleanup subscription
     return () => {
       supabase.removeChannel(channel);
     };
