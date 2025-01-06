@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft, Globe } from "lucide-react";
 
 const SignIn = () => {
   const navigate = useNavigate();
@@ -115,59 +115,83 @@ const SignIn = () => {
 
   return (
     <div className="container flex items-center justify-center min-h-screen py-8">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl text-center">Sign in</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSignIn} className="space-y-4">
-            <PhoneInput value={phone} onChange={setPhone} />
-            
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pr-10"
-                />
+      <div className="w-full max-w-md">
+        <div className="flex justify-between items-center mb-6">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate("/")}
+            className="hover:bg-muted"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              // Language toggle functionality can be implemented here
+              toast.info("Language toggle coming soon!");
+            }}
+            className="hover:bg-muted"
+          >
+            <Globe className="h-5 w-5" />
+          </Button>
+        </div>
+
+        <Card>
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl text-center">Sign in</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSignIn} className="space-y-4">
+              <PhoneInput value={phone} onChange={setPhone} />
+              
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 text-gray-500" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-gray-500" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={!phone || !password || isLoading}
+              >
+                {isLoading ? "Signing in..." : "Sign in"}
+              </Button>
+
+              <p className="text-sm text-center text-muted-foreground">
+                Don't have an account?{" "}
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2"
+                  onClick={() => navigate("/signup")}
+                  className="text-primary hover:underline"
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-gray-500" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-gray-500" />
-                  )}
+                  Sign up
                 </button>
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={!phone || !password || isLoading}
-            >
-              {isLoading ? "Signing in..." : "Sign in"}
-            </Button>
-
-            <p className="text-sm text-center text-muted-foreground">
-              Don't have an account?{" "}
-              <button
-                type="button"
-                onClick={() => navigate("/signup")}
-                className="text-primary hover:underline"
-              >
-                Sign up
-              </button>
-            </p>
-          </form>
-        </CardContent>
-      </Card>
+              </p>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
