@@ -18,7 +18,7 @@ const Profile = () => {
     await updateProfile(updatedProfile);
   };
 
-  const handleContinue = (e: React.MouseEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const hasValidName = profile.full_name?.trim().split(' ').length >= 2;
     const isFormValid = hasValidName && 
@@ -54,19 +54,19 @@ const Profile = () => {
             </p>
           </div>
 
-          <div className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <ProfileForm
               profile={profile}
               onProfileChange={handleProfileChange}
             />
 
             <Button 
-              onClick={handleContinue}
+              type="submit"
               className="w-full"
             >
               Continue to Medical Information
             </Button>
-          </div>
+          </form>
         </div>
       </div>
     </div>
