@@ -16,21 +16,29 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
   const isValid = phone.length > 0 && password.length >= 6;
 
   const formatPhoneNumber = (phone: string) => {
+    // First, log the original phone number
+    console.log("Original phone number:", phone);
+    
     // Remove any non-digit characters
     let digits = phone.replace(/\D/g, '');
+    console.log("After removing non-digits:", digits);
     
     // Remove leading zero if present
     if (digits.startsWith('0')) {
       digits = digits.slice(1);
+      console.log("After removing leading zero:", digits);
     }
     
     // If it starts with 964, remove it first
     if (digits.startsWith('964')) {
       digits = digits.slice(3);
+      console.log("After removing 964 prefix:", digits);
     }
     
     // Add the +964 prefix
-    return `+964${digits}`;
+    const formattedNumber = `+964${digits}`;
+    console.log("Final formatted number:", formattedNumber);
+    return formattedNumber;
   };
 
   const handleSignIn = async () => {
@@ -45,7 +53,28 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
       const formattedPhone = formatPhoneNumber(phone);
       console.log("Attempting sign in with:", { formattedPhone, password });
 
-      // Query the profiles table to find the user
+      // First, let's check if the profile exists without password check
+      const { data: profileCheck, error: profileCheckError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('phone', formattedPhone)
+        .maybeSingle();
+
+      console.log("Profile check result:", { profileCheck, profileCheckError });
+
+      if (profileCheckError) {
+        console.error("Profile check error:", profileCheckError);
+        toast.error("An error occurred while signing in");
+        return;
+      }
+
+      if (!profileCheck) {
+        console.log("No profile found with phone number:", formattedPhone);
+        toast.error("Invalid phone number or password");
+        return;
+      }
+
+      // If profile exists, now check with password
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('*')
@@ -53,7 +82,7 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
         .eq('password', password)
         .maybeSingle();
 
-      console.log("Profile query result:", { profile, profileError });
+      console.log("Full profile query result:", { profile, profileError });
 
       if (profileError) {
         console.error("Profile query error:", profileError);
@@ -62,7 +91,7 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
       }
 
       if (!profile) {
-        console.log("No profile found for:", { formattedPhone });
+        console.log("Password mismatch for phone:", formattedPhone);
         toast.error("Invalid phone number or password");
         return;
       }
