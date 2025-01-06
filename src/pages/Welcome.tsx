@@ -8,19 +8,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { HowItWorks } from "@/components/HowItWorks";
-import { WaveBackground } from "@/components/WaveBackground";
 
 const Welcome = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden">
-      <WaveBackground />
-      
-      <div className="p-4 flex justify-end relative z-10">
+    <div className="min-h-screen flex flex-col bg-background">
+      <div className="p-4 flex justify-end">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="bg-white/80 hover:bg-white/90">
+            <Button variant="ghost" size="icon">
               <Globe className="w-5 h-5" />
             </Button>
           </DropdownMenuTrigger>
@@ -31,7 +28,7 @@ const Welcome = () => {
         </DropdownMenu>
       </div>
       
-      <div className="flex-1 flex flex-col items-center justify-center p-6 relative z-10">
+      <div className="flex-1 flex flex-col items-center justify-center p-6">
         <div className="w-full max-w-md space-y-8 text-center">
           <div className="space-y-2">
             <h1 className="text-4xl font-bold tracking-tight text-primary">

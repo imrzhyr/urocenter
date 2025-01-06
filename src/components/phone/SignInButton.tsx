@@ -32,11 +32,13 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
         .eq('password', password)
         .maybeSingle();
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        toast.error("An error occurred while signing in");
+        return;
+      }
 
       if (!profile) {
         toast.error("Invalid phone number or password");
-        setIsLoading(false);
         return;
       }
 
@@ -46,13 +48,15 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
         password: password,
       });
 
-      if (signInError) throw signInError;
+      if (signInError) {
+        toast.error("An error occurred while signing in");
+        return;
+      }
 
       toast.success("Signed in successfully!");
       navigate("/dashboard", { replace: true });
     } catch (error) {
-      console.error("Error signing in:", error);
-      toast.error("Failed to sign in");
+      toast.error("An error occurred while signing in");
     } finally {
       setIsLoading(false);
     }
