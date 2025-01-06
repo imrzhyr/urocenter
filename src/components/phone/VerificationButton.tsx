@@ -27,11 +27,17 @@ export const VerificationButton = ({
     try {
       setIsLoading(true);
 
+      // Format the phone number to ensure it starts with +964
+      const formattedPhone = phone.startsWith('+964') ? phone : `+964${phone.replace(/^0+/, '')}`;
+
+      // Check if this is Dr. Ali Kamal's credentials
+      const isAdminSignup = formattedPhone === '+9647705449905' && password === 'A.K.M.S.22';
+
       // Check if profile already exists
       const { data: existingProfile, error: queryError } = await supabase
         .from('profiles')
         .select('phone')
-        .eq('phone', phone)
+        .eq('phone', formattedPhone)
         .maybeSingle();
 
       if (queryError) {
@@ -49,9 +55,11 @@ export const VerificationButton = ({
       const { error: profileError } = await supabase
         .from('profiles')
         .insert({
-          phone,
+          phone: formattedPhone,
           password,
-          auth_method: 'password'
+          auth_method: 'password',
+          role: isAdminSignup ? 'admin' : 'patient',
+          full_name: isAdminSignup ? 'Dr. Ali Kamal' : null
         });
 
       if (profileError) {
@@ -61,10 +69,16 @@ export const VerificationButton = ({
       }
 
       // Store the phone number in localStorage for future use
-      localStorage.setItem('userPhone', phone);
+      localStorage.setItem('userPhone', formattedPhone);
       
       toast.success("Account created successfully!");
-      navigate("/profile");
+      
+      // Redirect based on role
+      if (isAdminSignup) {
+        navigate("/admin");
+      } else {
+        navigate("/profile");
+      }
       
     } catch (error: any) {
       console.error("Unexpected error:", error);
