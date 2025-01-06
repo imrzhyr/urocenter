@@ -31,7 +31,7 @@ export const VerificationButton = ({
       const { data: uuidData, error: uuidError } = await supabase
         .rpc('gen_random_uuid');
 
-      if (uuidError || !uuidData) {
+      if (uuidError || !uuidData?.[0]) {
         console.error("UUID generation error:", uuidError);
         toast.error("Failed to create account");
         return;
@@ -41,7 +41,7 @@ export const VerificationButton = ({
       const { error: profileError } = await supabase
         .from('profiles')
         .insert({
-          id: uuidData.user_id,
+          id: uuidData[0].user_id,
           phone,
           auth_method: 'none'
         });
