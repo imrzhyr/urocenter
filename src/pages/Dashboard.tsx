@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { 
-  Calendar, MessageSquare, FileText, Globe, Settings, 
-  LogOut, User, Bell, Activity, Pill, Clock, Heart 
+  MessageSquare, FileText, Settings, 
+  LogOut, User, Bell, Plus, Eye
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -25,12 +25,12 @@ import {
 const Dashboard = () => {
   const [fullName, setFullName] = useState("");
   const [notifications, setNotifications] = useState(3);
+  const [medicalReportsCount, setMedicalReportsCount] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        // Get the most recent profile since we're not using auth
         const { data: profiles, error } = await supabase
           .from("profiles")
           .select("full_name")
@@ -46,8 +46,15 @@ const Dashboard = () => {
         if (profiles?.full_name) {
           setFullName(profiles.full_name);
         }
+
+        // Fetch medical reports count
+        const { count } = await supabase
+          .from('medical_reports')
+          .select('*', { count: 'exact', head: true });
+
+        setMedicalReportsCount(count || 0);
       } catch (error) {
-        console.error("Error fetching user profile:", error);
+        console.error("Error fetching data:", error);
       }
     };
 
@@ -58,14 +65,6 @@ const Dashboard = () => {
     navigate("/signin");
     toast.success("Logged out successfully");
   };
-
-  // Health Stats Data (example data)
-  const healthStats = [
-    { title: "Heart Rate", value: "72 bpm", icon: Heart, color: "text-red-500" },
-    { title: "Blood Pressure", value: "120/80", icon: Activity, color: "text-blue-500" },
-    { title: "Medications", value: "2 Today", icon: Pill, color: "text-green-500" },
-    { title: "Next Check-up", value: "3 Days", icon: Clock, color: "text-purple-500" },
-  ];
 
   return (
     <div className="h-screen flex flex-col bg-background">
@@ -91,17 +90,6 @@ const Dashboard = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">
-                <Globe className="w-5 h-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>English</DropdownMenuItem>
-              <DropdownMenuItem>العربية</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
                 <User className="w-5 h-5" />
               </Button>
             </DropdownMenuTrigger>
@@ -124,70 +112,78 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Health Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4">
-        {healthStats.map((stat) => (
-          <Card key={stat.title} className="hover:shadow-lg transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {stat.title}
-              </CardTitle>
-              <stat.icon className={`w-4 h-4 ${stat.color}`} />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-        <Button
-          variant="outline"
-          className="h-32 flex flex-col items-center justify-center space-y-2 hover:bg-primary hover:text-primary-foreground transition-all group"
-          onClick={() => navigate("/chat")}
-        >
-          <MessageSquare className="w-8 h-8 group-hover:scale-110 transition-transform" />
-          <span>Chat with Doctor</span>
-        </Button>
-        <Button
-          variant="outline"
-          className="h-32 flex flex-col items-center justify-center space-y-2 hover:bg-primary hover:text-primary-foreground transition-all group"
-          onClick={() => toast.info("Appointment booking coming soon!")}
-        >
-          <Calendar className="w-8 h-8 group-hover:scale-110 transition-transform" />
-          <span>Book Appointment</span>
-        </Button>
-        <Button
-          variant="outline"
-          className="h-32 flex flex-col items-center justify-center space-y-2 hover:bg-primary hover:text-primary-foreground transition-all group"
-          onClick={() => navigate("/medical-records")}
-        >
-          <FileText className="w-8 h-8 group-hover:scale-110 transition-transform" />
-          <span>Medical Records</span>
-        </Button>
-      </div>
-
-      {/* Next Appointment */}
-      <div className="mt-auto p-4">
+      {/* Medical Reports Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
         <Card>
           <CardHeader>
-            <CardTitle>Next Appointment</CardTitle>
-            <CardDescription>Your upcoming consultation</CardDescription>
+            <CardTitle className="text-lg">Medical Reports</CardTitle>
+            <CardDescription>Manage your medical documents</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex justify-between items-center">
-              <div>
-                <p className="font-medium">Video Consultation</p>
-                <p className="text-sm text-muted-foreground">Tomorrow, 10:00 AM</p>
+              <div className="text-2xl font-bold">{medicalReportsCount}</div>
+              <div className="space-x-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => navigate("/medical-records")}
+                >
+                  <Eye className="w-4 h-4 mr-2" />
+                  View
+                </Button>
+                <Button 
+                  variant="default" 
+                  size="sm"
+                  onClick={() => navigate("/profile")}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add
+                </Button>
               </div>
-              <Button 
-                size="sm"
-                onClick={() => toast.info("Video consultation feature coming soon!")}
-              >
-                Join
-              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Messages</CardTitle>
+            <CardDescription>Chat with your doctor</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button 
+              className="w-full"
+              onClick={() => navigate("/chat")}
+            >
+              <MessageSquare className="w-4 h-4 mr-2" />
+              Start Chat
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Recent Activity */}
+      <div className="p-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+            <CardDescription>Your latest medical updates</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <FileText className="w-8 h-8 text-primary" />
+                <div>
+                  <p className="font-medium">Medical Report Uploaded</p>
+                  <p className="text-sm text-muted-foreground">2 days ago</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <MessageSquare className="w-8 h-8 text-primary" />
+                <div>
+                  <p className="font-medium">Chat with Dr. Ali</p>
+                  <p className="text-sm text-muted-foreground">3 days ago</p>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>

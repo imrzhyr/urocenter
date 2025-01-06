@@ -45,7 +45,11 @@ export const ProfileForm = ({
             setFullName(names);
           }}
           placeholder="Enter your full name (at least two names)"
+          className={`${fullName.split(' ').length < 2 ? 'border-red-500' : ''}`}
         />
+        {fullName && fullName.split(' ').length < 2 && (
+          <p className="text-sm text-red-500">Please enter at least two names</p>
+        )}
       </div>
 
       <div className="space-y-2">

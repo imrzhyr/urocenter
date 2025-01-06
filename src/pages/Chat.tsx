@@ -1,16 +1,26 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Camera, Phone, Send, Video } from "lucide-react";
+import { ArrowLeft, Camera, Phone, Send, Video } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Chat = () => {
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
   return (
     <div className="flex flex-col h-screen bg-background">
       {/* Header */}
       <div className="p-4 bg-card border-b flex items-center justify-between">
         <div className="flex items-center space-x-3">
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={() => navigate(-1)}
+            className="mr-2"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
           <img
             src="/doctor-avatar.jpg"
             alt="Dr. Ali Kamal"
