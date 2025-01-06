@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PhoneInput } from "@/components/PhoneInput";
-import { Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -9,19 +8,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { GradientBackground } from "@/components/backgrounds/GradientBackground";
+import { Globe } from "lucide-react";
 
 const SignIn = () => {
   const [phone, setPhone] = useState("");
 
   return (
-    <div className="min-h-screen relative flex flex-col">
-      <GradientBackground />
-      
+    <div className="min-h-screen flex flex-col bg-white">
       <div className="p-4 flex justify-end relative z-10">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="hover:bg-white/20 backdrop-blur-sm">
+            <Button variant="ghost" size="icon">
               <Globe className="w-5 h-5" />
             </Button>
           </DropdownMenuTrigger>
@@ -32,11 +29,11 @@ const SignIn = () => {
         </DropdownMenu>
       </div>
       
-      <div className="flex-1 container flex items-center justify-center py-8 px-4 relative z-10">
+      <div className="flex-1 container flex items-center justify-center py-8 px-4">
         <div className="w-full max-w-md">
-          <Card className="backdrop-blur-md bg-white/80 border-blue-100/50 shadow-xl">
+          <Card>
             <CardHeader className="space-y-3 text-center pb-6">
-              <div className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg transform -translate-y-12">
+              <div className="mx-auto w-16 h-16 bg-primary rounded-2xl flex items-center justify-center shadow-lg transform -translate-y-12">
                 <svg
                   className="w-8 h-8 text-white"
                   fill="none"
@@ -51,13 +48,13 @@ const SignIn = () => {
                   />
                 </svg>
               </div>
-              <h1 className="text-2xl font-semibold text-blue-900 mt-4">Welcome Back</h1>
-              <p className="text-blue-600/80 text-sm">
+              <CardTitle className="text-2xl font-semibold text-primary mt-4">Welcome Back</CardTitle>
+              <p className="text-muted-foreground text-sm">
                 Sign in to continue to your account
               </p>
             </CardHeader>
             <CardContent className="pt-0">
-              <div className="backdrop-blur-sm bg-white/50 rounded-lg p-6">
+              <div className="rounded-lg p-6">
                 <PhoneInput value={phone} onChange={setPhone} />
               </div>
             </CardContent>
@@ -65,7 +62,7 @@ const SignIn = () => {
         </div>
       </div>
       
-      <footer className="relative z-10 p-4 text-center text-sm text-blue-600/60 backdrop-blur-sm">
+      <footer className="p-4 text-center text-sm text-muted-foreground">
         © 2024 All rights reserved
       </footer>
     </div>
