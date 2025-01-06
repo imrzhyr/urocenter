@@ -8,14 +8,14 @@ interface PhoneFormatterProps {
 export const PhoneFormatter = ({ value, onChange }: PhoneFormatterProps) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value.replace(/\D/g, "");
-    if (val.length <= 10) {
+    if (val.length <= 11) {
       onChange(val);
     }
   };
 
   const formatPhoneNumber = (phone: string) => {
     if (!phone) return "";
-    const match = phone.match(/^(\d{3})(\d{3})(\d{4})$/);
+    const match = phone.match(/^(\d{4})(\d{3})(\d{4})$/);
     if (match) {
       return `${match[1]} ${match[2]} ${match[3]}`;
     }
@@ -33,7 +33,7 @@ export const PhoneFormatter = ({ value, onChange }: PhoneFormatterProps) => {
         className="rounded-l-none flex-1"
         value={formatPhoneNumber(value)}
         onChange={handleChange}
-        placeholder="7XX XXX XXXX"
+        placeholder="7XXX XXX XXXX"
       />
     </div>
   );

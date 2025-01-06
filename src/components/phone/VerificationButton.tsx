@@ -14,7 +14,7 @@ export const VerificationButton = ({ phone, isSignUp }: VerificationButtonProps)
   const { toast } = useToast();
 
   const handleSendCode = async () => {
-    if (phone.length !== 10) {
+    if (phone.length !== 11) {
       toast({
         title: "Invalid phone number",
         description: "Please enter a valid Iraqi phone number",
@@ -54,7 +54,7 @@ export const VerificationButton = ({ phone, isSignUp }: VerificationButtonProps)
   return (
     <Button 
       onClick={handleSendCode} 
-      disabled={phone.length !== 10}
+      disabled={phone.length !== 11}
     >
       {isLoading ? (
         <Loader2 className="w-4 h-4 animate-spin mr-2" />
