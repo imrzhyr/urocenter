@@ -1,9 +1,8 @@
 import { useLocation } from "react-router-dom";
-import { PhoneInput } from "@/components/PhoneInput";
 import { VerificationCode } from "@/components/VerificationCode";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Phone } from "lucide-react";
 
 const Verify = () => {
   const location = useLocation();
@@ -17,14 +16,19 @@ const Verify = () => {
         </CardHeader>
         <CardContent className="space-y-6">
           {phone && (
-            <Alert>
-              <CheckCircle2 className="h-4 w-4" />
-              <AlertDescription>
-                Great! We've sent a verification code to your phone number. Please check your messages and enter the code below along with your desired password to complete the signup process. 🚀
-              </AlertDescription>
-            </Alert>
+            <>
+              <Alert>
+                <CheckCircle2 className="h-4 w-4" />
+                <AlertDescription>
+                  Great! We've sent a verification code to your phone number. Please check your messages and enter the code below along with your desired password to complete the signup process. 🚀
+                </AlertDescription>
+              </Alert>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Phone className="h-4 w-4" />
+                <span>+964 {phone}</span>
+              </div>
+            </>
           )}
-          <PhoneInput value={phone} onChange={() => {}} isSignUp />
           {phone.length === 11 && (
             <VerificationCode phone={phone} />
           )}
