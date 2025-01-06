@@ -17,28 +17,35 @@ export const ChatContainer = () => {
       return;
     }
 
-    const { data: profileData, error: profileError } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('phone', userPhone)
-      .single();
+    try {
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('phone', userPhone)
+        .single();
 
-    if (profileError) {
-      console.error('Error fetching profile:', profileError);
-      return;
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
+        toast.error('Error fetching profile');
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching messages:', error);
+        toast.error('Error fetching messages');
+        return;
+      }
+
+      setMessages(data || []);
+    } catch (error: any) {
+      console.error('Error:', error);
+      toast.error('An unexpected error occurred');
     }
-
-    const { data, error } = await supabase
-      .from('messages')
-      .select('*')
-      .order('created_at', { ascending: true });
-
-    if (error) {
-      console.error('Error fetching messages:', error);
-      return;
-    }
-
-    setMessages(data || []);
   };
 
   useEffect(() => {
@@ -106,7 +113,14 @@ export const ChatContainer = () => {
         .single();
 
       if (profileError) {
-        throw profileError;
+        console.error('Error fetching profile:', profileError);
+        toast.error('Error fetching profile');
+        return;
+      }
+
+      if (!profile) {
+        toast.error('Profile not found');
+        return;
       }
 
       let fileData = null;
@@ -128,7 +142,9 @@ export const ChatContainer = () => {
         .insert(messageData);
 
       if (insertError) {
-        throw insertError;
+        console.error('Error inserting message:', insertError);
+        toast.error('Failed to send message');
+        return;
       }
 
       setMessage('');
