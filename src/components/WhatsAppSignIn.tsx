@@ -8,11 +8,10 @@ export const WhatsAppSignIn = () => {
     try {
       const { error } = await supabase.auth.signInWithOtp({
         phone: '', // This will be handled by the phone input component
-        channel: 'whatsapp'
       });
       
       if (error) throw error;
-      toast.success("WhatsApp verification message sent!");
+      toast.success("Verification message sent!");
     } catch (error: any) {
       toast.error(error.message);
     }
