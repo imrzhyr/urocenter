@@ -6,7 +6,7 @@ import { setMessageContext, getUserProfile } from './useMessageContext';
 
 export const useMessageOperations = (patientId?: string) => {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [pendingMessages, setPendingMessages] = useState<Set<string>>(new Set());
+  const [pendingMessages] = useState<Set<string>>(new Set());
 
   const addMessage = async (content: string, fileData?: FileData): Promise<boolean> => {
     const userPhone = localStorage.getItem('userPhone');
@@ -50,9 +50,6 @@ export const useMessageOperations = (patientId?: string) => {
         updated_at: timestamp
       };
 
-      // Add to pending messages
-      setPendingMessages(prev => new Set(prev).add(tempId));
-
       // Add optimistic message
       setMessages(prev => [...prev, optimisticMessage]);
 
@@ -66,21 +63,17 @@ export const useMessageOperations = (patientId?: string) => {
 
       if (insertError) {
         console.error('Error sending message:', insertError);
-        // Don't remove optimistic message immediately, keep it for retry
-        toast.error('Message will be retried automatically');
+        // Remove optimistic message on error
+        setMessages(prev => prev.filter(msg => msg.id !== tempId));
+        toast.error('Failed to send message');
         return false;
       }
-
-      // Remove from pending messages on success
-      setPendingMessages(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(tempId);
-        return newSet;
-      });
 
       return true;
     } catch (error) {
       console.error('Error in addMessage:', error);
+      // Remove optimistic message on error
+      setMessages(prev => prev.filter(msg => msg.id !== tempId));
       toast.error('Failed to send message');
       return false;
     }

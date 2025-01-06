@@ -82,7 +82,7 @@ export const ChatContainer = ({ patientId }: ChatContainerProps) => {
             fileUrl={msg.file_url}
             fileName={msg.file_name}
             fileType={msg.file_type}
-            status={pendingMessages.has(msg.id) ? 'pending' : msg.status}
+            status={pendingMessages?.has(msg.id) ? 'pending' : msg.status}
             userId={patientId || ''}
           />
         ))}
