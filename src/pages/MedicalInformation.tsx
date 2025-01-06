@@ -8,12 +8,12 @@ import { MedicalReportUpload } from "@/components/medical-reports/MedicalReportU
 
 const MedicalInformation = () => {
   const navigate = useNavigate();
-  const steps = ["Profile", "Medical Info", "Payment", "Done"];
+  const steps = ["Sign Up", "Profile", "Medical Info", "Payment"];
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary/5 to-background">
       <div className="container max-w-4xl py-8">
-        <ProgressSteps steps={steps} currentStep={1} />
+        <ProgressSteps steps={steps} currentStep={2} />
         
         <motion.div
           initial={{ opacity: 0, y: 20 }}

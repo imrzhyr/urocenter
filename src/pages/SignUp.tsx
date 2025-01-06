@@ -6,8 +6,8 @@ import { ProgressSteps } from "@/components/ProgressSteps";
 
 const SignUp = () => {
   const [phone, setPhone] = useState("");
-  const steps = ["Phone", "Verification", "Profile"];
-  const currentStep = 0; // This will be managed by the parent component
+  const steps = ["Sign Up", "Profile", "Medical Info", "Payment"];
+  const currentStep = 0;
 
   return (
     <div className="min-h-screen flex flex-col bg-background">

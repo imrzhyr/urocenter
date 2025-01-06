@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Globe } from "lucide-react";
 import { PaymentMethods } from "@/components/PaymentMethods";
+import { ProgressSteps } from "@/components/ProgressSteps";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +14,7 @@ import {
 const Payment = () => {
   const navigate = useNavigate();
   const [paymentMethod, setPaymentMethod] = useState("");
+  const steps = ["Sign Up", "Profile", "Medical Info", "Payment"];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +41,8 @@ const Payment = () => {
       </div>
 
       <div className="flex-1 flex flex-col items-center p-6">
-        <div className="w-full max-w-md space-y-8">
+        <ProgressSteps steps={steps} currentStep={3} />
+        <div className="w-full max-w-md space-y-8 mt-8">
           <div className="space-y-2 text-center">
             <h1 className="text-2xl font-semibold tracking-tight">Payment</h1>
             <p className="text-muted-foreground">

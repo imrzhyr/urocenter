@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useProfile } from "@/hooks/useProfile";
+import { ProgressSteps } from "@/components/ProgressSteps";
 
 type ProfileFormData = {
   fullName: string;
@@ -17,6 +18,7 @@ type ProfileFormData = {
 const Profile = () => {
   const navigate = useNavigate();
   const { profile, updateProfile } = useProfile();
+  const steps = ["Sign Up", "Profile", "Medical Info", "Payment"];
   
   const form = useForm<ProfileFormData>({
     defaultValues: {
@@ -59,6 +61,7 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="container py-6">
+        <ProgressSteps steps={steps} currentStep={1} />
         <h1 className="text-2xl font-bold mb-6">Profile</h1>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -114,7 +117,7 @@ const Profile = () => {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full">Update Profile</Button>
+            <Button type="submit" className="w-full">Continue to Medical Info</Button>
           </form>
         </Form>
       </div>
