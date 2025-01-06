@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Globe, Stethoscope, MessageSquare } from "lucide-react";
+import { Globe, Stethoscope, MessageCircle } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +19,7 @@ const Welcome = () => {
       description: "Specialized urological treatments",
     },
     {
-      icon: <MessageSquare className="w-6 h-6 text-primary" />,
+      icon: <MessageCircle className="w-6 h-6 text-primary" />,
       title: "Direct Communication",
       description: "Connect with Dr. Ali Kamal",
     },
@@ -27,57 +27,63 @@ const Welcome = () => {
 
   return (
     <div className="h-screen flex flex-col bg-gradient-to-b from-blue-50 to-white overflow-hidden">
-      <div className="p-4 flex justify-between items-center">
+      <motion.div 
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="p-4 flex justify-between items-center"
+      >
         <motion.h1 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={{ x: -20, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
           className="text-2xl font-bold text-primary"
         >
           UroCenter
         </motion.h1>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" className="animate-fade-in">
               <Globe className="w-5 h-5" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent>
+          <DropdownMenuContent className="animate-scale-in">
             <DropdownMenuItem>English</DropdownMenuItem>
             <DropdownMenuItem>العربية</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      </div>
+      </motion.div>
       
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-2">
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
           className="space-y-4 text-center"
         >
           <div className="relative inline-block">
             <motion.img
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.5 }}
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
               src="/lovable-uploads/06b7c9e0-66fd-4a8e-8025-584b2a539eae.png"
               alt="Dr. Ali Kamal"
-              className="w-32 h-32 rounded-full object-cover mx-auto border-4 border-primary shadow-lg"
+              className="w-32 h-32 rounded-full object-cover mx-auto border-4 border-primary shadow-lg hover:scale-105 transition-transform duration-300"
             />
             <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.3 }}
-              className="absolute -bottom-2 -right-2 bg-primary text-white px-3 py-0.5 rounded-full text-xs font-medium"
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.6 }}
+              className="absolute -bottom-2 -right-2 bg-primary text-white px-3 py-0.5 rounded-full text-xs font-medium animate-pulse"
             >
               Available
             </motion.div>
           </div>
           
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.4 }}
             className="space-y-2"
           >
             <h1 className="text-3xl font-bold tracking-tight text-primary">
@@ -90,18 +96,20 @@ const Welcome = () => {
         </motion.div>
 
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
           className="grid grid-cols-2 gap-3 w-full mt-6"
         >
           {features.map((feature, index) => (
             <motion.div
               key={feature.title}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 + index * 0.1 }}
-              className="bg-white p-3 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300"
+              initial={{ x: index === 0 ? -20 : 20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.7 + index * 0.1 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-white p-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
             >
               <div className="bg-primary/10 w-10 h-10 rounded-full flex items-center justify-center mb-2 mx-auto">
                 {feature.icon}
@@ -113,9 +121,9 @@ const Welcome = () => {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.9 }}
           className="w-full mt-6 space-y-3"
         >
           <Button
@@ -124,7 +132,7 @@ const Welcome = () => {
           >
             Start Your Journey
           </Button>
-          <p className="text-sm text-muted-foreground text-center">
+          <p className="text-sm text-muted-foreground text-center animate-fade-in">
             Already have an account?{" "}
             <button
               onClick={() => navigate("/signin")}
