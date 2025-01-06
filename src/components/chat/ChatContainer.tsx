@@ -67,14 +67,17 @@ export const ChatContainer = ({ patientId }: ChatContainerProps) => {
   return (
     <div className="flex-1 flex flex-col">
       <div className="flex-1 p-4 space-y-4 overflow-y-auto">
-        {messages.map((msg, index) => (
+        {messages.map((msg) => (
           <ChatMessage
-            key={msg.id || index}
+            key={msg.id}
+            id={msg.id}
             content={msg.content}
             isFromDoctor={msg.is_from_doctor}
             fileUrl={msg.file_url}
             fileName={msg.file_name}
             fileType={msg.file_type}
+            status={msg.status}
+            userId={patientId || ''}
           />
         ))}
         <div ref={messagesEndRef} />

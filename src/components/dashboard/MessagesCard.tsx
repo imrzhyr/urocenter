@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { MessageSquare, User, CheckCircle2, Circle } from "lucide-react";
+import { MessageSquare, User, CheckCircle2, Circle, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
@@ -9,6 +10,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -25,7 +33,10 @@ interface PatientMessage {
 export const MessagesCard = () => {
   const navigate = useNavigate();
   const [patients, setPatients] = useState<PatientMessage[]>([]);
+  const [filteredPatients, setFilteredPatients] = useState<PatientMessage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
   useEffect(() => {
     const fetchPatients = async () => {
@@ -47,7 +58,6 @@ export const MessagesCard = () => {
 
         if (messagesError) throw messagesError;
 
-        // Process messages to get unique patients with their latest message
         const patientMap = new Map<string, PatientMessage>();
         
         messages?.forEach((message) => {
@@ -63,8 +73,9 @@ export const MessagesCard = () => {
           }
         });
 
-        console.log('Processed messages:', Array.from(patientMap.values()));
-        setPatients(Array.from(patientMap.values()));
+        const patientsList = Array.from(patientMap.values());
+        setPatients(patientsList);
+        setFilteredPatients(patientsList);
       } catch (error) {
         console.error('Error fetching patients:', error);
       } finally {
@@ -73,7 +84,45 @@ export const MessagesCard = () => {
     };
 
     fetchPatients();
+
+    // Set up real-time subscription
+    const channel = supabase
+      .channel('messages_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'messages'
+        },
+        () => {
+          fetchPatients(); // Refresh messages when changes occur
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
+
+  useEffect(() => {
+    let filtered = [...patients];
+    
+    // Apply status filter
+    if (statusFilter !== "all") {
+      filtered = filtered.filter(patient => patient.status === statusFilter);
+    }
+    
+    // Apply search filter
+    if (searchQuery) {
+      filtered = filtered.filter(patient =>
+        patient.full_name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    
+    setFilteredPatients(filtered);
+  }, [statusFilter, searchQuery, patients]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -105,6 +154,31 @@ export const MessagesCard = () => {
           Patient Messages
         </CardTitle>
         <CardDescription>Chat with your patients</CardDescription>
+        <div className="flex gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search patients..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-8"
+            />
+          </div>
+          <Select
+            value={statusFilter}
+            onValueChange={setStatusFilter}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Messages</SelectItem>
+              <SelectItem value="not_seen">Not Seen</SelectItem>
+              <SelectItem value="in_progress">In Progress</SelectItem>
+              <SelectItem value="resolved">Resolved</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </CardHeader>
       <CardContent className="flex-1 overflow-hidden">
         <ScrollArea className="h-[280px] pr-4">
@@ -120,9 +194,9 @@ export const MessagesCard = () => {
                 </div>
               ))}
             </div>
-          ) : patients.length > 0 ? (
+          ) : filteredPatients.length > 0 ? (
             <div className="space-y-4">
-              {patients.map((patient) => (
+              {filteredPatients.map((patient) => (
                 <Button
                   key={patient.id}
                   variant="ghost"
@@ -152,7 +226,7 @@ export const MessagesCard = () => {
             </div>
           ) : (
             <div className="text-center text-muted-foreground py-8">
-              No messages yet
+              No messages found
             </div>
           )}
         </ScrollArea>
