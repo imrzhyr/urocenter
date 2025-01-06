@@ -26,20 +26,28 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
         return;
       }
 
-      const { data: profileData } = await supabase
+      // First get the profile ID which we'll use as the user_id
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('id')
         .eq('phone', userPhone)
         .maybeSingle();
+
+      if (profileError) {
+        console.error("Profile error:", profileError);
+        toast.error("Error accessing profile");
+        return;
+      }
 
       if (!profileData) {
         toast.error("Profile not found");
         return;
       }
 
-      // Create a folder structure using the user's ID
+      // Create a folder structure using the profile ID
       const fileName = `${profileData.id}/${crypto.randomUUID()}-${file.name}`;
       
+      // Upload file to storage
       const { error: uploadError } = await supabase.storage
         .from('medical_reports')
         .upload(fileName, file, {
@@ -47,18 +55,25 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
           upsert: false
         });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error("Storage upload error:", uploadError);
+        throw uploadError;
+      }
 
+      // Insert record into medical_reports table using profile ID
       const { error: dbError } = await supabase
         .from('medical_reports')
         .insert({
-          user_id: profileData.id,
+          user_id: profileData.id, // Use profile ID as user_id
           file_name: file.name,
           file_path: fileName,
           file_type: file.type,
         });
 
-      if (dbError) throw dbError;
+      if (dbError) {
+        console.error("Database insert error:", dbError);
+        throw dbError;
+      }
 
       toast.success("File uploaded successfully");
       onUploadSuccess();
