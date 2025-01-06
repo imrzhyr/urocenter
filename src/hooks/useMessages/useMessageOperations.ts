@@ -14,6 +14,7 @@ export const useMessageOperations = (patientId: string | undefined) => {
     }
 
     try {
+      // Get user profile
       const { data: profile } = await supabase
         .from('profiles')
         .select('id, role')
@@ -25,18 +26,16 @@ export const useMessageOperations = (patientId: string | undefined) => {
         return false;
       }
 
-      // For regular users, use their own ID as user_id
-      // For admin users, use the patientId parameter
+      // Determine the user_id based on role
       const messageUserId = profile.role === 'admin' ? patientId : profile.id;
-
+      
       if (!messageUserId) {
         toast.error('Could not determine message recipient');
         return false;
       }
 
-      // Create optimistic message
-      const optimisticMessage: Message = {
-        id: crypto.randomUUID(),
+      // Create new message object
+      const newMessage = {
         content,
         user_id: messageUserId,
         is_from_doctor: profile.role === 'admin',
@@ -48,20 +47,13 @@ export const useMessageOperations = (patientId: string | undefined) => {
       };
 
       // Add optimistic message to UI
+      const optimisticMessage = { ...newMessage, id: crypto.randomUUID() };
       setMessages(prev => [...prev, optimisticMessage]);
 
       // Send message to database
       const { error: insertError, data: insertedMessage } = await supabase
         .from('messages')
-        .insert([{
-          content,
-          user_id: messageUserId,
-          is_from_doctor: profile.role === 'admin',
-          file_url: fileData?.url,
-          file_name: fileData?.name,
-          file_type: fileData?.type,
-          status: 'not_seen'
-        }])
+        .insert([newMessage])
         .select()
         .single();
 

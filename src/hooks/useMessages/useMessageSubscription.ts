@@ -20,11 +20,14 @@ export const useMessageSubscription = (
 
         if (!profile) return;
 
+        // Create a unique channel ID based on user role and ID
         const channelId = profile.role === 'admin' 
           ? patientId 
             ? `admin_messages_${patientId}`
             : 'admin_all_messages'
           : `user_messages_${profile.id}`;
+
+        console.log('Setting up subscription for channel:', channelId);
 
         const channel = supabase
           .channel(channelId)
