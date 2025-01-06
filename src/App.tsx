@@ -14,25 +14,25 @@ import MedicalInformation from "@/pages/MedicalInformation";
 const PageWrapper = ({ children }: { children: React.ReactNode }) => {
   const variants = {
     initial: {
-      y: '-100%',
       opacity: 0,
-      position: 'absolute',
-      width: '100%',
-      height: '100%',
+      scale: 0.98,
+      position: "absolute" as const,
+      width: "100%",
+      height: "100%",
     },
     animate: {
-      y: 0,
       opacity: 1,
-      position: 'absolute',
-      width: '100%',
-      height: '100%',
+      scale: 1,
+      position: "absolute" as const,
+      width: "100%",
+      height: "100%",
     },
     exit: {
-      y: '100%',
       opacity: 0,
-      position: 'absolute',
-      width: '100%',
-      height: '100%',
+      scale: 1.02,
+      position: "absolute" as const,
+      width: "100%",
+      height: "100%",
     },
   };
 
@@ -43,10 +43,9 @@ const PageWrapper = ({ children }: { children: React.ReactNode }) => {
       animate="animate"
       exit="exit"
       transition={{
-        type: "spring",
-        stiffness: 400,
-        damping: 35,
-        duration: 0.15,
+        type: "tween",
+        ease: "easeInOut",
+        duration: 0.3,
       }}
     >
       {children}
