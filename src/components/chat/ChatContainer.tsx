@@ -21,6 +21,7 @@ export const ChatContainer = () => {
   }, []);
 
   useEffect(() => {
+    console.log('Messages updated:', messages);
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
@@ -34,7 +35,8 @@ export const ChatContainer = () => {
         setSelectedFile(null);
       });
     } catch (error: any) {
-      toast.error(error.message);
+      console.error('Error sending message:', error);
+      toast.error(error.message || 'Failed to send message');
     } finally {
       setIsLoading(false);
     }

@@ -18,7 +18,10 @@ export const sendMessage = async (
       user_phone: userPhone
     });
 
-    if (contextError) throw contextError;
+    if (contextError) {
+      console.error('Context error:', contextError);
+      throw contextError;
+    }
 
     // Get user profile
     const { data: profile, error: profileError } = await supabase
@@ -27,8 +30,13 @@ export const sendMessage = async (
       .eq('phone', userPhone)
       .maybeSingle();
 
-    if (profileError || !profile?.id) {
+    if (profileError) {
+      console.error('Profile error:', profileError);
       throw new Error('Could not verify user profile');
+    }
+
+    if (!profile?.id) {
+      throw new Error('User profile not found');
     }
 
     // Handle file upload if present
@@ -49,8 +57,12 @@ export const sendMessage = async (
         file_type: fileData?.type
       });
 
-    if (insertError) throw insertError;
+    if (insertError) {
+      console.error('Insert error:', insertError);
+      throw insertError;
+    }
 
+    console.log('Message sent successfully');
     onSuccess();
   } catch (error: any) {
     console.error('Error sending message:', error);
