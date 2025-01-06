@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 
 interface UploadDialogProps {
   open: boolean;
@@ -29,7 +30,7 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
         .from('profiles')
         .select('id')
         .eq('phone', userPhone)
-        .single();
+        .maybeSingle();
 
       if (!profileData) {
         toast.error("Profile not found");
@@ -57,6 +58,7 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
       toast.success("File uploaded successfully");
       onUploadSuccess();
     } catch (error) {
+      console.error("Upload error:", error);
       toast.error("Failed to upload file");
     }
   };
@@ -91,30 +93,42 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Add Medical Report</DialogTitle>
           <DialogDescription>
-            Upload a file or take a picture
+            Upload your medical documents or take pictures
           </DialogDescription>
         </DialogHeader>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            className="flex-1"
-            onClick={handleFileSelect}
+        <div className="grid gap-4 py-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
           >
-            <Upload className="w-4 h-4 mr-2" />
-            Upload File
-          </Button>
-          <Button
-            variant="outline"
-            className="flex-1"
-            onClick={handleCameraCapture}
+            <Button
+              variant="outline"
+              onClick={handleFileSelect}
+              className="w-full flex items-center justify-center gap-2 hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+            >
+              <Upload className="w-4 h-4" />
+              Upload Files
+            </Button>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.1 }}
           >
-            <Camera className="w-4 h-4 mr-2" />
-            Take Picture
-          </Button>
+            <Button
+              variant="outline"
+              onClick={handleCameraCapture}
+              className="w-full flex items-center justify-center gap-2 hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+            >
+              <Camera className="w-4 h-4" />
+              Take Picture
+            </Button>
+          </motion.div>
         </div>
       </DialogContent>
     </Dialog>
