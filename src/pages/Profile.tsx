@@ -7,7 +7,7 @@ import { ProgressSteps } from "@/components/ProgressSteps";
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { profile, updateProfile, isLoading } = useProfile();
+  const { profile, updateProfile, isLoading, setState } = useProfile();
   const steps = ["Sign Up", "Profile", "Medical Info", "Payment"];
 
   const handleProfileChange = (field: keyof typeof profile, value: string) => {
@@ -17,7 +17,7 @@ const Profile = () => {
       [field]: value,
     };
     // Update the local profile state without making an API call
-    useProfile.setState({ profile: updatedProfile });
+    setState({ profile: updatedProfile });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
