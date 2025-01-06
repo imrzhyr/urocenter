@@ -12,15 +12,31 @@ export const MedicalReportUpload = () => {
     try {
       setIsUploading(true);
       
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
+      const userPhone = localStorage.getItem('userPhone');
+      if (!userPhone) {
         toast.error("Please sign in to upload files");
         return;
       }
 
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('phone', userPhone)
+        .maybeSingle();
+
+      if (profileError) {
+        console.error("Profile error:", profileError);
+        toast.error("Error accessing profile");
+        return;
+      }
+
+      if (!profileData) {
+        toast.error("Profile not found");
+        return;
+      }
+
       // Create a folder structure using the user's ID
-      const fileName = `${user.id}/${crypto.randomUUID()}-${file.name}`;
+      const fileName = `${profileData.id}/${crypto.randomUUID()}-${file.name}`;
       
       const { error: uploadError } = await supabase.storage
         .from('medical_reports')
@@ -34,7 +50,7 @@ export const MedicalReportUpload = () => {
       const { error: dbError } = await supabase
         .from('medical_reports')
         .insert({
-          user_id: user.id,
+          user_id: profileData.id,
           file_name: file.name,
           file_path: fileName,
           file_type: file.type,
