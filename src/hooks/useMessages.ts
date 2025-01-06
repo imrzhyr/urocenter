@@ -38,35 +38,44 @@ export const useMessages = () => {
     // Initial fetch
     fetchMessages();
 
-    // Set up real-time subscription
+    // Enable realtime for the messages table
     const channel = supabase
-      .channel('messages_channel')
+      .channel('messages_changes')
       .on(
         'postgres_changes',
         {
-          event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
+          event: '*',
           schema: 'public',
           table: 'messages'
         },
         (payload) => {
-          console.log('Real-time update received:', payload);
+          console.log('Realtime update received:', payload);
           
-          // Handle different types of changes
           if (payload.eventType === 'INSERT') {
-            setMessages(prev => [...prev, payload.new as Message]);
+            setMessages((currentMessages) => [...currentMessages, payload.new as Message]);
           } else if (payload.eventType === 'DELETE') {
-            setMessages(prev => prev.filter(msg => msg.id !== payload.old.id));
+            setMessages((currentMessages) => 
+              currentMessages.filter(msg => msg.id !== payload.old.id)
+            );
           } else if (payload.eventType === 'UPDATE') {
-            setMessages(prev => 
-              prev.map(msg => msg.id === payload.new.id ? payload.new as Message : msg)
+            setMessages((currentMessages) => 
+              currentMessages.map(msg => 
+                msg.id === payload.new.id ? payload.new as Message : msg
+              )
             );
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Subscription status:', status);
+        if (status === 'SUBSCRIBED') {
+          console.log('Successfully subscribed to messages changes');
+        }
+      });
 
     // Cleanup subscription
     return () => {
+      console.log('Cleaning up subscription');
       supabase.removeChannel(channel);
     };
   }, []);
