@@ -14,29 +14,19 @@ export const sendMessage = async (
       throw new Error('Please sign in to send messages');
     }
 
-    // Set the user context
-    const { error: contextError } = await supabase.rpc('set_user_context', {
-      user_phone: userPhone
-    });
-
-    if (contextError) {
-      console.error('Error setting user context:', contextError);
-      throw new Error('Could not verify user context');
-    }
-
-    // Get the user's profile
+    // First get the user's profile
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('id')
       .eq('phone', userPhone)
-      .maybeSingle();
+      .single();
 
     if (profileError) {
       console.error('Error fetching profile:', profileError);
       throw new Error('Could not verify user profile');
     }
 
-    if (!profile) {
+    if (!profile?.id) {
       throw new Error('User profile not found');
     }
 
@@ -49,6 +39,11 @@ export const sendMessage = async (
         throw new Error('Failed to upload file');
       }
     }
+
+    // Set the user context before inserting the message
+    await supabase.rpc('set_user_context', {
+      user_phone: userPhone
+    });
 
     const { error: insertError } = await supabase
       .from('messages')
@@ -70,6 +65,7 @@ export const sendMessage = async (
     
   } catch (error: any) {
     console.error('Error sending message:', error);
+    toast.error(error.message || 'Failed to send message');
     throw error;
   }
 };
