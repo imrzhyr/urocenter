@@ -8,6 +8,7 @@ import Payment from "@/pages/Payment";
 import Dashboard from "@/pages/Dashboard";
 import Chat from "@/pages/Chat";
 import { EditProfileForm } from "@/components/profile/EditProfileForm";
+import MedicalInformation from "@/pages/MedicalInformation";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/medical-information" element={<MedicalInformation />} />
         <Route path="/payment" element={<Payment />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/chat" element={<Chat />} />
