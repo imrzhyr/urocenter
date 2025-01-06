@@ -12,6 +12,15 @@ import Chat from "@/pages/Chat";
 import { EditProfileForm } from "@/components/profile/EditProfileForm";
 import MedicalInformation from "@/pages/MedicalInformation";
 
+// Prevent Web3 provider conflicts
+if (window.ethereum && Object.getOwnPropertyDescriptor(window, 'ethereum')?.configurable) {
+  Object.defineProperty(window, 'ethereum', {
+    value: window.ethereum,
+    writable: false,
+    configurable: false
+  });
+}
+
 const PageWrapper = ({ children }: { children: React.ReactNode }) => {
   const variants = {
     initial: {
