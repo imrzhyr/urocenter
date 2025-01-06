@@ -20,15 +20,15 @@ export const useProfile = () => {
 
   const fetchProfile = async () => {
     try {
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError) throw sessionError;
-      if (!session?.user) throw new Error("No authenticated user found");
+      const phone = localStorage.getItem('phone');
+      if (!phone) {
+        throw new Error("No phone number found");
+      }
 
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('full_name, gender, age, complaint')
-        .eq('phone', session.user.email?.replace('@example.com', ''))
+        .eq('phone', phone)
         .maybeSingle();
 
       if (profileError) throw profileError;
@@ -52,10 +52,11 @@ export const useProfile = () => {
   const updateProfile = async (updatedProfile: Profile) => {
     try {
       setIsLoading(true);
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      const phone = localStorage.getItem('phone');
       
-      if (sessionError) throw sessionError;
-      if (!session?.user) throw new Error("No authenticated user found");
+      if (!phone) {
+        throw new Error("No phone number found");
+      }
 
       const { error: updateError } = await supabase
         .from('profiles')
@@ -63,7 +64,7 @@ export const useProfile = () => {
           ...updatedProfile,
           updated_at: new Date().toISOString(),
         })
-        .eq('phone', session.user.email?.replace('@example.com', ''));
+        .eq('phone', phone);
 
       if (updateError) throw updateError;
 
