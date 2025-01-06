@@ -26,28 +26,36 @@ export const VerificationButton = ({
 
     try {
       setIsLoading(true);
-      
-      // Generate a UUID for the new profile
-      const { data, error: uuidError } = await supabase.rpc('gen_random_uuid');
-      
-      if (uuidError || !data || !Array.isArray(data) || data.length === 0) {
-        console.error("UUID generation error:", uuidError);
+
+      // First, create the auth user
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        phone,
+        password,
+      });
+
+      if (authError) {
+        console.error("Auth error:", authError);
+        toast.error(authError.message);
+        return;
+      }
+
+      if (!authData.user) {
         toast.error("Failed to create account");
         return;
       }
 
-      // Insert into profiles table with the generated UUID
-      const { error } = await supabase
+      // Then create their profile
+      const { error: profileError } = await supabase
         .from('profiles')
         .insert({
-          id: data[0].user_id,
+          id: authData.user.id,
           phone,
           auth_method: 'phone'
         });
 
-      if (error) {
-        console.error("Signup error:", error);
-        toast.error(error.message);
+      if (profileError) {
+        console.error("Profile creation error:", profileError);
+        toast.error(profileError.message);
         return;
       }
 
