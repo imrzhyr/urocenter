@@ -13,22 +13,22 @@ export const PaymentMethods = ({
     {
       id: "fastpay",
       name: "FastPay",
-      logo: "https://fastpay.com.iq/assets/images/logo.png",
-    },
-    {
-      id: "zaincash",
-      name: "ZainCash",
-      logo: "https://zaincash.iq/wp-content/uploads/2023/03/zaincash-logo.png",
+      logo: "/lovable-uploads/ea4de526-e37e-4348-acf0-c64cf182a493.png",
     },
     {
       id: "fib",
       name: "FIB",
-      logo: "https://fib.iq/wp-content/uploads/2023/01/fib-logo-dark.png",
+      logo: "/lovable-uploads/baf5ed4f-4ba5-4618-8694-5d71249b817a.png",
     },
     {
       id: "qicard",
       name: "Qi Card",
-      logo: "https://qi.iq/wp-content/uploads/2022/12/qi-card-logo.png",
+      logo: "/lovable-uploads/2cb98755-7a98-43b1-b259-3e894b6d9bf3.png",
+    },
+    {
+      id: "zaincash",
+      name: "ZainCash",
+      logo: "/lovable-uploads/292e06cf-9fcf-475a-9497-a045233f8b4d.png",
     },
   ];
 
