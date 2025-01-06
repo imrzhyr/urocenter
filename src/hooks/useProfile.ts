@@ -20,19 +20,18 @@ export const useProfile = () => {
 
   const fetchProfile = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
-      if (!user) {
-        throw new Error("No authenticated user found");
-      }
+      if (sessionError) throw sessionError;
+      if (!session?.user) throw new Error("No authenticated user found");
 
-      const { data: profileData, error } = await supabase
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
+        .select('full_name, gender, age, complaint')
+        .eq('id', session.user.id)
+        .maybeSingle();
 
-      if (error) throw error;
+      if (profileError) throw profileError;
 
       if (profileData) {
         setProfile({
@@ -53,21 +52,20 @@ export const useProfile = () => {
   const updateProfile = async (updatedProfile: Profile) => {
     try {
       setIsLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
-      if (!user) {
-        throw new Error("No authenticated user found");
-      }
+      if (sessionError) throw sessionError;
+      if (!session?.user) throw new Error("No authenticated user found");
 
-      const { error } = await supabase
+      const { error: updateError } = await supabase
         .from('profiles')
         .update({
           ...updatedProfile,
           updated_at: new Date().toISOString(),
         })
-        .eq('id', user.id);
+        .eq('id', session.user.id);
 
-      if (error) throw error;
+      if (updateError) throw updateError;
 
       toast.success("Profile updated successfully");
       return true;

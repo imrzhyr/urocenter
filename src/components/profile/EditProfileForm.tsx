@@ -1,14 +1,30 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ProfileForm } from "@/components/ProfileForm";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useProfile, type Profile } from "@/hooks/useProfile";
+import { supabase } from "@/integrations/supabase/client";
 
 export const EditProfileForm = () => {
   const navigate = useNavigate();
-  const { profile, isLoading, updateProfile } = useProfile();
-  const [formData, setFormData] = useState<Profile>(profile);
+  const { profile: initialProfile, isLoading, updateProfile } = useProfile();
+  const [formData, setFormData] = useState<Profile>(initialProfile);
+
+  useEffect(() => {
+    // Update form data when initial profile is loaded
+    setFormData(initialProfile);
+  }, [initialProfile]);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate("/signin");
+      }
+    };
+    checkAuth();
+  }, [navigate]);
 
   const handleFieldChange = (field: keyof Profile, value: string) => {
     setFormData(prev => ({
