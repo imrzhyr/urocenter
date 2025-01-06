@@ -7,7 +7,7 @@ export const testimonials = [
   },
   {
     name: "زينب العبيدي",
-    rating: 5,
+    rating: 4.5,
     text: "تطبيق راقي وخدمة ممتازة. ما توقعت التواصل يكون بهذي السهولة. الله يحفظ الدكتور علي",
     location: "البصرة",
   },
@@ -19,7 +19,7 @@ export const testimonials = [
   },
   {
     name: "فاطمة الساعدي",
-    rating: 5,
+    rating: 4.5,
     text: "الحمد لله حجزت موعد بسهولة وما اضطريت انتظر. الدكتور متابع ويرد بسرعة",
     location: "كربلاء",
   },
@@ -31,7 +31,7 @@ export const testimonials = [
   },
   {
     name: "نور العزاوي",
-    rating: 5,
+    rating: 4.5,
     text: "ما شاء الله تبارك الله. خدمة راقية وسريعة والاهم انو الدكتور متفهم ويشرح بالتفصيل",
     location: "اربيل",
   },
@@ -43,7 +43,7 @@ export const testimonials = [
   },
   {
     name: "مريم الجبوري",
-    rating: 5,
+    rating: 4.5,
     text: "الله يجزاكم خير على هذي الخدمة. وفرتو علينا الوقت والجهد والتعب",
     location: "واسط",
   },
@@ -55,7 +55,7 @@ export const testimonials = [
   },
   {
     name: "زهراء الكاظمي",
-    rating: 5,
+    rating: 4.5,
     text: "الحمد لله لقيت الحل عند الدكتور علي. الله يوفقه ويحفظه",
     location: "ميسان",
   },
@@ -67,7 +67,7 @@ export const testimonials = [
   },
   {
     name: "رقية العامري",
-    rating: 5,
+    rating: 4.5,
     text: "خدمة تستحق الشكر والتقدير. الدكتور علي ما قصر بالنصائح والعلاج",
     location: "الانبار",
   },
@@ -79,7 +79,7 @@ export const testimonials = [
   },
   {
     name: "سجاد الحكيم",
-    rating: 5,
+    rating: 4.5,
     text: "ما شاء الله تطبيق يفتح النفس. سريع وموثوق والدكتور خبير",
     location: "كركوك",
   },
@@ -91,7 +91,7 @@ export const testimonials = [
   },
   {
     name: "عباس المالكي",
-    rating: 5,
+    rating: 4.5,
     text: "تطبيق يستحق كل الدعم. سهل ومريح ويحل مشاكل كثيرة",
     location: "القادسية",
   }

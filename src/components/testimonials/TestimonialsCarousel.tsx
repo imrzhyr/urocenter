@@ -8,8 +8,27 @@ import {
 import { TestimonialCard } from "./TestimonialCard";
 import { motion } from "framer-motion";
 import { testimonials } from "./testimonials-data";
+import { useEffect, useState } from "react";
+import useEmblaCarousel from "embla-carousel-react";
+import Autoplay from "embla-carousel-autoplay";
 
 export const TestimonialsCarousel = () => {
+  const [api] = useEmblaCarousel(
+    {
+      align: "start",
+      loop: true,
+      dragFree: true,
+      containScroll: "trimSnaps",
+    },
+    [
+      Autoplay({
+        delay: 4000,
+        stopOnInteraction: false,
+        stopOnMouseEnter: true,
+      }),
+    ]
+  );
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -24,6 +43,13 @@ export const TestimonialsCarousel = () => {
           dragFree: true,
           containScroll: "trimSnaps",
         }}
+        plugins={[
+          Autoplay({
+            delay: 4000,
+            stopOnInteraction: false,
+            stopOnMouseEnter: true,
+          }),
+        ]}
         className="w-full max-w-4xl mx-auto"
       >
         <CarouselContent className="-ml-2 md:-ml-4">

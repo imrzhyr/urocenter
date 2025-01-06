@@ -1,4 +1,4 @@
-import { Star } from "lucide-react";
+import { Star, StarHalf } from "lucide-react";
 
 interface TestimonialCardProps {
   name: string;
@@ -8,12 +8,32 @@ interface TestimonialCardProps {
 }
 
 export const TestimonialCard = ({ name, text, rating, location }: TestimonialCardProps) => {
+  const renderStars = (rating: number) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+
+    // Add full stars
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(
+        <Star key={`full-${i}`} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+      );
+    }
+
+    // Add half star if needed
+    if (hasHalfStar) {
+      stars.push(
+        <StarHalf key="half" className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+      );
+    }
+
+    return stars;
+  };
+
   return (
     <div className="bg-white/80 backdrop-blur-sm p-5 rounded-xl shadow-lg text-right border border-primary/10 hover:border-primary/20 transition-all duration-300">
       <div className="flex justify-end mb-2 gap-0.5">
-        {[...Array(rating)].map((_, i) => (
-          <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-        ))}
+        {renderStars(rating)}
       </div>
       <p className="text-gray-700 mb-3 text-base font-arabic leading-relaxed">
         {text}
