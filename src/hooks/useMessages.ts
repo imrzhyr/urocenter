@@ -144,6 +144,8 @@ export const useMessages = (patientId?: string) => {
         status: 'not_seen'
       };
 
+      console.log('Inserting message:', newMessage);
+
       // Send message to database
       const { error: insertError } = await supabase
         .from('messages')
