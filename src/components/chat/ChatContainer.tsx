@@ -16,6 +16,7 @@ export const ChatContainer = ({ patientId }: ChatContainerProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const retryTimeoutRef = useRef<NodeJS.Timeout>();
 
   useAuthRedirect();
   const { messages, addMessage } = useMessages(patientId);
@@ -26,19 +27,37 @@ export const ChatContainer = ({ patientId }: ChatContainerProps) => {
     }
   }, [messages]);
 
-  const handleSendMessage = async () => {
+  const handleSendMessage = async (retryCount = 0) => {
     if (!message.trim() && !selectedFile) return;
     
     setIsLoading(true);
     try {
-      // First set the user context
       const userPhone = localStorage.getItem('userPhone');
       if (!userPhone) {
         toast.error('Please sign in to send messages');
         return;
       }
 
-      await supabase.rpc('set_user_context', { user_phone: userPhone });
+      // Set user context
+      const { error: contextError } = await supabase.rpc('set_user_context', { 
+        user_phone: userPhone 
+      });
+
+      if (contextError) {
+        console.error('Error setting user context:', contextError);
+        if (retryCount < 3) {
+          // Clear any existing retry timeout
+          if (retryTimeoutRef.current) {
+            clearTimeout(retryTimeoutRef.current);
+          }
+          // Retry after a delay
+          retryTimeoutRef.current = setTimeout(() => {
+            handleSendMessage(retryCount + 1);
+          }, 1000 * (retryCount + 1));
+          return;
+        }
+        throw contextError;
+      }
 
       let fileData;
       if (selectedFile) {
@@ -51,7 +70,18 @@ export const ChatContainer = ({ patientId }: ChatContainerProps) => {
         setMessage('');
         setSelectedFile(null);
       } else {
-        toast.error('Failed to send message');
+        if (retryCount < 3) {
+          // Clear any existing retry timeout
+          if (retryTimeoutRef.current) {
+            clearTimeout(retryTimeoutRef.current);
+          }
+          // Retry after a delay
+          retryTimeoutRef.current = setTimeout(() => {
+            handleSendMessage(retryCount + 1);
+          }, 1000 * (retryCount + 1));
+          return;
+        }
+        toast.error('Failed to send message after multiple attempts');
       }
     } catch (error: any) {
       console.error('Error sending message:', error);
@@ -60,6 +90,15 @@ export const ChatContainer = ({ patientId }: ChatContainerProps) => {
       setIsLoading(false);
     }
   };
+
+  // Cleanup retry timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -98,7 +137,7 @@ export const ChatContainer = ({ patientId }: ChatContainerProps) => {
       <ChatInput
         message={message}
         onChange={setMessage}
-        onSend={handleSendMessage}
+        onSend={() => handleSendMessage()}
         isLoading={isLoading}
         onKeyPress={handleKeyPress}
         onFileSelect={handleFileSelect}

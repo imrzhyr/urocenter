@@ -20,6 +20,23 @@ export interface Message {
 export const useMessages = (patientId?: string) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [retryCount, setRetryCount] = useState(0);
+  const MAX_RETRIES = 3;
+
+  // Function to set user context with retry mechanism
+  const setUserContext = async (userPhone: string): Promise<boolean> => {
+    try {
+      const { error } = await supabase.rpc('set_user_context', { user_phone: userPhone });
+      if (error) {
+        console.error('Error setting user context:', error);
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.error('Error in setUserContext:', error);
+      return false;
+    }
+  };
 
   useEffect(() => {
     let channel: RealtimeChannel;
@@ -33,8 +50,18 @@ export const useMessages = (patientId?: string) => {
       }
 
       try {
-        // Set user context first
-        await supabase.rpc('set_user_context', { user_phone: userPhone });
+        // Set user context with retry
+        let contextSet = await setUserContext(userPhone);
+        let retries = 0;
+        while (!contextSet && retries < MAX_RETRIES) {
+          await new Promise(resolve => setTimeout(resolve, 1000 * (retries + 1)));
+          contextSet = await setUserContext(userPhone);
+          retries++;
+        }
+
+        if (!contextSet) {
+          throw new Error('Failed to set user context after multiple attempts');
+        }
 
         // Get user profile
         const { data: profile, error: profileError } = await supabase
@@ -116,9 +143,23 @@ export const useMessages = (patientId?: string) => {
       return false;
     }
 
+    // Generate a temporary ID for optimistic update
+    const tempId = crypto.randomUUID();
+    const timestamp = new Date().toISOString();
+
     try {
-      // Set user context first
-      await supabase.rpc('set_user_context', { user_phone: userPhone });
+      // Set user context first with retry mechanism
+      let contextSet = await setUserContext(userPhone);
+      let retries = 0;
+      while (!contextSet && retries < MAX_RETRIES) {
+        await new Promise(resolve => setTimeout(resolve, 1000 * (retries + 1)));
+        contextSet = await setUserContext(userPhone);
+        retries++;
+      }
+
+      if (!contextSet) {
+        throw new Error('Failed to set user context after multiple attempts');
+      }
 
       // Get user profile
       const { data: profile, error: profileError } = await supabase
@@ -135,24 +176,33 @@ export const useMessages = (patientId?: string) => {
 
       // Create new message object
       const newMessage = {
+        id: tempId,
         content,
         user_id: patientId || profile.id,
         is_from_doctor: profile.role === 'admin',
         file_url: fileData?.url,
         file_name: fileData?.name,
         file_type: fileData?.type,
-        status: 'not_seen'
+        status: 'not_seen',
+        created_at: timestamp,
+        updated_at: timestamp
       };
 
-      console.log('Inserting message:', newMessage);
+      // Optimistically add the message to the UI
+      setMessages(prev => [...prev, newMessage]);
 
-      // Send message to database
+      // Send message to database using upsert
       const { error: insertError } = await supabase
         .from('messages')
-        .insert([newMessage]);
+        .upsert([{
+          ...newMessage,
+          id: undefined // Let the database generate the ID
+        }]);
 
       if (insertError) {
         console.error('Error sending message:', insertError);
+        // Remove the optimistic message on error
+        setMessages(prev => prev.filter(msg => msg.id !== tempId));
         toast.error('Failed to send message');
         return false;
       }
@@ -160,6 +210,8 @@ export const useMessages = (patientId?: string) => {
       return true;
     } catch (error) {
       console.error('Error sending message:', error);
+      // Remove the optimistic message on error
+      setMessages(prev => prev.filter(msg => msg.id !== tempId));
       toast.error('Failed to send message');
       return false;
     }
