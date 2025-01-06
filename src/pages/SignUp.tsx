@@ -1,14 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ProfileForm } from "@/components/ProfileForm";
 import { PaymentMethods } from "@/components/PaymentMethods";
 import { ArrowLeft, Globe } from "lucide-react";
 import { Auth } from "@supabase/auth-ui-react";
 import { supabase } from "@/integrations/supabase/client";
-import { ThemeProvider } from "@/components/theme-provider";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +18,11 @@ const steps = ["Auth", "Profile", "Payment"];
 const SignUp = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
+  const [fullName, setFullName] = useState("");
+  const [gender, setGender] = useState("");
+  const [age, setAge] = useState("");
+  const [complaint, setComplaint] = useState("");
+  const [selectedMethod, setSelectedMethod] = useState("");
 
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
@@ -112,8 +114,24 @@ const SignUp = () => {
             </div>
           ) : (
             <div className="space-y-6">
-              {currentStep === 1 && <ProfileForm />}
-              {currentStep === 2 && <PaymentMethods />}
+              {currentStep === 1 && (
+                <ProfileForm
+                  fullName={fullName}
+                  setFullName={setFullName}
+                  gender={gender}
+                  setGender={setGender}
+                  age={age}
+                  setAge={setAge}
+                  complaint={complaint}
+                  setComplaint={setComplaint}
+                />
+              )}
+              {currentStep === 2 && (
+                <PaymentMethods
+                  selectedMethod={selectedMethod}
+                  onSelectMethod={setSelectedMethod}
+                />
+              )}
               <Button
                 onClick={() => {
                   if (currentStep < steps.length - 1) {
