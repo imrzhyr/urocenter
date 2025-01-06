@@ -1,16 +1,24 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Send } from "lucide-react";
+import { ArrowLeft, Send, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
+import {
+  Card,
+  CardContent,
+} from "@/components/ui/card";
 
 const Chat = () => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [patientInfo, setPatientInfo] = useState<{
+    complaint: string;
+    reportsCount: number;
+  }>({ complaint: "", reportsCount: 0 });
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
@@ -18,8 +26,38 @@ const Chat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const fetchPatientInfo = async () => {
+    try {
+      const userPhone = localStorage.getItem('userPhone');
+      if (!userPhone) return;
+
+      // Fetch profile information
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('id, complaint')
+        .eq('phone', userPhone)
+        .maybeSingle();
+
+      if (profileData) {
+        // Fetch medical reports count
+        const { data: reports } = await supabase
+          .from('medical_reports')
+          .select('id')
+          .eq('user_id', profileData.id);
+
+        setPatientInfo({
+          complaint: profileData.complaint || "",
+          reportsCount: reports?.length || 0
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching patient info:', error);
+    }
+  };
+
   useEffect(() => {
     fetchMessages();
+    fetchPatientInfo();
     const channel = supabase
       .channel('messages_channel')
       .on(
@@ -98,25 +136,46 @@ const Chat = () => {
   return (
     <div className="flex flex-col h-screen bg-background">
       {/* Header */}
-      <div className="p-4 bg-card border-b flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={() => navigate(-1)}
-            className="mr-2"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <Avatar>
-            <AvatarImage src="/lovable-uploads/06b7c9e0-66fd-4a8e-8025-584b2a539eae.png" alt="Dr. Ali Kamal" />
-            <AvatarFallback>AK</AvatarFallback>
-          </Avatar>
-          <div>
-            <h2 className="font-semibold">Dr. Ali Kamal</h2>
-            <p className="text-xs text-muted-foreground">Online</p>
+      <div className="p-4 bg-card border-b">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-3">
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => navigate(-1)}
+              className="mr-2"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <Avatar>
+              <AvatarImage src="/lovable-uploads/06b7c9e0-66fd-4a8e-8025-584b2a539eae.png" alt="Dr. Ali Kamal" />
+              <AvatarFallback>AK</AvatarFallback>
+            </Avatar>
+            <div>
+              <h2 className="font-semibold">Dr. Ali Kamal</h2>
+              <p className="text-xs text-muted-foreground">Online</p>
+            </div>
           </div>
         </div>
+
+        {/* Patient Information Card */}
+        <Card className="bg-muted/50 border-none animate-fade-in">
+          <CardContent className="p-4">
+            <div className="flex flex-col space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <FileText className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-medium">Medical Reports:</span>
+                </div>
+                <span className="text-sm font-semibold">{patientInfo.reportsCount}</span>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium mb-1">Chief Complaint:</h3>
+                <p className="text-sm text-muted-foreground">{patientInfo.complaint || "No complaint recorded"}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Chat Area */}
