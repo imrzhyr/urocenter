@@ -56,19 +56,30 @@ export const useMessages = (patientId?: string) => {
           table: 'messages'
         },
         (payload) => {
-          console.log('Real-time update:', payload);
+          console.log('Real-time update received:', payload);
           if (payload.eventType === 'INSERT') {
-            setMessages(prev => [...prev, payload.new as Message]);
+            setMessages(prev => [...prev, payload.new as Message].sort((a, b) => 
+              new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+            ));
           } else if (payload.eventType === 'UPDATE') {
             setMessages(prev => 
               prev.map(msg => msg.id === payload.new.id ? payload.new as Message : msg)
+                .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
             );
+          } else if (payload.eventType === 'DELETE') {
+            setMessages(prev => prev.filter(msg => msg.id !== payload.old.id));
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Subscription status:', status);
+        if (status === 'SUBSCRIBED') {
+          console.log('Successfully subscribed to real-time updates');
+        }
+      });
 
     return () => {
+      console.log('Cleaning up subscription');
       supabase.removeChannel(channel);
     };
   }, [patientId]);
