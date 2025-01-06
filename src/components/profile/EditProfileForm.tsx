@@ -29,10 +29,25 @@ export const EditProfileForm = () => {
     }));
   };
 
+  const isFormValid = () => {
+    const hasValidName = formData.full_name.trim().split(' ').length >= 2;
+    return hasValidName && 
+      formData.gender && 
+      formData.age && 
+      formData.complaint;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!isFormValid()) {
+      toast.error("Please fill in all required fields correctly");
+      return;
+    }
+
     const success = await updateProfile(formData);
     if (success) {
+      toast.success("Profile updated successfully");
       navigate("/dashboard");
     }
   };
@@ -75,13 +90,7 @@ export const EditProfileForm = () => {
             <Button
               type="submit"
               className="w-full"
-              disabled={
-                !formData.full_name || 
-                !formData.gender || 
-                !formData.age || 
-                !formData.complaint || 
-                isLoading
-              }
+              disabled={!isFormValid() || isLoading}
             >
               {isLoading ? "Updating..." : "Update Profile"}
             </Button>
