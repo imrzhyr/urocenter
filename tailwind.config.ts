@@ -69,7 +69,7 @@ export default {
         },
         wave: {
           "0%": { transform: "translateX(0)" },
-          "50%": { transform: "translateX(-50%)" },
+          "50%": { transform: "translateX(-75%)" },
           "100%": { transform: "translateX(0)" },
         },
         typewriter: {
@@ -86,7 +86,7 @@ export default {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.3s ease-out",
-        "wave": "wave 20s linear infinite",
+        "wave": "wave 30s linear infinite",
         "typewriter": "typewriter 2s steps(40) forwards",
         "blink": "blink 1s step-end infinite",
       },
