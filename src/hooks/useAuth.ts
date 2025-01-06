@@ -16,9 +16,15 @@ export const useAuth = () => {
         .from('profiles')
         .select('id, phone, password, role')
         .eq('phone', formattedPhone)
-        .single();
+        .maybeSingle();
 
-      if (profileError || !profile) {
+      if (profileError) {
+        console.error("Error fetching profile:", profileError);
+        toast.error("An error occurred while signing in");
+        return null;
+      }
+
+      if (!profile) {
         console.log("No profile found for phone:", formattedPhone);
         toast.error("Invalid phone number or password");
         return null;
