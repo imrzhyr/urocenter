@@ -8,10 +8,21 @@ export const sendMessage = async (
   onSuccess: () => void
 ) => {
   try {
-    const { data: { session } } = await supabase.auth.getSession();
+    const userPhone = localStorage.getItem('userPhone');
     
-    if (!session) {
+    if (!userPhone) {
       throw new Error('Please sign in to send messages');
+    }
+
+    // Get the user's profile to get their ID
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('phone', userPhone)
+      .single();
+
+    if (profileError || !profile) {
+      throw new Error('User profile not found');
     }
 
     let fileData = null;
@@ -27,7 +38,7 @@ export const sendMessage = async (
     const messageData = {
       content: message.trim(),
       is_from_doctor: false,
-      user_id: session.user.id,
+      user_id: profile.id,
       file_url: fileData?.url,
       file_name: fileData?.name,
       file_type: fileData?.type
