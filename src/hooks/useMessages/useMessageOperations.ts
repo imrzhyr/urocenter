@@ -41,22 +41,26 @@ export const useMessageOperations = (patientId: string | undefined) => {
         file_url: fileData?.url,
         file_name: fileData?.name,
         file_type: fileData?.type,
-        created_at: new Date().toISOString(),
-        status: 'not_seen'
+        status: 'not_seen',
+        created_at: new Date().toISOString()
       };
 
-      const optimisticMessage = { ...newMessage, id: crypto.randomUUID() };
-      setMessages(prev => [...prev, optimisticMessage]);
-
-      const { error: insertError } = await supabase
+      // Insert the message into the database
+      const { error: insertError, data: insertedMessage } = await supabase
         .from('messages')
-        .insert([newMessage]);
+        .insert([newMessage])
+        .select()
+        .single();
 
       if (insertError) {
         console.error('Error sending message:', insertError);
-        setMessages(prev => prev.filter(msg => msg.id !== optimisticMessage.id));
         toast.error('Failed to send message');
         return false;
+      }
+
+      // Add the message to the local state
+      if (insertedMessage) {
+        setMessages(prev => [...prev, insertedMessage]);
       }
 
       return true;
