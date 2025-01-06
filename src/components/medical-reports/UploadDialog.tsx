@@ -1,4 +1,4 @@
-import { Camera, Upload } from "lucide-react";
+import { Camera, Upload, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,12 +10,46 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface UploadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onUploadSuccess: () => void;
 }
+
+const documentTypes = [
+  {
+    title: "Diagnostic Imaging",
+    items: [
+      "Ultrasound scans of kidneys, bladder, and prostate",
+      "CT scans of the urinary tract",
+      "MRI reports of the pelvic area",
+      "X-rays of the urinary system",
+      "Nuclear medicine scan results",
+    ],
+  },
+  {
+    title: "Laboratory Results",
+    items: [
+      "PSA (Prostate-Specific Antigen) test results",
+      "Urinalysis reports",
+      "Blood test results",
+      "Kidney function tests",
+      "Hormone level assessments",
+    ],
+  },
+  {
+    title: "Medical Documentation",
+    items: [
+      "Previous consultation notes",
+      "Surgical reports and post-operative notes",
+      "Treatment plans and protocols",
+      "Medication prescriptions and history",
+      "Hospital discharge summaries",
+    ],
+  },
+];
 
 export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDialogProps) => {
   const handleFileUpload = async (file: File) => {
@@ -26,7 +60,6 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
         return;
       }
 
-      // First get the profile ID which we'll use as the user_id
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('id')
@@ -44,10 +77,8 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
         return;
       }
 
-      // Create a folder structure using the profile ID
       const fileName = `${profileData.id}/${crypto.randomUUID()}-${file.name}`;
       
-      // Upload file to storage
       const { error: uploadError } = await supabase.storage
         .from('medical_reports')
         .upload(fileName, file, {
@@ -60,11 +91,10 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
         throw uploadError;
       }
 
-      // Insert record into medical_reports table using profile ID
       const { error: dbError } = await supabase
         .from('medical_reports')
         .insert({
-          user_id: profileData.id, // Use profile ID as user_id
+          user_id: profileData.id,
           file_name: file.name,
           file_path: fileName,
           file_type: file.type,
@@ -114,42 +144,59 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Add Medical Report</DialogTitle>
           <DialogDescription>
-            Upload your medical documents or take pictures
+            Upload your medical documents or take pictures. Please ensure all documents are clear and readable.
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
+        
+        <div className="grid gap-6">
+          <ScrollArea className="h-[300px] pr-4 rounded-md border p-4">
+            <div className="space-y-6">
+              {documentTypes.map((category) => (
+                <div key={category.title} className="animate-fade-in">
+                  <h3 className="font-semibold text-lg text-primary mb-2">
+                    {category.title}
+                  </h3>
+                  <ul className="list-disc pl-5 space-y-1.5">
+                    {category.items.map((item) => (
+                      <li key={item} className="text-muted-foreground">
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+
+          <div className="flex flex-col sm:flex-row gap-4">
             <Button
               variant="outline"
               onClick={handleFileSelect}
-              className="w-full flex items-center justify-center gap-2 hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+              className="flex-1 flex items-center justify-center gap-2 hover:bg-primary hover:text-primary-foreground transition-all duration-300"
             >
               <Upload className="w-4 h-4" />
               Upload Files
             </Button>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.1 }}
-          >
             <Button
               variant="outline"
               onClick={handleCameraCapture}
-              className="w-full flex items-center justify-center gap-2 hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+              className="flex-1 flex items-center justify-center gap-2 hover:bg-primary hover:text-primary-foreground transition-all duration-300"
             >
               <Camera className="w-4 h-4" />
               Take Picture
             </Button>
-          </motion.div>
+          </div>
+
+          <div className="bg-muted p-4 rounded-lg">
+            <p className="text-sm text-muted-foreground">
+              <Info className="w-4 h-4 inline-block mr-2" />
+              We accept files in PDF, JPG, JPEG, and PNG formats. Each file should be less than 10MB.
+            </p>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
