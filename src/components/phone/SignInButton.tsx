@@ -42,9 +42,9 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
         return;
       }
 
-      // Sign in by creating a session for this profile
+      // Sign in by creating a session using phone authentication
       const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: `${phone}@example.com`,
+        phone: phone,
         password: password,
       });
 
