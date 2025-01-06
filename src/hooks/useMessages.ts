@@ -36,10 +36,28 @@ export const useMessages = () => {
           return;
         }
 
-        // Fetch initial messages
+        // Get user profile first
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('phone', userPhone)
+          .maybeSingle();
+
+        if (profileError) {
+          console.error('Error fetching profile:', profileError);
+          return;
+        }
+
+        if (!profile) {
+          console.error('No profile found for user');
+          return;
+        }
+
+        // Fetch initial messages for this user
         const { data, error } = await supabase
           .from('messages')
           .select('*')
+          .eq('user_id', profile.id)
           .order('created_at', { ascending: true });
 
         if (error) {
@@ -57,7 +75,8 @@ export const useMessages = () => {
             {
               event: '*',
               schema: 'public',
-              table: 'messages'
+              table: 'messages',
+              filter: `user_id=eq.${profile.id}`
             },
             (payload) => {
               console.log('Real-time update received:', payload);

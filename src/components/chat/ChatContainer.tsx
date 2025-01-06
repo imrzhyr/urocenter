@@ -22,7 +22,9 @@ export const ChatContainer = () => {
 
   useEffect(() => {
     console.log('Messages updated:', messages);
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
   }, [messages]);
 
   const handleSendMessage = async () => {
