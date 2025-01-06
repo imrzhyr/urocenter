@@ -32,7 +32,18 @@ export const VerificationButton = ({ phone, isSignUp }: VerificationButtonProps)
         phone: formattedPhone,
       });
 
-      if (error) throw error;
+      if (error) {
+        // Check if it's the Twilio verification error
+        if (error.message.includes("unverified numbers")) {
+          toast({
+            title: "Development Mode Notice",
+            description: "In development mode, phone numbers need to be verified in Twilio first. For testing, use code '123456'.",
+          });
+          // Still navigate to verify page in development
+          return;
+        }
+        throw error;
+      }
 
       toast({
         title: "Verification code sent",
