@@ -21,9 +21,9 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
       return;
     }
 
-    try {
-      setIsLoading(true);
+    setIsLoading(true);
 
+    try {
       // Check if profile exists with this phone number and password
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
@@ -39,24 +39,22 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
       }
 
       // Update last login timestamp
-      const { error: updateError } = await supabase
+      await supabase
         .from('profiles')
         .update({ last_login: new Date().toISOString() })
         .eq('id', profile.id);
 
-      if (updateError) {
-        console.error("Error updating last login:", updateError);
-      }
-
-      // Force navigation to dashboard
-      window.location.href = "/dashboard";
       toast.success("Signed in successfully!");
       
-    } catch (error: any) {
+      // Navigate to dashboard
+      navigate("/dashboard", { replace: true });
+      
+    } catch (error) {
       console.error("Unexpected error:", error);
       toast.error("An unexpected error occurred");
-      setIsLoading(false);
     }
+    
+    setIsLoading(false);
   };
 
   return (
