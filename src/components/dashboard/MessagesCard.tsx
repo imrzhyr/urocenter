@@ -1,8 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { MessageSquare, User, CheckCircle2, Circle, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { MessageSquare } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -10,17 +7,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
+import { AdminMessagesList } from "./messages/AdminMessagesList";
+import { PatientChatPrompt } from "./messages/PatientChatPrompt";
+import { MessagesFilter } from "./messages/MessagesFilter";
 
 interface PatientMessage {
   id: string;
@@ -31,16 +23,36 @@ interface PatientMessage {
 }
 
 export const MessagesCard = () => {
-  const navigate = useNavigate();
   const [patients, setPatients] = useState<PatientMessage[]>([]);
   const [filteredPatients, setFilteredPatients] = useState<PatientMessage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    const fetchPatients = async () => {
+    const checkUserRole = async () => {
+      const userPhone = localStorage.getItem('userPhone');
+      if (!userPhone) return;
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('phone', userPhone)
+        .single();
+
+      setIsAdmin(profile?.role === 'admin');
+    };
+
+    checkUserRole();
+  }, []);
+
+  useEffect(() => {
+    const fetchMessages = async () => {
       try {
+        const userPhone = localStorage.getItem('userPhone');
+        if (!userPhone) return;
+
         const { data: messages, error: messagesError } = await supabase
           .from('messages')
           .select(`
@@ -65,7 +77,7 @@ export const MessagesCard = () => {
           if (patientId && !patientMap.has(patientId)) {
             patientMap.set(patientId, {
               id: patientId,
-              full_name: message.profiles?.full_name || 'Anonymous Patient',
+              full_name: message.profiles?.full_name || 'Anonymous',
               last_message: message.content,
               last_message_time: message.created_at,
               status: message.status
@@ -77,15 +89,14 @@ export const MessagesCard = () => {
         setPatients(patientsList);
         setFilteredPatients(patientsList);
       } catch (error) {
-        console.error('Error fetching patients:', error);
+        console.error('Error fetching messages:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchPatients();
+    fetchMessages();
 
-    // Set up real-time subscription
     const channel = supabase
       .channel('messages_changes')
       .on(
@@ -96,7 +107,7 @@ export const MessagesCard = () => {
           table: 'messages'
         },
         () => {
-          fetchPatients(); // Refresh messages when changes occur
+          fetchMessages();
         }
       )
       .subscribe();
@@ -109,12 +120,10 @@ export const MessagesCard = () => {
   useEffect(() => {
     let filtered = [...patients];
     
-    // Apply status filter
     if (statusFilter !== "all") {
       filtered = filtered.filter(patient => patient.status === statusFilter);
     }
     
-    // Apply search filter
     if (searchQuery) {
       filtered = filtered.filter(patient =>
         patient.full_name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -124,61 +133,24 @@ export const MessagesCard = () => {
     setFilteredPatients(filtered);
   }, [statusFilter, searchQuery, patients]);
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'resolved':
-        return <Badge className="bg-green-500">Resolved</Badge>;
-      case 'not_seen':
-        return <Badge variant="destructive">Not Seen</Badge>;
-      default:
-        return <Badge variant="secondary">In Progress</Badge>;
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'resolved':
-        return <CheckCircle2 className="w-4 h-4 text-green-500" />;
-      case 'not_seen':
-        return <Circle className="w-4 h-4 text-red-500" />;
-      default:
-        return <Circle className="w-4 h-4 text-yellow-500" />;
-    }
-  };
-
   return (
     <Card className="h-[400px] flex flex-col">
       <CardHeader>
         <CardTitle className="text-lg flex items-center gap-2">
           <MessageSquare className="w-5 h-5" />
-          Patient Messages
+          {isAdmin ? "Patient Messages" : "Chat with Doctor"}
         </CardTitle>
-        <CardDescription>Chat with your patients</CardDescription>
-        <div className="flex gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search patients..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8"
-            />
-          </div>
-          <Select
-            value={statusFilter}
-            onValueChange={setStatusFilter}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Messages</SelectItem>
-              <SelectItem value="not_seen">Not Seen</SelectItem>
-              <SelectItem value="in_progress">In Progress</SelectItem>
-              <SelectItem value="resolved">Resolved</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <CardDescription>
+          {isAdmin ? "Chat with your patients" : "Get medical assistance"}
+        </CardDescription>
+        {isAdmin && (
+          <MessagesFilter
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            statusFilter={statusFilter}
+            onStatusChange={setStatusFilter}
+          />
+        )}
       </CardHeader>
       <CardContent className="flex-1 overflow-hidden">
         <ScrollArea className="h-[280px] pr-4">
@@ -194,40 +166,10 @@ export const MessagesCard = () => {
                 </div>
               ))}
             </div>
-          ) : filteredPatients.length > 0 ? (
-            <div className="space-y-4">
-              {filteredPatients.map((patient) => (
-                <Button
-                  key={patient.id}
-                  variant="ghost"
-                  className="w-full justify-start p-4 h-auto"
-                  onClick={() => navigate(`/chat/${patient.id}`)}
-                >
-                  <div className="flex items-start gap-3 w-full">
-                    <div className="bg-blue-100 p-2 rounded-full">
-                      <User className="w-5 h-5 text-blue-600" />
-                    </div>
-                    <div className="flex-1 text-left">
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium">{patient.full_name}</span>
-                        {getStatusBadge(patient.status)}
-                      </div>
-                      <p className="text-sm text-muted-foreground truncate flex items-center gap-2">
-                        {getStatusIcon(patient.status)}
-                        {patient.last_message}
-                      </p>
-                      <div className="text-xs text-muted-foreground mt-1">
-                        {new Date(patient.last_message_time).toLocaleDateString()}
-                      </div>
-                    </div>
-                  </div>
-                </Button>
-              ))}
-            </div>
+          ) : isAdmin ? (
+            <AdminMessagesList messages={filteredPatients} />
           ) : (
-            <div className="text-center text-muted-foreground py-8">
-              No messages found
-            </div>
+            <PatientChatPrompt />
           )}
         </ScrollArea>
       </CardContent>
