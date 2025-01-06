@@ -1,8 +1,7 @@
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
 import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
 interface VerificationButtonProps {
@@ -11,72 +10,74 @@ interface VerificationButtonProps {
   isSignUp?: boolean;
 }
 
-export const VerificationButton = ({ phone, password, isSignUp }: VerificationButtonProps) => {
+export const VerificationButton = ({ phone, password, isSignUp = false }: VerificationButtonProps) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
   const navigate = useNavigate();
 
+  const formatPhoneNumber = (phone: string) => {
+    let cleaned = phone.replace(/\D/g, '');
+    cleaned = cleaned.replace(/^0+/, '');
+    
+    if (cleaned.startsWith('7')) {
+      cleaned = '964' + cleaned;
+    }
+    
+    if (!cleaned.startsWith('964')) {
+      cleaned = '964' + cleaned;
+    }
+    
+    if (!cleaned.startsWith('+')) {
+      cleaned = '+' + cleaned;
+    }
+    
+    return cleaned;
+  };
+
   const handleSignUp = async () => {
-    if (!phone || phone.length !== 11) {
-      toast({
-        title: "Invalid phone number",
-        description: "Please enter a valid Iraqi phone number",
-        variant: "destructive",
-      });
+    if (!phone || !password) {
+      toast.error("Please fill in all fields");
       return;
     }
 
-    if (!password || password.length < 6) {
-      toast({
-        title: "Invalid password",
-        description: "Password must be at least 6 characters long",
-        variant: "destructive",
-      });
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters");
       return;
     }
 
     try {
       setIsLoading(true);
-      const phoneWithoutZero = phone.startsWith('0') ? phone.slice(1) : phone;
-      const formattedPhone = `+964${phoneWithoutZero}`;
+      const formattedPhone = formatPhoneNumber(phone);
 
       const { data, error } = await supabase.auth.signUp({
         phone: formattedPhone,
         password: password,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Sign up error:', error);
+        toast.error(error.message);
+        return;
+      }
 
-      if (data.user) {
-        toast({
-          title: "Success",
-          description: "Account created successfully!",
-        });
-        navigate("/profile");
+      if (data?.user) {
+        toast.success("Sign up successful! Please sign in.");
+        navigate("/signin");
       }
     } catch (error: any) {
-      toast({
-        title: "Signup failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      console.error('Unexpected error:', error);
+      toast.error("An unexpected error occurred");
     } finally {
       setIsLoading(false);
     }
   };
 
-  if (!isSignUp) return null;
-
-  const isDisabled = !phone || phone.length !== 11 || !password || password.length < 6 || isLoading;
-
   return (
-    <Button 
-      onClick={handleSignUp} 
-      disabled={isDisabled}
+    <Button
       className="w-full"
+      onClick={handleSignUp}
+      disabled={!phone || !password || password.length < 6 || isLoading}
     >
-      {isLoading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-      Sign Up
+      {isLoading ? "Processing..." : "Sign up"}
     </Button>
   );
 };
