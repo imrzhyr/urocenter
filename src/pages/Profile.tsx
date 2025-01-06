@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Globe } from "lucide-react";
 import { ProfileForm } from "@/components/ProfileForm";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,9 +29,38 @@ const Profile = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate("/payment");
+    
+    try {
+      const userPhone = localStorage.getItem('userPhone');
+      if (!userPhone) {
+        toast.error("No phone number found");
+        navigate("/signin");
+        return;
+      }
+
+      // Update the profile in Supabase
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({
+          ...profile,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('phone', userPhone);
+
+      if (updateError) {
+        console.error("Error updating profile:", updateError);
+        toast.error("Failed to save profile");
+        return;
+      }
+
+      toast.success("Profile saved successfully!");
+      navigate("/payment");
+    } catch (error) {
+      console.error("Error saving profile:", error);
+      toast.error("Failed to save profile");
+    }
   };
 
   return (
