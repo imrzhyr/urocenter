@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PhoneInput } from "@/components/PhoneInput";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Eye, EyeOff, ArrowLeft, Globe } from "lucide-react";
@@ -107,12 +106,10 @@ const SignIn = () => {
             <CardContent>
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
                   <PhoneInput value={phone} onChange={setPhone} />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
                   <div className="relative">
                     <Input
                       id="password"
@@ -120,6 +117,7 @@ const SignIn = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="pr-10"
+                      placeholder="Password"
                     />
                     <button
                       type="button"

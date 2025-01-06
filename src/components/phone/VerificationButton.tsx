@@ -1,70 +1,48 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
 
 interface VerificationButtonProps {
   phone: string;
   password: string;
-  isSignUp?: boolean;
+  isValid: boolean;
 }
 
-export const VerificationButton = ({ phone, password, isSignUp = false }: VerificationButtonProps) => {
-  const [isLoading, setIsLoading] = useState(false);
+export const VerificationButton = ({
+  phone,
+  password,
+  isValid,
+}: VerificationButtonProps) => {
   const navigate = useNavigate();
-
-  const formatPhoneNumber = (phone: string) => {
-    let cleaned = phone.replace(/\D/g, '');
-    cleaned = cleaned.replace(/^0+/, '');
-    
-    if (cleaned.startsWith('7')) {
-      cleaned = '964' + cleaned;
-    }
-    
-    if (!cleaned.startsWith('964')) {
-      cleaned = '964' + cleaned;
-    }
-    
-    if (!cleaned.startsWith('+')) {
-      cleaned = '+' + cleaned;
-    }
-    
-    return cleaned;
-  };
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSignUp = async () => {
-    if (!phone || !password) {
-      toast.error("Please fill in all fields");
-      return;
-    }
-
-    if (password.length < 6) {
-      toast.error("Password must be at least 6 characters");
+    if (!isValid) {
+      toast.error("Please enter a valid phone number and password");
       return;
     }
 
     try {
       setIsLoading(true);
-      const formattedPhone = formatPhoneNumber(phone);
-
       const { data, error } = await supabase.auth.signUp({
-        phone: formattedPhone,
-        password: password,
+        phone,
+        password,
       });
 
       if (error) {
-        console.error('Sign up error:', error);
+        console.error("Signup error:", error);
         toast.error(error.message);
         return;
       }
 
       if (data?.user) {
-        toast.success("Sign up successful! Please sign in.");
-        navigate("/signin");
+        toast.success("Account created successfully!");
+        navigate("/profile");
       }
     } catch (error: any) {
-      console.error('Unexpected error:', error);
+      console.error("Unexpected error:", error);
       toast.error("An unexpected error occurred");
     } finally {
       setIsLoading(false);
@@ -73,11 +51,11 @@ export const VerificationButton = ({ phone, password, isSignUp = false }: Verifi
 
   return (
     <Button
-      className="w-full"
       onClick={handleSignUp}
-      disabled={!phone || !password || password.length < 6 || isLoading}
+      className="w-full"
+      disabled={!isValid || isLoading}
     >
-      {isLoading ? "Processing..." : "Sign up"}
+      {isLoading ? "Creating account..." : "Create account"}
     </Button>
   );
 };
