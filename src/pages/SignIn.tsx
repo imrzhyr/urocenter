@@ -42,7 +42,8 @@ const SignIn = () => {
 
       console.log('Attempting sign in with:', {
         phone: formattedPhone,
-        passwordLength: password.length
+        passwordLength: password.length,
+        rawPhone: phone
       });
 
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -54,7 +55,8 @@ const SignIn = () => {
         console.error('Auth error details:', {
           status: error.status,
           message: error.message,
-          name: error.name
+          name: error.name,
+          fullError: error
         });
         
         if (error.message.includes("Invalid login credentials")) {
@@ -68,7 +70,8 @@ const SignIn = () => {
       if (data?.user) {
         console.log('Sign in successful:', {
           userId: data.user.id,
-          phone: data.user.phone
+          phone: data.user.phone,
+          metadata: data.user.user_metadata
         });
         toast.success("Signed in successfully!");
         navigate("/dashboard");
