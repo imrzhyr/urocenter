@@ -1,3 +1,9 @@
+declare global {
+  interface Window {
+    ethereum?: any;
+  }
+}
+
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
 import { AnimatePresence, motion } from "framer-motion";
@@ -12,13 +18,20 @@ import Chat from "@/pages/Chat";
 import { EditProfileForm } from "@/components/profile/EditProfileForm";
 import MedicalInformation from "@/pages/MedicalInformation";
 
-// Prevent Web3 provider conflicts
-if (window.ethereum && Object.getOwnPropertyDescriptor(window, 'ethereum')?.configurable) {
-  Object.defineProperty(window, 'ethereum', {
-    value: window.ethereum,
-    writable: false,
-    configurable: false
-  });
+// More defensive check for Web3 provider conflicts
+try {
+  if (typeof window !== 'undefined' && window.ethereum) {
+    const descriptor = Object.getOwnPropertyDescriptor(window, 'ethereum');
+    if (descriptor?.configurable) {
+      Object.defineProperty(window, 'ethereum', {
+        value: window.ethereum,
+        writable: false,
+        configurable: false
+      });
+    }
+  }
+} catch (error) {
+  console.warn('Web3 provider already initialized');
 }
 
 const PageWrapper = ({ children }: { children: React.ReactNode }) => {
