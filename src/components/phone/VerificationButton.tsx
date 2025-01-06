@@ -40,19 +40,20 @@ export const VerificationButton = ({ phone, password, isSignUp }: VerificationBu
       const phoneWithoutZero = phone.startsWith('0') ? phone.slice(1) : phone;
       const formattedPhone = `+964${phoneWithoutZero}`;
 
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         phone: formattedPhone,
         password: password,
       });
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Account created successfully!",
-      });
-
-      navigate("/profile");
+      if (data.user) {
+        toast({
+          title: "Success",
+          description: "Account created successfully!",
+        });
+        navigate("/profile");
+      }
     } catch (error: any) {
       toast({
         title: "Signup failed",
