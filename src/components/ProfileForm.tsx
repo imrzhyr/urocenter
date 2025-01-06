@@ -13,11 +13,7 @@ export const ProfileForm = ({
   profile,
   onProfileChange,
 }: ProfileFormProps) => {
-  const hasValidName = profile.full_name.trim().split(' ').length >= 2;
-  const isFormValid = hasValidName && 
-    profile.gender && 
-    profile.age && 
-    profile.complaint;
+  const hasValidName = profile.full_name?.trim().split(' ').length >= 2;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -25,7 +21,7 @@ export const ProfileForm = ({
         <Label htmlFor="fullName">Full Name *</Label>
         <Input
           id="fullName"
-          value={profile.full_name}
+          value={profile.full_name || ""}
           onChange={(e) => {
             const names = e.target.value.split(' ').map(name => 
               name.charAt(0).toUpperCase() + name.slice(1).toLowerCase()
@@ -44,7 +40,7 @@ export const ProfileForm = ({
       <div className="space-y-2">
         <Label>Gender *</Label>
         <RadioGroup
-          value={profile.gender}
+          value={profile.gender || ""}
           onValueChange={(value) => onProfileChange('gender', value)}
           className="flex gap-4"
         >
@@ -67,7 +63,7 @@ export const ProfileForm = ({
         <Input
           id="age"
           type="number"
-          value={profile.age}
+          value={profile.age || ""}
           onChange={(e) => onProfileChange('age', e.target.value)}
           placeholder="Enter your age"
           required
@@ -80,18 +76,12 @@ export const ProfileForm = ({
       </div>
 
       <ComplaintInput 
-        complaint={profile.complaint} 
+        complaint={profile.complaint || ""} 
         setComplaint={(value) => onProfileChange('complaint', value)} 
         required
       />
       {!profile.complaint && (
         <p className="text-sm text-muted-foreground">This field is required</p>
-      )}
-
-      {!isFormValid && (
-        <p className="text-sm text-red-500">
-          Please fill in all required fields marked with *
-        </p>
       )}
     </div>
   );
