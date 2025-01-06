@@ -24,22 +24,7 @@ const SignUp = () => {
   const [loading, setLoading] = useState(false);
 
   const handlePhoneSubmit = async () => {
-    try {
-      setLoading(true);
-      const formattedPhone = `+964${phone}`;
-      const { error } = await supabase.auth.signInWithOtp({
-        phone: formattedPhone,
-      });
-
-      if (error) throw error;
-      
-      toast.success("Verification code sent to your phone!");
-      navigate("/verify", { state: { phone: formattedPhone } });
-    } catch (error: any) {
-      toast.error(error.message);
-    } finally {
-      setLoading(false);
-    }
+    setCurrentStep(1);
   };
 
   const handleProfileSubmit = async () => {
@@ -110,14 +95,7 @@ const SignUp = () => {
           <div className="bg-card/50 backdrop-blur-sm p-6 rounded-lg shadow-lg border border-accent">
             {currentStep === 0 && (
               <div className="space-y-6">
-                <PhoneInput value={phone} onChange={setPhone} />
-                <Button
-                  onClick={handlePhoneSubmit}
-                  className="w-full"
-                  disabled={phone.length < 11 || loading}
-                >
-                  {loading ? "Sending code..." : "Continue with Phone"}
-                </Button>
+                <PhoneInput value={phone} onChange={setPhone} isSignUp={true} />
               </div>
             )}
 
