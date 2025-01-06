@@ -14,7 +14,7 @@ export const sendMessage = async (
       throw new Error('Please sign in to send messages');
     }
 
-    // Set the user phone in Supabase context
+    // Set the user context
     const { error: contextError } = await supabase.rpc('set_user_context', {
       user_phone: userPhone
     });
@@ -24,7 +24,7 @@ export const sendMessage = async (
       throw new Error('Could not verify user context');
     }
 
-    // Get the user's profile to get their ID
+    // Get the user's profile
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('id')
@@ -50,18 +50,16 @@ export const sendMessage = async (
       }
     }
 
-    const messageData = {
-      content: message.trim(),
-      is_from_doctor: false,
-      user_id: profile.id,
-      file_url: fileData?.url,
-      file_name: fileData?.name,
-      file_type: fileData?.type
-    };
-
     const { error: insertError } = await supabase
       .from('messages')
-      .insert(messageData);
+      .insert({
+        content: message.trim(),
+        is_from_doctor: false,
+        user_id: profile.id,
+        file_url: fileData?.url,
+        file_name: fileData?.name,
+        file_type: fileData?.type
+      });
 
     if (insertError) {
       console.error('Error inserting message:', insertError);
