@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,14 +10,40 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const Verify = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const phone = location.state?.phone;
   const [code, setCode] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate("/profile");
+    if (!phone) {
+      toast.error("Phone number not found");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const { error } = await supabase.auth.verifyOtp({
+        phone,
+        token: code,
+        type: 'sms'
+      });
+
+      if (error) throw error;
+
+      toast.success("Phone number verified successfully!");
+      navigate("/profile");
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -62,8 +88,12 @@ const Verify = () => {
                 maxLength={6}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={code.length < 6}>
-              Verify
+            <Button 
+              type="submit" 
+              className="w-full" 
+              disabled={code.length < 6 || loading}
+            >
+              {loading ? "Verifying..." : "Verify"}
             </Button>
           </form>
         </div>

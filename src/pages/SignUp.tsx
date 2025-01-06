@@ -7,7 +7,6 @@ import { Phone, Shield, CreditCard } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PhoneInput } from "@/components/PhoneInput";
 import { ProgressSteps } from "@/components/ProgressSteps";
-import { WhatsAppSignIn } from "@/components/WhatsAppSignIn";
 import { SignUpHeader } from "@/components/signup/SignUpHeader";
 import { toast } from "sonner";
 
@@ -27,15 +26,15 @@ const SignUp = () => {
   const handlePhoneSubmit = async () => {
     try {
       setLoading(true);
+      const formattedPhone = `+964${phone}`;
       const { error } = await supabase.auth.signInWithOtp({
-        phone,
-        channel: 'whatsapp'
+        phone: formattedPhone,
       });
 
       if (error) throw error;
       
-      toast.success("WhatsApp verification code sent!");
-      navigate("/verify", { state: { phone } });
+      toast.success("Verification code sent to your phone!");
+      navigate("/verify", { state: { phone: formattedPhone } });
     } catch (error: any) {
       toast.error(error.message);
     } finally {
@@ -119,17 +118,6 @@ const SignUp = () => {
                 >
                   {loading ? "Sending code..." : "Continue with Phone"}
                 </Button>
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">
-                      Or
-                    </span>
-                  </div>
-                </div>
-                <WhatsAppSignIn />
               </div>
             )}
 
