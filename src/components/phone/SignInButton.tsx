@@ -17,14 +17,19 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
 
   const formatPhoneNumber = (phone: string) => {
     // Remove any non-digit characters
-    const digits = phone.replace(/\D/g, '');
+    let digits = phone.replace(/\D/g, '');
     
-    // If it starts with 964, add the + prefix
-    if (digits.startsWith('964')) {
-      return `+${digits}`;
+    // Remove leading zero if present
+    if (digits.startsWith('0')) {
+      digits = digits.slice(1);
     }
     
-    // If it doesn't start with 964, add +964 prefix
+    // If it starts with 964, remove it first
+    if (digits.startsWith('964')) {
+      digits = digits.slice(3);
+    }
+    
+    // Add the +964 prefix
     return `+964${digits}`;
   };
 
@@ -38,7 +43,7 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
       setIsLoading(true);
 
       const formattedPhone = formatPhoneNumber(phone);
-      console.log("Sign in attempt with:", { formattedPhone, password });
+      console.log("Attempting sign in with:", { formattedPhone, password });
 
       // Query the profiles table to find the user
       const { data: profile, error: profileError } = await supabase
@@ -57,6 +62,7 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
       }
 
       if (!profile) {
+        console.log("No profile found for:", { formattedPhone });
         toast.error("Invalid phone number or password");
         return;
       }
