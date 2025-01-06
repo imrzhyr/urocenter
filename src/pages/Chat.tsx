@@ -1,15 +1,11 @@
 import { useState, useEffect, useRef } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ArrowLeft, Send, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
+import { ChatHeader } from "@/components/chat/ChatHeader";
+import { PatientInfoCard } from "@/components/chat/PatientInfoCard";
+import { ChatMessage } from "@/components/chat/ChatMessage";
+import { ChatInput } from "@/components/chat/ChatInput";
 
 const Chat = () => {
   const [message, setMessage] = useState("");
@@ -134,97 +130,33 @@ const Chat = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-background">
-      {/* Header */}
-      <div className="p-4 bg-card border-b">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-3">
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => navigate(-1)}
-              className="mr-2"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <Avatar>
-              <AvatarImage src="/lovable-uploads/06b7c9e0-66fd-4a8e-8025-584b2a539eae.png" alt="Dr. Ali Kamal" />
-              <AvatarFallback>AK</AvatarFallback>
-            </Avatar>
-            <div>
-              <h2 className="font-semibold">Dr. Ali Kamal</h2>
-              <p className="text-xs text-muted-foreground">Online</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Patient Information Card */}
-        <Card className="bg-muted/50 border-none animate-fade-in">
-          <CardContent className="p-4">
-            <div className="flex flex-col space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <FileText className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-medium">Medical Reports:</span>
-                </div>
-                <span className="text-sm font-semibold">{patientInfo.reportsCount}</span>
-              </div>
-              <div>
-                <h3 className="text-sm font-medium mb-1">Chief Complaint:</h3>
-                <p className="text-sm text-muted-foreground">{patientInfo.complaint || "No complaint recorded"}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+    <div className="flex flex-col h-screen bg-gradient-to-b from-purple-50 to-white">
+      <div className="p-4 bg-white border-b border-purple-100 shadow-sm">
+        <ChatHeader onBack={() => navigate(-1)} />
+        <PatientInfoCard 
+          complaint={patientInfo.complaint}
+          reportsCount={patientInfo.reportsCount}
+        />
       </div>
 
-      {/* Chat Area */}
       <div className="flex-1 p-4 space-y-4 overflow-y-auto">
         {messages.map((msg, index) => (
-          <div
+          <ChatMessage
             key={msg.id || index}
-            className={`flex ${msg.is_from_doctor ? 'justify-start' : 'justify-end'}`}
-          >
-            {msg.is_from_doctor && (
-              <Avatar className="mr-2">
-                <AvatarImage src="/lovable-uploads/06b7c9e0-66fd-4a8e-8025-584b2a539eae.png" alt="Dr. Ali Kamal" />
-                <AvatarFallback>AK</AvatarFallback>
-              </Avatar>
-            )}
-            <div
-              className={`rounded-lg p-3 max-w-[80%] ${
-                msg.is_from_doctor
-                ? 'bg-muted text-foreground'
-                : 'bg-primary text-primary-foreground'
-              }`}
-            >
-              <p className="text-sm">{msg.content}</p>
-            </div>
-          </div>
+            content={msg.content}
+            isFromDoctor={msg.is_from_doctor}
+          />
         ))}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Area */}
-      <div className="p-4 bg-card border-t">
-        <div className="flex space-x-2">
-          <Input
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Type your message..."
-            className="flex-1"
-            disabled={isLoading}
-          />
-          <Button 
-            size="icon"
-            onClick={handleSendMessage}
-            disabled={isLoading || !message.trim()}
-          >
-            <Send className="w-5 h-5" />
-          </Button>
-        </div>
-      </div>
+      <ChatInput
+        message={message}
+        onChange={setMessage}
+        onSend={handleSendMessage}
+        isLoading={isLoading}
+        onKeyPress={handleKeyPress}
+      />
     </div>
   );
 };
