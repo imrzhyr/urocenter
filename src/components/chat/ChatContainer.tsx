@@ -6,14 +6,18 @@ import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useMessages } from "@/hooks/useMessages";
 import { uploadFile } from "@/utils/fileUpload";
 
-export const ChatContainer = () => {
+interface ChatContainerProps {
+  patientId?: string;
+}
+
+export const ChatContainer = ({ patientId }: ChatContainerProps) => {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useAuthRedirect();
-  const { messages, addMessage } = useMessages();
+  const { messages, addMessage } = useMessages(patientId);
 
   useEffect(() => {
     if (messagesEndRef.current) {

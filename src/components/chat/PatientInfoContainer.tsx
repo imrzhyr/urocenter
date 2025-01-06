@@ -2,23 +2,35 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PatientInfoCard } from "@/components/chat/PatientInfoCard";
 
-export const PatientInfoContainer = () => {
+interface PatientInfoContainerProps {
+  patientId?: string;
+}
+
+export const PatientInfoContainer = ({ patientId }: PatientInfoContainerProps) => {
   const [patientInfo, setPatientInfo] = useState<{
     complaint: string;
     reportsCount: number;
-  }>({ complaint: "", reportsCount: 0 });
+    fullName: string;
+    age: string;
+    gender: string;
+  }>({ 
+    complaint: "", 
+    reportsCount: 0,
+    fullName: "",
+    age: "",
+    gender: ""
+  });
 
   useEffect(() => {
     const fetchPatientInfo = async () => {
       try {
-        const userPhone = localStorage.getItem('userPhone');
-        if (!userPhone) return;
+        if (!patientId) return;
 
         const { data: profileData } = await supabase
           .from('profiles')
-          .select('id, complaint')
-          .eq('phone', userPhone)
-          .maybeSingle();
+          .select('id, complaint, full_name, age, gender')
+          .eq('id', patientId)
+          .single();
 
         if (profileData) {
           const { data: reports } = await supabase
@@ -28,7 +40,10 @@ export const PatientInfoContainer = () => {
 
           setPatientInfo({
             complaint: profileData.complaint || "",
-            reportsCount: reports?.length || 0
+            reportsCount: reports?.length || 0,
+            fullName: profileData.full_name || "",
+            age: profileData.age || "",
+            gender: profileData.gender || ""
           });
         }
       } catch (error) {
@@ -37,12 +52,15 @@ export const PatientInfoContainer = () => {
     };
 
     fetchPatientInfo();
-  }, []);
+  }, [patientId]);
 
   return (
     <PatientInfoCard 
       complaint={patientInfo.complaint}
       reportsCount={patientInfo.reportsCount}
+      fullName={patientInfo.fullName}
+      age={patientInfo.age}
+      gender={patientInfo.gender}
     />
   );
 };

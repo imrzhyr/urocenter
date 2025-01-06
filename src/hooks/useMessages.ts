@@ -12,7 +12,7 @@ export interface Message {
   file_type?: string;
 }
 
-export const useMessages = () => {
+export const useMessages = (patientId?: string) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -31,7 +31,7 @@ export const useMessages = () => {
         // Get user profile
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
-          .select('id')
+          .select('id, role')
           .eq('phone', userPhone)
           .maybeSingle();
 
@@ -41,12 +41,21 @@ export const useMessages = () => {
           return;
         }
 
-        // Fetch initial messages
-        const { data: initialMessages, error: messagesError } = await supabase
+        // Construct the query based on the user's role and patientId
+        let query = supabase
           .from('messages')
           .select('*')
-          .eq('user_id', profile.id)
           .order('created_at', { ascending: true });
+
+        if (profile.role === 'admin' && patientId) {
+          // Admin viewing specific patient's messages
+          query = query.eq('user_id', patientId);
+        } else if (profile.role === 'patient') {
+          // Patient viewing their own messages
+          query = query.eq('user_id', profile.id);
+        }
+
+        const { data: initialMessages, error: messagesError } = await query;
 
         if (messagesError) {
           console.error('Error fetching messages:', messagesError);
@@ -59,15 +68,16 @@ export const useMessages = () => {
         setMessages(initialMessages || []);
 
         // Set up real-time subscription
+        const channelId = patientId || profile.id;
         channel = supabase
-          .channel(`messages:${profile.id}`)
+          .channel(`messages:${channelId}`)
           .on(
             'postgres_changes',
             {
               event: '*',
               schema: 'public',
               table: 'messages',
-              filter: `user_id=eq.${profile.id}`
+              filter: `user_id=eq.${channelId}`
             },
             (payload) => {
               console.log('Real-time update received:', payload);
@@ -97,7 +107,7 @@ export const useMessages = () => {
         supabase.removeChannel(channel);
       }
     };
-  }, []);
+  }, [patientId]);
 
   const addMessage = async (content: string, fileData?: { url: string; name: string; type: string }) => {
     const userPhone = localStorage.getItem('userPhone');
@@ -109,7 +119,7 @@ export const useMessages = () => {
     try {
       const { data: profile } = await supabase
         .from('profiles')
-        .select('id')
+        .select('id, role')
         .eq('phone', userPhone)
         .maybeSingle();
 
@@ -121,8 +131,8 @@ export const useMessages = () => {
       // Create new message object
       const newMessage = {
         content,
-        user_id: profile.id,
-        is_from_doctor: false,
+        user_id: patientId || profile.id,
+        is_from_doctor: profile.role === 'admin',
         file_url: fileData?.url,
         file_name: fileData?.name,
         file_type: fileData?.type,

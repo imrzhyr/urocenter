@@ -1,16 +1,39 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { FileText, Heart } from "lucide-react";
+import { FileText, Heart, User } from "lucide-react";
 
 interface PatientInfoCardProps {
   complaint: string;
   reportsCount: number;
+  fullName: string;
+  age: string;
+  gender: string;
 }
 
-export const PatientInfoCard = ({ complaint, reportsCount }: PatientInfoCardProps) => {
+export const PatientInfoCard = ({ 
+  complaint, 
+  reportsCount, 
+  fullName,
+  age,
+  gender
+}: PatientInfoCardProps) => {
   return (
     <Card className="bg-gradient-to-r from-blue-50 to-white border border-blue-100 shadow-sm animate-fade-in">
       <CardContent className="p-4">
         <div className="flex flex-col space-y-3">
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <User className="w-4 h-4 text-blue-600" />
+              <span className="text-sm font-medium text-blue-900">Patient Information</span>
+            </div>
+            <div className="flex items-center space-x-2 text-sm text-blue-700">
+              <span>{fullName}</span>
+              <span>•</span>
+              <span>{age} years</span>
+              <span>•</span>
+              <span>{gender}</span>
+            </div>
+          </div>
+
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <FileText className="w-4 h-4 text-blue-600" />
@@ -20,6 +43,7 @@ export const PatientInfoCard = ({ complaint, reportsCount }: PatientInfoCardProp
               {reportsCount}
             </span>
           </div>
+
           <div className="space-y-1.5">
             <div className="flex items-center space-x-2">
               <Heart className="w-4 h-4 text-blue-600" />
