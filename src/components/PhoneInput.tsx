@@ -9,9 +9,10 @@ import { Loader2 } from "lucide-react";
 interface PhoneInputProps {
   value: string;
   onChange: (value: string) => void;
+  isSignUp?: boolean;
 }
 
-export const PhoneInput = ({ value, onChange }: PhoneInputProps) => {
+export const PhoneInput = ({ value, onChange, isSignUp = false }: PhoneInputProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -80,15 +81,17 @@ export const PhoneInput = ({ value, onChange }: PhoneInputProps) => {
             onChange={handleChange}
             placeholder="7XX XXX XXXX"
           />
-          <Button 
-            onClick={handleSendCode} 
-            disabled={value.length !== 10 || isLoading}
-          >
-            {isLoading ? (
-              <Loader2 className="w-4 h-4 animate-spin mr-2" />
-            ) : null}
-            Send Code
-          </Button>
+          {isSignUp && (
+            <Button 
+              onClick={handleSendCode} 
+              disabled={value.length !== 10 || isLoading}
+            >
+              {isLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              ) : null}
+              Send Code
+            </Button>
+          )}
         </div>
       </div>
       <p className="text-sm text-muted-foreground">
