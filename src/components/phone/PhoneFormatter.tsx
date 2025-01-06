@@ -8,7 +8,10 @@ interface PhoneFormatterProps {
 
 export const PhoneFormatter = ({ value, onChange, readOnly = false }: PhoneFormatterProps) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let val = e.target.value.replace(/\D/g, "");
+    let val = e.target.value;
+    
+    // Remove any non-numeric characters
+    val = val.replace(/\D/g, "");
     
     // Remove the country code if present
     if (val.startsWith('964')) {
@@ -27,6 +30,8 @@ export const PhoneFormatter = ({ value, onChange, readOnly = false }: PhoneForma
 
   const formatPhoneNumber = (phone: string) => {
     if (!phone) return "";
+    
+    // Only format if we have enough digits
     const match = phone.match(/^(\d{3})(\d{3})(\d{4})$/);
     if (match) {
       return `${match[1]} ${match[2]} ${match[3]}`;
@@ -41,7 +46,7 @@ export const PhoneFormatter = ({ value, onChange, readOnly = false }: PhoneForma
       </div>
       <Input
         id="phone"
-        type="tel"
+        type="text"
         className="rounded-l-none"
         value={formatPhoneNumber(value)}
         onChange={handleChange}
