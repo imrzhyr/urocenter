@@ -46,13 +46,32 @@ export const ViewReportsDialog = ({ open, onOpenChange }: ViewReportsDialogProps
       const { data: reports, error } = await supabase
         .from('medical_reports')
         .select('*')
-        .eq('user_id', profileData.id);
+        .eq('user_id', profileData.id)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
 
       setMedicalReports(reports || []);
     } catch (error) {
+      console.error("Fetch error:", error);
       toast.error("Failed to fetch medical reports");
+    }
+  };
+
+  const handleViewFile = async (report: any) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('medical_reports')
+        .createSignedUrl(report.file_path, 60);
+
+      if (error) throw error;
+
+      if (data?.signedUrl) {
+        window.open(data.signedUrl, '_blank');
+      }
+    } catch (error) {
+      console.error("View error:", error);
+      toast.error("Failed to open file");
     }
   };
 
@@ -75,19 +94,7 @@ export const ViewReportsDialog = ({ open, onOpenChange }: ViewReportsDialogProps
               <Button
                 variant="link"
                 className="mt-2 p-0"
-                onClick={async () => {
-                  try {
-                    const { data } = await supabase.storage
-                      .from('medical_reports')
-                      .createSignedUrl(report.file_path, 60);
-                    
-                    if (data?.signedUrl) {
-                      window.open(data.signedUrl, '_blank');
-                    }
-                  } catch (error) {
-                    toast.error("Failed to open file");
-                  }
-                }}
+                onClick={() => handleViewFile(report)}
               >
                 View File
               </Button>
