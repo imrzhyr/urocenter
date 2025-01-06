@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 interface ComplaintInputProps {
@@ -22,41 +21,17 @@ export const ComplaintInput = ({
   setComplaint,
   required = false
 }: ComplaintInputProps) => {
-  const [placeholderText, setPlaceholderText] = useState("");
+  const [placeholderText, setPlaceholderText] = useState(complaintExamples[0]);
   const [exampleIndex, setExampleIndex] = useState(0);
-  const [charIndex, setCharIndex] = useState(0);
-  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    const typewriterDelay = isDeleting ? 30 : 50;
-    const pauseDelay = 1500;
+    const interval = setInterval(() => {
+      setExampleIndex((prev) => (prev + 1) % complaintExamples.length);
+      setPlaceholderText(complaintExamples[(exampleIndex + 1) % complaintExamples.length]);
+    }, 3000);
 
-    const typewriter = () => {
-      const currentExample = complaintExamples[exampleIndex];
-
-      if (isDeleting) {
-        setPlaceholderText(currentExample.substring(0, charIndex - 1));
-        setCharIndex(prev => prev - 1);
-
-        if (charIndex <= 1) {
-          setIsDeleting(false);
-          setExampleIndex((prev) => (prev + 1) % complaintExamples.length);
-          return;
-        }
-      } else {
-        setPlaceholderText(currentExample.substring(0, charIndex + 1));
-        setCharIndex(prev => prev + 1);
-
-        if (charIndex >= currentExample.length - 1) {
-          setTimeout(() => setIsDeleting(true), pauseDelay);
-          return;
-        }
-      }
-    };
-
-    const timer = setTimeout(typewriter, typewriterDelay);
-    return () => clearTimeout(timer);
-  }, [exampleIndex, charIndex, isDeleting]);
+    return () => clearInterval(interval);
+  }, [exampleIndex]);
 
   return (
     <div className="space-y-2">
@@ -66,7 +41,7 @@ export const ComplaintInput = ({
         value={complaint}
         onChange={(e) => setComplaint(e.target.value)}
         placeholder={placeholderText}
-        className="w-full min-h-[120px] p-3 rounded-md border border-input bg-background text-sm placeholder:text-muted-foreground/80 animate-typewriter focus:outline-none focus:ring-2 focus:ring-ring"
+        className="w-full min-h-[120px] p-3 rounded-md border border-input bg-background text-sm placeholder:text-muted-foreground/80 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-ring"
         required={required}
       />
     </div>

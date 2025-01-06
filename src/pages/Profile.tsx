@@ -15,14 +15,11 @@ const Profile = () => {
       ...profile,
       [field]: value,
     };
-    
-    const success = await updateProfile(updatedProfile);
-    if (success) {
-      toast.success(`${field} updated successfully`);
-    }
+    await updateProfile(updatedProfile);
   };
 
-  const handleContinue = () => {
+  const handleContinue = (e: React.MouseEvent) => {
+    e.preventDefault();
     const hasValidName = profile.full_name?.trim().split(' ').length >= 2;
     const isFormValid = hasValidName && 
       profile.gender && 
@@ -57,17 +54,19 @@ const Profile = () => {
             </p>
           </div>
 
-          <ProfileForm
-            profile={profile}
-            onProfileChange={handleProfileChange}
-          />
+          <div className="space-y-6">
+            <ProfileForm
+              profile={profile}
+              onProfileChange={handleProfileChange}
+            />
 
-          <Button 
-            onClick={handleContinue}
-            className="w-full"
-          >
-            Continue to Medical Information
-          </Button>
+            <Button 
+              onClick={handleContinue}
+              className="w-full"
+            >
+              Continue to Medical Information
+            </Button>
+          </div>
         </div>
       </div>
     </div>
