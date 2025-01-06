@@ -1,10 +1,6 @@
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "./ui/button";
-import { Loader2 } from "lucide-react";
+import { PhoneFormatter } from "./phone/PhoneFormatter";
+import { VerificationButton } from "./phone/VerificationButton";
 
 interface PhoneInputProps {
   value: string;
@@ -13,89 +9,13 @@ interface PhoneInputProps {
 }
 
 export const PhoneInput = ({ value, onChange, isSignUp = false }: PhoneInputProps) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value.replace(/\D/g, "");
-    if (val.length <= 10) {
-      onChange(val);
-    }
-  };
-
-  const formatPhoneNumber = (phone: string) => {
-    if (!phone) return "";
-    const match = phone.match(/^(\d{3})(\d{3})(\d{4})$/);
-    if (match) {
-      return `${match[1]} ${match[2]} ${match[3]}`;
-    }
-    return phone;
-  };
-
-  const handleSendCode = async () => {
-    if (value.length !== 10) {
-      toast({
-        title: "Invalid phone number",
-        description: "Please enter a valid Iraqi phone number",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      // Remove the leading zero if present and add the country code
-      const phoneWithoutZero = value.startsWith('0') ? value.slice(1) : value;
-      const formattedPhone = `+964${phoneWithoutZero}`;
-
-      const { error } = await supabase.auth.signInWithOtp({
-        phone: formattedPhone,
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "Verification code sent",
-        description: "Please check your phone for the verification code",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error sending code",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="phone">Phone Number</Label>
         <div className="flex gap-2">
-          <div className="flex items-center px-3 border rounded-l bg-muted">
-            +964
-          </div>
-          <Input
-            id="phone"
-            type="tel"
-            className="rounded-l-none flex-1"
-            value={formatPhoneNumber(value)}
-            onChange={handleChange}
-            placeholder="7XX XXX XXXX"
-          />
-          {isSignUp && (
-            <Button 
-              onClick={handleSendCode} 
-              disabled={value.length !== 10}
-            >
-              {isLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-              ) : null}
-              Send Code
-            </Button>
-          )}
+          <PhoneFormatter value={value} onChange={onChange} />
+          <VerificationButton phone={value} isSignUp={isSignUp} />
         </div>
       </div>
       <p className="text-sm text-muted-foreground">
