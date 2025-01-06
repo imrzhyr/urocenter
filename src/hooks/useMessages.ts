@@ -28,6 +28,17 @@ export const useMessages = () => {
       }
 
       try {
+        // First set the user context
+        const { error: contextError } = await supabase.rpc('set_user_context', {
+          user_phone: userPhone
+        });
+
+        if (contextError) {
+          console.error('Error setting user context:', contextError);
+          toast.error('Error loading messages');
+          return;
+        }
+
         // Get user profile
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
@@ -40,6 +51,8 @@ export const useMessages = () => {
           setIsLoading(false);
           return;
         }
+
+        console.log('Profile found:', profile);
 
         // Fetch initial messages
         const { data: initialMessages, error: messagesError } = await supabase
@@ -71,7 +84,6 @@ export const useMessages = () => {
             },
             (payload) => {
               console.log('Real-time update received:', payload);
-              
               if (payload.eventType === 'INSERT') {
                 setMessages((prev) => [...prev, payload.new as Message]);
               }
@@ -107,16 +119,44 @@ export const useMessages = () => {
     }
 
     try {
-      const { data: profile } = await supabase
+      // Set user context first
+      const { error: contextError } = await supabase.rpc('set_user_context', {
+        user_phone: userPhone
+      });
+
+      if (contextError) {
+        console.error('Error setting user context:', contextError);
+        toast.error('Error sending message');
+        return false;
+      }
+
+      // Get user profile
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('id')
         .eq('phone', userPhone)
         .maybeSingle();
 
-      if (!profile) {
+      if (profileError || !profile) {
+        console.error('Error fetching profile:', profileError);
         toast.error('User profile not found');
         return false;
       }
+
+      console.log('Adding message for profile:', profile);
+
+      // Create optimistic message
+      const optimisticMessage: Message = {
+        id: crypto.randomUUID(),
+        content,
+        is_from_doctor: false,
+        file_url: fileData?.url,
+        file_name: fileData?.name,
+        file_type: fileData?.type,
+      };
+
+      // Add optimistic message to state
+      setMessages(prev => [...prev, optimisticMessage]);
 
       // Create new message object
       const newMessage = {
@@ -129,16 +169,10 @@ export const useMessages = () => {
         created_at: new Date().toISOString()
       };
 
-      // Optimistically add message to state
-      const optimisticMessage = { ...newMessage, id: crypto.randomUUID() };
-      setMessages(prev => [...prev, optimisticMessage]);
-
       // Send message to database
-      const { error: insertError, data: insertedMessage } = await supabase
+      const { error: insertError } = await supabase
         .from('messages')
-        .insert([newMessage])
-        .select()
-        .single();
+        .insert([newMessage]);
 
       if (insertError) {
         console.error('Error sending message:', insertError);
