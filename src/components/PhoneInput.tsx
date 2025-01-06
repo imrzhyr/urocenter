@@ -44,8 +44,13 @@ export const PhoneInput = ({ value, onChange, isSignUp = false }: PhoneInputProp
 
     try {
       setIsLoading(true);
+      // If the number starts with 0, remove it before adding the country code
+      const formattedPhone = value.startsWith('0') 
+        ? `+964${value.slice(1)}` 
+        : `+964${value}`;
+
       const { error } = await supabase.auth.signInWithOtp({
-        phone: `+964${value}`,
+        phone: formattedPhone,
       });
 
       if (error) throw error;
