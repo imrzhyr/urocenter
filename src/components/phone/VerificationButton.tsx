@@ -58,7 +58,8 @@ export const VerificationButton = ({
       localStorage.setItem('userPhone', phone);
       
       toast.success("Account created successfully!");
-      navigate("/profile"); // Redirect to profile creation instead of sign in
+      // Directly navigate to profile creation
+      navigate("/profile");
       
     } catch (error: any) {
       console.error("Unexpected error:", error);
