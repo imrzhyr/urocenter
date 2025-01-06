@@ -27,30 +27,12 @@ export const VerificationButton = ({
     try {
       setIsLoading(true);
 
-      // First, create the auth user
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        phone,
-        password,
-      });
-
-      if (authError) {
-        console.error("Auth error:", authError);
-        toast.error(authError.message);
-        return;
-      }
-
-      if (!authData.user) {
-        toast.error("Failed to create account");
-        return;
-      }
-
-      // Then create their profile
+      // Create profile directly without auth
       const { error: profileError } = await supabase
         .from('profiles')
         .insert({
-          id: authData.user.id,
           phone,
-          auth_method: 'phone'
+          auth_method: 'none'
         });
 
       if (profileError) {

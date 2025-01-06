@@ -21,25 +21,6 @@ const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const formatPhoneNumber = (phone: string) => {
-    let cleaned = phone.replace(/\D/g, '');
-    cleaned = cleaned.replace(/^0+/, '');
-    
-    if (cleaned.startsWith('7')) {
-      cleaned = '964' + cleaned;
-    }
-    
-    if (!cleaned.startsWith('964')) {
-      cleaned = '964' + cleaned;
-    }
-    
-    if (!cleaned.startsWith('+')) {
-      cleaned = '+' + cleaned;
-    }
-    
-    return cleaned;
-  };
-
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -50,23 +31,22 @@ const SignIn = () => {
 
     try {
       setIsLoading(true);
-      const formattedPhone = formatPhoneNumber(phone);
       
-      const { data, error } = await supabase.auth.signInWithPassword({
-        phone: formattedPhone,
-        password: password,
-      });
+      // Check if profile exists with this phone number
+      const { data: profiles, error: profileError } = await supabase
+        .from('profiles')
+        .select()
+        .eq('phone', phone)
+        .single();
 
-      if (error) {
-        console.error('Auth error:', error);
+      if (profileError || !profiles) {
         toast.error("Invalid phone number or password");
         return;
       }
 
-      if (data?.user) {
-        toast.success("Signed in successfully!");
-        navigate("/dashboard");
-      }
+      toast.success("Signed in successfully!");
+      navigate("/dashboard");
+      
     } catch (error: any) {
       console.error('Unexpected error:', error);
       toast.error("An unexpected error occurred");
