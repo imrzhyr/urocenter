@@ -20,15 +20,15 @@ export const useProfile = () => {
 
   const fetchProfile = async () => {
     try {
-      const phone = localStorage.getItem('phone');
-      if (!phone) {
+      const userPhone = localStorage.getItem('userPhone');
+      if (!userPhone) {
         throw new Error("No phone number found");
       }
 
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('full_name, gender, age, complaint')
-        .eq('phone', phone)
+        .eq('phone', userPhone)
         .maybeSingle();
 
       if (profileError) throw profileError;
@@ -52,9 +52,9 @@ export const useProfile = () => {
   const updateProfile = async (updatedProfile: Profile) => {
     try {
       setIsLoading(true);
-      const phone = localStorage.getItem('phone');
+      const userPhone = localStorage.getItem('userPhone');
       
-      if (!phone) {
+      if (!userPhone) {
         throw new Error("No phone number found");
       }
 
@@ -64,10 +64,11 @@ export const useProfile = () => {
           ...updatedProfile,
           updated_at: new Date().toISOString(),
         })
-        .eq('phone', phone);
+        .eq('phone', userPhone);
 
       if (updateError) throw updateError;
 
+      setProfile(updatedProfile);
       toast.success("Profile updated successfully");
       return true;
     } catch (error) {

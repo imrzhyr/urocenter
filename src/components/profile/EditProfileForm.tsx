@@ -4,7 +4,7 @@ import { ProfileForm } from "@/components/ProfileForm";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useProfile, type Profile } from "@/hooks/useProfile";
-import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const EditProfileForm = () => {
   const navigate = useNavigate();
@@ -13,18 +13,10 @@ export const EditProfileForm = () => {
 
   useEffect(() => {
     // Update form data when initial profile is loaded
-    setFormData(initialProfile);
+    if (initialProfile) {
+      setFormData(initialProfile);
+    }
   }, [initialProfile]);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate("/signin");
-      }
-    };
-    checkAuth();
-  }, [navigate]);
 
   const handleFieldChange = (field: keyof Profile, value: string) => {
     setFormData(prev => ({
@@ -44,7 +36,7 @@ export const EditProfileForm = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        Loading...
+        <div className="animate-pulse">Loading...</div>
       </div>
     );
   }
@@ -54,7 +46,7 @@ export const EditProfileForm = () => {
       <div className="p-4 flex justify-between items-center">
         <button 
           onClick={() => navigate("/dashboard")} 
-          className="p-2 hover:bg-muted rounded-full"
+          className="p-2 hover:bg-muted rounded-full transition-colors"
         >
           <ArrowLeft className="w-6 h-6" />
         </button>
