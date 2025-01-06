@@ -15,6 +15,12 @@ export interface Message {
   status: string;
 }
 
+const sortMessagesByDate = (messages: Message[]) => {
+  return [...messages].sort((a, b) => 
+    new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+  );
+};
+
 export const useMessages = (patientId?: string) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -25,16 +31,15 @@ export const useMessages = (patientId?: string) => {
         const userPhone = localStorage.getItem('userPhone');
         if (!userPhone) return;
 
-        // Set user context
         await supabase.rpc('set_user_context', { user_phone: userPhone });
 
-        const { data: messages, error } = await supabase
+        const { data: fetchedMessages, error } = await supabase
           .from('messages')
           .select('*')
           .order('created_at', { ascending: true });
 
         if (error) throw error;
-        setMessages(messages || []);
+        setMessages(sortMessagesByDate(fetchedMessages || []));
       } catch (error) {
         console.error('Error fetching messages:', error);
         toast.error('Failed to load messages');
@@ -45,7 +50,6 @@ export const useMessages = (patientId?: string) => {
 
     fetchMessages();
 
-    // Subscribe to real-time updates
     const channel = supabase
       .channel('messages_changes')
       .on(
@@ -58,13 +62,12 @@ export const useMessages = (patientId?: string) => {
         (payload) => {
           console.log('Real-time update received:', payload);
           if (payload.eventType === 'INSERT') {
-            setMessages(prev => [...prev, payload.new as Message].sort((a, b) => 
-              new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-            ));
+            setMessages(prev => sortMessagesByDate([...prev, payload.new as Message]));
           } else if (payload.eventType === 'UPDATE') {
             setMessages(prev => 
-              prev.map(msg => msg.id === payload.new.id ? payload.new as Message : msg)
-                .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+              sortMessagesByDate(prev.map(msg => 
+                msg.id === payload.new.id ? payload.new as Message : msg
+              ))
             );
           } else if (payload.eventType === 'DELETE') {
             setMessages(prev => prev.filter(msg => msg.id !== payload.old.id));
@@ -92,7 +95,6 @@ export const useMessages = (patientId?: string) => {
         return false;
       }
 
-      // Get user profile
       const { data: profile } = await supabase
         .from('profiles')
         .select('id, role')
@@ -104,19 +106,33 @@ export const useMessages = (patientId?: string) => {
         return false;
       }
 
+      const newMessage = {
+        content,
+        user_id: profile.id,
+        is_from_doctor: profile.role === 'admin',
+        file_url: fileData?.url,
+        file_name: fileData?.name,
+        file_type: fileData?.type,
+        status: 'not_seen'
+      };
+
       const { error } = await supabase
         .from('messages')
-        .insert({
-          content,
-          user_id: profile.id,
-          is_from_doctor: profile.role === 'admin',
-          file_url: fileData?.url,
-          file_name: fileData?.name,
-          file_type: fileData?.type,
-          status: 'not_seen'
-        });
+        .insert(newMessage);
 
       if (error) throw error;
+
+      // Optimistically add the message to the local state
+      setMessages(prev => sortMessagesByDate([
+        ...prev,
+        {
+          ...newMessage,
+          id: 'temp-' + Date.now(), // This will be replaced by the real ID when the real-time update arrives
+          created_at: new Date().toISOString(),
+          is_read: false
+        } as Message
+      ]));
+
       return true;
     } catch (error) {
       console.error('Error adding message:', error);
