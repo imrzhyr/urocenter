@@ -15,16 +15,14 @@ export const sendMessage = async (
     }
 
     // Set the user phone in Supabase context
-    await supabase.auth.setSession({
-      access_token: '',
-      refresh_token: '',
+    const { error: contextError } = await supabase.rpc('set_user_context', {
+      user_phone: userPhone
     });
-    
-    // Set custom claims for RLS
-    await supabase.rpc('set_claim', {
-      claim: 'phone',
-      value: userPhone
-    });
+
+    if (contextError) {
+      console.error('Error setting user context:', contextError);
+      throw new Error('Could not verify user context');
+    }
 
     // Get the user's profile to get their ID
     const { data: profile, error: profileError } = await supabase

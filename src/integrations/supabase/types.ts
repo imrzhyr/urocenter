@@ -144,6 +144,12 @@ export type Database = {
           user_id: string
         }[]
       }
+      set_user_context: {
+        Args: {
+          user_phone: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

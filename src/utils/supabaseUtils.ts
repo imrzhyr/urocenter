@@ -5,13 +5,7 @@ export const initializeUserContext = async () => {
   if (!userPhone) return;
 
   try {
-    // Set an anonymous session
-    await supabase.auth.setSession({
-      access_token: '',
-      refresh_token: '',
-    });
-    
-    // Set the user.phone setting in PostgreSQL
+    // Set the user phone in Supabase context
     const { error } = await supabase.rpc('set_user_context', {
       user_phone: userPhone
     });
