@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, MessageSquare, Send } from "lucide-react";
+import { ArrowLeft, Send } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -42,6 +42,9 @@ const Chat = () => {
   }, []);
 
   const fetchMessages = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
     const { data, error } = await supabase
       .from('messages')
       .select('*')
@@ -60,14 +63,21 @@ const Chat = () => {
     if (!message.trim()) return;
     
     setIsLoading(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      toast.error('You must be logged in to send messages');
+      setIsLoading(false);
+      return;
+    }
+
     const { error } = await supabase
       .from('messages')
-      .insert([
-        {
-          content: message.trim(),
-          is_from_doctor: false,
-        }
-      ]);
+      .insert({
+        content: message.trim(),
+        is_from_doctor: false,
+        user_id: user.id
+      });
 
     if (error) {
       console.error('Error sending message:', error);
@@ -116,6 +126,12 @@ const Chat = () => {
             key={msg.id || index}
             className={`flex ${msg.is_from_doctor ? 'justify-start' : 'justify-end'}`}
           >
+            {msg.is_from_doctor && (
+              <Avatar className="mr-2">
+                <AvatarImage src="/lovable-uploads/06b7c9e0-66fd-4a8e-8025-584b2a539eae.png" alt="Dr. Ali Kamal" />
+                <AvatarFallback>AK</AvatarFallback>
+              </Avatar>
+            )}
             <div
               className={`rounded-lg p-3 max-w-[80%] ${
                 msg.is_from_doctor

@@ -31,12 +31,17 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          navigate('/signin');
+          return;
+        }
+
         const { data: profiles, error } = await supabase
           .from("profiles")
           .select("full_name")
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle();
+          .eq('id', user.id)
+          .single();
 
         if (error) {
           console.error("Error fetching profile:", error);
@@ -50,7 +55,8 @@ const Dashboard = () => {
         // Fetch medical reports count
         const { count } = await supabase
           .from('medical_reports')
-          .select('*', { count: 'exact', head: true });
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id);
 
         setMedicalReportsCount(count || 0);
       } catch (error) {
@@ -59,9 +65,10 @@ const Dashboard = () => {
     };
 
     fetchUserProfile();
-  }, []);
+  }, [navigate]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     navigate("/signin");
     toast.success("Logged out successfully");
   };
