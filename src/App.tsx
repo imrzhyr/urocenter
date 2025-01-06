@@ -14,16 +14,13 @@ import MedicalInformation from "@/pages/MedicalInformation";
 const PageWrapper = ({ children }: { children: React.ReactNode }) => {
   const variants = {
     initial: {
-      opacity: 0,
-      y: 20,
+      x: '100%',
     },
     animate: {
-      opacity: 1,
-      y: 0,
+      x: 0,
     },
     exit: {
-      opacity: 0,
-      y: -20,
+      x: '-100%',
     },
   };
 
@@ -35,8 +32,13 @@ const PageWrapper = ({ children }: { children: React.ReactNode }) => {
       exit="exit"
       transition={{
         type: "tween",
-        ease: "easeInOut",
-        duration: 0.3,
+        ease: "anticipate",
+        duration: 0.4,
+      }}
+      style={{
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
       }}
     >
       {children}
