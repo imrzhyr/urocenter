@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
+import { useEffect, useState } from "react";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 interface ComplaintInputProps {
   complaint: string;
@@ -21,13 +21,13 @@ export const ComplaintInput = ({ complaint, setComplaint, required }: ComplaintI
   const [currentText, setCurrentText] = useState("");
 
   useEffect(() => {
+    let currentExampleIndex = 0;
     let currentIndex = 0;
     let isDeleting = false;
-    let currentExampleIndex = 0;
 
     const typeWriter = () => {
       const example = complaintExamples[currentExampleIndex];
-      
+
       if (isDeleting) {
         setCurrentText(example.substring(0, currentIndex - 1));
         currentIndex--;
@@ -66,7 +66,7 @@ export const ComplaintInput = ({ complaint, setComplaint, required }: ComplaintI
         value={complaint}
         onChange={(e) => setComplaint(e.target.value)}
         placeholder={currentText}
-        className="transition-all"
+        className="placeholder:text-muted-foreground/80"
         required={required}
       />
     </div>
