@@ -14,62 +14,53 @@ export interface Message {
 
 export const useMessages = () => {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     let channel: RealtimeChannel;
     
-    const fetchMessages = async () => {
+    const initializeMessages = async () => {
       const userPhone = localStorage.getItem('userPhone');
       if (!userPhone) {
         console.error('No user phone found');
+        setIsLoading(false);
         return;
       }
 
       try {
-        // Set up user context
-        const { error: contextError } = await supabase.rpc('set_user_context', {
-          user_phone: userPhone
-        });
-        
-        if (contextError) {
-          console.error('Error setting user context:', contextError);
-          return;
-        }
-
-        // Get user profile first
+        // Get user profile
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('id')
           .eq('phone', userPhone)
           .maybeSingle();
 
-        if (profileError) {
+        if (profileError || !profile) {
           console.error('Error fetching profile:', profileError);
+          setIsLoading(false);
           return;
         }
 
-        if (!profile) {
-          console.error('No profile found for user');
-          return;
-        }
-
-        // Fetch initial messages for this user
-        const { data, error } = await supabase
+        // Fetch initial messages
+        const { data: initialMessages, error: messagesError } = await supabase
           .from('messages')
           .select('*')
           .eq('user_id', profile.id)
           .order('created_at', { ascending: true });
 
-        if (error) {
-          throw error;
+        if (messagesError) {
+          console.error('Error fetching messages:', messagesError);
+          toast.error('Failed to load messages');
+          setIsLoading(false);
+          return;
         }
 
-        console.log('Initial messages loaded:', data);
-        setMessages(data || []);
+        console.log('Initial messages loaded:', initialMessages);
+        setMessages(initialMessages || []);
 
         // Set up real-time subscription
         channel = supabase
-          .channel('messages-channel')
+          .channel(`messages:${profile.id}`)
           .on(
             'postgres_changes',
             {
@@ -83,29 +74,22 @@ export const useMessages = () => {
               
               if (payload.eventType === 'INSERT') {
                 setMessages((prev) => [...prev, payload.new as Message]);
-              } else if (payload.eventType === 'DELETE') {
-                setMessages((prev) => prev.filter(msg => msg.id !== payload.old.id));
-              } else if (payload.eventType === 'UPDATE') {
-                setMessages((prev) => 
-                  prev.map(msg => msg.id === payload.new.id ? payload.new as Message : msg)
-                );
               }
             }
           )
           .subscribe((status) => {
             console.log('Subscription status:', status);
-            if (status === 'SUBSCRIBED') {
-              console.log('Successfully subscribed to messages');
-            }
           });
 
-      } catch (error: any) {
+      } catch (error) {
         console.error('Error in useMessages:', error);
         toast.error('Error loading messages');
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    fetchMessages();
+    initializeMessages();
 
     return () => {
       if (channel) {
@@ -115,5 +99,62 @@ export const useMessages = () => {
     };
   }, []);
 
-  return { messages };
+  const addMessage = async (content: string, fileData?: { url: string; name: string; type: string }) => {
+    const userPhone = localStorage.getItem('userPhone');
+    if (!userPhone) {
+      toast.error('Please sign in to send messages');
+      return false;
+    }
+
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('phone', userPhone)
+        .maybeSingle();
+
+      if (!profile) {
+        toast.error('User profile not found');
+        return false;
+      }
+
+      // Create new message object
+      const newMessage = {
+        content,
+        user_id: profile.id,
+        is_from_doctor: false,
+        file_url: fileData?.url,
+        file_name: fileData?.name,
+        file_type: fileData?.type,
+        created_at: new Date().toISOString()
+      };
+
+      // Optimistically add message to state
+      const optimisticMessage = { ...newMessage, id: crypto.randomUUID() };
+      setMessages(prev => [...prev, optimisticMessage]);
+
+      // Send message to database
+      const { error: insertError, data: insertedMessage } = await supabase
+        .from('messages')
+        .insert([newMessage])
+        .select()
+        .single();
+
+      if (insertError) {
+        console.error('Error sending message:', insertError);
+        // Remove optimistic message if there was an error
+        setMessages(prev => prev.filter(msg => msg.id !== optimisticMessage.id));
+        toast.error('Failed to send message');
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast.error('Failed to send message');
+      return false;
+    }
+  };
+
+  return { messages, isLoading, addMessage };
 };

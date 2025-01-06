@@ -4,8 +4,7 @@ import { ChatMessage } from "@/components/chat/ChatMessage";
 import { ChatInput } from "@/components/chat/ChatInput";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useMessages } from "@/hooks/useMessages";
-import { sendMessage } from "@/utils/messageSender";
-import { initializeUserContext } from "@/utils/supabaseUtils";
+import { uploadFile } from "@/utils/fileUpload";
 
 export const ChatContainer = () => {
   const [message, setMessage] = useState("");
@@ -14,14 +13,9 @@ export const ChatContainer = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useAuthRedirect();
-  const { messages } = useMessages();
+  const { messages, addMessage } = useMessages();
 
   useEffect(() => {
-    initializeUserContext();
-  }, []);
-
-  useEffect(() => {
-    console.log('Messages updated:', messages);
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
@@ -32,10 +26,17 @@ export const ChatContainer = () => {
     
     setIsLoading(true);
     try {
-      await sendMessage(message, selectedFile, () => {
+      let fileData;
+      if (selectedFile) {
+        fileData = await uploadFile(selectedFile);
+      }
+
+      const success = await addMessage(message.trim(), fileData);
+      
+      if (success) {
         setMessage('');
         setSelectedFile(null);
-      });
+      }
     } catch (error: any) {
       console.error('Error sending message:', error);
       toast.error(error.message || 'Failed to send message');
@@ -54,6 +55,10 @@ export const ChatContainer = () => {
   const handleFileSelect = (file: File) => {
     setSelectedFile(file);
   };
+
+  if (!messages) {
+    return <div className="flex-1 flex items-center justify-center">Loading messages...</div>;
+  }
 
   return (
     <div className="flex-1 flex flex-col">
