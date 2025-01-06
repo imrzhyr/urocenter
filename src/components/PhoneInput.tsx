@@ -20,7 +20,6 @@ export const PhoneInput = ({ value, onChange, isSignUp = false }: PhoneInputProp
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <Label htmlFor="phone">Phone Number</Label>
         <div className="flex gap-2">
           <PhoneFormatter value={value} onChange={onChange} readOnly={isSignUp} />
         </div>
@@ -28,7 +27,6 @@ export const PhoneInput = ({ value, onChange, isSignUp = false }: PhoneInputProp
 
       {isSignUp && (
         <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
           <div className="relative">
             <Input
               id="password"
@@ -52,7 +50,7 @@ export const PhoneInput = ({ value, onChange, isSignUp = false }: PhoneInputProp
       {isSignUp && (
         <>
           <div>
-            <VerificationButton phone={value} password={password} isSignUp={isSignUp} />
+            <VerificationButton phone={value} password={password} />
           </div>
           <div className="text-center text-sm text-muted-foreground">
             Already have an account?{" "}

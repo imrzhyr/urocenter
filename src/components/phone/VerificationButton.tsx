@@ -7,16 +7,16 @@ import { toast } from "sonner";
 interface VerificationButtonProps {
   phone: string;
   password: string;
-  isValid: boolean;
 }
 
 export const VerificationButton = ({
   phone,
   password,
-  isValid,
 }: VerificationButtonProps) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+
+  const isValid = phone.length > 0 && password.length >= 6;
 
   const handleSignUp = async () => {
     if (!isValid) {
