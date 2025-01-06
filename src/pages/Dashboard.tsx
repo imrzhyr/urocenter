@@ -4,8 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 // Components
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
-import { MedicalReportsCard } from "@/components/dashboard/MedicalReportsCard";
 import { MessagesCard } from "@/components/dashboard/MessagesCard";
+import { MedicalReportsCard } from "@/components/dashboard/MedicalReportsCard";
 import { RecentActivityCard } from "@/components/dashboard/RecentActivityCard";
 
 const Dashboard = () => {
@@ -13,53 +13,43 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const checkSession = async () => {
+    const checkProfile = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (!session) {
-          console.log("No session found, redirecting to signin");
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .single();
+
+        if (error || !profile) {
+          console.log("No profile found, redirecting to signin");
           navigate("/signin", { replace: true });
           return;
         }
-        
+
         setIsLoading(false);
       } catch (error) {
-        console.error("Session check error:", error);
+        console.error("Error checking profile:", error);
         navigate("/signin", { replace: true });
       }
     };
 
-    checkSession();
-
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT' || !session) {
-        navigate("/signin", { replace: true });
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
+    checkProfile();
   }, [navigate]);
 
   if (isLoading) {
-    return <div className="h-screen flex items-center justify-center">Loading...</div>;
+    return <div>Loading...</div>;
   }
 
   return (
-    <div className="h-screen flex flex-col bg-background">
+    <div className="min-h-screen bg-background">
       <DashboardHeader />
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-        <MedicalReportsCard />
-        <MessagesCard />
-      </div>
-
-      <div className="p-4">
-        <RecentActivityCard />
-      </div>
+      <main className="container py-6 space-y-6">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <MessagesCard />
+          <MedicalReportsCard />
+          <RecentActivityCard />
+        </div>
+      </main>
     </div>
   );
 };

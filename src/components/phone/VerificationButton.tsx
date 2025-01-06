@@ -27,7 +27,7 @@ export const VerificationButton = ({
     try {
       setIsLoading(true);
 
-      // First check if a profile with this phone number already exists
+      // Check if profile already exists
       const { data: existingProfile } = await supabase
         .from('profiles')
         .select('phone')
@@ -45,7 +45,7 @@ export const VerificationButton = ({
         .insert({
           phone,
           password,
-          auth_method: 'none'
+          auth_method: 'password'
         });
 
       if (profileError) {
@@ -55,7 +55,7 @@ export const VerificationButton = ({
       }
 
       toast.success("Account created successfully!");
-      navigate("/profile");
+      navigate("/signin");
       
     } catch (error: any) {
       console.error("Unexpected error:", error);

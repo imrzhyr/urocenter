@@ -24,7 +24,7 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
     setIsLoading(true);
 
     try {
-      // First, check if profile exists with this phone number and password
+      // Check if profile exists with this phone number and password
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('*')
@@ -38,28 +38,8 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
         return;
       }
 
-      // Create a session by signing in with the user's ID
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: `${profile.id}@example.com`,
-        password: password
-      });
-
-      if (signInError) {
-        console.error("Sign in error:", signInError);
-        toast.error("Error signing in");
-        setIsLoading(false);
-        return;
-      }
-
-      // Update last login timestamp
-      await supabase
-        .from('profiles')
-        .update({ last_login: new Date().toISOString() })
-        .eq('id', profile.id);
-
       toast.success("Signed in successfully!");
       navigate("/dashboard", { replace: true });
-
     } catch (error) {
       console.error("Unexpected error:", error);
       toast.error("An unexpected error occurred");
