@@ -31,7 +31,10 @@ export const useProfile = () => {
         .eq('phone', userPhone)
         .maybeSingle();
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error("Error fetching profile:", profileError);
+        throw profileError;
+      }
 
       if (profileData) {
         setProfile({
@@ -66,7 +69,10 @@ export const useProfile = () => {
         })
         .eq('phone', userPhone);
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error("Error updating profile:", updateError);
+        throw updateError;
+      }
 
       setProfile(updatedProfile);
       toast.success("Profile updated successfully");

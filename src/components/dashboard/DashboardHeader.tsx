@@ -31,13 +31,22 @@ export const DashboardHeader = () => {
           .eq('phone', userPhone)
           .maybeSingle();
 
-        if (error) throw error;
-        setFullName(profile?.full_name || null);
+        if (error) {
+          console.error("Error fetching profile:", error);
+          throw error;
+        }
+
+        if (profile) {
+          setFullName(profile.full_name);
+        }
       } catch (error) {
         console.error("Error fetching profile:", error);
+        toast.error("Failed to load profile");
       }
     };
 
+    fetchProfile();
+    // We'll keep the message checking functionality
     const checkUnreadMessages = async () => {
       try {
         const { data: messages, error } = await supabase
@@ -54,7 +63,6 @@ export const DashboardHeader = () => {
       }
     };
 
-    fetchProfile();
     checkUnreadMessages();
   }, [navigate]);
 
@@ -68,7 +76,7 @@ export const DashboardHeader = () => {
     <div className="p-4 flex justify-between items-center bg-card border-b sticky top-0 z-10">
       <div className="flex items-center gap-2">
         <h1 className="text-xl font-semibold">
-          Welcome{fullName && `, ${fullName}`}
+          Welcome{fullName ? `, ${fullName}` : ''}
         </h1>
         <div className="relative">
           <Bell

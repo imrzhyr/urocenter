@@ -9,10 +9,14 @@ import { toast } from "sonner";
 export const EditProfileForm = () => {
   const navigate = useNavigate();
   const { profile: initialProfile, isLoading, updateProfile } = useProfile();
-  const [formData, setFormData] = useState<Profile>(initialProfile);
+  const [formData, setFormData] = useState<Profile>({
+    full_name: "",
+    gender: "",
+    age: "",
+    complaint: "",
+  });
 
   useEffect(() => {
-    // Update form data when initial profile is loaded
     if (initialProfile) {
       setFormData(initialProfile);
     }
