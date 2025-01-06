@@ -27,6 +27,18 @@ export const VerificationButton = ({
     try {
       setIsLoading(true);
 
+      // First check if a profile with this phone number already exists
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('phone')
+        .eq('phone', phone)
+        .single();
+
+      if (existingProfile) {
+        toast.error("An account with this phone number already exists");
+        return;
+      }
+
       // Create profile with phone and password
       const { error: profileError } = await supabase
         .from('profiles')
@@ -38,7 +50,7 @@ export const VerificationButton = ({
 
       if (profileError) {
         console.error("Profile creation error:", profileError);
-        toast.error(profileError.message);
+        toast.error("Could not create account. Please try again.");
         return;
       }
 
