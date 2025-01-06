@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 interface ComplaintInputProps {
   complaint: string;
   setComplaint: (value: string) => void;
+  required?: boolean;
 }
 
 const complaintExamples = [
@@ -14,7 +15,7 @@ const complaintExamples = [
   "I have difficulty sleeping",
 ];
 
-export const ComplaintInput = ({ complaint, setComplaint }: ComplaintInputProps) => {
+export const ComplaintInput = ({ complaint, setComplaint, required }: ComplaintInputProps) => {
   const [currentText, setCurrentText] = useState("");
 
   useEffect(() => {
@@ -60,6 +61,7 @@ export const ComplaintInput = ({ complaint, setComplaint }: ComplaintInputProps)
         onChange={(e) => setComplaint(e.target.value)}
         placeholder={currentText}
         className="transition-all"
+        required={required}
       />
     </div>
   );
