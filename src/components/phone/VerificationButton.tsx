@@ -27,21 +27,10 @@ export const VerificationButton = ({
     try {
       setIsLoading(true);
 
-      // First get a new UUID for the profile
-      const { data: uuidData, error: uuidError } = await supabase
-        .rpc('gen_random_uuid');
-
-      if (uuidError || !uuidData?.[0]) {
-        console.error("UUID generation error:", uuidError);
-        toast.error("Failed to create account");
-        return;
-      }
-
-      // Create profile with the generated UUID
+      // Create profile directly - id will be auto-generated
       const { error: profileError } = await supabase
         .from('profiles')
         .insert({
-          id: uuidData[0].user_id,
           phone,
           auth_method: 'none'
         });

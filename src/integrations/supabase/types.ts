@@ -86,7 +86,7 @@ export type Database = {
           created_at?: string | null
           full_name?: string | null
           gender?: string | null
-          id: string
+          id?: string
           last_login?: string | null
           phone?: string | null
           updated_at?: string | null
