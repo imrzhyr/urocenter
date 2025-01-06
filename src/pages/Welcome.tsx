@@ -8,13 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { motion } from "framer-motion";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
+import { TestimonialsCarousel } from "@/components/testimonials/TestimonialsCarousel";
 
 const Welcome = () => {
   const navigate = useNavigate();
@@ -29,29 +23,6 @@ const Welcome = () => {
       icon: <MessageCircle className="w-6 h-6 text-primary" />,
       title: "Direct Communication",
       description: "Connect with Dr. Ali Kamal",
-    },
-  ];
-
-  const testimonials = [
-    {
-      name: "عبدالرحمن السيد",
-      rating: 5,
-      text: "التطبيق ممتاز جداً وسهل الاستخدام. ساعدني في التواصل مع الدكتور علي بسهولة وسرعة",
-    },
-    {
-      name: "فاطمة الزهراء",
-      rating: 5,
-      text: "شكراً جزيلاً على هذه الخدمة الرائعة. وفرت علي الكثير من الوقت والجهد",
-    },
-    {
-      name: "محمد العنزي",
-      rating: 5,
-      text: "أفضل تطبيق طبي استخدمته حتى الآن. الدكتور علي متميز جداً في تشخيص وعلاج الحالات",
-    },
-    {
-      name: "نورة القحطاني",
-      rating: 5,
-      text: "خدمة ممتازة وسريعة. أنصح الجميع باستخدام هذا التطبيق للتواصل مع الدكتور علي",
     },
   ];
 
@@ -142,43 +113,7 @@ const Welcome = () => {
           ))}
         </motion.div>
 
-        {/* Testimonials Carousel */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-          className="w-full mt-8"
-        >
-          <Carousel
-            opts={{
-              align: "start",
-              loop: true,
-            }}
-            className="w-full max-w-md mx-auto"
-          >
-            <CarouselContent>
-              {testimonials.map((testimonial, index) => (
-                <CarouselItem key={index}>
-                  <div className="bg-white p-6 rounded-xl shadow-lg text-right">
-                    <div className="flex justify-end mb-2">
-                      {[...Array(testimonial.rating)].map((_, i) => (
-                        <span key={i} className="text-yellow-400">★</span>
-                      ))}
-                    </div>
-                    <p className="text-gray-700 mb-4 text-lg font-arabic">
-                      {testimonial.text}
-                    </p>
-                    <p className="text-primary font-semibold font-arabic">
-                      {testimonial.name}
-                    </p>
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
-          </Carousel>
-        </motion.div>
+        <TestimonialsCarousel />
 
         <motion.div
           initial={{ y: 20, opacity: 0 }}
