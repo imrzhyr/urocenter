@@ -5,7 +5,7 @@ export const WaveBackground = () => {
     <div className="absolute inset-0 w-full h-full overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-blue-100 to-blue-50 dark:from-blue-900 dark:to-blue-800">
         <div className="absolute bottom-0 left-0 right-0 h-48">
-          <div className="absolute w-[200%] h-full animate-wave">
+          <div className="absolute w-full h-full">
             <svg 
               className="absolute bottom-0 w-full h-full" 
               viewBox="0 0 2880 320" 
