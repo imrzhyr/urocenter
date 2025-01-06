@@ -7,6 +7,7 @@ import SignUp from "@/pages/SignUp";
 import Profile from "@/pages/Profile";
 import Payment from "@/pages/Payment";
 import Dashboard from "@/pages/Dashboard";
+import AdminDashboard from "@/pages/AdminDashboard";
 import Chat from "@/pages/Chat";
 import { EditProfileForm } from "@/components/profile/EditProfileForm";
 import MedicalInformation from "@/pages/MedicalInformation";
@@ -65,6 +66,7 @@ const AnimatedRoutes = () => {
         <Route path="/medical-information" element={<PageWrapper><MedicalInformation /></PageWrapper>} />
         <Route path="/payment" element={<PageWrapper><Payment /></PageWrapper>} />
         <Route path="/dashboard" element={<PageWrapper><Dashboard /></PageWrapper>} />
+        <Route path="/admin" element={<PageWrapper><AdminDashboard /></PageWrapper>} />
         <Route path="/chat" element={<PageWrapper><Chat /></PageWrapper>} />
         <Route path="/edit-profile" element={<PageWrapper><EditProfileForm /></PageWrapper>} />
       </Routes>
