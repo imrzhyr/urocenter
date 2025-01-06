@@ -32,11 +32,12 @@ const SignIn = () => {
     try {
       setIsLoading(true);
       
-      // Check if profile exists with this phone number
+      // Check if profile exists with this phone number and password
       const { data: profiles, error: profileError } = await supabase
         .from('profiles')
         .select()
         .eq('phone', phone)
+        .eq('password', password) // Add password check
         .single();
 
       if (profileError || !profiles) {
@@ -44,6 +45,7 @@ const SignIn = () => {
         return;
       }
 
+      // If we get here, both phone and password matched
       toast.success("Signed in successfully!");
       navigate("/dashboard");
       
