@@ -2,40 +2,40 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Message, FileData } from './types';
+import { setMessageContext, getUserProfile } from './useMessageContext';
 
-export const useMessageOperations = (patientId: string | undefined) => {
+export const useMessageOperations = (patientId?: string) => {
   const [messages, setMessages] = useState<Message[]>([]);
 
-  const addMessage = async (content: string, fileData?: FileData) => {
+  const addMessage = async (content: string, fileData?: FileData): Promise<boolean> => {
     const userPhone = localStorage.getItem('userPhone');
     if (!userPhone) {
       toast.error('Please sign in to send messages');
       return false;
     }
 
+    // Set user context first
+    const contextSet = await setMessageContext(userPhone);
+    if (!contextSet) {
+      toast.error('Failed to set user context');
+      return false;
+    }
+
+    // Get user profile
+    const profile = await getUserProfile(userPhone);
+    if (!profile) {
+      toast.error('User profile not found');
+      return false;
+    }
+
+    const messageUserId = patientId || profile.id;
+    const timestamp = new Date().toISOString();
+    const tempId = crypto.randomUUID();
+
     try {
-      // Get user profile
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('id, role')
-        .eq('phone', userPhone)
-        .single();
-
-      if (!profile) {
-        toast.error('User profile not found');
-        return false;
-      }
-
-      // Determine the user_id based on role
-      const messageUserId = profile.role === 'admin' ? patientId : profile.id;
-      
-      if (!messageUserId) {
-        toast.error('Could not determine message recipient');
-        return false;
-      }
-
-      // Create new message object
-      const newMessage = {
+      // Create optimistic message
+      const optimisticMessage: Message = {
+        id: tempId,
         content,
         user_id: messageUserId,
         is_from_doctor: profile.role === 'admin',
@@ -43,38 +43,34 @@ export const useMessageOperations = (patientId: string | undefined) => {
         file_name: fileData?.name,
         file_type: fileData?.type,
         status: 'not_seen',
-        created_at: new Date().toISOString()
+        created_at: timestamp,
+        updated_at: timestamp
       };
 
-      // Add optimistic message to UI
-      const optimisticMessage = { ...newMessage, id: crypto.randomUUID() };
+      // Add optimistic message
       setMessages(prev => [...prev, optimisticMessage]);
 
-      // Send message to database
-      const { error: insertError, data: insertedMessage } = await supabase
+      // Send to database using upsert
+      const { error: insertError } = await supabase
         .from('messages')
-        .insert([newMessage])
-        .select()
-        .single();
+        .upsert([{
+          ...optimisticMessage,
+          id: undefined // Let database generate ID
+        }]);
 
       if (insertError) {
         console.error('Error sending message:', insertError);
-        // Remove optimistic message if there was an error
-        setMessages(prev => prev.filter(msg => msg.id !== optimisticMessage.id));
+        // Remove optimistic message on error
+        setMessages(prev => prev.filter(msg => msg.id !== tempId));
         toast.error('Failed to send message');
         return false;
       }
 
-      // Replace optimistic message with actual message from database
-      if (insertedMessage) {
-        setMessages(prev => prev.map(msg => 
-          msg.id === optimisticMessage.id ? insertedMessage : msg
-        ));
-      }
-
       return true;
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error('Error in addMessage:', error);
+      // Remove optimistic message on error
+      setMessages(prev => prev.filter(msg => msg.id !== tempId));
       toast.error('Failed to send message');
       return false;
     }

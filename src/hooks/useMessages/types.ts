@@ -12,17 +12,6 @@ export interface Message {
   user_id: string;
 }
 
-export interface MessageInsert {
-  content: string;
-  is_from_doctor?: boolean;
-  is_read?: boolean;
-  file_url?: string;
-  file_name?: string;
-  file_type?: string;
-  status?: string;
-  user_id: string;
-}
-
 export interface FileData {
   url: string;
   name: string;

@@ -3,65 +3,30 @@ import { supabase } from '@/integrations/supabase/client';
 import { Message } from './types';
 
 export const useMessageSubscription = (
-  patientId: string | undefined,
+  channelId: string,
   onNewMessage: (message: Message) => void
 ) => {
   useEffect(() => {
-    const userPhone = localStorage.getItem('userPhone');
-    if (!userPhone) return;
+    const channel = supabase
+      .channel(`messages:${channelId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'messages',
+          filter: `user_id=eq.${channelId}`
+        },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            onNewMessage(payload.new as Message);
+          }
+        }
+      )
+      .subscribe();
 
-    const setupSubscription = async () => {
-      try {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('id, role')
-          .eq('phone', userPhone)
-          .single();
-
-        if (!profile) return;
-
-        // Create a unique channel ID based on user role and ID
-        const channelId = profile.role === 'admin' 
-          ? patientId 
-            ? `admin_messages_${patientId}`
-            : 'admin_all_messages'
-          : `user_messages_${profile.id}`;
-
-        console.log('Setting up subscription for channel:', channelId);
-
-        const channel = supabase
-          .channel(channelId)
-          .on(
-            'postgres_changes',
-            {
-              event: 'INSERT',
-              schema: 'public',
-              table: 'messages',
-              filter: profile.role === 'admin'
-                ? patientId ? `user_id=eq.${patientId}` : undefined
-                : `user_id=eq.${profile.id}`
-            },
-            (payload) => {
-              console.log('New message received:', payload);
-              onNewMessage(payload.new as Message);
-            }
-          )
-          .subscribe((status) => {
-            console.log('Subscription status:', status);
-          });
-
-        return () => {
-          console.log('Cleaning up subscription');
-          supabase.removeChannel(channel);
-        };
-      } catch (error) {
-        console.error('Error setting up subscription:', error);
-      }
-    };
-
-    const cleanup = setupSubscription();
     return () => {
-      cleanup?.then(cleanupFn => cleanupFn?.());
+      supabase.removeChannel(channel);
     };
-  }, [patientId, onNewMessage]);
+  }, [channelId, onNewMessage]);
 };

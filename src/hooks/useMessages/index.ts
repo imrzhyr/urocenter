@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useMessageOperations } from './useMessageOperations';
 import { useMessageSubscription } from './useMessageSubscription';
+import { setMessageContext } from './useMessageContext';
 import { Message } from './types';
 
 export const useMessages = (patientId?: string) => {
@@ -14,6 +15,13 @@ export const useMessages = (patientId?: string) => {
       if (!userPhone) return;
 
       try {
+        // Set user context first
+        const contextSet = await setMessageContext(userPhone);
+        if (!contextSet) {
+          toast.error('Failed to set user context');
+          return;
+        }
+
         const { data: profile } = await supabase
           .from('profiles')
           .select('id, role')
@@ -51,8 +59,9 @@ export const useMessages = (patientId?: string) => {
     fetchMessages();
   }, [patientId, setMessages]);
 
-  useMessageSubscription(patientId, (newMessage: Message) => {
-    setMessages((prev) => [...prev, newMessage]);
+  // Set up real-time subscription
+  useMessageSubscription(patientId || '', (newMessage: Message) => {
+    setMessages(prev => [...prev, newMessage]);
   });
 
   return { messages, addMessage };
