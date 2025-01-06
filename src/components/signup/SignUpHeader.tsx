@@ -15,7 +15,7 @@ export const SignUpHeader = () => {
   return (
     <div className="p-4 flex justify-between items-center relative z-10">
       <button 
-        onClick={() => navigate(-1)} 
+        onClick={() => navigate("/")} 
         className="p-2 hover:bg-muted rounded-full transition-colors"
       >
         <ArrowLeft className="w-6 h-6" />
