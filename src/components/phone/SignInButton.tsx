@@ -34,6 +34,7 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
 
       if (profileError || !profile) {
         toast.error("Invalid phone number or password");
+        setIsLoading(false);
         return;
       }
 
@@ -48,11 +49,7 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
       }
 
       toast.success("Signed in successfully!");
-      
-      // Ensure navigation happens after successful sign in
-      setTimeout(() => {
-        navigate("/dashboard", { replace: true });
-      }, 100);
+      navigate("/dashboard", { replace: true });
       
     } catch (error: any) {
       console.error("Unexpected error:", error);
