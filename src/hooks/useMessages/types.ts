@@ -22,4 +22,12 @@ export interface MessageState {
   messages: Message[];
   isLoading: boolean;
   error: Error | null;
+  pendingMessages: Set<string>;
+}
+
+export interface MessageOperations {
+  messages: Message[];
+  setMessages: (messages: Message[]) => void;
+  addMessage: (content: string, fileData?: FileData) => Promise<boolean>;
+  pendingMessages: Set<string>;
 }
