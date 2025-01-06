@@ -30,13 +30,16 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
         .select('*')
         .eq('phone', phone)
         .eq('password', password)
-        .single();
+        .maybeSingle();
 
       if (profileError || !profile) {
         toast.error("Invalid phone number or password");
         setIsLoading(false);
         return;
       }
+
+      // Store the phone number in localStorage for subsequent profile checks
+      localStorage.setItem('userPhone', phone);
 
       toast.success("Signed in successfully!");
       navigate("/dashboard", { replace: true });

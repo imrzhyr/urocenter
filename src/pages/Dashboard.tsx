@@ -15,10 +15,19 @@ const Dashboard = () => {
   useEffect(() => {
     const checkProfile = async () => {
       try {
+        const userPhone = localStorage.getItem('userPhone');
+        
+        if (!userPhone) {
+          console.log("No user phone found, redirecting to signin");
+          navigate("/signin", { replace: true });
+          return;
+        }
+
         const { data: profile, error } = await supabase
           .from('profiles')
           .select('*')
-          .single();
+          .eq('phone', userPhone)
+          .maybeSingle();
 
         if (error || !profile) {
           console.log("No profile found, redirecting to signin");
