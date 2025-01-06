@@ -1,30 +1,33 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Camera, Upload, X } from "lucide-react";
+import { Camera, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 export const MedicalReportUpload = () => {
-  const [medicalReports, setMedicalReports] = useState<File[]>([]);
-  const { toast } = useToast();
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleFileUpload = async (file: File) => {
-    if (medicalReports.length >= 10) {
-      toast({
-        title: "Maximum limit reached",
-        description: "You can only upload up to 10 medical reports",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      setIsUploading(true);
+      const userPhone = localStorage.getItem('userPhone');
+      
+      if (!userPhone) {
+        toast.error("Please sign in to upload files");
+        return;
+      }
 
-      if (!user) throw new Error("No user found");
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('phone', userPhone)
+        .maybeSingle();
+
+      if (!profileData) {
+        toast.error("Profile not found");
+        return;
+      }
 
       const fileName = `${crypto.randomUUID()}-${file.name}`;
       const { error: uploadError } = await supabase.storage
@@ -36,7 +39,7 @@ export const MedicalReportUpload = () => {
       const { error: dbError } = await supabase
         .from('medical_reports')
         .insert({
-          user_id: user.id,
+          user_id: profileData.id,
           file_name: file.name,
           file_path: fileName,
           file_type: file.type,
@@ -44,75 +47,66 @@ export const MedicalReportUpload = () => {
 
       if (dbError) throw dbError;
 
-      setMedicalReports([...medicalReports, file]);
-      toast({
-        title: "File uploaded successfully",
-        description: file.name,
-      });
+      toast.success("File uploaded successfully");
     } catch (error) {
-      toast({
-        title: "Error uploading file",
-        description: "Please try again",
-        variant: "destructive",
-      });
+      console.error("Upload error:", error);
+      toast.error("Failed to upload file");
+    } finally {
+      setIsUploading(false);
     }
   };
 
-  const removeFile = (index: number) => {
-    setMedicalReports(medicalReports.filter((_, i) => i !== index));
+  const handleFileSelect = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.pdf,.jpg,.jpeg,.png';
+    input.multiple = true;
+    input.onchange = (e) => {
+      const files = (e.target as HTMLInputElement).files;
+      if (files) {
+        Array.from(files).forEach(handleFileUpload);
+      }
+    };
+    input.click();
+  };
+
+  const handleCameraCapture = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.capture = 'environment';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        handleFileUpload(file);
+      }
+    };
+    input.click();
   };
 
   return (
     <div className="space-y-2">
       <Label>Medical Reports</Label>
-      <div className="grid grid-cols-2 gap-2">
-        {medicalReports.map((file, index) => (
-          <div key={index} className="relative bg-muted p-2 rounded-lg">
-            <button
-              onClick={() => removeFile(index)}
-              className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1"
-            >
-              <X className="w-4 h-4" />
-            </button>
-            <p className="text-xs truncate">{file.name}</p>
-          </div>
-        ))}
-      </div>
       <div className="flex gap-2">
         <Button
           type="button"
           variant="outline"
-          className="flex-1"
-          onClick={() => {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.pdf,.jpg,.jpeg,.png';
-            input.multiple = true;
-            input.onchange = (e) => {
-              const files = (e.target as HTMLInputElement).files;
-              if (files) {
-                Array.from(files).forEach(handleFileUpload);
-              }
-            };
-            input.click();
-          }}
+          className="flex-1 hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+          onClick={handleFileSelect}
+          disabled={isUploading}
         >
           <Upload className="w-4 h-4 mr-2" />
-          Upload
+          {isUploading ? "Uploading..." : "Upload Files"}
         </Button>
         <Button
           type="button"
           variant="outline"
-          className="flex-1"
-          onClick={() => {
-            toast({
-              title: "Camera capture",
-              description: "This feature is coming soon",
-            });
-          }}
+          className="flex-1 hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+          onClick={handleCameraCapture}
+          disabled={isUploading}
         >
           <Camera className="w-4 h-4 mr-2" />
-          Camera
+          Take Picture
         </Button>
       </div>
     </div>
