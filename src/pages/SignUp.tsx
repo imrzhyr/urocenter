@@ -2,15 +2,20 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PhoneInput } from "@/components/PhoneInput";
 import { SignUpHeader } from "@/components/signup/SignUpHeader";
+import { ProgressSteps } from "@/components/ProgressSteps";
 
 const SignUp = () => {
   const [phone, setPhone] = useState("");
+  const steps = ["Phone", "Verification", "Profile"];
+  const currentStep = 0; // This will be managed by the parent component
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <SignUpHeader />
       
-      <div className="flex-1 container flex items-center justify-center py-8">
+      <div className="flex-1 container flex flex-col items-center justify-center py-8 space-y-6">
+        <ProgressSteps steps={steps} currentStep={currentStep} />
+        
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl text-center">Create an account</CardTitle>

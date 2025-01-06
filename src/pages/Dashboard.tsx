@@ -21,7 +21,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 const Dashboard = () => {
   const [fullName, setFullName] = useState("");
@@ -60,7 +59,7 @@ const Dashboard = () => {
     };
 
     fetchUserProfile();
-  }, [navigate]);
+  }, []);
 
   const handleLogout = () => {
     navigate("/signin");
@@ -91,10 +90,7 @@ const Dashboard = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">
-                <Avatar>
-                  <AvatarImage src="/lovable-uploads/06b7c9e0-66fd-4a8e-8025-584b2a539eae.png" alt="Dr. Ali Kamal" />
-                  <AvatarFallback>AK</AvatarFallback>
-                </Avatar>
+                <User className="w-5 h-5" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">

@@ -1,12 +1,89 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Camera, Phone, Send, Video } from "lucide-react";
+import { ArrowLeft, MessageSquare, Send } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { toast } from "sonner";
 
 const Chat = () => {
   const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    fetchMessages();
+    const channel = supabase
+      .channel('messages_channel')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages'
+        },
+        (payload) => {
+          setMessages(prev => [...prev, payload.new]);
+          scrollToBottom();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const fetchMessages = async () => {
+    const { data, error } = await supabase
+      .from('messages')
+      .select('*')
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching messages:', error);
+      return;
+    }
+
+    setMessages(data || []);
+    setTimeout(scrollToBottom, 100);
+  };
+
+  const handleSendMessage = async () => {
+    if (!message.trim()) return;
+    
+    setIsLoading(true);
+    const { error } = await supabase
+      .from('messages')
+      .insert([
+        {
+          content: message.trim(),
+          is_from_doctor: false,
+        }
+      ]);
+
+    if (error) {
+      console.error('Error sending message:', error);
+      toast.error('Failed to send message');
+    } else {
+      setMessage('');
+    }
+    setIsLoading(false);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
 
   return (
     <div className="flex flex-col h-screen bg-background">
@@ -21,48 +98,54 @@ const Chat = () => {
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <img
-            src="/doctor-avatar.jpg"
-            alt="Dr. Ali Kamal"
-            className="w-10 h-10 rounded-full object-cover"
-          />
+          <Avatar>
+            <AvatarImage src="/lovable-uploads/06b7c9e0-66fd-4a8e-8025-584b2a539eae.png" alt="Dr. Ali Kamal" />
+            <AvatarFallback>AK</AvatarFallback>
+          </Avatar>
           <div>
             <h2 className="font-semibold">Dr. Ali Kamal</h2>
             <p className="text-xs text-muted-foreground">Online</p>
           </div>
         </div>
-        <div className="flex space-x-2">
-          <Button variant="ghost" size="icon">
-            <Phone className="w-5 h-5" />
-          </Button>
-          <Button variant="ghost" size="icon">
-            <Video className="w-5 h-5" />
-          </Button>
-        </div>
       </div>
 
       {/* Chat Area */}
       <div className="flex-1 p-4 space-y-4 overflow-y-auto">
-        <div className="flex justify-start">
-          <div className="bg-muted rounded-lg p-3 max-w-[80%]">
-            <p className="text-sm">Hello! How can I help you today?</p>
+        {messages.map((msg, index) => (
+          <div
+            key={msg.id || index}
+            className={`flex ${msg.is_from_doctor ? 'justify-start' : 'justify-end'}`}
+          >
+            <div
+              className={`rounded-lg p-3 max-w-[80%] ${
+                msg.is_from_doctor
+                ? 'bg-muted text-foreground'
+                : 'bg-primary text-primary-foreground'
+              }`}
+            >
+              <p className="text-sm">{msg.content}</p>
+            </div>
           </div>
-        </div>
+        ))}
+        <div ref={messagesEndRef} />
       </div>
 
       {/* Input Area */}
       <div className="p-4 bg-card border-t">
         <div className="flex space-x-2">
-          <Button variant="ghost" size="icon">
-            <Camera className="w-5 h-5" />
-          </Button>
           <Input
             value={message}
             onChange={(e) => setMessage(e.target.value)}
+            onKeyPress={handleKeyPress}
             placeholder="Type your message..."
             className="flex-1"
+            disabled={isLoading}
           />
-          <Button size="icon">
+          <Button 
+            size="icon"
+            onClick={handleSendMessage}
+            disabled={isLoading || !message.trim()}
+          >
             <Send className="w-5 h-5" />
           </Button>
         </div>
