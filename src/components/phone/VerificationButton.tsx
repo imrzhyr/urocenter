@@ -27,11 +27,12 @@ export const VerificationButton = ({
     try {
       setIsLoading(true);
 
-      // Create profile directly - id will be auto-generated
+      // Create profile with phone and password
       const { error: profileError } = await supabase
         .from('profiles')
         .insert({
           phone,
+          password,
           auth_method: 'none'
         });
 

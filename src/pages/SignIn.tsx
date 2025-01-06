@@ -37,7 +37,7 @@ const SignIn = () => {
         .from('profiles')
         .select()
         .eq('phone', phone)
-        .eq('password', password) // Add password check
+        .eq('password', password)
         .single();
 
       if (profileError || !profiles) {
