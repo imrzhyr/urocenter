@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
-// Components
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { MessagesCard } from "@/components/dashboard/MessagesCard";
 import { MedicalReportsCard } from "@/components/dashboard/MedicalReportsCard";
@@ -50,7 +49,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-r from-blue-50 via-white to-sky-50">
       <DashboardHeader />
       <main className="container py-6 space-y-6">
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

@@ -10,15 +10,15 @@ const SignUp = () => {
   const currentStep = 0;
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-gradient-to-tr from-blue-50 via-sky-50 to-white">
       <SignUpHeader />
       
       <div className="flex-1 container flex flex-col items-center justify-center py-8 space-y-6">
         <ProgressSteps steps={steps} currentStep={currentStep} />
         
-        <Card className="w-full max-w-md">
+        <Card className="w-full max-w-md backdrop-blur-sm bg-white/90 border-blue-100">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Create an account</CardTitle>
+            <CardTitle className="text-2xl text-center text-blue-900">Create an account</CardTitle>
           </CardHeader>
           <CardContent>
             <PhoneInput value={phone} onChange={setPhone} isSignUp={true} />

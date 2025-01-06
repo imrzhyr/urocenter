@@ -22,10 +22,10 @@ const Payment = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <div className="p-4 flex justify-between items-center">
-        <button onClick={() => navigate(-1)} className="p-2 hover:bg-muted rounded-full">
-          <ArrowLeft className="w-6 h-6" />
+    <div className="min-h-screen flex flex-col bg-gradient-to-tl from-sky-50 via-white to-blue-50">
+      <div className="p-4 flex justify-between items-center bg-white/80 backdrop-blur-sm border-b border-blue-100">
+        <button onClick={() => navigate(-1)} className="p-2 hover:bg-blue-50/50 rounded-full">
+          <ArrowLeft className="w-6 h-6 text-blue-600" />
         </button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -44,23 +44,29 @@ const Payment = () => {
         <ProgressSteps steps={steps} currentStep={3} />
         <div className="w-full max-w-md space-y-8 mt-8">
           <div className="space-y-2 text-center">
-            <h1 className="text-2xl font-semibold tracking-tight">Payment</h1>
+            <h1 className="text-2xl font-semibold tracking-tight text-blue-900">Payment</h1>
             <p className="text-muted-foreground">
               Choose your preferred payment method
             </p>
           </div>
 
-          <div className="p-4 bg-muted rounded-lg">
-            <h3 className="font-semibold mb-2">Consultation Fee</h3>
-            <p className="text-2xl font-bold">25,000 IQD</p>
+          <div className="p-4 bg-white/80 backdrop-blur-sm rounded-lg border border-blue-100">
+            <h3 className="font-semibold mb-2 text-blue-900">Consultation Fee</h3>
+            <p className="text-2xl font-bold text-blue-700">25,000 IQD</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <PaymentMethods
-              selectedMethod={paymentMethod}
-              onSelectMethod={setPaymentMethod}
-            />
-            <Button type="submit" className="w-full" disabled={!paymentMethod}>
+            <div className="bg-white/90 backdrop-blur-sm rounded-lg border border-blue-100 p-4">
+              <PaymentMethods
+                selectedMethod={paymentMethod}
+                onSelectMethod={setPaymentMethod}
+              />
+            </div>
+            <Button 
+              type="submit" 
+              className="w-full bg-blue-600 hover:bg-blue-700" 
+              disabled={!paymentMethod}
+            >
               Complete Payment
             </Button>
           </form>

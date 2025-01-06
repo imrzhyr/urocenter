@@ -48,18 +48,18 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-bl from-blue-50 via-white to-sky-50">
       <div className="container max-w-2xl mx-auto py-6 px-4">
         <ProgressSteps steps={steps} currentStep={1} />
         <div className="space-y-6 mt-8">
           <div className="space-y-2">
-            <h1 className="text-2xl font-bold">Profile Information</h1>
+            <h1 className="text-2xl font-bold text-blue-900">Profile Information</h1>
             <p className="text-muted-foreground">
               Please fill in your profile details to continue
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6 bg-white/80 backdrop-blur-sm rounded-lg p-6 border border-blue-100 shadow-sm">
             <ProfileForm
               profile={profile}
               onProfileChange={handleProfileChange}
@@ -67,7 +67,7 @@ const Profile = () => {
 
             <Button 
               type="submit"
-              className="w-full"
+              className="w-full bg-blue-600 hover:bg-blue-700"
             >
               Continue to Medical Information
             </Button>

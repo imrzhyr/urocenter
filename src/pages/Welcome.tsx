@@ -7,7 +7,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { motion } from "framer-motion";
 import { TestimonialsCarousel } from "@/components/testimonials/TestimonialsCarousel";
 
 const Welcome = () => {
@@ -27,107 +26,67 @@ const Welcome = () => {
   ];
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-b from-blue-50 to-white overflow-hidden">
-      <motion.div 
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="p-4 flex justify-between items-center"
-      >
-        <motion.h1 
-          initial={{ x: -20, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="text-2xl font-bold text-primary"
-        >
-          UroCenter
-        </motion.h1>
+    <div className="h-screen flex flex-col bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-50 via-white to-sky-50 overflow-hidden">
+      <div className="p-4 flex justify-between items-center bg-white/80 backdrop-blur-sm">
+        <h1 className="text-2xl font-bold text-primary">UroCenter</h1>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="animate-fade-in">
+            <Button variant="ghost" size="icon">
               <Globe className="w-5 h-5" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="animate-scale-in">
+          <DropdownMenuContent>
             <DropdownMenuItem>English</DropdownMenuItem>
             <DropdownMenuItem>العربية</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      </motion.div>
+      </div>
       
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-2">
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="space-y-4 text-center"
-        >
+        <div className="text-center">
           <div className="relative inline-block">
-            <motion.img
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
+            <img
               src="/lovable-uploads/06b7c9e0-66fd-4a8e-8025-584b2a539eae.png"
               alt="Dr. Ali Kamal"
               className="w-32 h-32 rounded-full object-cover mx-auto border-4 border-primary shadow-lg hover:scale-105 transition-transform duration-300"
             />
           </div>
           
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            className="space-y-2"
-          >
+          <div className="space-y-2 mt-4">
             <h1 className="text-3xl font-bold tracking-tight text-primary">
               Dr. Ali Kamal
             </h1>
             <p className="text-lg text-muted-foreground">
               Urologist Consultant & Surgeon
             </p>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
 
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="grid grid-cols-2 gap-3 w-full mt-6"
-        >
-          {features.map((feature, index) => (
-            <motion.div
+        <div className="grid grid-cols-2 gap-3 w-full mt-6">
+          {features.map((feature) => (
+            <div
               key={feature.title}
-              initial={{ x: index === 0 ? -20 : 20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.7 + index * 0.1 }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-white p-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
+              className="bg-white/90 backdrop-blur-sm p-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-blue-100"
             >
               <div className="bg-primary/10 w-10 h-10 rounded-full flex items-center justify-center mb-2 mx-auto">
                 {feature.icon}
               </div>
               <h3 className="text-sm font-semibold">{feature.title}</h3>
               <p className="text-xs text-muted-foreground">{feature.description}</p>
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
 
         <TestimonialsCarousel />
 
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.9 }}
-          className="w-full mt-6 space-y-3"
-        >
+        <div className="w-full mt-6 space-y-3">
           <Button
-            className="w-full py-5 bg-primary hover:bg-primary/90 transition-all duration-300 transform hover:scale-105"
+            className="w-full py-5 bg-primary hover:bg-primary/90 transition-all duration-300"
             onClick={() => navigate("/signup")}
           >
             Start Your Journey
           </Button>
-          <p className="text-sm text-muted-foreground text-center animate-fade-in">
+          <p className="text-sm text-muted-foreground text-center">
             Already have an account?{" "}
             <button
               onClick={() => navigate("/signin")}
@@ -136,7 +95,7 @@ const Welcome = () => {
               Sign In
             </button>
           </p>
-        </motion.div>
+        </div>
       </div>
     </div>
   );
