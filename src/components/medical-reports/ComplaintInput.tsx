@@ -9,15 +9,18 @@ interface ComplaintInputProps {
 }
 
 const complaintExamples = [
-  "Frequent urination and lower back pain - possible kidney issue",
-  "Blood in urine and flank pain - consult urologist",
-  "Kidney stones with severe abdominal pain",
-  "Difficulty urinating and frequent urges - prostate concern",
-  "Swelling in legs and decreased urination - nephrology consultation",
-  "Lower urinary tract symptoms with burning sensation",
+  "Kidney stones with severe flank pain",
+  "Frequent urination and burning sensation",
+  "Lower back pain with blood in urine",
+  "Difficulty urinating with pelvic pressure",
+  "Recurring urinary tract infections"
 ];
 
-export const ComplaintInput = ({ complaint, setComplaint, required }: ComplaintInputProps) => {
+export const ComplaintInput = ({
+  complaint,
+  setComplaint,
+  required = false
+}: ComplaintInputProps) => {
   const [currentText, setCurrentText] = useState("");
 
   useEffect(() => {
@@ -31,31 +34,25 @@ export const ComplaintInput = ({ complaint, setComplaint, required }: ComplaintI
       if (isDeleting) {
         setCurrentText(example.substring(0, currentIndex - 1));
         currentIndex--;
+
+        if (currentIndex === 0) {
+          isDeleting = false;
+          currentExampleIndex = (currentExampleIndex + 1) % complaintExamples.length;
+        }
       } else {
         setCurrentText(example.substring(0, currentIndex + 1));
         currentIndex++;
-      }
 
-      if (!isDeleting && currentIndex === example.length) {
-        setTimeout(() => {
+        if (currentIndex === example.length) {
           isDeleting = true;
-        }, 1500);
+          setTimeout(() => {}, 1000); // Pause before deleting
+        }
       }
-
-      if (isDeleting && currentIndex === 0) {
-        isDeleting = false;
-        currentExampleIndex = (currentExampleIndex + 1) % complaintExamples.length;
-      }
-
-      const speed = isDeleting ? 30 : 50;
-      setTimeout(typeWriter, speed);
     };
 
-    typeWriter();
+    const interval = setInterval(typeWriter, isDeleting ? 50 : 100);
 
-    return () => {
-      setCurrentText("");
-    };
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -66,7 +63,7 @@ export const ComplaintInput = ({ complaint, setComplaint, required }: ComplaintI
         value={complaint}
         onChange={(e) => setComplaint(e.target.value)}
         placeholder={currentText}
-        className="placeholder:text-muted-foreground/80"
+        className="placeholder:text-muted-foreground/80 animate-typewriter"
         required={required}
       />
     </div>
