@@ -9,14 +9,26 @@ export interface Profile {
   complaint: string;
 }
 
+// Create a singleton state that can be updated from anywhere
+let profileState: Profile = {
+  full_name: "",
+  gender: "",
+  age: "",
+  complaint: "",
+};
+
+let listeners: ((profile: Profile) => void)[] = [];
+
 export const useProfile = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [profile, setProfile] = useState<Profile>({
-    full_name: "",
-    gender: "",
-    age: "",
-    complaint: "",
-  });
+  const [profile, setProfile] = useState<Profile>(profileState);
+
+  useEffect(() => {
+    listeners.push(setProfile);
+    return () => {
+      listeners = listeners.filter(listener => listener !== setProfile);
+    };
+  }, []);
 
   const fetchProfile = async () => {
     try {
@@ -37,12 +49,14 @@ export const useProfile = () => {
       }
 
       if (profileData) {
-        setProfile({
+        const newProfile = {
           full_name: profileData.full_name || "",
           gender: profileData.gender || "",
           age: profileData.age || "",
           complaint: profileData.complaint || "",
-        });
+        };
+        profileState = newProfile;
+        listeners.forEach(listener => listener(newProfile));
       }
     } catch (error) {
       console.error("Error fetching profile:", error);
@@ -74,7 +88,8 @@ export const useProfile = () => {
         throw updateError;
       }
 
-      setProfile(updatedProfile);
+      profileState = updatedProfile;
+      listeners.forEach(listener => listener(updatedProfile));
       toast.success("Profile updated successfully");
       return true;
     } catch (error) {
@@ -94,5 +109,9 @@ export const useProfile = () => {
     profile,
     isLoading,
     updateProfile,
+    setState: (newState: { profile: Profile }) => {
+      profileState = newState.profile;
+      listeners.forEach(listener => listener(newState.profile));
+    }
   };
 };

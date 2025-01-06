@@ -10,15 +10,17 @@ const Profile = () => {
   const { profile, updateProfile, isLoading } = useProfile();
   const steps = ["Sign Up", "Profile", "Medical Info", "Payment"];
 
-  const handleProfileChange = async (field: keyof typeof profile, value: string) => {
+  const handleProfileChange = (field: keyof typeof profile, value: string) => {
+    // Just update the local state without calling updateProfile
     const updatedProfile = {
       ...profile,
       [field]: value,
     };
-    await updateProfile(updatedProfile);
+    // Update the local profile state without making an API call
+    useProfile.setState({ profile: updatedProfile });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const hasValidName = profile.full_name?.trim().split(' ').length >= 2;
     const isFormValid = hasValidName && 
@@ -31,7 +33,10 @@ const Profile = () => {
       return;
     }
 
-    navigate("/medical-information");
+    const success = await updateProfile(profile);
+    if (success) {
+      navigate("/medical-information");
+    }
   };
 
   if (isLoading) {
