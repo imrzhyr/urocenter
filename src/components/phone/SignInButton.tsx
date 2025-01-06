@@ -48,7 +48,11 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
       }
 
       toast.success("Signed in successfully!");
-      navigate("/dashboard");
+      
+      // Ensure navigation happens after successful sign in
+      setTimeout(() => {
+        navigate("/dashboard", { replace: true });
+      }, 100);
       
     } catch (error: any) {
       console.error("Unexpected error:", error);
