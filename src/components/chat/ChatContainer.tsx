@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { ChatMessage } from "@/components/chat/ChatMessage";
 import { ChatInput } from "@/components/chat/ChatInput";
@@ -11,6 +11,7 @@ export const ChatContainer = () => {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useAuthRedirect();
   const { messages } = useMessages();
@@ -18,6 +19,10 @@ export const ChatContainer = () => {
   useEffect(() => {
     initializeUserContext();
   }, []);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   const handleSendMessage = async () => {
     if (!message.trim() && !selectedFile) return;
@@ -59,6 +64,7 @@ export const ChatContainer = () => {
             fileType={msg.file_type}
           />
         ))}
+        <div ref={messagesEndRef} />
       </div>
 
       <ChatInput
