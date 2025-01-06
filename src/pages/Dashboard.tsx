@@ -1,26 +1,6 @@
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { 
-  MessageSquare, FileText, Settings, 
-  LogOut, User, Bell, Plus, Eye
-} from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 
 // Components
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
@@ -33,12 +13,12 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const checkAuth = async () => {
+    const checkSession = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        const { data: { session } } = await supabase.auth.getSession();
         
-        if (error || !session) {
-          console.error("Auth error:", error);
+        if (!session) {
+          console.log("No session found, redirecting to signin");
           navigate("/signin", { replace: true });
           return;
         }
@@ -50,7 +30,18 @@ const Dashboard = () => {
       }
     };
 
-    checkAuth();
+    checkSession();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        navigate("/signin", { replace: true });
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   if (isLoading) {
