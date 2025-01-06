@@ -5,16 +5,20 @@ import { toast } from "sonner";
 export const GoogleSignIn = () => {
   const handleGoogleSignIn = async () => {
     try {
+      // Get the current origin safely
+      const origin = window?.location?.origin || '';
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: `${origin}/dashboard`,
         },
       });
       
       if (error) throw error;
     } catch (error: any) {
-      toast.error(error.message);
+      console.error('Google Sign In Error:', error);
+      toast.error(error.message || 'Failed to sign in with Google');
     }
   };
 
