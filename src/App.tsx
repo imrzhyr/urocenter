@@ -31,9 +31,10 @@ const PageWrapper = ({ children }: { children: React.ReactNode }) => {
       animate="animate"
       exit="exit"
       transition={{
-        type: "tween",
-        ease: "anticipate",
-        duration: 0.4,
+        type: "spring",
+        stiffness: 300,
+        damping: 30,
+        duration: 0.2,
       }}
       style={{
         position: 'absolute',
