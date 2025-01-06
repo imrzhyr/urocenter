@@ -1,8 +1,10 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { ChatMessage } from "@/components/chat/ChatMessage";
 import { ChatInput } from "@/components/chat/ChatInput";
+import { useMessages } from "@/hooks/useMessages";
 import { uploadFile } from "@/utils/fileUpload";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 interface ChatContainerProps {
   patientId?: string;
@@ -14,18 +16,14 @@ export const ChatContainer = ({ patientId }: ChatContainerProps) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Temporary mock messages for UI demonstration
-  const messages = [
-    {
-      id: '1',
-      content: 'Hello, how can I help you today?',
-      is_from_doctor: true,
-      status: 'not_seen',
-      file_url: undefined,
-      file_name: undefined,
-      file_type: undefined
+  useAuthRedirect();
+  const { messages, isLoading: messagesLoading, addMessage } = useMessages(patientId);
+
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  ];
+  }, [messages]);
 
   const handleSendMessage = async () => {
     if (!message.trim() && !selectedFile) return;
@@ -43,11 +41,12 @@ export const ChatContainer = ({ patientId }: ChatContainerProps) => {
         fileData = await uploadFile(selectedFile);
       }
 
-      // Placeholder for message sending logic
-      console.log('Message to send:', message, fileData);
-      setMessage('');
-      setSelectedFile(null);
+      const success = await addMessage(message.trim(), fileData);
       
+      if (success) {
+        setMessage('');
+        setSelectedFile(null);
+      }
     } catch (error: any) {
       console.error('Error sending message:', error);
       toast.error(error.message || 'Failed to send message');
@@ -66,6 +65,10 @@ export const ChatContainer = ({ patientId }: ChatContainerProps) => {
   const handleFileSelect = (file: File) => {
     setSelectedFile(file);
   };
+
+  if (messagesLoading) {
+    return <div className="flex-1 flex items-center justify-center">Loading messages...</div>;
+  }
 
   return (
     <div className="flex-1 flex flex-col">

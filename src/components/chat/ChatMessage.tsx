@@ -1,6 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FileIcon, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { format } from "date-fns";
 
 interface ChatMessageProps {
   id: string;
@@ -11,6 +12,7 @@ interface ChatMessageProps {
   fileType?: string;
   status: string;
   userId: string;
+  createdAt?: string;
 }
 
 export const ChatMessage = ({ 
@@ -19,9 +21,11 @@ export const ChatMessage = ({
   fileUrl, 
   fileName, 
   fileType,
-  status
+  status,
+  createdAt
 }: ChatMessageProps) => {
   const isImage = fileType?.startsWith('image/');
+  const timestamp = createdAt ? format(new Date(createdAt), 'MMM d, h:mm a') : '';
 
   return (
     <div className={`flex ${isFromDoctor ? 'justify-start' : 'justify-end'} mb-4`}>
@@ -66,6 +70,7 @@ export const ChatMessage = ({
               )}
             </div>
           )}
+          <div className="mt-1 text-xs opacity-70">{timestamp}</div>
         </div>
         {isFromDoctor && status !== 'resolved' && (
           <Button
