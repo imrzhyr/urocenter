@@ -15,12 +15,11 @@ export const useMessageOperations = (patientId?: string): MessageOperations => {
       return false;
     }
 
-    // Generate temporary ID for optimistic update
     const tempId = crypto.randomUUID();
     const timestamp = new Date().toISOString();
 
     try {
-      // Set user context
+      // Set user context first
       const contextSet = await setMessageContext(userPhone);
       if (!contextSet) {
         toast.error('Failed to set user context');
@@ -56,10 +55,10 @@ export const useMessageOperations = (patientId?: string): MessageOperations => {
       // Add optimistic message
       setMessages(prev => [...prev, optimisticMessage]);
 
-      // Send to database using upsert
+      // Send to database
       const { error: insertError } = await supabase
         .from('messages')
-        .upsert([{
+        .insert([{
           ...optimisticMessage,
           id: undefined // Let database generate ID
         }]);

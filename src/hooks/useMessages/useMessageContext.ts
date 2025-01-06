@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from '@/integrations/supabase/client';
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000;

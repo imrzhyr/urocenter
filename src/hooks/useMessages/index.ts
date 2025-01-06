@@ -26,7 +26,7 @@ export const useMessages = (patientId?: string) => {
           .from('profiles')
           .select('id, role')
           .eq('phone', userPhone)
-          .single();
+          .maybeSingle();
 
         if (!profile) return;
 
