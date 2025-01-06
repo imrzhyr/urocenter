@@ -50,7 +50,10 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-50 via-white to-sky-50">
-      <DashboardHeader />
+      <DashboardHeader 
+        title="Patient Dashboard" 
+        subtitle="Welcome to your healthcare portal"
+      />
       <main className="container py-6 space-y-6">
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <MessagesCard />
