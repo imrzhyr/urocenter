@@ -9,13 +9,23 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import type { Profile as ProfileType } from "@/hooks/useProfile";
 
 const Profile = () => {
   const navigate = useNavigate();
-  const [fullName, setFullName] = useState("");
-  const [gender, setGender] = useState("");
-  const [age, setAge] = useState("");
-  const [complaint, setComplaint] = useState("");
+  const [profile, setProfile] = useState<ProfileType>({
+    full_name: "",
+    gender: "",
+    age: "",
+    complaint: "",
+  });
+
+  const handleFieldChange = (field: keyof ProfileType, value: string) => {
+    setProfile(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,19 +62,13 @@ const Profile = () => {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <ProfileForm
-              fullName={fullName}
-              setFullName={setFullName}
-              gender={gender}
-              setGender={setGender}
-              age={age}
-              setAge={setAge}
-              complaint={complaint}
-              setComplaint={setComplaint}
+              profile={profile}
+              onProfileChange={handleFieldChange}
             />
             <Button
               type="submit"
               className="w-full"
-              disabled={!fullName || !gender || !age || !complaint}
+              disabled={!profile.full_name || !profile.gender || !profile.age || !profile.complaint}
             >
               Continue
             </Button>
