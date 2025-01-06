@@ -11,6 +11,7 @@ const Chat = () => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [patientInfo, setPatientInfo] = useState<{
     complaint: string;
     reportsCount: number;
@@ -27,7 +28,6 @@ const Chat = () => {
       const userPhone = localStorage.getItem('userPhone');
       if (!userPhone) return;
 
-      // Fetch profile information
       const { data: profileData } = await supabase
         .from('profiles')
         .select('id, complaint')
@@ -35,7 +35,6 @@ const Chat = () => {
         .maybeSingle();
 
       if (profileData) {
-        // Fetch medical reports count
         const { data: reports } = await supabase
           .from('medical_reports')
           .select('id')
@@ -93,8 +92,31 @@ const Chat = () => {
     setTimeout(scrollToBottom, 100);
   };
 
+  const uploadFile = async (file: File) => {
+    const fileExt = file.name.split('.').pop();
+    const filePath = `${crypto.randomUUID()}.${fileExt}`;
+
+    const { data, error: uploadError } = await supabase.storage
+      .from('chat_attachments')
+      .upload(filePath, file);
+
+    if (uploadError) {
+      throw uploadError;
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('chat_attachments')
+      .getPublicUrl(filePath);
+
+    return {
+      url: publicUrl,
+      name: file.name,
+      type: file.type
+    };
+  };
+
   const handleSendMessage = async () => {
-    if (!message.trim()) return;
+    if (!message.trim() && !selectedFile) return;
     
     setIsLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
@@ -105,20 +127,34 @@ const Chat = () => {
       return;
     }
 
-    const { error } = await supabase
-      .from('messages')
-      .insert({
-        content: message.trim(),
-        is_from_doctor: false,
-        user_id: user.id
-      });
+    try {
+      let fileData = null;
+      if (selectedFile) {
+        fileData = await uploadFile(selectedFile);
+      }
 
-    if (error) {
+      const { error } = await supabase
+        .from('messages')
+        .insert({
+          content: message.trim(),
+          is_from_doctor: false,
+          user_id: user.id,
+          file_url: fileData?.url,
+          file_name: fileData?.name,
+          file_type: fileData?.type
+        });
+
+      if (error) {
+        throw error;
+      }
+
+      setMessage('');
+      setSelectedFile(null);
+    } catch (error) {
       console.error('Error sending message:', error);
       toast.error('Failed to send message');
-    } else {
-      setMessage('');
     }
+    
     setIsLoading(false);
   };
 
@@ -129,9 +165,13 @@ const Chat = () => {
     }
   };
 
+  const handleFileSelect = (file: File) => {
+    setSelectedFile(file);
+  };
+
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-b from-purple-50 to-white">
-      <div className="p-4 bg-white border-b border-purple-100 shadow-sm">
+    <div className="flex flex-col h-screen bg-gradient-to-b from-blue-50 to-white">
+      <div className="p-4 bg-white border-b border-blue-100 shadow-sm">
         <ChatHeader onBack={() => navigate(-1)} />
         <PatientInfoCard 
           complaint={patientInfo.complaint}
@@ -145,6 +185,9 @@ const Chat = () => {
             key={msg.id || index}
             content={msg.content}
             isFromDoctor={msg.is_from_doctor}
+            fileUrl={msg.file_url}
+            fileName={msg.file_name}
+            fileType={msg.file_type}
           />
         ))}
         <div ref={messagesEndRef} />
@@ -156,6 +199,7 @@ const Chat = () => {
         onSend={handleSendMessage}
         isLoading={isLoading}
         onKeyPress={handleKeyPress}
+        onFileSelect={handleFileSelect}
       />
     </div>
   );
