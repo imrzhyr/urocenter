@@ -14,7 +14,7 @@ export const PhoneInput = ({ value, onChange, isSignUp = false }: PhoneInputProp
       <div className="space-y-2">
         <Label htmlFor="phone">Phone Number</Label>
         <div className="flex gap-2">
-          <PhoneFormatter value={value} onChange={onChange} />
+          <PhoneFormatter value={value} onChange={onChange} readOnly={isSignUp} />
           <VerificationButton phone={value} isSignUp={isSignUp} />
         </div>
       </div>

@@ -3,9 +3,10 @@ import { Input } from "@/components/ui/input";
 interface PhoneFormatterProps {
   value: string;
   onChange: (value: string) => void;
+  readOnly?: boolean;
 }
 
-export const PhoneFormatter = ({ value, onChange }: PhoneFormatterProps) => {
+export const PhoneFormatter = ({ value, onChange, readOnly = false }: PhoneFormatterProps) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value.replace(/\D/g, "");
     if (val.length <= 11) {
@@ -34,6 +35,7 @@ export const PhoneFormatter = ({ value, onChange }: PhoneFormatterProps) => {
         value={formatPhoneNumber(value)}
         onChange={handleChange}
         placeholder="7XXX XXX XXXX"
+        readOnly={readOnly}
       />
     </div>
   );

@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import { PhoneInput } from "@/components/PhoneInput";
 import { VerificationCode } from "@/components/VerificationCode";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Verify = () => {
-  const [phone, setPhone] = useState("");
+  const location = useLocation();
+  const phone = (location.state?.phone || "").replace("+964", "");
 
   return (
     <div className="container flex items-center justify-center min-h-screen py-8">
@@ -13,8 +14,8 @@ const Verify = () => {
           <CardTitle>Phone Verification</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <PhoneInput value={phone} onChange={setPhone} />
-          {phone.length === 10 && (
+          <PhoneInput value={phone} onChange={() => {}} isSignUp />
+          {phone.length === 11 && (
             <VerificationCode phone={phone} />
           )}
         </CardContent>
