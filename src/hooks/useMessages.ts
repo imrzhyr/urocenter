@@ -46,7 +46,8 @@ export const useMessages = () => {
           table: 'messages'
         },
         (payload) => {
-          setMessages(prev => [...prev, payload.new]);
+          const newMessage = payload.new as Message;
+          setMessages(prev => [...prev, newMessage]);
         }
       )
       .subscribe();

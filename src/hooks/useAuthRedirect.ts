@@ -11,15 +11,17 @@ export const useAuthRedirect = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         toast.error("Please sign in to access the chat");
-        navigate("/signin");
+        navigate("/signin", { replace: true });
       }
     };
 
     checkAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT') {
-        navigate("/signin");
+        navigate("/signin", { replace: true });
+      } else if (event === 'SIGNED_IN' && session) {
+        navigate("/chat", { replace: true });
       }
     });
 
