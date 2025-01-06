@@ -1,6 +1,5 @@
 import { Json, UserRole } from './common';
 import { MedicalReport, MedicalReportInsert, MedicalReportUpdate } from './medical-reports';
-import { Message, MessageInsert, MessageUpdate } from './messages';
 import { Profile, ProfileInsert, ProfileUpdate } from './profiles';
 import { Functions } from './functions';
 
@@ -11,11 +10,6 @@ export type Database = {
         Row: MedicalReport;
         Insert: MedicalReportInsert;
         Update: MedicalReportUpdate;
-      };
-      messages: {
-        Row: Message;
-        Insert: MessageInsert;
-        Update: MessageUpdate;
       };
       profiles: {
         Row: Profile;
