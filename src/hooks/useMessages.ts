@@ -53,17 +53,6 @@ export const useMessages = () => {
           return;
         }
 
-        // Enable real-time updates for the messages table
-        const { error: realtimeError } = await supabase
-          .from('messages')
-          .select('*')
-          .eq('user_id', profile.id)
-          .then(({ error }) => ({ error }));
-
-        if (realtimeError) {
-          console.error('Error enabling realtime:', realtimeError);
-        }
-
         // Fetch initial messages for this user
         const { data, error } = await supabase
           .from('messages')
