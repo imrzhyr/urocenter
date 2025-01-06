@@ -58,7 +58,6 @@ export const VerificationButton = ({
       localStorage.setItem('userPhone', phone);
       
       toast.success("Account created successfully!");
-      // Directly navigate to profile creation
       navigate("/profile");
       
     } catch (error: any) {
