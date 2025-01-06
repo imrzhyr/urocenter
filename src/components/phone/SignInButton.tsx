@@ -56,7 +56,13 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
       localStorage.setItem('userPhone', phone);
       
       toast.success("Signed in successfully!");
-      navigate("/dashboard");
+      
+      // Redirect based on user role
+      if (profile.role === 'admin') {
+        navigate("/admin");
+      } else {
+        navigate("/dashboard");
+      }
 
     } catch (error: any) {
       console.error("Unexpected error:", error);
