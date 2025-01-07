@@ -6,25 +6,22 @@ export const PatientChatPrompt = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="text-center space-y-6">
-      <div className="relative inline-block mb-4">
-        <MessageSquare className="w-16 h-16 text-primary animate-pulse" />
-        <Stethoscope className="w-8 h-8 text-blue-500 absolute -right-2 -bottom-2" />
+    <div className="text-center space-y-4 py-2">
+      <div className="relative inline-block mb-2">
+        <MessageSquare className="w-12 h-12 text-primary animate-pulse" />
+        <Stethoscope className="w-6 h-6 text-blue-500 absolute -right-1 -bottom-1" />
       </div>
-      <div className="max-w-sm mx-auto">
-        <h3 className="text-xl font-semibold text-primary mb-2">
-          Consult with a Doctor
+      <div className="max-w-xs mx-auto">
+        <h3 className="text-sm font-medium text-gray-700 mb-1">
+          Connect with a Doctor
         </h3>
-        <p className="text-sm text-gray-600 mb-6">
-          Get professional medical advice from our experienced healthcare team
-        </p>
         <Button 
           onClick={() => navigate('/chat')}
-          size="lg"
-          className="w-full max-w-[200px] bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl"
+          size="sm"
+          className="w-full max-w-[160px] bg-primary hover:bg-primary/90 transition-colors"
         >
-          <MessageSquare className="mr-2 h-5 w-5" />
-          Start Consultation
+          <MessageSquare className="mr-2 h-4 w-4" />
+          Start Chat
         </Button>
       </div>
     </div>
