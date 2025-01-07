@@ -40,6 +40,12 @@ export const AdminMessagesList = () => {
 
       console.log('Raw messages data:', messagesData);
 
+      if (!messagesData || messagesData.length === 0) {
+        setMessages([]);
+        setIsLoading(false);
+        return;
+      }
+
       // Group messages by user and get the latest message for each user
       const userMessages = messagesData.reduce((acc: { [key: string]: PatientMessage }, message: any) => {
         const userId = message.user_id;
