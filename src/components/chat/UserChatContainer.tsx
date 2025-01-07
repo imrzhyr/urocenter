@@ -6,7 +6,6 @@ import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import { messageService } from "@/services/messageService";
-import { supabase } from "@/integrations/supabase/client";
 
 export const UserChatContainer = () => {
   const { profile } = useProfile();

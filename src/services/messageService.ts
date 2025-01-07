@@ -87,7 +87,7 @@ export const messageService = {
       file_type: fileInfo?.type
     };
 
-    console.log('Message data:', messageData);
+    console.log('Sending message:', messageData);
 
     const { data, error } = await supabase
       .from('messages')
