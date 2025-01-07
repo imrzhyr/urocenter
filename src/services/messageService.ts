@@ -49,7 +49,6 @@ export const messageService = {
       throw new Error('Unauthorized access to messages');
     }
 
-    // Fetch messages after setting context and verifying access
     const { data, error } = await supabase
       .from('messages')
       .select('*')
@@ -79,25 +78,32 @@ export const messageService = {
 
     console.log('Sending message for user:', userId);
     
-    // Set user context before sending message
+    // Set user context before any database operation
     await this.setUserContext(userPhone);
 
-    // First verify if the user has admin role when sending as doctor
-    if (isFromDoctor) {
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('phone', userPhone)
-        .single();
+    // First verify if the user has permission to send this message
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('role, id')
+      .eq('phone', userPhone)
+      .single();
 
-      if (profileError) {
-        console.error('Error checking user role:', profileError);
-        throw profileError;
-      }
+    if (profileError) {
+      console.error('Error checking user role:', profileError);
+      throw profileError;
+    }
 
-      if (!profile || profile.role !== 'admin') {
-        throw new Error('Unauthorized: Only admins can send messages as doctor');
-      }
+    if (!profile) {
+      throw new Error('Profile not found');
+    }
+
+    // Verify permissions
+    if (isFromDoctor && profile.role !== 'admin') {
+      throw new Error('Unauthorized: Only admins can send messages as doctor');
+    }
+
+    if (!isFromDoctor && profile.id !== userId) {
+      throw new Error('Unauthorized: Can only send messages for yourself');
     }
 
     const messageData = {
@@ -112,7 +118,6 @@ export const messageService = {
 
     console.log('Message data:', messageData);
 
-    // Insert message after setting context and verifying role
     const { data, error } = await supabase
       .from('messages')
       .insert(messageData)
