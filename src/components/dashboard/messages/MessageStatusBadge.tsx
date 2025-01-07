@@ -1,8 +1,7 @@
 import { Badge } from "@/components/ui/badge";
-import { MessageStatus } from "@/types/messages";
 
 interface MessageStatusBadgeProps {
-  status: MessageStatus;
+  status: 'not_seen' | 'in_progress' | 'resolved';
   unreadCount?: number;
 }
 
@@ -30,7 +29,7 @@ export const MessageStatusBadge = ({ status, unreadCount = 0 }: MessageStatusBad
   const config = getStatusConfig();
 
   return (
-    <Badge variant={config.variant}>
+    <Badge variant={config.variant} className="ml-2">
       {config.label}
     </Badge>
   );

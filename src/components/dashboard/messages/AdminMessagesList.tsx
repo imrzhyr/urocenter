@@ -6,7 +6,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { MessagesFilter } from "./MessagesFilter";
 import { MessageStatusBadge } from "./MessageStatusBadge";
 import { PatientMessage } from "@/types/messages";
-import { fetchPatientMessages } from "@/utils/messageUtils";
 
 export const AdminMessagesList = () => {
   const navigate = useNavigate();
@@ -15,19 +14,68 @@ export const AdminMessagesList = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const loadMessages = async () => {
-      try {
-        const patientMessages = await fetchPatientMessages();
-        setMessages(patientMessages);
-      } catch (error) {
-        console.error('Error loading messages:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const fetchMessages = async () => {
+    try {
+      console.log('Fetching messages...');
+      const { data: messagesData, error } = await supabase
+        .from('messages')
+        .select(`
+          id,
+          content,
+          created_at,
+          status,
+          is_read,
+          user_id,
+          profiles (
+            id,
+            full_name
+          )
+        `)
+        .order('created_at', { ascending: false });
 
-    loadMessages();
+      if (error) {
+        console.error('Error fetching messages:', error);
+        return;
+      }
+
+      console.log('Raw messages data:', messagesData);
+
+      // Group messages by user and get the latest message for each user
+      const userMessages = messagesData.reduce((acc: { [key: string]: PatientMessage }, message: any) => {
+        const userId = message.user_id;
+        const userName = message.profiles?.full_name || "Unknown Patient";
+        
+        // Count unread messages for this user
+        const unreadCount = messagesData.filter(
+          (msg: any) => msg.user_id === userId && !msg.is_read
+        ).length;
+
+        // Only update if this is the first message we've seen for this user
+        // or if this message is more recent than the one we have
+        if (!acc[userId] || new Date(message.created_at) > new Date(acc[userId].last_message_time)) {
+          acc[userId] = {
+            id: userId,
+            full_name: userName,
+            last_message: message.content,
+            last_message_time: message.created_at,
+            status: message.status,
+            unread_count: unreadCount
+          };
+        }
+        return acc;
+      }, {});
+
+      console.log('Processed user messages:', userMessages);
+      setMessages(Object.values(userMessages));
+    } catch (error) {
+      console.error('Error in fetchMessages:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMessages();
 
     // Set up real-time subscription
     const channel = supabase
@@ -40,7 +88,8 @@ export const AdminMessagesList = () => {
           table: 'messages'
         },
         () => {
-          loadMessages();
+          console.log('Received real-time update, refreshing messages...');
+          fetchMessages();
         }
       )
       .subscribe();
