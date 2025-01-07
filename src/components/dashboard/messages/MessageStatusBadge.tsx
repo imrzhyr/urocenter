@@ -16,7 +16,7 @@ export const MessageStatusBadge = ({ status, unreadCount = 0 }: MessageStatusBad
         };
       case 'in_progress':
         return {
-          variant: 'warning' as const,
+          variant: 'secondary' as const,
           label: 'In Progress'
         };
       default:
