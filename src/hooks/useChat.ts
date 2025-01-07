@@ -34,13 +34,14 @@ export const useChat = (userId?: string) => {
       await setUserContext(userPhone);
       console.log('Fetching messages for userId:', userId);
 
-      const { data: profileData } = await supabase
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('id, role')
         .eq('phone', userPhone)
-        .maybeSingle();
+        .single();
 
-      if (!profileData) {
+      if (profileError || !profileData) {
+        console.error('Error fetching profile:', profileError);
         throw new Error('Profile not found');
       }
 
@@ -92,13 +93,13 @@ export const useChat = (userId?: string) => {
 
       await setUserContext(userPhone);
 
-      const { data: profileData } = await supabase
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('id, role')
         .eq('phone', userPhone)
-        .maybeSingle();
+        .single();
 
-      if (!profileData) {
+      if (profileError || !profileData) {
         throw new Error('Profile not found');
       }
 
@@ -120,11 +121,13 @@ export const useChat = (userId?: string) => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error sending message:', error);
+        throw error;
+      }
 
-      toast.success("Message sent successfully");
       return data as Message;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error sending message:', error);
       toast.error("Failed to send message. Please try again.");
       throw error;
