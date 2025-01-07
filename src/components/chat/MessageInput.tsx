@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Send, Paperclip, X, Plus } from "lucide-react";
+import { Send, Plus } from "lucide-react";
 import { uploadFile } from "@/utils/fileUpload";
 import { toast } from "sonner";
 
@@ -60,7 +60,8 @@ export const MessageInput = ({ onSendMessage, isLoading }: MessageInputProps) =>
             onClick={() => setSelectedFile(null)}
             className="h-6 w-6 hover:bg-gray-100"
           >
-            <X className="h-4 w-4" />
+            <span className="sr-only">Remove file</span>
+            <Plus className="h-4 w-4 rotate-45" />
           </Button>
         </div>
       )}

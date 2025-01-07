@@ -1,3 +1,5 @@
+export type MessageStatus = 'not_seen' | 'in_progress' | 'resolved';
+
 export interface PatientMessage {
   id: string;
   full_name: string;
@@ -6,5 +8,3 @@ export interface PatientMessage {
   status: MessageStatus;
   unread_count: number;
 }
-
-export type MessageStatus = 'not_seen' | 'in_progress' | 'resolved';

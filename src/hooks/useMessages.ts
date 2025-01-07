@@ -23,7 +23,6 @@ export const useMessages = (userId?: string) => {
           return;
         }
 
-        // Set user context before fetching messages
         await messageService.setUserContext(userPhone);
         const fetchedMessages = await messageService.fetchMessages(userId);
         console.log('Fetched messages:', fetchedMessages);
@@ -36,7 +35,6 @@ export const useMessages = (userId?: string) => {
 
     fetchMessages();
 
-    // Set up real-time subscription
     const channel = supabase
       .channel('messages')
       .on(
@@ -56,6 +54,17 @@ export const useMessages = (userId?: string) => {
               const messageExists = prev.some(msg => msg.id === newMessage.id);
               return messageExists ? prev : [...prev, newMessage];
             });
+
+            // Mark message as delivered if it's from doctor
+            if (newMessage.is_from_doctor) {
+              await supabase
+                .from('messages')
+                .update({ 
+                  delivered_at: new Date().toISOString(),
+                  status: 'not_seen'
+                })
+                .eq('id', newMessage.id);
+            }
           } else if (payload.eventType === 'UPDATE') {
             setMessages(prev => 
               prev.map(msg => 
@@ -86,13 +95,10 @@ export const useMessages = (userId?: string) => {
         throw new Error('No user phone found');
       }
 
-      // Set user context before sending message
       await messageService.setUserContext(userPhone);
       const newMessage = await messageService.sendMessage(content, userId, isFromDoctor, fileInfo);
       console.log('Message sent successfully:', newMessage);
       
-      // Optimistically update the UI
-      setMessages(prev => [...prev, newMessage]);
       return newMessage;
     } catch (error) {
       console.error('Error in sendMessage:', error);
