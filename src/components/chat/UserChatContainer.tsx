@@ -15,18 +15,24 @@ export const UserChatContainer = () => {
   useEffect(() => {
     const initializeUserContext = async () => {
       const userPhone = localStorage.getItem('userPhone');
-      if (userPhone) {
-        try {
-          await messageService.setUserContext(userPhone);
-        } catch (error) {
-          console.error('Error initializing user context:', error);
-          toast.error("Failed to initialize chat. Please try signing in again.");
-        }
+      if (!userPhone) {
+        console.error('No user phone found in localStorage');
+        toast.error("Please sign in again");
+        return;
+      }
+
+      try {
+        await messageService.setUserContext(userPhone);
+      } catch (error) {
+        console.error('Error initializing user context:', error);
+        toast.error("Failed to initialize chat. Please try signing in again.");
       }
     };
 
-    initializeUserContext();
-  }, []);
+    if (profile?.id) {
+      initializeUserContext();
+    }
+  }, [profile?.id]);
 
   const handleSendMessage = async (content: string, fileInfo?: { url: string; name: string; type: string }) => {
     if (!profile?.id) {
