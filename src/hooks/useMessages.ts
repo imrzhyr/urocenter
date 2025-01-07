@@ -27,6 +27,7 @@ export const useMessages = (userId?: string) => {
 
     fetchMessages();
 
+    // Set up real-time subscription
     const channel = supabase
       .channel('messages')
       .on(
@@ -42,7 +43,11 @@ export const useMessages = (userId?: string) => {
           
           if (payload.eventType === 'INSERT') {
             const newMessage = payload.new as Message;
-            setMessages(prev => [...prev, newMessage]);
+            // Only add the message if it's not already in the state
+            setMessages(prev => {
+              const messageExists = prev.some(msg => msg.id === newMessage.id);
+              return messageExists ? prev : [...prev, newMessage];
+            });
           } else if (payload.eventType === 'UPDATE') {
             setMessages(prev => 
               prev.map(msg => 
@@ -70,7 +75,7 @@ export const useMessages = (userId?: string) => {
       setIsLoading(true);
       const newMessage = await messageService.sendMessage(content, userId, isFromDoctor, fileInfo);
       console.log('Message sent successfully:', newMessage);
-      // Restore the state update to show the message immediately
+      // Add the new message to the local state immediately
       setMessages(prev => [...prev, newMessage]);
       toast.success("Message sent");
     } catch (error) {
