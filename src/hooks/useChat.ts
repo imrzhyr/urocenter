@@ -9,7 +9,6 @@ export const useChat = (userId?: string) => {
 
   const setUserContext = async (userPhone: string) => {
     try {
-      console.log('Setting user context for:', userPhone);
       const { error } = await supabase.rpc('set_user_context', { 
         user_phone: userPhone 
       });
@@ -29,35 +28,30 @@ export const useChat = (userId?: string) => {
     
     try {
       const userPhone = localStorage.getItem('userPhone');
-      if (!userPhone) throw new Error('No user phone found');
+      if (!userPhone) {
+        console.error('No user phone found');
+        return;
+      }
 
       await setUserContext(userPhone);
       console.log('Fetching messages for userId:', userId);
 
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('id, role')
-        .eq('phone', userPhone)
-        .single();
-
-      if (profileError || !profileData) {
-        console.error('Error fetching profile:', profileError);
-        throw new Error('Profile not found');
-      }
-
-      const { data, error } = await supabase
+      const { data: messages, error: messagesError } = await supabase
         .from('messages')
         .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: true });
 
-      if (error) throw error;
+      if (messagesError) {
+        console.error('Error fetching messages:', messagesError);
+        throw messagesError;
+      }
 
-      console.log('Fetched messages:', data);
-      setMessages(data || []);
+      console.log('Fetched messages:', messages);
+      setMessages(messages || []);
 
       // Mark messages as seen if they're from doctor
-      const unseenMessages = data?.filter(m => !m.seen_at && m.is_from_doctor) || [];
+      const unseenMessages = messages?.filter(m => !m.seen_at && m.is_from_doctor) || [];
       if (unseenMessages.length > 0) {
         const { error: updateError } = await supabase
           .from('messages')
@@ -89,7 +83,9 @@ export const useChat = (userId?: string) => {
     try {
       setIsLoading(true);
       const userPhone = localStorage.getItem('userPhone');
-      if (!userPhone) throw new Error('No user phone found');
+      if (!userPhone) {
+        throw new Error('No user phone found');
+      }
 
       await setUserContext(userPhone);
 
@@ -100,6 +96,7 @@ export const useChat = (userId?: string) => {
         .single();
 
       if (profileError || !profileData) {
+        console.error('Error fetching profile:', profileError);
         throw new Error('Profile not found');
       }
 
@@ -126,6 +123,8 @@ export const useChat = (userId?: string) => {
         throw error;
       }
 
+      // Fetch messages after sending to ensure consistency
+      await fetchMessages();
       return data as Message;
     } catch (error: any) {
       console.error('Error sending message:', error);
@@ -139,7 +138,6 @@ export const useChat = (userId?: string) => {
   useEffect(() => {
     fetchMessages();
 
-    // Set up real-time subscription
     const channel = supabase
       .channel('messages')
       .on(
@@ -152,31 +150,7 @@ export const useChat = (userId?: string) => {
         },
         async (payload) => {
           console.log('Received real-time update:', payload);
-          
-          if (payload.eventType === 'INSERT') {
-            const newMessage = payload.new as Message;
-            setMessages(prev => {
-              const messageExists = prev.some(msg => msg.id === newMessage.id);
-              return messageExists ? prev : [...prev, newMessage];
-            });
-
-            // Mark message as delivered if it's from doctor
-            if (newMessage.is_from_doctor) {
-              await supabase
-                .from('messages')
-                .update({ 
-                  delivered_at: new Date().toISOString(),
-                  status: 'delivered'
-                })
-                .eq('id', newMessage.id);
-            }
-          } else if (payload.eventType === 'UPDATE') {
-            setMessages(prev => 
-              prev.map(msg => 
-                msg.id === payload.new.id ? { ...msg, ...payload.new } : msg
-              )
-            );
-          }
+          await fetchMessages(); // Refresh messages on any change
         }
       )
       .subscribe();

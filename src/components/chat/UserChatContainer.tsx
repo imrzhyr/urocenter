@@ -10,11 +10,17 @@ export const UserChatContainer = () => {
   useAuthRedirect();
 
   const handleSendMessage = async (content: string, fileInfo?: { url: string; name: string; type: string }) => {
-    if (!profile?.id) return;
+    if (!profile?.id) {
+      console.error('No profile ID found');
+      return;
+    }
     await sendMessage(content, fileInfo);
   };
 
-  if (!profile?.id) return null;
+  if (!profile?.id) {
+    console.log('No profile ID found, not rendering chat');
+    return null;
+  }
 
   return (
     <MessageContainer
