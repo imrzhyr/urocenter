@@ -9,7 +9,10 @@ export const UserChatContainer = () => {
   const { messages, isLoading, sendMessage } = useMessages(profile?.id);
 
   const handleSendMessage = async (content: string) => {
-    if (!profile?.id) return;
+    if (!profile?.id) {
+      console.error("No profile ID available");
+      return;
+    }
     await sendMessage(content, profile.id, false);
   };
 

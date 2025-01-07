@@ -1,5 +1,5 @@
 export interface Profile {
-  id?: string;
+  id: string;
   full_name: string;
   gender: string;
   age: string;
