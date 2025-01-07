@@ -1,17 +1,10 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Profile } from "@/types/profile";
 
-export interface Profile {
-  full_name: string;
-  gender: string;
-  age: string;
-  complaint: string;
-  phone?: string;
-  role?: 'admin' | 'patient';
-}
-
-let profileState: Profile & { phone?: string } = {
+let profileState: Profile = {
+  id: "",
   full_name: "",
   gender: "",
   age: "",
@@ -20,11 +13,11 @@ let profileState: Profile & { phone?: string } = {
   role: "patient",
 };
 
-let listeners: ((profile: Profile & { phone?: string }) => void)[] = [];
+let listeners: ((profile: Profile) => void)[] = [];
 
 export const useProfile = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [profile, setProfile] = useState<Profile & { phone?: string }>(profileState);
+  const [profile, setProfile] = useState<Profile>(profileState);
 
   useEffect(() => {
     listeners.push(setProfile);
@@ -42,7 +35,7 @@ export const useProfile = () => {
 
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('full_name, gender, age, complaint, phone, role')
+        .select('id, full_name, gender, age, complaint, phone, role')
         .eq('phone', userPhone)
         .maybeSingle();
 
@@ -52,7 +45,8 @@ export const useProfile = () => {
       }
 
       if (profileData) {
-        const newProfile = {
+        const newProfile: Profile = {
+          id: profileData.id,
           full_name: profileData.full_name || "",
           gender: profileData.gender || "",
           age: profileData.age || "",
@@ -71,7 +65,7 @@ export const useProfile = () => {
     }
   };
 
-  const updateProfile = async (updatedProfile: Profile & { phone?: string }) => {
+  const updateProfile = async (updatedProfile: Profile) => {
     try {
       setIsLoading(true);
       const userPhone = localStorage.getItem('userPhone');
@@ -114,7 +108,7 @@ export const useProfile = () => {
     profile,
     isLoading,
     updateProfile,
-    setState: (newState: { profile: Profile & { phone?: string } }) => {
+    setState: (newState: { profile: Profile }) => {
       profileState = newState.profile;
       listeners.forEach(listener => listener(newState.profile));
     }
