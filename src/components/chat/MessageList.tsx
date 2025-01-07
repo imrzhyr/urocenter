@@ -1,6 +1,6 @@
 import { Message } from "@/types/profile";
 import { MessageStatus } from "./MessageStatus";
-import { FileText } from "lucide-react";
+import { FileText, Image } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 
 interface MessageListProps {
@@ -26,6 +26,10 @@ export const MessageList = ({ messages }: MessageListProps) => {
               className="max-w-[200px] rounded-lg cursor-pointer hover:opacity-90 transition-colors"
               onClick={() => window.open(message.file_url, '_blank')}
               loading="lazy"
+              onError={(e) => {
+                console.error('Image failed to load:', message.file_url);
+                e.currentTarget.src = '/placeholder.svg';
+              }}
             />
           </div>
         ) : (
@@ -60,7 +64,9 @@ export const MessageList = ({ messages }: MessageListProps) => {
                   : 'bg-white text-gray-800 shadow-sm'
               }`}
             >
-              <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
+              {message.content && (
+                <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
+              )}
               {renderFilePreview(message)}
               <div className="flex items-center justify-end gap-1 mt-1">
                 <span className={`text-[11px] ${shouldAlignRight ? 'text-blue-100' : 'text-gray-500'}`}>
