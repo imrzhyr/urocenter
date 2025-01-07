@@ -70,6 +70,8 @@ export const useMessages = (userId?: string) => {
       setIsLoading(true);
       const newMessage = await messageService.sendMessage(content, userId, isFromDoctor, fileInfo);
       console.log('Message sent successfully:', newMessage);
+      // Restore the state update to show the message immediately
+      setMessages(prev => [...prev, newMessage]);
       toast.success("Message sent");
     } catch (error) {
       console.error('Error in sendMessage:', error);
