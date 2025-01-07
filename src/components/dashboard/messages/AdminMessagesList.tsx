@@ -1,4 +1,4 @@
-import { User, CheckCircle2, Circle } from "lucide-react";
+import { User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -24,32 +24,39 @@ export const AdminMessagesList = () => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const { data: profiles, error: profilesError } = await supabase
-          .from('profiles')
+        const { data: messagesData, error: messagesError } = await supabase
+          .from('messages')
           .select(`
             id,
-            full_name,
-            messages (
-              content,
-              created_at,
-              status
+            content,
+            created_at,
+            status,
+            user_id,
+            profiles (
+              id,
+              full_name
             )
           `)
-          .eq('role', 'patient');
+          .order('created_at', { ascending: false });
 
-        if (profilesError) throw profilesError;
+        if (messagesError) throw messagesError;
 
-        const formattedMessages = profiles
-          ?.filter(profile => profile.messages && profile.messages.length > 0)
-          .map(profile => ({
-            id: profile.id,
-            full_name: profile.full_name || "Unknown Patient",
-            last_message: profile.messages[0].content,
-            last_message_time: profile.messages[0].created_at,
-            status: profile.messages[0].status
-          })) || [];
+        // Group messages by user and get the latest message for each user
+        const userMessages = messagesData?.reduce((acc: { [key: string]: PatientMessage }, message) => {
+          const userId = message.user_id;
+          if (!acc[userId] || new Date(message.created_at) > new Date(acc[userId].last_message_time)) {
+            acc[userId] = {
+              id: userId,
+              full_name: message.profiles?.full_name || "Unknown Patient",
+              last_message: message.content,
+              last_message_time: message.created_at,
+              status: message.status
+            };
+          }
+          return acc;
+        }, {});
 
-        setMessages(formattedMessages);
+        setMessages(Object.values(userMessages || {}));
       } catch (error) {
         console.error('Error fetching messages:', error);
       } finally {
@@ -59,7 +66,7 @@ export const AdminMessagesList = () => {
 
     fetchMessages();
 
-    // Set up real-time subscription for messages
+    // Set up real-time subscription
     const channel = supabase
       .channel('messages_changes')
       .on(
