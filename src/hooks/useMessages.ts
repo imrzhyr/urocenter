@@ -15,7 +15,6 @@ export const useMessages = (userId?: string) => {
 
     const fetchMessages = async () => {
       try {
-        // Set user context before fetching messages
         const userPhone = localStorage.getItem('userPhone');
         if (!userPhone) {
           console.error('No user phone found in localStorage');
@@ -85,7 +84,6 @@ export const useMessages = (userId?: string) => {
     console.log('sendMessage called with:', { content, userId, isFromDoctor });
     
     try {
-      // Set user context before sending message
       const userPhone = localStorage.getItem('userPhone');
       if (!userPhone) {
         console.error('No user phone found in localStorage');
@@ -101,7 +99,7 @@ export const useMessages = (userId?: string) => {
         content: content.trim(),
         user_id: userId,
         is_from_doctor: isFromDoctor,
-        status: 'sent'
+        status: 'not_seen' // This is the correct status value that matches the check constraint
       };
 
       console.log('Inserting message:', messageData);
