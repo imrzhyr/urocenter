@@ -35,8 +35,7 @@ export const AdminMessagesList = () => {
               status
             )
           `)
-          .eq('role', 'patient')
-          .order('created_at', { foreignTable: 'messages', ascending: false });
+          .eq('role', 'patient');
 
         if (profilesError) throw profilesError;
 
@@ -59,6 +58,26 @@ export const AdminMessagesList = () => {
     };
 
     fetchMessages();
+
+    // Set up real-time subscription for messages
+    const channel = supabase
+      .channel('messages_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'messages'
+        },
+        () => {
+          fetchMessages();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const filteredMessages = messages.filter(message => {
@@ -66,6 +85,10 @@ export const AdminMessagesList = () => {
     const matchesStatus = statusFilter === "all" || message.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  if (isLoading) {
+    return <div className="text-center py-8">Loading messages...</div>;
+  }
 
   return (
     <div className="space-y-4">
@@ -76,37 +99,38 @@ export const AdminMessagesList = () => {
         onStatusChange={setStatusFilter}
       />
       <div className="space-y-2 max-h-[400px] overflow-y-auto">
-        {filteredMessages.map((patient) => (
-          <Button
-            key={patient.id}
-            variant="ghost"
-            className="w-full justify-start p-4 h-auto"
-            onClick={() => navigate(`/chat/${patient.id}`)}
-          >
-            <div className="flex items-start gap-3 w-full">
-              <div className="bg-blue-100 p-2 rounded-full">
-                <User className="w-5 h-5 text-blue-600" />
-              </div>
-              <div className="flex-1 text-left">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium">{patient.full_name}</span>
-                  <Badge variant={patient.status === 'resolved' ? 'default' : 'destructive'}>
-                    {patient.status === 'resolved' ? 'Resolved' : 'Pending'}
-                  </Badge>
+        {filteredMessages.length > 0 ? (
+          filteredMessages.map((patient) => (
+            <Button
+              key={patient.id}
+              variant="ghost"
+              className="w-full justify-start p-4 h-auto hover:bg-primary/5"
+              onClick={() => navigate(`/chat/${patient.id}`)}
+            >
+              <div className="flex items-start gap-3 w-full">
+                <div className="bg-primary/10 p-2 rounded-full">
+                  <User className="w-5 h-5 text-primary" />
                 </div>
-                <p className="text-sm text-muted-foreground truncate">
-                  {patient.last_message}
-                </p>
-                <div className="text-xs text-muted-foreground mt-1">
-                  {new Date(patient.last_message_time).toLocaleDateString()}
+                <div className="flex-1 text-left">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">{patient.full_name}</span>
+                    <Badge variant={patient.status === 'resolved' ? 'default' : 'destructive'}>
+                      {patient.status === 'resolved' ? 'Resolved' : 'Pending'}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground truncate">
+                    {patient.last_message}
+                  </p>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    {new Date(patient.last_message_time).toLocaleDateString()}
+                  </div>
                 </div>
               </div>
-            </div>
-          </Button>
-        ))}
-        {filteredMessages.length === 0 && (
-          <div className="text-center text-muted-foreground py-8">
-            No messages found
+            </Button>
+          ))
+        ) : (
+          <div className="text-center py-8 text-muted-foreground">
+            No messages found. New patient messages will appear here.
           </div>
         )}
       </div>
