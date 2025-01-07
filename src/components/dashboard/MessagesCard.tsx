@@ -9,6 +9,8 @@ import {
 import { Button } from "@/components/ui/button";
 
 export const MessagesCard = () => {
+  console.log("Rendering MessagesCard with placeholder");
+  
   return (
     <Card className="h-[400px] flex flex-col">
       <CardHeader>

@@ -18,14 +18,8 @@ export type Database = {
       };
     };
     Functions: Functions;
-    Views: {
-      [_ in never]: never;
-    };
     Enums: {
-      [_ in never]: never;
-    };
-    CompositeTypes: {
-      [_ in never]: never;
+      user_role: UserRole;
     };
   };
 };
