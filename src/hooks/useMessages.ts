@@ -15,12 +15,6 @@ export const useMessages = (userId?: string) => {
 
     const fetchMessages = async () => {
       try {
-        const { data: session } = await supabase.auth.getSession();
-        if (!session.session) {
-          console.error('No active session');
-          return;
-        }
-
         console.log('Fetching messages for user:', userId);
         const { data, error } = await supabase
           .from('messages')
@@ -82,13 +76,6 @@ export const useMessages = (userId?: string) => {
     console.log('sendMessage called with:', { content, userId, isFromDoctor });
     
     try {
-      const { data: session } = await supabase.auth.getSession();
-      if (!session.session) {
-        console.error('No active session when sending message');
-        toast.error("Please sign in to send messages");
-        return;
-      }
-
       setIsLoading(true);
       
       const messageData = {
@@ -108,11 +95,7 @@ export const useMessages = (userId?: string) => {
 
       if (error) {
         console.error('Error sending message:', error);
-        if (error.code === '42501') {
-          toast.error("Authorization error. Please sign in again.");
-        } else {
-          toast.error("Failed to send message");
-        }
+        toast.error("Failed to send message");
         throw error;
       }
 
