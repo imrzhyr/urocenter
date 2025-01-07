@@ -6,6 +6,7 @@ import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import { messageService } from "@/services/messageService";
+import { supabase } from "@/integrations/supabase/client";
 
 export const UserChatContainer = () => {
   const { profile } = useProfile();
@@ -22,7 +23,16 @@ export const UserChatContainer = () => {
       }
 
       try {
-        await messageService.setUserContext(userPhone);
+        // Set the user context in Supabase
+        const { error } = await supabase.rpc('set_user_context', {
+          user_phone: userPhone
+        });
+
+        if (error) {
+          console.error('Error setting user context:', error);
+          toast.error("Failed to initialize chat");
+          return;
+        }
       } catch (error) {
         console.error('Error initializing user context:', error);
         toast.error("Failed to initialize chat. Please try signing in again.");
@@ -41,7 +51,18 @@ export const UserChatContainer = () => {
       return;
     }
 
+    const userPhone = localStorage.getItem('userPhone');
+    if (!userPhone) {
+      toast.error("Please sign in again");
+      return;
+    }
+
     try {
+      // Set user context before sending message
+      await supabase.rpc('set_user_context', {
+        user_phone: userPhone
+      });
+
       await sendMessage(content, profile.id, false, fileInfo);
       toast.success("Message sent successfully");
     } catch (error) {

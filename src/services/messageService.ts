@@ -1,13 +1,18 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Message } from "@/types/profile";
-import { toast } from "sonner";
 
 export const messageService = {
   async setUserContext(userPhone: string) {
     try {
       console.log('Setting user context for:', userPhone);
-      const { error } = await supabase.rpc('set_user_context', { user_phone: userPhone });
-      if (error) throw error;
+      const { error } = await supabase.rpc('set_user_context', { 
+        user_phone: userPhone 
+      });
+      
+      if (error) {
+        console.error('Error setting user context:', error);
+        throw error;
+      }
     } catch (error) {
       console.error('Error setting user context:', error);
       throw error;
@@ -55,7 +60,6 @@ export const messageService = {
     const userPhone = localStorage.getItem('userPhone');
     if (!userPhone) throw new Error('No user phone found');
 
-    console.log('Sending message for user:', userId);
     await this.setUserContext(userPhone);
 
     const { data: profile } = await supabase
