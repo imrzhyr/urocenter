@@ -36,8 +36,8 @@ export const UserChatContainer = () => {
     }
 
     try {
+      console.log('Sending message with file info:', { content, fileInfo });
       await sendMessage(content, profile.id, false, fileInfo);
-      toast.success("Message sent successfully");
     } catch (error) {
       console.error("Error in handleSendMessage:", error);
       toast.error("Failed to send message. Please try again.");
