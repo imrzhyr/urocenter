@@ -1,7 +1,14 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Profile } from "@/types/profile";
+
+export interface Profile {
+  full_name: string;
+  gender: string;
+  age: string;
+  complaint: string;
+  phone?: string;
+}
 
 let profileState: Profile & { phone?: string } = {
   full_name: "",
