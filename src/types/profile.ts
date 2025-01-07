@@ -4,6 +4,7 @@ export interface Profile {
   age: string;
   complaint: string;
   phone?: string;
+  role?: 'admin' | 'patient';
 }
 
 export interface Message {
