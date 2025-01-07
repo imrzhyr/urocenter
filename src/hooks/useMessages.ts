@@ -43,7 +43,6 @@ export const useMessages = (userId?: string) => {
           
           if (payload.eventType === 'INSERT') {
             const newMessage = payload.new as Message;
-            // Only add the message if it's not already in the state
             setMessages(prev => {
               const messageExists = prev.some(msg => msg.id === newMessage.id);
               return messageExists ? prev : [...prev, newMessage];
@@ -75,12 +74,9 @@ export const useMessages = (userId?: string) => {
       setIsLoading(true);
       const newMessage = await messageService.sendMessage(content, userId, isFromDoctor, fileInfo);
       console.log('Message sent successfully:', newMessage);
-      // Add the new message to the local state immediately
       setMessages(prev => [...prev, newMessage]);
-      toast.success("Message sent");
     } catch (error) {
       console.error('Error in sendMessage:', error);
-      toast.error("Failed to send message");
       throw error;
     } finally {
       setIsLoading(false);
