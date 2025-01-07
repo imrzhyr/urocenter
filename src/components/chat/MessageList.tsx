@@ -1,6 +1,7 @@
 import { Message } from "@/types/profile";
 import { MessageStatus } from "./MessageStatus";
 import { FileText } from "lucide-react";
+import { WaveBackground } from "../WaveBackground";
 
 interface MessageListProps {
   messages: Message[];
