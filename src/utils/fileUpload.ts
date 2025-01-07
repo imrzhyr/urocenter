@@ -4,11 +4,21 @@ export const uploadFile = async (file: File) => {
   const fileExt = file.name.split('.').pop();
   const filePath = `${crypto.randomUUID()}.${fileExt}`;
 
-  // Get the current session to ensure we're authenticated
-  const { data: { session } } = await supabase.auth.getSession();
+  // Get the user's phone number from localStorage
+  const userPhone = localStorage.getItem('userPhone');
   
-  if (!session) {
+  if (!userPhone) {
     throw new Error('Authentication required');
+  }
+
+  // Set the user context before uploading
+  const { error: contextError } = await supabase.rpc('set_user_context', { 
+    user_phone: userPhone 
+  });
+
+  if (contextError) {
+    console.error('Context error:', contextError);
+    throw contextError;
   }
 
   const { data, error: uploadError } = await supabase.storage
