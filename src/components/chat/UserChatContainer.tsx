@@ -10,7 +10,7 @@ export const UserChatContainer = () => {
   const { messages, isLoading, sendMessage } = useMessages(profile?.id);
   useAuthRedirect();
 
-  const handleSendMessage = async (content: string) => {
+  const handleSendMessage = async (content: string, fileInfo?: { url: string; name: string; type: string }) => {
     if (!profile?.id) {
       console.error("No profile ID available", { profile });
       toast.error("Unable to send message. Please try signing in again.");
@@ -18,8 +18,8 @@ export const UserChatContainer = () => {
     }
 
     try {
-      console.log('Handling send message:', { content, profileId: profile.id });
-      await sendMessage(content, profile.id, false);
+      console.log('Handling send message:', { content, fileInfo, profileId: profile.id });
+      await sendMessage(content, profile.id, false, fileInfo);
     } catch (error) {
       console.error("Error in handleSendMessage:", error);
       toast.error("Failed to send message. Please try again.");

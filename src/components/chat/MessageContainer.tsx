@@ -5,7 +5,7 @@ import { Message } from "@/types/profile";
 
 interface MessageContainerProps {
   messages: Message[];
-  onSendMessage: (message: string) => void;
+  onSendMessage: (message: string, fileInfo?: { url: string; name: string; type: string }) => void;
   isLoading: boolean;
   header: React.ReactNode;
 }
