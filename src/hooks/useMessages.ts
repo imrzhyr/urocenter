@@ -67,7 +67,6 @@ export const useMessages = (userId?: string) => {
 
     fetchMessages();
 
-    // Enable REPLICA IDENTITY FULL for the messages table
     const channel = supabase
       .channel(`messages_${userId}`)
       .on(
@@ -127,6 +126,7 @@ export const useMessages = (userId?: string) => {
     try {
       const { data: session } = await supabase.auth.getSession();
       if (!session.session) {
+        console.error('No active session when sending message');
         toast.error("Please sign in to send messages");
         return;
       }
@@ -134,14 +134,20 @@ export const useMessages = (userId?: string) => {
       setIsLoading(true);
       console.log('Sending message:', { content, userId, isFromDoctor });
       
-      const { error } = await supabase
+      const messageData = {
+        content: content.trim(),
+        user_id: userId,
+        is_from_doctor: isFromDoctor,
+        status: 'sent'
+      };
+
+      console.log('Message data to be inserted:', messageData);
+      
+      const { data, error } = await supabase
         .from('messages')
-        .insert({
-          content: content.trim(),
-          user_id: userId,
-          is_from_doctor: isFromDoctor,
-          status: 'sent'
-        });
+        .insert(messageData)
+        .select()
+        .single();
 
       if (error) {
         console.error('Error sending message:', error);
@@ -153,6 +159,7 @@ export const useMessages = (userId?: string) => {
         throw error;
       }
 
+      console.log('Message sent successfully:', data);
       toast.success("Message sent");
     } catch (error) {
       console.error('Error in sendMessage:', error);
