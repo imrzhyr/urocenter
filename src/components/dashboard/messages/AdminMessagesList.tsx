@@ -1,18 +1,12 @@
 import { User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { MessagesFilter } from "./MessagesFilter";
-
-interface PatientMessage {
-  id: string;
-  full_name: string;
-  last_message: string;
-  last_message_time: string;
-  status: string;
-}
+import { MessageStatusBadge } from "./MessageStatusBadge";
+import { PatientMessage } from "@/types/messages";
+import { fetchPatientMessages } from "@/utils/messageUtils";
 
 export const AdminMessagesList = () => {
   const navigate = useNavigate();
@@ -22,49 +16,18 @@ export const AdminMessagesList = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchMessages = async () => {
+    const loadMessages = async () => {
       try {
-        const { data: messagesData, error: messagesError } = await supabase
-          .from('messages')
-          .select(`
-            id,
-            content,
-            created_at,
-            status,
-            user_id,
-            profiles (
-              id,
-              full_name
-            )
-          `)
-          .order('created_at', { ascending: false });
-
-        if (messagesError) throw messagesError;
-
-        // Group messages by user and get the latest message for each user
-        const userMessages = messagesData?.reduce((acc: { [key: string]: PatientMessage }, message) => {
-          const userId = message.user_id;
-          if (!acc[userId] || new Date(message.created_at) > new Date(acc[userId].last_message_time)) {
-            acc[userId] = {
-              id: userId,
-              full_name: message.profiles?.full_name || "Unknown Patient",
-              last_message: message.content,
-              last_message_time: message.created_at,
-              status: message.status
-            };
-          }
-          return acc;
-        }, {});
-
-        setMessages(Object.values(userMessages || {}));
+        const patientMessages = await fetchPatientMessages();
+        setMessages(patientMessages);
       } catch (error) {
-        console.error('Error fetching messages:', error);
+        console.error('Error loading messages:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchMessages();
+    loadMessages();
 
     // Set up real-time subscription
     const channel = supabase
@@ -77,7 +40,7 @@ export const AdminMessagesList = () => {
           table: 'messages'
         },
         () => {
-          fetchMessages();
+          loadMessages();
         }
       )
       .subscribe();
@@ -121,9 +84,10 @@ export const AdminMessagesList = () => {
                 <div className="flex-1 text-left">
                   <div className="flex items-center justify-between">
                     <span className="font-medium">{patient.full_name}</span>
-                    <Badge variant={patient.status === 'resolved' ? 'default' : 'destructive'}>
-                      {patient.status === 'resolved' ? 'Resolved' : 'Pending'}
-                    </Badge>
+                    <MessageStatusBadge 
+                      status={patient.status as any} 
+                      unreadCount={patient.unread_count}
+                    />
                   </div>
                   <p className="text-sm text-muted-foreground truncate">
                     {patient.last_message}
