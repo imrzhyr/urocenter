@@ -50,14 +50,18 @@ const Dashboard = () => {
   }, [navigate]);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-pulse text-primary">Loading...</div>
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-50 via-white to-sky-50">
       <DashboardHeader />
-      <main className="container py-6 space-y-6">
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <main className="container py-6 px-4 md:px-6">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto">
           <MessagesCard />
           <MedicalReportsCard />
           <RecentActivityCard />

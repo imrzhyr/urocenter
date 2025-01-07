@@ -15,8 +15,8 @@ export const MessagesCard = () => {
   const isAdmin = profile?.role === 'admin';
 
   return (
-    <Card className="col-span-1 h-[300px]">
-      <CardHeader>
+    <Card className="col-span-1 h-[300px] flex flex-col">
+      <CardHeader className="flex-shrink-0">
         <CardTitle className="flex items-center gap-2">
           <MessageSquare className="h-5 w-5 text-primary" />
           {isAdmin ? "Patient Messages" : "Medical Consultation"}
@@ -28,7 +28,7 @@ export const MessagesCard = () => {
           }
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-grow flex items-center justify-center p-4">
         {isAdmin ? <AdminMessagesList /> : <PatientChatPrompt />}
       </CardContent>
     </Card>
