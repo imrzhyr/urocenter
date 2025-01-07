@@ -57,7 +57,7 @@ export const messageService = {
         .from('profiles')
         .select('role')
         .eq('phone', userPhone)
-        .maybeSingle();
+        .single();
 
       if (profileError) {
         console.error('Error checking user role:', profileError);
