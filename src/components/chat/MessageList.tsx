@@ -1,12 +1,16 @@
 import { Message } from "@/types/profile";
 import { MessageStatus } from "./MessageStatus";
 import { FileText } from "lucide-react";
+import { useProfile } from "@/hooks/useProfile";
 
 interface MessageListProps {
   messages: Message[];
 }
 
 export const MessageList = ({ messages }: MessageListProps) => {
+  const { profile } = useProfile();
+  const isAdmin = profile?.role === 'admin';
+
   const renderFilePreview = (message: Message) => {
     if (!message.file_url) return null;
 
@@ -41,29 +45,35 @@ export const MessageList = ({ messages }: MessageListProps) => {
 
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-4">
-      {messages.map((message) => (
-        <div
-          key={message.id}
-          className={`flex ${message.is_from_doctor ? 'justify-end' : 'justify-start'}`}
-        >
+      {messages.map((message) => {
+        // For admin view: admin messages on right, patient messages on left
+        // For patient view: patient messages on right, doctor messages on left
+        const shouldAlignRight = isAdmin ? message.is_from_doctor : !message.is_from_doctor;
+
+        return (
           <div
-            className={`max-w-[70%] p-3 rounded-lg ${
-              message.is_from_doctor
-                ? 'bg-primary text-white'
-                : 'bg-[#F2FCE2] text-gray-900'
-            }`}
+            key={message.id}
+            className={`flex ${shouldAlignRight ? 'justify-end' : 'justify-start'}`}
           >
-            <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-            {renderFilePreview(message)}
-            <div className="flex items-center justify-end gap-1 mt-1">
-              <span className={`text-xs ${message.is_from_doctor ? 'text-white/70' : 'text-gray-500'}`}>
-                {new Date(message.created_at).toLocaleTimeString()}
-              </span>
-              <MessageStatus message={message} />
+            <div
+              className={`max-w-[70%] p-3 rounded-lg ${
+                message.is_from_doctor
+                  ? 'bg-primary text-white'
+                  : 'bg-[#F2FCE2] text-gray-900'
+              }`}
+            >
+              <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+              {renderFilePreview(message)}
+              <div className="flex items-center justify-end gap-1 mt-1">
+                <span className={`text-xs ${message.is_from_doctor ? 'text-white/70' : 'text-gray-500'}`}>
+                  {new Date(message.created_at).toLocaleTimeString()}
+                </span>
+                <MessageStatus message={message} />
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };
