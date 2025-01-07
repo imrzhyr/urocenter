@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Message } from "@/types/profile";
+import { toast } from "sonner";
 
 export const messageService = {
   async setUserContext(userPhone: string) {
@@ -31,6 +32,7 @@ export const messageService = {
 
     if (error) {
       console.error('Error fetching messages:', error);
+      toast.error('Failed to fetch messages');
       throw error;
     }
 

@@ -55,7 +55,6 @@ export const useMessages = (userId?: string) => {
               return messageExists ? prev : [...prev, newMessage];
             });
 
-            // Mark message as delivered if it's from doctor
             if (newMessage.is_from_doctor) {
               await supabase
                 .from('messages')
