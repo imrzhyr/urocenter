@@ -44,19 +44,19 @@ export const MessageList = ({ messages }: MessageListProps) => {
       {messages.map((message) => (
         <div
           key={message.id}
-          className={`flex ${message.is_from_doctor ? 'justify-start' : 'justify-end'}`}
+          className={`flex ${message.is_from_doctor ? 'justify-end' : 'justify-start'}`}
         >
           <div
             className={`max-w-[70%] p-3 rounded-lg ${
               message.is_from_doctor
-                ? 'bg-gray-100 text-gray-900'
-                : 'bg-blue-500 text-white'
+                ? 'bg-primary text-white'
+                : 'bg-[#F2FCE2] text-gray-900'
             }`}
           >
             <p className="text-sm whitespace-pre-wrap">{message.content}</p>
             {renderFilePreview(message)}
             <div className="flex items-center justify-end gap-1 mt-1">
-              <span className="text-xs opacity-70">
+              <span className={`text-xs ${message.is_from_doctor ? 'text-white/70' : 'text-gray-500'}`}>
                 {new Date(message.created_at).toLocaleTimeString()}
               </span>
               <MessageStatus message={message} />
