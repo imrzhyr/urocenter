@@ -5,7 +5,8 @@ export const messageService = {
   async setUserContext(userPhone: string) {
     try {
       console.log('Setting user context for:', userPhone);
-      await supabase.rpc('set_user_context', { user_phone: userPhone });
+      const { error } = await supabase.rpc('set_user_context', { user_phone: userPhone });
+      if (error) throw error;
     } catch (error) {
       console.error('Error setting user context:', error);
       throw error;

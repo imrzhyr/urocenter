@@ -27,7 +27,6 @@ export const useMessages = (userId?: string) => {
 
     fetchMessages();
 
-    // Set up real-time subscription
     const channel = supabase
       .channel('messages')
       .on(
@@ -53,9 +52,7 @@ export const useMessages = (userId?: string) => {
           }
         }
       )
-      .subscribe((status) => {
-        console.log('Subscription status:', status);
-      });
+      .subscribe();
 
     return () => {
       console.log('Cleaning up subscription');

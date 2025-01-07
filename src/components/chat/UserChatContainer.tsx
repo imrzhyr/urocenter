@@ -22,6 +22,7 @@ export const UserChatContainer = () => {
       await sendMessage(content, profile.id, false);
     } catch (error) {
       console.error("Error in handleSendMessage:", error);
+      toast.error("Failed to send message. Please try again.");
     }
   };
 
