@@ -12,14 +12,21 @@ export const UserChatContainer = () => {
 
   const handleSendMessage = async (content: string) => {
     if (!profile?.id) {
-      console.error("No profile ID available");
+      console.error("No profile ID available", { profile });
       toast.error("Unable to send message. Please try signing in again.");
       return;
     }
-    await sendMessage(content, profile.id, false);
+    console.log("Attempting to send message", { content, profileId: profile.id });
+    try {
+      await sendMessage(content, profile.id, false);
+    } catch (error) {
+      console.error("Error in handleSendMessage:", error);
+      toast.error("Failed to send message. Please try again.");
+    }
   };
 
   if (!profile?.id) {
+    console.log("No profile ID, returning null");
     return null;
   }
 

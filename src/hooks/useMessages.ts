@@ -8,7 +8,10 @@ export const useMessages = (userId?: string) => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId) {
+      console.log("No userId provided to useMessages");
+      return;
+    }
 
     const fetchMessages = async () => {
       try {
@@ -27,41 +30,15 @@ export const useMessages = (userId?: string) => {
 
         if (error) {
           console.error('Error fetching messages:', error);
-          if (error.code === '42501') {
-            toast.error("Authorization error. Please sign in again.");
-          } else {
-            toast.error("Failed to load messages");
-          }
+          toast.error("Failed to load messages");
           return;
         }
 
         console.log('Fetched messages:', data);
         setMessages(data as Message[]);
-        await markMessagesAsSeen(data);
       } catch (error) {
         console.error('Error in fetchMessages:', error);
         toast.error("Failed to load messages");
-      }
-    };
-
-    const markMessagesAsSeen = async (messages: Message[]) => {
-      try {
-        const unseenMessages = messages?.filter(m => !m.seen_at && m.is_from_doctor) || [];
-        if (unseenMessages.length > 0) {
-          const { error: updateError } = await supabase
-            .from('messages')
-            .update({ 
-              seen_at: new Date().toISOString(),
-              status: 'seen'
-            })
-            .in('id', unseenMessages.map(m => m.id));
-
-          if (updateError) {
-            console.error('Error marking messages as seen:', updateError);
-          }
-        }
-      } catch (error) {
-        console.error('Error in markMessagesAsSeen:', error);
       }
     };
 
@@ -82,10 +59,6 @@ export const useMessages = (userId?: string) => {
           if (payload.eventType === 'INSERT') {
             const newMessage = payload.new as Message;
             setMessages(prev => [...prev, newMessage]);
-            
-            if (newMessage.is_from_doctor) {
-              await markMessageAsDelivered(newMessage.id);
-            }
           } else if (payload.eventType === 'UPDATE') {
             setMessages(prev => 
               prev.map(msg => 
@@ -100,29 +73,14 @@ export const useMessages = (userId?: string) => {
       });
 
     return () => {
+      console.log('Cleaning up subscription');
       supabase.removeChannel(channel);
     };
   }, [userId]);
 
-  const markMessageAsDelivered = async (messageId: string) => {
-    try {
-      const { error: updateError } = await supabase
-        .from('messages')
-        .update({ 
-          delivered_at: new Date().toISOString(),
-          status: 'delivered'
-        })
-        .eq('id', messageId);
-
-      if (updateError) {
-        console.error('Error marking message as delivered:', updateError);
-      }
-    } catch (error) {
-      console.error('Error in markMessageAsDelivered:', error);
-    }
-  };
-
   const sendMessage = async (content: string, userId: string, isFromDoctor: boolean = false) => {
+    console.log('sendMessage called with:', { content, userId, isFromDoctor });
+    
     try {
       const { data: session } = await supabase.auth.getSession();
       if (!session.session) {
@@ -132,7 +90,6 @@ export const useMessages = (userId?: string) => {
       }
 
       setIsLoading(true);
-      console.log('Sending message:', { content, userId, isFromDoctor });
       
       const messageData = {
         content: content.trim(),
@@ -141,7 +98,7 @@ export const useMessages = (userId?: string) => {
         status: 'sent'
       };
 
-      console.log('Message data to be inserted:', messageData);
+      console.log('Inserting message:', messageData);
       
       const { data, error } = await supabase
         .from('messages')
