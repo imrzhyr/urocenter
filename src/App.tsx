@@ -7,6 +7,7 @@ declare global {
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
 import { AnimatePresence, motion } from "framer-motion";
+import { ThemeProvider } from "next-themes";
 import Index from "@/pages/Index";
 import SignIn from "@/pages/SignIn";
 import SignUp from "@/pages/SignUp";
@@ -98,10 +99,12 @@ const AnimatedRoutes = () => {
 
 function App() {
   return (
-    <Router>
-      <AnimatedRoutes />
-      <Toaster />
-    </Router>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <Router>
+        <AnimatedRoutes />
+        <Toaster />
+      </Router>
+    </ThemeProvider>
   );
 }
 
