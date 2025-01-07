@@ -2,7 +2,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ComplaintInput } from "./medical-reports/ComplaintInput";
-import type { Profile } from "@/hooks/useProfile";
+import type { Profile } from "@/types/profile";
 
 interface ProfileFormProps {
   profile: Profile;

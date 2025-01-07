@@ -114,3 +114,5 @@ export const useProfile = () => {
     }
   };
 };
+
+export type { Profile };

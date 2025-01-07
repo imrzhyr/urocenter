@@ -3,17 +3,21 @@ import { useNavigate } from "react-router-dom";
 import { ProfileForm } from "@/components/ProfileForm";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { useProfile, type Profile } from "@/hooks/useProfile";
+import { useProfile } from "@/hooks/useProfile";
+import type { Profile } from "@/types/profile";
 import { toast } from "sonner";
 
 export const EditProfileForm = () => {
   const navigate = useNavigate();
   const { profile: initialProfile, isLoading, updateProfile } = useProfile();
   const [formData, setFormData] = useState<Profile>({
+    id: "",
     full_name: "",
     gender: "",
     age: "",
     complaint: "",
+    phone: "",
+    role: "patient",
   });
 
   useEffect(() => {
