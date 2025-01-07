@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Send, Check, CheckCheck } from "lucide-react";
 import { toast } from "sonner";
-import { PatientInfoContainer } from "./PatientInfoContainer";
+import { useProfile } from "@/hooks/useProfile";
 
 interface Message {
   id: string;
@@ -14,26 +14,22 @@ interface Message {
   delivered_at: string | null;
   seen_at: string | null;
   status: string;
-  user_id: string;
 }
 
-interface ChatContainerProps {
-  patientId?: string;
-}
-
-export const ChatContainer = ({ patientId }: ChatContainerProps) => {
+export const UserChatContainer = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const { profile } = useProfile();
 
   useEffect(() => {
-    if (!patientId) return;
+    if (!profile.id) return;
 
     const fetchMessages = async () => {
       const { data, error } = await supabase
         .from('messages')
         .select('*')
-        .eq('user_id', patientId)
+        .eq('user_id', profile.id)
         .order('created_at', { ascending: true });
 
       if (error) {
@@ -43,11 +39,27 @@ export const ChatContainer = ({ patientId }: ChatContainerProps) => {
       }
 
       setMessages(data || []);
+
+      // Mark messages as seen
+      const unseenMessages = data?.filter(m => !m.seen_at && m.is_from_doctor) || [];
+      if (unseenMessages.length > 0) {
+        const { error: updateError } = await supabase
+          .from('messages')
+          .update({ 
+            seen_at: new Date().toISOString(),
+            status: 'seen'
+          })
+          .in('id', unseenMessages.map(m => m.id));
+
+        if (updateError) {
+          console.error('Error marking messages as seen:', updateError);
+        }
+      }
     };
 
     fetchMessages();
 
-    // Subscribe to new messages and updates
+    // Subscribe to new messages
     const channel = supabase
       .channel('messages_channel')
       .on(
@@ -56,11 +68,27 @@ export const ChatContainer = ({ patientId }: ChatContainerProps) => {
           event: '*',
           schema: 'public',
           table: 'messages',
-          filter: `user_id=eq.${patientId}`,
+          filter: `user_id=eq.${profile.id}`,
         },
-        (payload) => {
+        async (payload) => {
           if (payload.eventType === 'INSERT') {
-            setMessages(prev => [...prev, payload.new as Message]);
+            const newMessage = payload.new as Message;
+            setMessages(prev => [...prev, newMessage]);
+            
+            // If message is from doctor, mark as delivered
+            if (newMessage.is_from_doctor) {
+              const { error: updateError } = await supabase
+                .from('messages')
+                .update({ 
+                  delivered_at: new Date().toISOString(),
+                  status: 'delivered'
+                })
+                .eq('id', newMessage.id);
+
+              if (updateError) {
+                console.error('Error marking message as delivered:', updateError);
+              }
+            }
           } else if (payload.eventType === 'UPDATE') {
             setMessages(prev => 
               prev.map(msg => 
@@ -75,18 +103,18 @@ export const ChatContainer = ({ patientId }: ChatContainerProps) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [patientId]);
+  }, [profile.id]);
 
   const sendMessage = async () => {
-    if (!newMessage.trim() || !patientId) return;
+    if (!newMessage.trim() || !profile.id) return;
 
     setIsLoading(true);
     const { error } = await supabase
       .from('messages')
       .insert({
         content: newMessage.trim(),
-        user_id: patientId,
-        is_from_doctor: true,
+        user_id: profile.id,
+        is_from_doctor: false,
         status: 'sent'
       });
 
@@ -101,7 +129,7 @@ export const ChatContainer = ({ patientId }: ChatContainerProps) => {
   };
 
   const MessageStatus = ({ message }: { message: Message }) => {
-    if (message.is_from_doctor) {
+    if (!message.is_from_doctor) {
       if (message.seen_at) {
         return <CheckCheck className="w-4 h-4 text-blue-500" />;
       } else if (message.delivered_at) {
@@ -115,21 +143,17 @@ export const ChatContainer = ({ patientId }: ChatContainerProps) => {
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)]">
-      <div className="p-4 border-b">
-        <PatientInfoContainer patientId={patientId} />
-      </div>
-      
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`flex ${message.is_from_doctor ? 'justify-end' : 'justify-start'}`}
+            className={`flex ${message.is_from_doctor ? 'justify-start' : 'justify-end'}`}
           >
             <div
               className={`max-w-[70%] p-3 rounded-lg ${
                 message.is_from_doctor
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-100 text-gray-900'
+                  ? 'bg-gray-100 text-gray-900'
+                  : 'bg-blue-500 text-white'
               }`}
             >
               <p className="text-sm">{message.content}</p>
