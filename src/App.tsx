@@ -21,15 +21,12 @@ import MedicalInformation from "@/pages/MedicalInformation";
 
 // More defensive check for Web3 provider conflicts
 try {
-  if (typeof window !== 'undefined' && window.ethereum) {
-    const descriptor = Object.getOwnPropertyDescriptor(window, 'ethereum');
-    if (descriptor?.configurable) {
-      Object.defineProperty(window, 'ethereum', {
-        value: window.ethereum,
-        writable: false,
-        configurable: false
-      });
-    }
+  if (typeof window !== 'undefined' && !window.ethereum) {
+    Object.defineProperty(window, 'ethereum', {
+      value: {},
+      writable: true,
+      configurable: true
+    });
   }
 } catch (error) {
   console.warn('Web3 provider already initialized');
