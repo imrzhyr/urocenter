@@ -1,4 +1,4 @@
-import { PatientMessage } from "@/types/messages";
+import { PatientMessage, MessageStatus } from "@/types/messages";
 import { supabase } from "@/integrations/supabase/client";
 
 export const fetchPatientMessages = async (): Promise<PatientMessage[]> => {
@@ -33,12 +33,14 @@ export const fetchPatientMessages = async (): Promise<PatientMessage[]> => {
         msg => msg.user_id === userId && !msg.is_read
       ).length;
 
+      const status = message.status as MessageStatus || 'not_seen';
+
       acc[userId] = {
         id: userId,
         full_name: message.profiles?.full_name || "Unknown Patient",
         last_message: message.content,
         last_message_time: message.created_at,
-        status: message.status,
+        status,
         unread_count: unreadCount
       };
     }

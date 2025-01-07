@@ -1,7 +1,7 @@
-import { User } from "lucide-react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
+import { User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { MessagesFilter } from "./MessagesFilter";
 import { MessageStatusBadge } from "./MessageStatusBadge";
@@ -44,20 +44,16 @@ export const AdminMessagesList = () => {
         return;
       }
 
-      // Group messages by user and get the latest message for each user
       const userMessages = messagesData.reduce((acc: { [key: string]: PatientMessage }, message: any) => {
         const userId = message.user_id;
         const userName = message.profiles?.full_name || "Unknown Patient";
         
-        // Count unread messages for this user
         const unreadCount = messagesData.filter(
           (msg: any) => msg.user_id === userId && !msg.is_read
         ).length;
 
-        // Ensure status is of type MessageStatus
-        const status = (message.status as MessageStatus) || 'not_seen';
+        const status = message.status as MessageStatus || 'not_seen';
 
-        // Only update if this is the first message for this user or if it's newer
         if (!acc[userId] || new Date(message.created_at) > new Date(acc[userId].last_message_time)) {
           acc[userId] = {
             id: userId,
@@ -84,7 +80,6 @@ export const AdminMessagesList = () => {
   useEffect(() => {
     fetchMessages();
 
-    // Set up real-time subscription for messages
     const channel = supabase
       .channel('messages_changes')
       .on(
@@ -125,7 +120,7 @@ export const AdminMessagesList = () => {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         statusFilter={statusFilter}
-        onStatusChange={setStatusFilter}
+        onStatusChange={(value: MessageStatus | "all") => setStatusFilter(value)}
       />
       <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
         {filteredMessages.length === 0 ? (
