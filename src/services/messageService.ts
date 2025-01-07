@@ -49,6 +49,7 @@ export const messageService = {
       throw new Error('Unauthorized access to messages');
     }
 
+    // Fetch messages after setting context and verifying access
     const { data, error } = await supabase
       .from('messages')
       .select('*')
@@ -77,6 +78,8 @@ export const messageService = {
     }
 
     console.log('Sending message for user:', userId);
+    
+    // Set user context before sending message
     await this.setUserContext(userPhone);
 
     // First verify if the user has admin role when sending as doctor
@@ -109,6 +112,7 @@ export const messageService = {
 
     console.log('Message data:', messageData);
 
+    // Insert message after setting context and verifying role
     const { data, error } = await supabase
       .from('messages')
       .insert(messageData)
