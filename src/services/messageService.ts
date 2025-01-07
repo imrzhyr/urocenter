@@ -25,7 +25,7 @@ export const messageService = {
 
     console.log('Fetching messages for user:', userId);
     
-    // Set user context before fetching messages
+    // Set user context before any database operation
     await this.setUserContext(userPhone);
 
     // First verify if the user has access to these messages
@@ -38,6 +38,10 @@ export const messageService = {
     if (profileError) {
       console.error('Error checking user access:', profileError);
       throw profileError;
+    }
+
+    if (!profile) {
+      throw new Error('Profile not found');
     }
 
     // Only allow if user is admin or if messages belong to the user
