@@ -28,14 +28,11 @@ export const messageService = {
 
     const { data: profile } = await supabase
       .from('profiles')
-      .select('role, id')
+      .select('role')
       .eq('phone', userPhone)
       .single();
 
     if (!profile) throw new Error('Profile not found');
-    if (profile.role !== 'admin' && profile.id !== userId) {
-      throw new Error('Unauthorized access to messages');
-    }
 
     const { data, error } = await supabase
       .from('messages')
@@ -48,6 +45,7 @@ export const messageService = {
       throw error;
     }
 
+    console.log('Fetched messages:', data);
     return data as Message[];
   },
 
@@ -72,9 +70,6 @@ export const messageService = {
     if (!profile) throw new Error('Profile not found');
     if (isFromDoctor && profile.role !== 'admin') {
       throw new Error('Unauthorized: Only admins can send messages as doctor');
-    }
-    if (!isFromDoctor && profile.id !== userId) {
-      throw new Error('Unauthorized: Can only send messages for yourself');
     }
 
     const messageData = {
