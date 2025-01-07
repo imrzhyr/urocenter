@@ -27,11 +27,11 @@ export const MessageContainer = ({
   }, [messages]);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)]">
+    <div className="flex flex-col h-screen">
       <div className="p-4 border-b">
         {header}
       </div>
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-y-auto">
         <MessageList messages={messages} />
         <div ref={messagesEndRef} />
       </div>
