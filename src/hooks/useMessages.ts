@@ -95,23 +95,32 @@ export const useMessages = (userId?: string) => {
   };
 
   const sendMessage = async (content: string, userId: string, isFromDoctor: boolean = false) => {
-    setIsLoading(true);
-    const { error } = await supabase
-      .from('messages')
-      .insert({
-        content: content.trim(),
-        user_id: userId,
-        is_from_doctor: isFromDoctor,
-        status: 'sent'
-      });
+    try {
+      setIsLoading(true);
+      console.log('Sending message:', { content, userId, isFromDoctor });
+      
+      const { error } = await supabase
+        .from('messages')
+        .insert({
+          content: content.trim(),
+          user_id: userId,
+          is_from_doctor: isFromDoctor,
+          status: 'sent'
+        });
 
-    if (error) {
-      console.error('Error sending message:', error);
-      toast.error("Failed to send message");
-    } else {
+      if (error) {
+        console.error('Error sending message:', error);
+        toast.error("Failed to send message");
+        throw error;
+      }
+
       toast.success("Message sent");
+    } catch (error) {
+      console.error('Error in sendMessage:', error);
+      toast.error("Failed to send message");
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   return {
