@@ -63,7 +63,7 @@ export const messageService = {
 
     const { data: profile } = await supabase
       .from('profiles')
-      .select('role, id')
+      .select('role')
       .eq('phone', userPhone)
       .single();
 
