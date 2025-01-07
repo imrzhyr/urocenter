@@ -61,6 +61,10 @@ export const messageService = {
       throw error;
     }
 
+    if (!data) {
+      throw new Error('No data returned from insert');
+    }
+
     return data as Message;
   }
 };
