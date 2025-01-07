@@ -60,11 +60,13 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-50 via-white to-sky-50">
       <DashboardHeader />
-      <main className="container py-6 px-4 md:px-6">
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto">
+      <main className="container mx-auto py-8 px-4">
+        <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-8">
           <MessagesCard />
-          <MedicalReportsCard />
-          <RecentActivityCard />
+          <div className="grid gap-6 md:grid-cols-2 mt-6">
+            <MedicalReportsCard />
+            <RecentActivityCard />
+          </div>
         </div>
       </main>
     </div>
