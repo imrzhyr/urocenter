@@ -1,4 +1,4 @@
-import { PatientInfoCard } from "../PatientInfoCard";
+import { PatientInfoContainer } from "../PatientInfoContainer";
 
 interface DoctorChatHeaderProps {
   patientId?: string;
@@ -7,7 +7,7 @@ interface DoctorChatHeaderProps {
 export const DoctorChatHeader = ({ patientId }: DoctorChatHeaderProps) => {
   return (
     <div className="p-4 border-b">
-      <PatientInfoCard patientId={patientId} />
+      <PatientInfoContainer patientId={patientId} />
     </div>
   );
 };
