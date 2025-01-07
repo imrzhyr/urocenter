@@ -23,16 +23,7 @@ export const UserChatContainer = () => {
       }
 
       try {
-        // Set the user context in Supabase
-        const { error } = await supabase.rpc('set_user_context', {
-          user_phone: userPhone
-        });
-
-        if (error) {
-          console.error('Error setting user context:', error);
-          toast.error("Failed to initialize chat");
-          return;
-        }
+        await messageService.setUserContext(userPhone);
       } catch (error) {
         console.error('Error initializing user context:', error);
         toast.error("Failed to initialize chat. Please try signing in again.");
@@ -58,11 +49,7 @@ export const UserChatContainer = () => {
     }
 
     try {
-      // Set user context before sending message
-      await supabase.rpc('set_user_context', {
-        user_phone: userPhone
-      });
-
+      await messageService.setUserContext(userPhone);
       await sendMessage(content, profile.id, false, fileInfo);
       toast.success("Message sent successfully");
     } catch (error) {

@@ -23,7 +23,7 @@ export const messageService = {
     const userPhone = localStorage.getItem('userPhone');
     if (!userPhone) throw new Error('No user phone found');
 
-    console.log('Fetching messages for user:', userId);
+    // Set user context before fetching messages
     await this.setUserContext(userPhone);
 
     const { data: profile } = await supabase
@@ -60,6 +60,7 @@ export const messageService = {
     const userPhone = localStorage.getItem('userPhone');
     if (!userPhone) throw new Error('No user phone found');
 
+    // Set user context before sending message
     await this.setUserContext(userPhone);
 
     const { data: profile } = await supabase
