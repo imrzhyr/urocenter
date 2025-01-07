@@ -3,10 +3,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useProfile } from "@/hooks/useProfile";
 import { Message } from "@/types/profile";
-import { MessageList } from "./MessageList";
-import { MessageInput } from "./MessageInput";
+import { MessageList } from "../MessageList";
+import { MessageInput } from "../MessageInput";
+import { PatientChatHeader } from "./PatientChatHeader";
 
-export const UserChatContainer = () => {
+export const PatientChatContainer = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { profile } = useProfile();
@@ -56,7 +57,6 @@ export const UserChatContainer = () => {
 
     fetchMessages();
 
-    // Subscribe to new messages
     const channel = supabase
       .channel('messages_channel')
       .on(
@@ -71,7 +71,6 @@ export const UserChatContainer = () => {
             const newMessage = payload.new as Message;
             setMessages(prev => [...prev, newMessage]);
             
-            // If message is from doctor, mark as delivered
             if (newMessage.is_from_doctor) {
               const { error: updateError } = await supabase
                 .from('messages')
@@ -136,6 +135,9 @@ export const UserChatContainer = () => {
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)]">
+      <div className="p-4 border-b">
+        <PatientChatHeader />
+      </div>
       <MessageList messages={messages} />
       <MessageInput onSendMessage={sendMessage} isLoading={isLoading} />
     </div>
