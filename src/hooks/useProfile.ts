@@ -8,6 +8,7 @@ export interface Profile {
   age: string;
   complaint: string;
   phone?: string;
+  role?: 'admin' | 'patient';
 }
 
 let profileState: Profile & { phone?: string } = {
@@ -16,6 +17,7 @@ let profileState: Profile & { phone?: string } = {
   age: "",
   complaint: "",
   phone: "",
+  role: "patient",
 };
 
 let listeners: ((profile: Profile & { phone?: string }) => void)[] = [];
@@ -40,7 +42,7 @@ export const useProfile = () => {
 
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('full_name, gender, age, complaint, phone')
+        .select('full_name, gender, age, complaint, phone, role')
         .eq('phone', userPhone)
         .maybeSingle();
 
@@ -56,6 +58,7 @@ export const useProfile = () => {
           age: profileData.age || "",
           complaint: profileData.complaint || "",
           phone: profileData.phone || "",
+          role: profileData.role || "patient",
         };
         profileState = newProfile;
         listeners.forEach(listener => listener(newProfile));
