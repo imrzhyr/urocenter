@@ -16,16 +16,17 @@ export const useMessages = (userId?: string) => {
 
     const fetchMessages = async () => {
       try {
+        console.log('Fetching messages for userId:', userId);
         const userPhone = localStorage.getItem('userPhone');
         if (!userPhone) {
           console.error('No user phone found in localStorage');
           return;
         }
 
-        console.log('Fetching messages for userId:', userId);
         // Set user context before fetching messages
         await messageService.setUserContext(userPhone);
         const fetchedMessages = await messageService.fetchMessages(userId);
+        console.log('Fetched messages:', fetchedMessages);
         setMessages(fetchedMessages);
       } catch (error) {
         console.error('Error in fetchMessages:', error);
@@ -78,18 +79,21 @@ export const useMessages = (userId?: string) => {
     isFromDoctor: boolean = false,
     fileInfo?: { url: string; name: string; type: string }
   ) => {
-    const userPhone = localStorage.getItem('userPhone');
-    if (!userPhone) {
-      throw new Error('No user phone found');
-    }
-
     try {
       setIsLoading(true);
+      const userPhone = localStorage.getItem('userPhone');
+      if (!userPhone) {
+        throw new Error('No user phone found');
+      }
+
       // Set user context before sending message
       await messageService.setUserContext(userPhone);
       const newMessage = await messageService.sendMessage(content, userId, isFromDoctor, fileInfo);
       console.log('Message sent successfully:', newMessage);
+      
+      // Optimistically update the UI
       setMessages(prev => [...prev, newMessage]);
+      return newMessage;
     } catch (error) {
       console.error('Error in sendMessage:', error);
       throw error;

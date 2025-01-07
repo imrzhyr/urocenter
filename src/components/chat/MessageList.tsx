@@ -115,6 +115,14 @@ export const MessageList = ({ messages }: MessageListProps) => {
     }
   };
 
+  if (!messages || messages.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-full text-gray-500">
+        No messages yet
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="space-y-4 px-4">
