@@ -66,6 +66,8 @@ export const useMessages = (userId?: string) => {
       console.log('Sending message:', { content, userId, isFromDoctor });
       const newMessage = await messageService.sendMessage(content, userId, isFromDoctor);
       console.log('Message sent successfully:', newMessage);
+      // Add the new message to the local state immediately
+      setMessages(prev => [...prev, newMessage]);
       toast.success("Message sent");
     } catch (error) {
       console.error('Error in sendMessage:', error);
