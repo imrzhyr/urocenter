@@ -5,14 +5,14 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { MessagesFilter } from "./MessagesFilter";
 import { MessageStatusBadge } from "./MessageStatusBadge";
-import { PatientMessage } from "@/types/messages";
+import { PatientMessage, MessageStatus } from "@/types/messages";
 import { motion } from "framer-motion";
 
 export const AdminMessagesList = () => {
   const navigate = useNavigate();
   const [messages, setMessages] = useState<PatientMessage[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState<MessageStatus | "all">("all");
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchMessages = async () => {
@@ -54,6 +54,9 @@ export const AdminMessagesList = () => {
           (msg: any) => msg.user_id === userId && !msg.is_read
         ).length;
 
+        // Ensure status is of type MessageStatus
+        const status = (message.status as MessageStatus) || 'not_seen';
+
         // Only update if this is the first message for this user or if it's newer
         if (!acc[userId] || new Date(message.created_at) > new Date(acc[userId].last_message_time)) {
           acc[userId] = {
@@ -61,7 +64,7 @@ export const AdminMessagesList = () => {
             full_name: userName,
             last_message: message.content,
             last_message_time: message.created_at,
-            status: message.status,
+            status,
             unread_count: unreadCount
           };
         }
@@ -69,7 +72,7 @@ export const AdminMessagesList = () => {
       }, {});
 
       const formattedMessages = Object.values(userMessages);
-      console.log('Formatted messages:', formattedMessages); // Debug log
+      console.log('Formatted messages:', formattedMessages);
       setMessages(formattedMessages);
     } catch (error) {
       console.error('Error in fetchMessages:', error);

@@ -1,7 +1,8 @@
 import { Badge } from "@/components/ui/badge";
+import { MessageStatus } from "@/types/messages";
 
 interface MessageStatusBadgeProps {
-  status: 'not_seen' | 'in_progress' | 'resolved';
+  status: MessageStatus;
   unreadCount?: number;
 }
 
@@ -18,10 +19,15 @@ export const MessageStatusBadge = ({ status, unreadCount = 0 }: MessageStatusBad
           variant: 'secondary' as const,
           label: 'In Progress'
         };
-      default:
+      case 'not_seen':
         return {
           variant: 'destructive' as const,
           label: unreadCount > 0 ? `${unreadCount} Unread` : 'Not Seen'
+        };
+      default:
+        return {
+          variant: 'destructive' as const,
+          label: 'Not Seen'
         };
     }
   };

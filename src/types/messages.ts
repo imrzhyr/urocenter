@@ -3,7 +3,7 @@ export interface PatientMessage {
   full_name: string;
   last_message: string;
   last_message_time: string;
-  status: string;
+  status: MessageStatus;
   unread_count: number;
 }
 
