@@ -19,10 +19,31 @@ export const messageService = {
 
   async fetchMessages(userId: string): Promise<Message[]> {
     const userPhone = localStorage.getItem('userPhone');
-    if (!userPhone) throw new Error('No user phone found');
+    if (!userPhone) {
+      throw new Error('No user phone found');
+    }
 
     console.log('Fetching messages for user:', userId);
+    
+    // Set user context before fetching messages
     await this.setUserContext(userPhone);
+
+    // First verify if the user has access to these messages
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('role, id')
+      .eq('phone', userPhone)
+      .single();
+
+    if (profileError) {
+      console.error('Error checking user access:', profileError);
+      throw profileError;
+    }
+
+    // Only allow if user is admin or if messages belong to the user
+    if (profile.role !== 'admin' && profile.id !== userId) {
+      throw new Error('Unauthorized access to messages');
+    }
 
     const { data, error } = await supabase
       .from('messages')
@@ -36,6 +57,7 @@ export const messageService = {
       throw error;
     }
 
+    console.log('Fetched messages:', data);
     return data as Message[];
   },
 
@@ -46,7 +68,9 @@ export const messageService = {
     fileInfo?: { url: string; name: string; type: string }
   ): Promise<Message> {
     const userPhone = localStorage.getItem('userPhone');
-    if (!userPhone) throw new Error('No user phone found');
+    if (!userPhone) {
+      throw new Error('No user phone found');
+    }
 
     console.log('Sending message for user:', userId);
     await this.setUserContext(userPhone);
