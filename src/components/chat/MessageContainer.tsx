@@ -27,7 +27,7 @@ export const MessageContainer = ({
   }, [messages]);
 
   return (
-    <div className="flex flex-col h-screen bg-white">
+    <div className="flex flex-col h-screen w-screen bg-white">
       <div className="p-4 bg-[#0066FF] text-white">
         {header}
       </div>

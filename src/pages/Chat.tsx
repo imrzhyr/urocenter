@@ -10,7 +10,7 @@ const Chat = () => {
   useAuthRedirect();
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="h-screen w-screen overflow-hidden bg-white">
       {profile?.role === 'admin' ? (
         <DoctorChatContainer patientId={patientId} />
       ) : (
