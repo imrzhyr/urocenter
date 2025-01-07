@@ -24,51 +24,48 @@ export const PatientChatHeader = () => {
         <h2 className="font-semibold">Medical Consultation</h2>
       </div>
 
-      <Card className="bg-white border border-blue-100 shadow-sm">
-        <CardContent className="p-4">
-          <div className="flex items-center space-x-4">
-            <Avatar className="h-12 w-12">
-              <AvatarImage src="/doctor-profile.jpg" alt="Dr. Ali Kamal" />
-              <AvatarFallback>
-                <User className="w-6 h-6 text-blue-600" />
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1">
-              <h3 className="font-medium text-blue-900">Dr. Ali Kamal</h3>
-              <div className="flex items-center gap-2 text-sm text-blue-700">
-                <Clock className="w-4 h-4" />
-                <span>25 years of experience</span>
-              </div>
-              <p className="text-xs text-blue-600">Available for consultation</p>
-            </div>
+      <div className="flex items-center gap-4 p-4 bg-white border border-blue-100 rounded-lg shadow-sm">
+        <Avatar className="h-12 w-12">
+          <AvatarImage src="/lovable-uploads/eec1d792-9f5f-43ca-9c3c-ff7833f986ff.png" alt="Dr. Ali Kamal" />
+          <AvatarFallback>
+            <User className="w-6 h-6 text-blue-600" />
+          </AvatarFallback>
+        </Avatar>
+        <div>
+          <h3 className="font-medium text-blue-900">Dr. Ali Kamal</h3>
+          <div className="flex items-center gap-2 text-sm text-blue-700">
+            <Clock className="w-4 h-4" />
+            <span>25 years of experience</span>
           </div>
+        </div>
+      </div>
 
-          {profile && (
-            <div className="mt-4 pt-4 border-t border-blue-50">
-              <div className="text-sm space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-blue-700">Patient Name:</span>
-                  <span className="font-medium">{profile.full_name}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-blue-700">Age:</span>
-                  <span>{profile.age} years</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-blue-700">Gender:</span>
-                  <span>{profile.gender}</span>
-                </div>
-                {profile.complaint && (
-                  <div className="flex justify-between">
-                    <span className="text-blue-700">Chief Complaint:</span>
-                    <span>{profile.complaint}</span>
-                  </div>
-                )}
+      {profile && (
+        <Card className="bg-white border border-blue-100 shadow-sm">
+          <CardContent className="p-4">
+            <div className="text-sm space-y-2">
+              <div className="flex justify-between">
+                <span className="text-blue-700">Patient Name:</span>
+                <span className="font-medium">{profile.full_name}</span>
               </div>
+              <div className="flex justify-between">
+                <span className="text-blue-700">Age:</span>
+                <span>{profile.age} years</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-blue-700">Gender:</span>
+                <span>{profile.gender}</span>
+              </div>
+              {profile.complaint && (
+                <div className="flex justify-between">
+                  <span className="text-blue-700">Chief Complaint:</span>
+                  <span>{profile.complaint}</span>
+                </div>
+              )}
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
