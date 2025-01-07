@@ -16,7 +16,15 @@ export const useMessages = (userId?: string) => {
 
     const fetchMessages = async () => {
       try {
+        const userPhone = localStorage.getItem('userPhone');
+        if (!userPhone) {
+          console.error('No user phone found in localStorage');
+          return;
+        }
+
         console.log('Fetching messages for userId:', userId);
+        // Set user context before fetching messages
+        await messageService.setUserContext(userPhone);
         const fetchedMessages = await messageService.fetchMessages(userId);
         setMessages(fetchedMessages);
       } catch (error) {
@@ -70,8 +78,15 @@ export const useMessages = (userId?: string) => {
     isFromDoctor: boolean = false,
     fileInfo?: { url: string; name: string; type: string }
   ) => {
+    const userPhone = localStorage.getItem('userPhone');
+    if (!userPhone) {
+      throw new Error('No user phone found');
+    }
+
     try {
       setIsLoading(true);
+      // Set user context before sending message
+      await messageService.setUserContext(userPhone);
       const newMessage = await messageService.sendMessage(content, userId, isFromDoctor, fileInfo);
       console.log('Message sent successfully:', newMessage);
       setMessages(prev => [...prev, newMessage]);
