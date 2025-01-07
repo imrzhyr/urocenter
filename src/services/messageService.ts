@@ -4,6 +4,7 @@ import { Message } from "@/types/profile";
 export const messageService = {
   async setUserContext(userPhone: string) {
     try {
+      console.log('Setting user context for:', userPhone);
       await supabase.rpc('set_user_context', { user_phone: userPhone });
     } catch (error) {
       console.error('Error setting user context:', error);
@@ -15,6 +16,7 @@ export const messageService = {
     const userPhone = localStorage.getItem('userPhone');
     if (!userPhone) throw new Error('No user phone found');
 
+    console.log('Fetching messages for user:', userId);
     await this.setUserContext(userPhone);
 
     const { data, error } = await supabase
@@ -35,6 +37,7 @@ export const messageService = {
     const userPhone = localStorage.getItem('userPhone');
     if (!userPhone) throw new Error('No user phone found');
 
+    console.log('Sending message for user:', userId);
     await this.setUserContext(userPhone);
 
     const messageData = {
@@ -43,6 +46,8 @@ export const messageService = {
       is_from_doctor: isFromDoctor,
       status: 'not_seen'
     };
+
+    console.log('Message data:', messageData);
 
     const { data, error } = await supabase
       .from('messages')

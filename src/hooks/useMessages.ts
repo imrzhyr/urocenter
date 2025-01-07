@@ -16,6 +16,7 @@ export const useMessages = (userId?: string) => {
 
     const fetchMessages = async () => {
       try {
+        console.log('Fetching messages for userId:', userId);
         const fetchedMessages = await messageService.fetchMessages(userId);
         setMessages(fetchedMessages);
       } catch (error) {
@@ -65,8 +66,9 @@ export const useMessages = (userId?: string) => {
   const sendMessage = async (content: string, userId: string, isFromDoctor: boolean = false) => {
     try {
       setIsLoading(true);
+      console.log('Sending message:', { content, userId, isFromDoctor });
       const newMessage = await messageService.sendMessage(content, userId, isFromDoctor);
-      // Optimistically add the message to the state
+      console.log('Message sent successfully:', newMessage);
       setMessages(prev => [...prev, newMessage]);
       toast.success("Message sent");
     } catch (error) {
