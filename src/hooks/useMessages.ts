@@ -17,20 +17,8 @@ export const useMessages = (userId?: string) => {
     const fetchMessages = async () => {
       try {
         console.log('Fetching messages for userId:', userId);
-        const { data, error } = await supabase
-          .from('messages')
-          .select('*')
-          .eq('user_id', userId)
-          .order('created_at', { ascending: true });
-
-        if (error) {
-          console.error('Error fetching messages:', error);
-          toast.error("Failed to load messages");
-          return;
-        }
-
-        console.log('Fetched messages:', data);
-        setMessages(data || []);
+        const fetchedMessages = await messageService.fetchMessages(userId);
+        setMessages(fetchedMessages);
       } catch (error) {
         console.error('Error in fetchMessages:', error);
         toast.error("Failed to load messages");
@@ -55,7 +43,11 @@ export const useMessages = (userId?: string) => {
           
           if (payload.eventType === 'INSERT') {
             const newMessage = payload.new as Message;
-            setMessages(prev => [...prev, newMessage]);
+            // Only add the message if it's not already in the state
+            setMessages(prev => {
+              const messageExists = prev.some(msg => msg.id === newMessage.id);
+              return messageExists ? prev : [...prev, newMessage];
+            });
           } else if (payload.eventType === 'UPDATE') {
             setMessages(prev => 
               prev.map(msg => 
@@ -81,33 +73,11 @@ export const useMessages = (userId?: string) => {
   ) => {
     try {
       setIsLoading(true);
-      console.log('Sending message:', { content, userId, isFromDoctor, fileInfo });
-      
-      const { data, error } = await supabase
-        .from('messages')
-        .insert([
-          {
-            content,
-            user_id: userId,
-            is_from_doctor: isFromDoctor,
-            status: 'not_seen',
-            file_url: fileInfo?.url,
-            file_name: fileInfo?.name,
-            file_type: fileInfo?.type
-          }
-        ])
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Error sending message:', error);
-        toast.error("Failed to send message");
-        throw error;
-      }
-
-      console.log('Message sent successfully:', data);
+      const newMessage = await messageService.sendMessage(content, userId, isFromDoctor, fileInfo);
+      console.log('Message sent successfully:', newMessage);
+      // Add the new message to the local state immediately
+      setMessages(prev => [...prev, newMessage]);
       toast.success("Message sent");
-      return data;
     } catch (error) {
       console.error('Error in sendMessage:', error);
       toast.error("Failed to send message");
