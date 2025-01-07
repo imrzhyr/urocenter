@@ -4,17 +4,11 @@ import { MessageContainer } from "./MessageContainer";
 import { PatientChatHeader } from "./patient/PatientChatHeader";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { toast } from "sonner";
-import { useEffect } from "react";
-import { initializeUserContext } from "@/utils/supabaseUtils";
 
 export const UserChatContainer = () => {
   const { profile } = useProfile();
   const { messages, isLoading, sendMessage } = useMessages(profile?.id);
   useAuthRedirect();
-
-  useEffect(() => {
-    initializeUserContext();
-  }, []);
 
   const handleSendMessage = async (content: string, fileInfo?: { url: string; name: string; type: string }) => {
     if (!profile?.id) {
