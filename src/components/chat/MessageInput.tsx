@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Send, Paperclip, X } from "lucide-react";
+import { Send, Paperclip, X, Plus } from "lucide-react";
 import { uploadFile } from "@/utils/fileUpload";
 import { toast } from "sonner";
 
@@ -50,9 +50,9 @@ export const MessageInput = ({ onSendMessage, isLoading }: MessageInputProps) =>
   };
 
   return (
-    <div className="p-3 bg-[#F0F2F5] border-t">
+    <div className="p-4 bg-gray-50 border-t">
       {selectedFile && (
-        <div className="mb-2 p-2 bg-white rounded-md flex items-center justify-between animate-fade-up">
+        <div className="mb-2 p-2 bg-white rounded-md flex items-center justify-between animate-fade-up shadow-sm">
           <span className="text-sm text-gray-700 truncate">{selectedFile.name}</span>
           <Button
             variant="ghost"
@@ -78,14 +78,14 @@ export const MessageInput = ({ onSendMessage, isLoading }: MessageInputProps) =>
           onClick={() => fileInputRef.current?.click()}
           className="h-10 w-10 rounded-full hover:bg-gray-200"
         >
-          <Paperclip className="h-5 w-5 text-gray-600" />
+          <Plus className="h-5 w-5 text-[#0066FF]" />
         </Button>
-        <div className="flex-1 bg-white rounded-lg">
+        <div className="flex-1 bg-white rounded-full shadow-sm">
           <Textarea
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Type a message"
-            className="min-h-[45px] max-h-[120px] resize-none border-0 focus-visible:ring-0 rounded-lg"
+            placeholder="Type a message here..."
+            className="min-h-[45px] max-h-[120px] resize-none border-0 focus-visible:ring-0 rounded-full px-4"
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -97,7 +97,7 @@ export const MessageInput = ({ onSendMessage, isLoading }: MessageInputProps) =>
         <Button 
           onClick={handleSend} 
           disabled={isLoading || (!newMessage.trim() && !selectedFile)}
-          className="h-10 w-10 rounded-full bg-[#00A884] hover:bg-[#008f6f]"
+          className="h-10 w-10 rounded-full bg-[#0066FF] hover:bg-blue-700"
         >
           <Send className="w-5 h-5" />
         </Button>
