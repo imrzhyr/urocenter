@@ -50,7 +50,7 @@ export const MessageInput = ({ onSendMessage, isLoading }: MessageInputProps) =>
   };
 
   return (
-    <div className="p-4 border-t bg-white">
+    <div className="p-4 border-t bg-white sticky bottom-0 w-full">
       {selectedFile && (
         <div className="mb-2 p-2 bg-blue-50 rounded-md flex items-center justify-between">
           <span className="text-sm text-blue-700 truncate">{selectedFile.name}</span>
