@@ -23,6 +23,7 @@ export const useMessages = (userId?: string) => {
         }
 
         console.log('Fetching messages for userId:', userId);
+        // Set user context before fetching messages
         await messageService.setUserContext(userPhone);
         const fetchedMessages = await messageService.fetchMessages(userId);
         setMessages(fetchedMessages);
@@ -34,6 +35,7 @@ export const useMessages = (userId?: string) => {
 
     fetchMessages();
 
+    // Set up real-time subscription
     const channel = supabase
       .channel('messages')
       .on(
@@ -83,30 +85,11 @@ export const useMessages = (userId?: string) => {
 
     try {
       setIsLoading(true);
+      // Set user context before sending message
       await messageService.setUserContext(userPhone);
-      
-      const messageData = {
-        content,
-        user_id: userId,
-        is_from_doctor: isFromDoctor,
-        status: 'not_seen',
-        file_url: fileInfo?.url,
-        file_name: fileInfo?.name,
-        file_type: fileInfo?.type
-      };
-
-      console.log('Message data:', messageData);
-      
-      const { data: newMessage, error } = await supabase
-        .from('messages')
-        .insert(messageData)
-        .select()
-        .single();
-
-      if (error) throw error;
-      
+      const newMessage = await messageService.sendMessage(content, userId, isFromDoctor, fileInfo);
       console.log('Message sent successfully:', newMessage);
-      return newMessage;
+      setMessages(prev => [...prev, newMessage]);
     } catch (error) {
       console.error('Error in sendMessage:', error);
       throw error;

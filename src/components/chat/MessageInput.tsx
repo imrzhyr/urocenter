@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Send, Plus, X } from "lucide-react";
+import { Send, Paperclip, X, Plus } from "lucide-react";
 import { uploadFile } from "@/utils/fileUpload";
 import { toast } from "sonner";
 
@@ -22,13 +22,11 @@ export const MessageInput = ({ onSendMessage, isLoading }: MessageInputProps) =>
       let fileInfo;
       if (selectedFile) {
         const uploadedFile = await uploadFile(selectedFile);
-        if (uploadedFile) {
-          fileInfo = {
-            url: uploadedFile.url,
-            name: selectedFile.name,
-            type: selectedFile.type
-          };
-        }
+        fileInfo = {
+          url: uploadedFile.url,
+          name: uploadedFile.name,
+          type: uploadedFile.type
+        };
       }
 
       await onSendMessage(newMessage, fileInfo);
@@ -72,7 +70,7 @@ export const MessageInput = ({ onSendMessage, isLoading }: MessageInputProps) =>
           ref={fileInputRef}
           onChange={handleFileSelect}
           className="hidden"
-          accept="image/*,video/*,audio/*,.pdf,.doc,.docx"
+          accept="image/*,.pdf,.doc,.docx"
         />
         <Button
           variant="ghost"
