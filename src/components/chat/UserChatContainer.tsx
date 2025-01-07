@@ -18,7 +18,6 @@ export const UserChatContainer = () => {
     }
 
     try {
-      console.log('Handling send message:', { content, fileInfo, profileId: profile.id });
       await sendMessage(content, profile.id, false, fileInfo);
     } catch (error) {
       console.error("Error in handleSendMessage:", error);
