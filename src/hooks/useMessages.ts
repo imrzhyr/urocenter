@@ -11,6 +11,12 @@ export const useMessages = (userId?: string) => {
     if (!userId) return;
 
     const fetchMessages = async () => {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session.session) {
+        console.error('No active session');
+        return;
+      }
+
       const { data, error } = await supabase
         .from('messages')
         .select('*')
@@ -96,6 +102,12 @@ export const useMessages = (userId?: string) => {
 
   const sendMessage = async (content: string, userId: string, isFromDoctor: boolean = false) => {
     try {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session.session) {
+        toast.error("Please sign in to send messages");
+        return;
+      }
+
       setIsLoading(true);
       console.log('Sending message:', { content, userId, isFromDoctor });
       
