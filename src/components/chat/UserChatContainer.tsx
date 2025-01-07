@@ -14,6 +14,10 @@ interface Message {
   delivered_at: string | null;
   seen_at: string | null;
   status: string;
+  user_id: string;
+  file_url?: string | null;
+  file_name?: string | null;
+  file_type?: string | null;
 }
 
 export const UserChatContainer = () => {
@@ -23,13 +27,21 @@ export const UserChatContainer = () => {
   const { profile } = useProfile();
 
   useEffect(() => {
-    if (!profile.id) return;
+    if (!profile?.phone) return;
 
     const fetchMessages = async () => {
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('phone', profile.phone)
+        .single();
+
+      if (!profileData?.id) return;
+
       const { data, error } = await supabase
         .from('messages')
         .select('*')
-        .eq('user_id', profile.id)
+        .eq('user_id', profileData.id)
         .order('created_at', { ascending: true });
 
       if (error) {
@@ -38,7 +50,7 @@ export const UserChatContainer = () => {
         return;
       }
 
-      setMessages(data || []);
+      setMessages(data as Message[]);
 
       // Mark messages as seen
       const unseenMessages = data?.filter(m => !m.seen_at && m.is_from_doctor) || [];
@@ -67,8 +79,7 @@ export const UserChatContainer = () => {
         {
           event: '*',
           schema: 'public',
-          table: 'messages',
-          filter: `user_id=eq.${profile.id}`,
+          table: 'messages'
         },
         async (payload) => {
           if (payload.eventType === 'INSERT') {
@@ -103,17 +114,28 @@ export const UserChatContainer = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [profile.id]);
+  }, [profile?.phone]);
 
   const sendMessage = async () => {
-    if (!newMessage.trim() || !profile.id) return;
+    if (!newMessage.trim() || !profile?.phone) return;
+
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('phone', profile.phone)
+      .single();
+
+    if (!profileData?.id) {
+      toast.error("Could not send message");
+      return;
+    }
 
     setIsLoading(true);
     const { error } = await supabase
       .from('messages')
       .insert({
         content: newMessage.trim(),
-        user_id: profile.id,
+        user_id: profileData.id,
         is_from_doctor: false,
         status: 'sent'
       });

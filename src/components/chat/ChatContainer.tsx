@@ -15,6 +15,9 @@ interface Message {
   seen_at: string | null;
   status: string;
   user_id: string;
+  file_url?: string | null;
+  file_name?: string | null;
+  file_type?: string | null;
 }
 
 interface ChatContainerProps {
@@ -42,7 +45,7 @@ export const ChatContainer = ({ patientId }: ChatContainerProps) => {
         return;
       }
 
-      setMessages(data || []);
+      setMessages(data as Message[]);
     };
 
     fetchMessages();
