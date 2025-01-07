@@ -14,7 +14,10 @@ export const useChat = (userId?: string) => {
         user_phone: userPhone 
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error setting user context:', error);
+        throw error;
+      }
     } catch (error) {
       console.error('Error setting user context:', error);
       throw error;
@@ -31,6 +34,16 @@ export const useChat = (userId?: string) => {
       await setUserContext(userPhone);
       console.log('Fetching messages for userId:', userId);
 
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('id, role')
+        .eq('phone', userPhone)
+        .maybeSingle();
+
+      if (!profileData) {
+        throw new Error('Profile not found');
+      }
+
       const { data, error } = await supabase
         .from('messages')
         .select('*')
@@ -41,6 +54,22 @@ export const useChat = (userId?: string) => {
 
       console.log('Fetched messages:', data);
       setMessages(data || []);
+
+      // Mark messages as seen if they're from doctor
+      const unseenMessages = data?.filter(m => !m.seen_at && m.is_from_doctor) || [];
+      if (unseenMessages.length > 0) {
+        const { error: updateError } = await supabase
+          .from('messages')
+          .update({ 
+            seen_at: new Date().toISOString(),
+            status: 'seen'
+          })
+          .in('id', unseenMessages.map(m => m.id));
+
+        if (updateError) {
+          console.error('Error marking messages as seen:', updateError);
+        }
+      }
     } catch (error) {
       console.error('Error fetching messages:', error);
       toast.error("Failed to load messages");
@@ -63,15 +92,27 @@ export const useChat = (userId?: string) => {
 
       await setUserContext(userPhone);
 
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('id, role')
+        .eq('phone', userPhone)
+        .maybeSingle();
+
+      if (!profileData) {
+        throw new Error('Profile not found');
+      }
+
       const messageData = {
         content: content.trim(),
         user_id: userId,
-        is_from_doctor: false,
+        is_from_doctor: profileData.role === 'admin',
         status: 'not_seen',
         file_url: fileInfo?.url,
         file_name: fileInfo?.name,
         file_type: fileInfo?.type
       };
+
+      console.log('Sending message:', messageData);
 
       const { data, error } = await supabase
         .from('messages')
