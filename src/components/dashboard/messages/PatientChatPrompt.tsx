@@ -7,18 +7,20 @@ export const PatientChatPrompt = () => {
 
   return (
     <div className="flex flex-col items-center justify-center h-full space-y-4">
-      <MessageSquare className="w-12 h-12 text-blue-500" />
+      <MessageSquare className="w-12 h-12 text-primary animate-pulse" />
       <div className="text-center">
-        <h3 className="font-medium">Start a conversation</h3>
+        <h3 className="font-medium text-lg">Start Your Consultation</h3>
         <p className="text-sm text-muted-foreground">
-          Chat with our doctor for medical assistance
+          Connect with our healthcare professionals instantly
         </p>
       </div>
       <Button 
         onClick={() => navigate('/chat')}
         className="mt-4"
+        size="lg"
       >
-        Start Chat
+        <MessageSquare className="mr-2" />
+        Start Consultation
       </Button>
     </div>
   );
