@@ -46,27 +46,28 @@ export const MessageList = ({ messages }: MessageListProps) => {
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-4">
       {messages.map((message) => {
-        // For admin view: admin messages on right, patient messages on left
-        // For patient view: patient messages on right, doctor messages on left
         const shouldAlignRight = isAdmin ? message.is_from_doctor : !message.is_from_doctor;
 
         return (
           <div
             key={message.id}
-            className={`flex ${shouldAlignRight ? 'justify-end' : 'justify-start'}`}
+            className={`flex ${shouldAlignRight ? 'justify-end' : 'justify-start'} animate-fade-in`}
           >
             <div
-              className={`max-w-[70%] p-3 rounded-lg ${
-                message.is_from_doctor
-                  ? 'bg-primary text-white'
-                  : 'bg-[#F2FCE2] text-gray-900'
+              className={`max-w-[70%] p-3 rounded-2xl shadow-sm ${
+                shouldAlignRight
+                  ? 'bg-primary text-white rounded-tr-sm'
+                  : 'bg-[#F2FCE2] text-gray-900 rounded-tl-sm'
               }`}
             >
-              <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+              <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
               {renderFilePreview(message)}
               <div className="flex items-center justify-end gap-1 mt-1">
-                <span className={`text-xs ${message.is_from_doctor ? 'text-white/70' : 'text-gray-500'}`}>
-                  {new Date(message.created_at).toLocaleTimeString()}
+                <span className={`text-xs ${shouldAlignRight ? 'text-white/70' : 'text-gray-500'}`}>
+                  {new Date(message.created_at).toLocaleTimeString([], { 
+                    hour: '2-digit', 
+                    minute: '2-digit'
+                  })}
                 </span>
                 <MessageStatus message={message} />
               </div>
