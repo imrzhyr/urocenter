@@ -47,7 +47,27 @@ export const messageService = {
     if (!userPhone) throw new Error('No user phone found');
 
     console.log('Sending message for user:', userId);
+    
+    // Set user context before any database operation
     await this.setUserContext(userPhone);
+
+    // First verify if the user has admin role when sending as doctor
+    if (isFromDoctor) {
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('phone', userPhone)
+        .maybeSingle();
+
+      if (profileError) {
+        console.error('Error checking user role:', profileError);
+        throw profileError;
+      }
+
+      if (!profile || profile.role !== 'admin') {
+        throw new Error('Unauthorized: Only admins can send messages as doctor');
+      }
+    }
 
     const messageData = {
       content: content.trim(),
