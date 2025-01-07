@@ -90,9 +90,7 @@ export const useMessages = (userId?: string) => {
     try {
       setIsLoading(true);
       const userPhone = localStorage.getItem('userPhone');
-      if (!userPhone) {
-        throw new Error('No user phone found');
-      }
+      if (!userPhone) throw new Error('No user phone found');
 
       await messageService.setUserContext(userPhone);
       const newMessage = await messageService.sendMessage(content, userId, isFromDoctor, fileInfo);
