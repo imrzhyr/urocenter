@@ -15,6 +15,15 @@ export const useMessages = (userId?: string) => {
 
     const fetchMessages = async () => {
       try {
+        // Set user context before fetching messages
+        const userPhone = localStorage.getItem('userPhone');
+        if (!userPhone) {
+          console.error('No user phone found in localStorage');
+          return;
+        }
+
+        await supabase.rpc('set_user_context', { user_phone: userPhone });
+        
         console.log('Fetching messages for user:', userId);
         const { data, error } = await supabase
           .from('messages')
@@ -76,6 +85,16 @@ export const useMessages = (userId?: string) => {
     console.log('sendMessage called with:', { content, userId, isFromDoctor });
     
     try {
+      // Set user context before sending message
+      const userPhone = localStorage.getItem('userPhone');
+      if (!userPhone) {
+        console.error('No user phone found in localStorage');
+        toast.error("Please sign in to send messages");
+        return;
+      }
+
+      await supabase.rpc('set_user_context', { user_phone: userPhone });
+      
       setIsLoading(true);
       
       const messageData = {
