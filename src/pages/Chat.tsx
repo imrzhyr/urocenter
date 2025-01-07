@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { DoctorChatContainer } from "@/components/chat/doctor/DoctorChatContainer";
-import { PatientChatContainer } from "@/components/chat/patient/PatientChatContainer";
+import { UserChatContainer } from "@/components/chat/UserChatContainer";
 import { useProfile } from "@/hooks/useProfile";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
@@ -14,7 +14,7 @@ const Chat = () => {
       {profile?.role === 'admin' ? (
         <DoctorChatContainer patientId={patientId} />
       ) : (
-        <PatientChatContainer />
+        <UserChatContainer />
       )}
     </div>
   );
