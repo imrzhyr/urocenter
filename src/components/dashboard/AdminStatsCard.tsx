@@ -37,34 +37,34 @@ export const AdminStatsCard = () => {
       title: "Total Patients",
       value: stats?.total_patients || 0,
       icon: Users,
-      color: "text-blue-500",
-      bgColor: "bg-blue-100",
+      color: "text-primary",
+      bgColor: "bg-primary/10",
     },
     {
       title: "Total Messages",
       value: stats?.total_messages || 0,
       icon: MessageSquare,
-      color: "text-blue-500",
-      bgColor: "bg-blue-100",
+      color: "text-primary",
+      bgColor: "bg-primary/10",
     },
     {
       title: "Unread Messages",
       value: stats?.unread_messages || 0,
       icon: AlertCircle,
-      color: "text-blue-500",
-      bgColor: "bg-blue-100",
+      color: "text-primary",
+      bgColor: "bg-primary/10",
     },
     {
       title: "Resolved Chats",
       value: stats?.resolved_chats || 0,
       icon: CheckCircle,
-      color: "text-blue-500",
-      bgColor: "bg-blue-100",
+      color: "text-primary",
+      bgColor: "bg-primary/10",
     },
   ];
 
   return (
-    <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-2 grid-cols-2 md:grid-cols-4">
       {statItems.map((item, index) => (
         <motion.div
           key={item.title}
@@ -73,16 +73,16 @@ export const AdminStatsCard = () => {
           transition={{ duration: 0.3, delay: index * 0.1 }}
         >
           <Card className="border-none shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 pt-3 px-3">
-              <CardTitle className="text-xs font-medium text-gray-600">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 pt-2 px-3">
+              <CardTitle className="text-xs font-medium text-muted-foreground">
                 {item.title}
               </CardTitle>
               <div className={`${item.bgColor} ${item.color} p-1.5 rounded-full`}>
                 <item.icon className="h-3.5 w-3.5" />
               </div>
             </CardHeader>
-            <CardContent className="pb-3 px-3">
-              <div className="text-xl font-bold text-gray-900">{item.value}</div>
+            <CardContent className="pb-2 px-3">
+              <div className="text-lg font-bold">{item.value}</div>
             </CardContent>
           </Card>
         </motion.div>
