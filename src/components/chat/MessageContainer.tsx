@@ -27,8 +27,8 @@ export const MessageContainer = ({
   }, [messages]);
 
   return (
-    <div className="flex flex-col h-screen bg-white transition-gpu">
-      <div className="p-4 border-b animate-fade-down">
+    <div className="flex flex-col h-screen bg-[#F0F2F5]">
+      <div className="p-4 bg-[#F0F2F5] border-b">
         {header}
       </div>
       <div className="flex-1 overflow-y-auto smooth-scroll content-visibility">

@@ -50,21 +50,21 @@ export const MessageInput = ({ onSendMessage, isLoading }: MessageInputProps) =>
   };
 
   return (
-    <div className="p-4 border-t bg-white w-full transition-gpu">
+    <div className="p-3 bg-[#F0F2F5] border-t">
       {selectedFile && (
-        <div className="mb-2 p-2 bg-blue-50 rounded-md flex items-center justify-between animate-fade-up">
-          <span className="text-sm text-blue-700 truncate">{selectedFile.name}</span>
+        <div className="mb-2 p-2 bg-white rounded-md flex items-center justify-between animate-fade-up">
+          <span className="text-sm text-gray-700 truncate">{selectedFile.name}</span>
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setSelectedFile(null)}
-            className="h-6 w-6 transition-transform hover:scale-105 duration-200"
+            className="h-6 w-6 hover:bg-gray-100"
           >
             <X className="h-4 w-4" />
           </Button>
         </div>
       )}
-      <div className="flex gap-2">
+      <div className="flex gap-2 items-end">
         <input
           type="file"
           ref={fileInputRef}
@@ -73,31 +73,33 @@ export const MessageInput = ({ onSendMessage, isLoading }: MessageInputProps) =>
           accept="image/*,.pdf,.doc,.docx"
         />
         <Button
-          variant="outline"
+          variant="ghost"
           size="icon"
           onClick={() => fileInputRef.current?.click()}
-          className="shrink-0 transition-transform hover:scale-105 duration-200"
+          className="h-10 w-10 rounded-full hover:bg-gray-200"
         >
-          <Paperclip className="h-4 w-4" />
+          <Paperclip className="h-5 w-5 text-gray-600" />
         </Button>
-        <Textarea
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          placeholder="Type your message..."
-          className="resize-none transition-all duration-200 focus:ring-2 focus:ring-blue-500"
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault();
-              handleSend();
-            }
-          }}
-        />
+        <div className="flex-1 bg-white rounded-lg">
+          <Textarea
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder="Type a message"
+            className="min-h-[45px] max-h-[120px] resize-none border-0 focus-visible:ring-0 rounded-lg"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+              }
+            }}
+          />
+        </div>
         <Button 
           onClick={handleSend} 
           disabled={isLoading || (!newMessage.trim() && !selectedFile)}
-          className="px-4 transition-transform hover:scale-105 duration-200"
+          className="h-10 w-10 rounded-full bg-[#00A884] hover:bg-[#008f6f]"
         >
-          <Send className="w-4 h-4" />
+          <Send className="w-5 h-5" />
         </Button>
       </div>
     </div>

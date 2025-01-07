@@ -8,11 +8,11 @@ interface MessageStatusProps {
 export const MessageStatus = ({ message }: MessageStatusProps) => {
   if (!message.is_from_doctor) {
     if (message.seen_at) {
-      return <CheckCheck className="w-4 h-4 text-blue-500" />;
+      return <CheckCheck className="w-3 h-3 text-blue-500" />;
     } else if (message.delivered_at) {
-      return <CheckCheck className="w-4 h-4 text-gray-500" />;
+      return <CheckCheck className="w-3 h-3 text-gray-500" />;
     } else {
-      return <Check className="w-4 h-4 text-gray-500" />;
+      return <Check className="w-3 h-3 text-gray-500" />;
     }
   }
   return null;
