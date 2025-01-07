@@ -11,42 +11,55 @@ export const useMessages = (userId?: string) => {
     if (!userId) return;
 
     const fetchMessages = async () => {
-      const { data: session } = await supabase.auth.getSession();
-      if (!session.session) {
-        console.error('No active session');
-        return;
-      }
+      try {
+        const { data: session } = await supabase.auth.getSession();
+        if (!session.session) {
+          console.error('No active session');
+          return;
+        }
 
-      const { data, error } = await supabase
-        .from('messages')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: true });
+        const { data, error } = await supabase
+          .from('messages')
+          .select('*')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: true });
 
-      if (error) {
-        console.error('Error fetching messages:', error);
+        if (error) {
+          console.error('Error fetching messages:', error);
+          if (error.code === '42501') {
+            toast.error("Authorization error. Please sign in again.");
+          } else {
+            toast.error("Failed to load messages");
+          }
+          return;
+        }
+
+        setMessages(data as Message[]);
+        await markMessagesAsSeen(data);
+      } catch (error) {
+        console.error('Error in fetchMessages:', error);
         toast.error("Failed to load messages");
-        return;
       }
-
-      setMessages(data as Message[]);
-      await markMessagesAsSeen(data);
     };
 
     const markMessagesAsSeen = async (messages: Message[]) => {
-      const unseenMessages = messages?.filter(m => !m.seen_at && m.is_from_doctor) || [];
-      if (unseenMessages.length > 0) {
-        const { error: updateError } = await supabase
-          .from('messages')
-          .update({ 
-            seen_at: new Date().toISOString(),
-            status: 'seen'
-          })
-          .in('id', unseenMessages.map(m => m.id));
+      try {
+        const unseenMessages = messages?.filter(m => !m.seen_at && m.is_from_doctor) || [];
+        if (unseenMessages.length > 0) {
+          const { error: updateError } = await supabase
+            .from('messages')
+            .update({ 
+              seen_at: new Date().toISOString(),
+              status: 'seen'
+            })
+            .in('id', unseenMessages.map(m => m.id));
 
-        if (updateError) {
-          console.error('Error marking messages as seen:', updateError);
+          if (updateError) {
+            console.error('Error marking messages as seen:', updateError);
+          }
         }
+      } catch (error) {
+        console.error('Error in markMessagesAsSeen:', error);
       }
     };
 
@@ -87,16 +100,20 @@ export const useMessages = (userId?: string) => {
   }, [userId]);
 
   const markMessageAsDelivered = async (messageId: string) => {
-    const { error: updateError } = await supabase
-      .from('messages')
-      .update({ 
-        delivered_at: new Date().toISOString(),
-        status: 'delivered'
-      })
-      .eq('id', messageId);
+    try {
+      const { error: updateError } = await supabase
+        .from('messages')
+        .update({ 
+          delivered_at: new Date().toISOString(),
+          status: 'delivered'
+        })
+        .eq('id', messageId);
 
-    if (updateError) {
-      console.error('Error marking message as delivered:', updateError);
+      if (updateError) {
+        console.error('Error marking message as delivered:', updateError);
+      }
+    } catch (error) {
+      console.error('Error in markMessageAsDelivered:', error);
     }
   };
 
@@ -122,7 +139,11 @@ export const useMessages = (userId?: string) => {
 
       if (error) {
         console.error('Error sending message:', error);
-        toast.error("Failed to send message");
+        if (error.code === '42501') {
+          toast.error("Authorization error. Please sign in again.");
+        } else {
+          toast.error("Failed to send message");
+        }
         throw error;
       }
 

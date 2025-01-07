@@ -2,37 +2,13 @@ import { useProfile } from "@/hooks/useProfile";
 import { useMessages } from "@/hooks/useMessages";
 import { MessageContainer } from "./MessageContainer";
 import { PatientChatHeader } from "./patient/PatientChatHeader";
-import { useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { toast } from "sonner";
 
 export const UserChatContainer = () => {
-  const navigate = useNavigate();
   const { profile } = useProfile();
   const { messages, isLoading, sendMessage } = useMessages(profile?.id);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast.error("Please sign in to access the chat");
-        navigate("/signin");
-      }
-    };
-
-    checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT') {
-        navigate("/signin");
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [navigate]);
+  useAuthRedirect();
 
   const handleSendMessage = async (content: string) => {
     if (!profile?.id) {
