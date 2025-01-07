@@ -30,7 +30,7 @@ export const messageService = {
       .from('profiles')
       .select('role, id')
       .eq('phone', userPhone)
-      .single();
+      .maybeSingle();
 
     if (!profile) throw new Error('Profile not found');
 
@@ -65,13 +65,14 @@ export const messageService = {
       .from('profiles')
       .select('role, id')
       .eq('phone', userPhone)
-      .single();
+      .maybeSingle();
 
     if (!profile) throw new Error('Profile not found');
     if (isFromDoctor && profile.role !== 'admin') {
       throw new Error('Unauthorized: Only admins can send messages as doctor');
     }
 
+    // Ensure we're using the correct user_id from the profile
     const messageData = {
       content: content.trim(),
       user_id: userId,
