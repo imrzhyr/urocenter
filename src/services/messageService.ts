@@ -34,7 +34,12 @@ export const messageService = {
     return data as Message[];
   },
 
-  async sendMessage(content: string, userId: string, isFromDoctor: boolean): Promise<Message> {
+  async sendMessage(
+    content: string, 
+    userId: string, 
+    isFromDoctor: boolean,
+    fileInfo?: { url: string; name: string; type: string }
+  ): Promise<Message> {
     const userPhone = localStorage.getItem('userPhone');
     if (!userPhone) throw new Error('No user phone found');
 
@@ -45,7 +50,10 @@ export const messageService = {
       content: content.trim(),
       user_id: userId,
       is_from_doctor: isFromDoctor,
-      status: 'not_seen'
+      status: 'not_seen',
+      file_url: fileInfo?.url,
+      file_name: fileInfo?.name,
+      file_type: fileInfo?.type
     };
 
     console.log('Message data:', messageData);

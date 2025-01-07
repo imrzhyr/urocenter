@@ -60,13 +60,17 @@ export const useMessages = (userId?: string) => {
     };
   }, [userId]);
 
-  const sendMessage = async (content: string, userId: string, isFromDoctor: boolean = false) => {
+  const sendMessage = async (
+    content: string, 
+    userId: string, 
+    isFromDoctor: boolean = false,
+    fileInfo?: { url: string; name: string; type: string }
+  ) => {
     try {
       setIsLoading(true);
-      console.log('Sending message:', { content, userId, isFromDoctor });
-      const newMessage = await messageService.sendMessage(content, userId, isFromDoctor);
+      console.log('Sending message:', { content, userId, isFromDoctor, fileInfo });
+      const newMessage = await messageService.sendMessage(content, userId, isFromDoctor, fileInfo);
       console.log('Message sent successfully:', newMessage);
-      // Add the new message to the local state immediately
       setMessages(prev => [...prev, newMessage]);
       toast.success("Message sent");
     } catch (error) {
