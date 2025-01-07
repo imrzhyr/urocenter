@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminStatsCard } from "@/components/dashboard/AdminStatsCard";
 import { MessagesCard } from "@/components/dashboard/MessagesCard";
-import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -32,12 +31,12 @@ const AdminDashboard = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-50 via-white to-sky-50">
-      <DashboardHeader />
-      <main className="container py-6 space-y-6">
-        <div className="space-y-6">
-          <MessagesCard />
+    <div className="min-h-screen bg-background">
+      <main className="container mx-auto p-6 space-y-6">
+        <h1 className="text-2xl font-bold text-primary mb-6">Admin Dashboard</h1>
+        <div className="grid gap-6">
           <AdminStatsCard />
+          <MessagesCard />
         </div>
       </main>
     </div>

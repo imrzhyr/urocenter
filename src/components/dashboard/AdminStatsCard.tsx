@@ -64,7 +64,7 @@ export const AdminStatsCard = () => {
   ];
 
   return (
-    <div className="grid gap-2 grid-cols-2 md:grid-cols-4">
+    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
       {statItems.map((item, index) => (
         <motion.div
           key={item.title}
@@ -73,16 +73,16 @@ export const AdminStatsCard = () => {
           transition={{ duration: 0.3, delay: index * 0.1 }}
         >
           <Card className="border-none shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 pt-2 px-3">
-              <CardTitle className="text-xs font-medium text-muted-foreground">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 {item.title}
               </CardTitle>
-              <div className={`${item.bgColor} ${item.color} p-1.5 rounded-full`}>
-                <item.icon className="h-3.5 w-3.5" />
+              <div className={`${item.bgColor} ${item.color} p-2 rounded-full`}>
+                <item.icon className="h-4 w-4" />
               </div>
             </CardHeader>
-            <CardContent className="pb-2 px-3">
-              <div className="text-lg font-bold">{item.value}</div>
+            <CardContent>
+              <div className="text-2xl font-bold text-primary">{item.value}</div>
             </CardContent>
           </Card>
         </motion.div>
