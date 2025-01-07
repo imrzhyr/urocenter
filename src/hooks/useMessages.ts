@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Message } from "@/types/profile";
+import { messageService } from "@/services/messageService";
 
 export const useMessages = (userId?: string) => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -15,29 +16,8 @@ export const useMessages = (userId?: string) => {
 
     const fetchMessages = async () => {
       try {
-        const userPhone = localStorage.getItem('userPhone');
-        if (!userPhone) {
-          console.error('No user phone found in localStorage');
-          return;
-        }
-
-        await supabase.rpc('set_user_context', { user_phone: userPhone });
-        
-        console.log('Fetching messages for user:', userId);
-        const { data, error } = await supabase
-          .from('messages')
-          .select('*')
-          .eq('user_id', userId)
-          .order('created_at', { ascending: true });
-
-        if (error) {
-          console.error('Error fetching messages:', error);
-          toast.error("Failed to load messages");
-          return;
-        }
-
-        console.log('Fetched messages:', data);
-        setMessages(data as Message[]);
+        const fetchedMessages = await messageService.fetchMessages(userId);
+        setMessages(fetchedMessages);
       } catch (error) {
         console.error('Error in fetchMessages:', error);
         toast.error("Failed to load messages");
@@ -46,6 +26,7 @@ export const useMessages = (userId?: string) => {
 
     fetchMessages();
 
+    // Set up real-time subscription
     const channel = supabase
       .channel(`messages_${userId}`)
       .on(
@@ -81,46 +62,14 @@ export const useMessages = (userId?: string) => {
   }, [userId]);
 
   const sendMessage = async (content: string, userId: string, isFromDoctor: boolean = false) => {
-    console.log('sendMessage called with:', { content, userId, isFromDoctor });
-    
     try {
-      const userPhone = localStorage.getItem('userPhone');
-      if (!userPhone) {
-        console.error('No user phone found in localStorage');
-        toast.error("Please sign in to send messages");
-        return;
-      }
-
-      await supabase.rpc('set_user_context', { user_phone: userPhone });
-      
       setIsLoading(true);
-      
-      const messageData = {
-        content: content.trim(),
-        user_id: userId,
-        is_from_doctor: isFromDoctor,
-        status: 'not_seen' // This is the correct status value that matches the check constraint
-      };
-
-      console.log('Inserting message:', messageData);
-      
-      const { data, error } = await supabase
-        .from('messages')
-        .insert(messageData)
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Error sending message:', error);
-        toast.error("Failed to send message");
-        throw error;
-      }
-
-      console.log('Message sent successfully:', data);
+      await messageService.sendMessage(content, userId, isFromDoctor);
       toast.success("Message sent");
     } catch (error) {
       console.error('Error in sendMessage:', error);
       toast.error("Failed to send message");
+      throw error;
     } finally {
       setIsLoading(false);
     }

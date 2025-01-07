@@ -16,17 +16,16 @@ export const UserChatContainer = () => {
       toast.error("Unable to send message. Please try signing in again.");
       return;
     }
-    console.log("Attempting to send message", { content, profileId: profile.id });
+
     try {
       await sendMessage(content, profile.id, false);
     } catch (error) {
+      // Error is already handled in useMessages hook
       console.error("Error in handleSendMessage:", error);
-      toast.error("Failed to send message. Please try again.");
     }
   };
 
   if (!profile?.id) {
-    console.log("No profile ID, returning null");
     return null;
   }
 
