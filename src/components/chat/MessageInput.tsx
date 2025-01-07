@@ -29,7 +29,7 @@ export const MessageInput = ({ onSendMessage, isLoading }: MessageInputProps) =>
         };
       }
 
-      onSendMessage(newMessage, fileInfo);
+      await onSendMessage(newMessage, fileInfo);
       setNewMessage("");
       setSelectedFile(null);
     } catch (error) {
