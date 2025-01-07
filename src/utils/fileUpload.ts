@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const uploadFile = async (file: File) => {
   const userPhone = localStorage.getItem('userPhone');
@@ -7,20 +8,11 @@ export const uploadFile = async (file: File) => {
   }
 
   try {
-    // Set user context before upload and wait for it to complete
-    const { error: contextError } = await supabase.rpc('set_user_context', { 
-      user_phone: userPhone 
-    });
-
-    if (contextError) {
-      console.error('Context error:', contextError);
-      throw contextError;
-    }
-
+    // Generate a unique file path
     const fileExt = file.name.split('.').pop();
     const filePath = `${crypto.randomUUID()}.${fileExt}`;
 
-    // Upload file after context is set
+    // Upload file to Supabase storage
     const { data, error: uploadError } = await supabase.storage
       .from('chat_attachments')
       .upload(filePath, file, {
@@ -30,9 +22,11 @@ export const uploadFile = async (file: File) => {
 
     if (uploadError) {
       console.error('Upload error:', uploadError);
+      toast.error('Failed to upload file');
       throw uploadError;
     }
 
+    // Get the public URL for the uploaded file
     const { data: { publicUrl } } = supabase.storage
       .from('chat_attachments')
       .getPublicUrl(filePath);
