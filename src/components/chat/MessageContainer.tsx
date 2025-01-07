@@ -27,8 +27,8 @@ export const MessageContainer = ({
   }, [messages]);
 
   return (
-    <div className="flex flex-col h-screen bg-[#F0F2F5]">
-      <div className="p-4 bg-[#F0F2F5] border-b">
+    <div className="flex flex-col h-screen bg-background">
+      <div className="p-4 bg-background border-b">
         {header}
       </div>
       <div className="flex-1 overflow-y-auto smooth-scroll content-visibility">

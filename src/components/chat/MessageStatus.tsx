@@ -10,9 +10,9 @@ export const MessageStatus = ({ message }: MessageStatusProps) => {
     if (message.seen_at) {
       return <CheckCheck className="w-3 h-3 text-blue-500" />;
     } else if (message.delivered_at) {
-      return <CheckCheck className="w-3 h-3 text-gray-500" />;
+      return <CheckCheck className="w-3 h-3 text-gray-400" />;
     } else {
-      return <Check className="w-3 h-3 text-gray-500" />;
+      return <Check className="w-3 h-3 text-gray-400" />;
     }
   }
   return null;

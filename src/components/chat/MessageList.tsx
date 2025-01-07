@@ -44,7 +44,7 @@ export const MessageList = ({ messages }: MessageListProps) => {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#E4E4E4]">
+    <div className="flex-1 overflow-y-auto p-4 space-y-4">
       {messages.map((message) => {
         const shouldAlignRight = isAdmin ? message.is_from_doctor : !message.is_from_doctor;
 
@@ -54,16 +54,16 @@ export const MessageList = ({ messages }: MessageListProps) => {
             className={`flex ${shouldAlignRight ? 'justify-end' : 'justify-start'} animate-fade-in`}
           >
             <div
-              className={`relative max-w-[70%] p-3 ${
+              className={`relative max-w-[70%] p-3 rounded-lg ${
                 shouldAlignRight
-                  ? 'bg-[#DCF8C6] text-gray-800 rounded-tl-xl rounded-tr-sm rounded-bl-xl rounded-br-xl before:content-[""] before:absolute before:right-[-8px] before:top-0 before:border-t-[8px] before:border-t-[#DCF8C6] before:border-r-[8px] before:border-r-transparent'
-                  : 'bg-white text-gray-800 rounded-tr-xl rounded-tl-sm rounded-br-xl rounded-bl-xl before:content-[""] before:absolute before:left-[-8px] before:top-0 before:border-t-[8px] before:border-t-white before:border-l-[8px] before:border-l-transparent'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-muted-foreground'
               }`}
             >
               <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
               {renderFilePreview(message)}
               <div className="flex items-center justify-end gap-1 mt-1">
-                <span className="text-[11px] text-gray-500">
+                <span className="text-[11px] opacity-70">
                   {new Date(message.created_at).toLocaleTimeString([], { 
                     hour: '2-digit', 
                     minute: '2-digit',
