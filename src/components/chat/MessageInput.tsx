@@ -41,7 +41,7 @@ export const MessageInput = ({ onSendMessage, isLoading }: MessageInputProps) =>
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      if (file.size > 5 * 1024 * 1024) {
         toast.error("File size should be less than 5MB");
         return;
       }
@@ -50,15 +50,15 @@ export const MessageInput = ({ onSendMessage, isLoading }: MessageInputProps) =>
   };
 
   return (
-    <div className="p-4 border-t bg-white w-full">
+    <div className="p-4 border-t bg-white w-full transition-gpu">
       {selectedFile && (
-        <div className="mb-2 p-2 bg-blue-50 rounded-md flex items-center justify-between">
+        <div className="mb-2 p-2 bg-blue-50 rounded-md flex items-center justify-between animate-fade-up">
           <span className="text-sm text-blue-700 truncate">{selectedFile.name}</span>
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setSelectedFile(null)}
-            className="h-6 w-6"
+            className="h-6 w-6 transition-transform hover:scale-105 duration-200"
           >
             <X className="h-4 w-4" />
           </Button>
@@ -76,7 +76,7 @@ export const MessageInput = ({ onSendMessage, isLoading }: MessageInputProps) =>
           variant="outline"
           size="icon"
           onClick={() => fileInputRef.current?.click()}
-          className="shrink-0"
+          className="shrink-0 transition-transform hover:scale-105 duration-200"
         >
           <Paperclip className="h-4 w-4" />
         </Button>
@@ -84,7 +84,7 @@ export const MessageInput = ({ onSendMessage, isLoading }: MessageInputProps) =>
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           placeholder="Type your message..."
-          className="resize-none"
+          className="resize-none transition-all duration-200 focus:ring-2 focus:ring-blue-500"
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault();
@@ -95,7 +95,7 @@ export const MessageInput = ({ onSendMessage, isLoading }: MessageInputProps) =>
         <Button 
           onClick={handleSend} 
           disabled={isLoading || (!newMessage.trim() && !selectedFile)}
-          className="px-4"
+          className="px-4 transition-transform hover:scale-105 duration-200"
         >
           <Send className="w-4 h-4" />
         </Button>

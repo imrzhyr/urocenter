@@ -11,9 +11,11 @@
   will-change: filter;
   transition: filter 300ms;
 }
+
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }
+
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
@@ -41,7 +43,7 @@
   color: #888;
 }
 
-/* Add smooth scrolling and prevent layout shifts during transitions */
+/* Smooth scrolling and transitions */
 html {
   scroll-behavior: smooth;
 }
@@ -50,11 +52,50 @@ body {
   min-height: 100vh;
   margin: 0;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Ensure content doesn't jump during page transitions */
 #root {
   position: relative;
   min-height: 100vh;
   overflow-x: hidden;
+}
+
+/* Optimize animations */
+* {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+/* Smooth transitions */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Optimize scrolling */
+.smooth-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent layout shifts */
+.content-visibility {
+  content-visibility: auto;
+}
+
+/* Optimize images */
+img {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Optimize transitions */
+.transition-gpu {
+  transform: translateZ(0);
+  will-change: transform;
 }
