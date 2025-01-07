@@ -44,27 +44,27 @@ export const AdminStatsCard = () => {
       title: "Total Messages",
       value: stats?.total_messages || 0,
       icon: MessageSquare,
-      color: "text-green-500",
-      bgColor: "bg-green-100",
+      color: "text-blue-500",
+      bgColor: "bg-blue-100",
     },
     {
       title: "Unread Messages",
       value: stats?.unread_messages || 0,
       icon: AlertCircle,
-      color: "text-yellow-500",
-      bgColor: "bg-yellow-100",
+      color: "text-blue-500",
+      bgColor: "bg-blue-100",
     },
     {
       title: "Resolved Chats",
       value: stats?.resolved_chats || 0,
       icon: CheckCircle,
-      color: "text-purple-500",
-      bgColor: "bg-purple-100",
+      color: "text-blue-500",
+      bgColor: "bg-blue-100",
     },
   ];
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
       {statItems.map((item, index) => (
         <motion.div
           key={item.title}
@@ -72,17 +72,17 @@ export const AdminStatsCard = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: index * 0.1 }}
         >
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
+          <Card className="border-none shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 pt-3 px-3">
+              <CardTitle className="text-xs font-medium text-gray-600">
                 {item.title}
               </CardTitle>
-              <div className={`${item.bgColor} ${item.color} p-2 rounded-full`}>
-                <item.icon className="h-4 w-4" />
+              <div className={`${item.bgColor} ${item.color} p-1.5 rounded-full`}>
+                <item.icon className="h-3.5 w-3.5" />
               </div>
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{item.value}</div>
+            <CardContent className="pb-3 px-3">
+              <div className="text-xl font-bold text-gray-900">{item.value}</div>
             </CardContent>
           </Card>
         </motion.div>
