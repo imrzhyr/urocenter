@@ -4,11 +4,28 @@ import { MessageContainer } from "./MessageContainer";
 import { PatientChatHeader } from "./patient/PatientChatHeader";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { toast } from "sonner";
+import { useEffect } from "react";
+import { messageService } from "@/services/messageService";
 
 export const UserChatContainer = () => {
   const { profile } = useProfile();
   const { messages, isLoading, sendMessage } = useMessages(profile?.id);
   useAuthRedirect();
+
+  useEffect(() => {
+    const initializeUserContext = async () => {
+      const userPhone = localStorage.getItem('userPhone');
+      if (userPhone) {
+        try {
+          await messageService.setUserContext(userPhone);
+        } catch (error) {
+          console.error('Error initializing user context:', error);
+        }
+      }
+    };
+
+    initializeUserContext();
+  }, []);
 
   const handleSendMessage = async (content: string, fileInfo?: { url: string; name: string; type: string }) => {
     if (!profile?.id) {
