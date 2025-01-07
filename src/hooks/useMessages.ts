@@ -18,6 +18,7 @@ export const useMessages = (userId?: string) => {
           return;
         }
 
+        console.log('Fetching messages for user:', userId);
         const { data, error } = await supabase
           .from('messages')
           .select('*')
@@ -34,6 +35,7 @@ export const useMessages = (userId?: string) => {
           return;
         }
 
+        console.log('Fetched messages:', data);
         setMessages(data as Message[]);
         await markMessagesAsSeen(data);
       } catch (error) {
@@ -65,8 +67,9 @@ export const useMessages = (userId?: string) => {
 
     fetchMessages();
 
+    // Enable REPLICA IDENTITY FULL for the messages table
     const channel = supabase
-      .channel('messages_channel')
+      .channel(`messages_${userId}`)
       .on(
         'postgres_changes',
         {
@@ -76,6 +79,7 @@ export const useMessages = (userId?: string) => {
           filter: `user_id=eq.${userId}`
         },
         async (payload) => {
+          console.log('Received real-time update:', payload);
           if (payload.eventType === 'INSERT') {
             const newMessage = payload.new as Message;
             setMessages(prev => [...prev, newMessage]);
@@ -92,7 +96,9 @@ export const useMessages = (userId?: string) => {
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Subscription status:', status);
+      });
 
     return () => {
       supabase.removeChannel(channel);
