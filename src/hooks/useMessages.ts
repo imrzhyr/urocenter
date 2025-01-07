@@ -28,7 +28,7 @@ export const useMessages = (userId?: string) => {
 
     // Set up real-time subscription
     const channel = supabase
-      .channel(`messages_${userId}`)
+      .channel('messages')
       .on(
         'postgres_changes',
         {
@@ -39,6 +39,7 @@ export const useMessages = (userId?: string) => {
         },
         async (payload) => {
           console.log('Received real-time update:', payload);
+          
           if (payload.eventType === 'INSERT') {
             const newMessage = payload.new as Message;
             setMessages(prev => [...prev, newMessage]);
@@ -64,7 +65,9 @@ export const useMessages = (userId?: string) => {
   const sendMessage = async (content: string, userId: string, isFromDoctor: boolean = false) => {
     try {
       setIsLoading(true);
-      await messageService.sendMessage(content, userId, isFromDoctor);
+      const newMessage = await messageService.sendMessage(content, userId, isFromDoctor);
+      // Optimistically add the message to the state
+      setMessages(prev => [...prev, newMessage]);
       toast.success("Message sent");
     } catch (error) {
       console.error('Error in sendMessage:', error);
