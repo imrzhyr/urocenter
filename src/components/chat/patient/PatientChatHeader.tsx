@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { User, Clock } from "lucide-react";
+import { User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -33,10 +33,6 @@ export const PatientChatHeader = () => {
         </Avatar>
         <div>
           <h3 className="font-medium text-blue-900">Dr. Ali Kamal</h3>
-          <div className="flex items-center gap-2 text-sm text-blue-700">
-            <Clock className="w-4 h-4" />
-            <span>25 years of experience</span>
-          </div>
         </div>
       </div>
 
