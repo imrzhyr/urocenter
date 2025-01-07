@@ -28,9 +28,14 @@ export const useProfile = () => {
 
   const fetchProfile = async () => {
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        return;
+      }
+
       const userPhone = localStorage.getItem('userPhone');
       if (!userPhone) {
-        throw new Error("No phone number found");
+        return;
       }
 
       const { data: profileData, error: profileError } = await supabase
@@ -68,10 +73,16 @@ export const useProfile = () => {
   const updateProfile = async (updatedProfile: Profile) => {
     try {
       setIsLoading(true);
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error("Please sign in to update your profile");
+        return false;
+      }
+
       const userPhone = localStorage.getItem('userPhone');
-      
       if (!userPhone) {
-        throw new Error("No phone number found");
+        toast.error("No phone number found");
+        return false;
       }
 
       const { error: updateError } = await supabase
@@ -101,7 +112,37 @@ export const useProfile = () => {
   };
 
   useEffect(() => {
+    const setupAuthListener = () => {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          fetchProfile();
+        } else if (event === 'SIGNED_OUT') {
+          profileState = {
+            id: "",
+            full_name: "",
+            gender: "",
+            age: "",
+            complaint: "",
+            phone: "",
+            role: "patient",
+          };
+          listeners.forEach(listener => listener(profileState));
+        }
+      });
+
+      return () => {
+        subscription.unsubscribe();
+      };
+    };
+
+    const unsubscribe = setupAuthListener();
     fetchProfile();
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, []);
 
   return {
