@@ -32,20 +32,22 @@ export const MessagesFilter = ({
           className="pl-8"
         />
       </div>
-      <Select
-        value={statusFilter}
-        onValueChange={onStatusChange}
-      >
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Filter by status" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Messages</SelectItem>
-          <SelectItem value="not_seen">Not Seen</SelectItem>
-          <SelectItem value="in_progress">In Progress</SelectItem>
-          <SelectItem value="resolved">Resolved</SelectItem>
-        </SelectContent>
-      </Select>
+      <div>
+        <Select
+          defaultValue={statusFilter}
+          onValueChange={onStatusChange}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Messages</SelectItem>
+            <SelectItem value="not_seen">Not Seen</SelectItem>
+            <SelectItem value="in_progress">In Progress</SelectItem>
+            <SelectItem value="resolved">Resolved</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
     </div>
   );
 };
