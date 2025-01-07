@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { MessagesFilter } from "./MessagesFilter";
 import { MessageStatusBadge } from "./MessageStatusBadge";
 import { PatientMessage } from "@/types/messages";
+import { motion } from "framer-motion";
 
 export const AdminMessagesList = () => {
   const navigate = useNavigate();
@@ -16,7 +17,6 @@ export const AdminMessagesList = () => {
 
   const fetchMessages = async () => {
     try {
-      console.log('Fetching messages...');
       const { data: messagesData, error } = await supabase
         .from('messages')
         .select(`
@@ -38,26 +38,20 @@ export const AdminMessagesList = () => {
         return;
       }
 
-      console.log('Raw messages data:', messagesData);
-
-      if (!messagesData || messagesData.length === 0) {
+      if (!messagesData) {
         setMessages([]);
         setIsLoading(false);
         return;
       }
 
-      // Group messages by user and get the latest message for each user
       const userMessages = messagesData.reduce((acc: { [key: string]: PatientMessage }, message: any) => {
         const userId = message.user_id;
         const userName = message.profiles?.full_name || "Unknown Patient";
         
-        // Count unread messages for this user
         const unreadCount = messagesData.filter(
           (msg: any) => msg.user_id === userId && !msg.is_read
         ).length;
 
-        // Only update if this is the first message we've seen for this user
-        // or if this message is more recent than the one we have
         if (!acc[userId] || new Date(message.created_at) > new Date(acc[userId].last_message_time)) {
           acc[userId] = {
             id: userId,
@@ -71,7 +65,6 @@ export const AdminMessagesList = () => {
         return acc;
       }, {});
 
-      console.log('Processed user messages:', userMessages);
       setMessages(Object.values(userMessages));
     } catch (error) {
       console.error('Error in fetchMessages:', error);
@@ -83,7 +76,6 @@ export const AdminMessagesList = () => {
   useEffect(() => {
     fetchMessages();
 
-    // Set up real-time subscription
     const channel = supabase
       .channel('messages_changes')
       .on(
@@ -94,7 +86,6 @@ export const AdminMessagesList = () => {
           table: 'messages'
         },
         () => {
-          console.log('Received real-time update, refreshing messages...');
           fetchMessages();
         }
       )
@@ -112,24 +103,32 @@ export const AdminMessagesList = () => {
   });
 
   if (isLoading) {
-    return <div className="text-center py-8">Loading messages...</div>;
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="animate-pulse text-primary">Loading messages...</div>
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 px-4">
       <MessagesFilter
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         statusFilter={statusFilter}
         onStatusChange={setStatusFilter}
       />
-      <div className="space-y-2 max-h-[400px] overflow-y-auto">
-        {filteredMessages.length > 0 ? (
-          filteredMessages.map((patient) => (
+      <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
+        {filteredMessages.map((patient, index) => (
+          <motion.div
+            key={patient.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: index * 0.1 }}
+          >
             <Button
-              key={patient.id}
               variant="ghost"
-              className="w-full justify-start p-4 h-auto hover:bg-primary/5"
+              className="w-full justify-start p-4 h-auto hover:bg-primary/5 transition-all duration-300"
               onClick={() => navigate(`/chat/${patient.id}`)}
             >
               <div className="flex items-start gap-3 w-full">
@@ -138,13 +137,13 @@ export const AdminMessagesList = () => {
                 </div>
                 <div className="flex-1 text-left">
                   <div className="flex items-center justify-between">
-                    <span className="font-medium">{patient.full_name}</span>
+                    <span className="font-medium text-base">{patient.full_name}</span>
                     <MessageStatusBadge 
                       status={patient.status as any} 
                       unreadCount={patient.unread_count}
                     />
                   </div>
-                  <p className="text-sm text-muted-foreground truncate">
+                  <p className="text-sm text-muted-foreground truncate mt-1">
                     {patient.last_message}
                   </p>
                   <div className="text-xs text-muted-foreground mt-1">
@@ -153,12 +152,8 @@ export const AdminMessagesList = () => {
                 </div>
               </div>
             </Button>
-          ))
-        ) : (
-          <div className="text-center py-8 text-muted-foreground">
-            No messages found. New patient messages will appear here.
-          </div>
-        )}
+          </motion.div>
+        ))}
       </div>
     </div>
   );
