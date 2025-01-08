@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { ProgressSteps } from "@/components/ProgressSteps";
 import { useLocation } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 
 const steps = ["Sign Up", "Profile", "Medical Info", "Payment"];
 
@@ -19,7 +20,7 @@ const getStepFromPath = (pathname: string) => {
   }
 };
 
-export const OnboardingLayout = ({ children }: { children: React.ReactNode }) => {
+export const OnboardingLayout = () => {
   const location = useLocation();
   const currentStep = getStepFromPath(location.pathname);
 
@@ -38,7 +39,7 @@ export const OnboardingLayout = ({ children }: { children: React.ReactNode }) =>
             transition={{ duration: 0.2 }}
             className="flex-1"
           >
-            {children}
+            <Outlet />
           </motion.div>
         </AnimatePresence>
       </div>
