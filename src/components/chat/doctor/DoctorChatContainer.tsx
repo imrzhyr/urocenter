@@ -20,6 +20,7 @@ export const DoctorChatContainer = ({ patientId }: DoctorChatContainerProps) => 
   useEffect(() => {
     const fetchPatientInfo = async () => {
       if (!patientId) {
+        console.log("No patient ID provided, redirecting to admin dashboard");
         navigate("/admin");
         return;
       }
@@ -34,15 +35,22 @@ export const DoctorChatContainer = ({ patientId }: DoctorChatContainerProps) => 
 
         if (error) {
           console.error("Error fetching patient info:", error);
-          throw error;
+          toast.error("Could not load patient information");
+          navigate("/admin");
+          return;
         }
 
-        if (patientProfile) {
-          console.log('Patient profile found:', patientProfile);
-          setPatientName(patientProfile.full_name || "Unknown Patient");
+        if (!patientProfile) {
+          console.error("No patient found with ID:", patientId);
+          toast.error("Patient not found");
+          navigate("/admin");
+          return;
         }
+
+        console.log('Patient profile found:', patientProfile);
+        setPatientName(patientProfile.full_name || "Unknown Patient");
       } catch (error) {
-        console.error("Error fetching patient info:", error);
+        console.error("Error in fetchPatientInfo:", error);
         toast.error("Could not load patient information");
         navigate("/admin");
       }
@@ -67,6 +75,7 @@ export const DoctorChatContainer = ({ patientId }: DoctorChatContainerProps) => 
   };
 
   if (!patientId) {
+    console.log("No patient ID, redirecting to admin dashboard");
     navigate("/admin");
     return null;
   }

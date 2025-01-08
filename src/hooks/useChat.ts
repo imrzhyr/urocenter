@@ -15,9 +15,9 @@ export const useChat = (userId?: string) => {
     try {
       console.log('Fetching messages for userId:', userId);
       
-      // When admin is viewing a patient's chat, use the patient's ID
-      // When patient is viewing their chat, use their own ID
-      const chatUserId = profile?.role === 'admin' ? userId : profile?.id;
+      // For admin viewing patient chat, use patient's ID
+      // For patient viewing their own chat, use their own ID
+      const chatUserId = userId;
       
       const { data: messages, error: messagesError } = await supabase
         .from('messages')
@@ -71,9 +71,9 @@ export const useChat = (userId?: string) => {
     try {
       setIsLoading(true);
 
-      // When admin is sending a message to a patient, use the patient's ID
-      // When patient is sending a message, use their own ID
-      const messageUserId = profile.role === 'admin' ? userId : profile.id;
+      // For admin sending to patient, use patient's ID
+      // For patient sending message, use their own ID
+      const messageUserId = userId;
 
       const messageData = {
         content: content.trim(),
