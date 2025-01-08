@@ -1,11 +1,13 @@
 import { Message } from "@/types/profile";
 import { MessageStatus } from "./MessageStatus";
-import { FileText, Play, Pause, Volume2, Image as ImageIcon, Info } from "lucide-react";
+import { FileText, Image as ImageIcon, Info } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { PatientInfoCard } from "./PatientInfoCard";
+import { AudioPlayer } from "./audio/AudioPlayer";
+import { MediaGallery } from "./media/MediaGallery";
 
 interface MessageListProps {
   messages: Message[];
@@ -17,46 +19,6 @@ export const MessageList = ({ messages }: MessageListProps) => {
   const [selectedMedia, setSelectedMedia] = useState<string | null>(null);
   const [showMediaGallery, setShowMediaGallery] = useState(false);
   const [showPatientInfo, setShowPatientInfo] = useState(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentAudioId, setCurrentAudioId] = useState<string | null>(null);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-
-  const mediaMessages = messages.filter(m => m.file_url && (m.file_type?.startsWith('image/') || m.file_type?.startsWith('video/')));
-
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.addEventListener('timeupdate', () => {
-        setCurrentTime(audioRef.current?.currentTime || 0);
-      });
-      audioRef.current.addEventListener('loadedmetadata', () => {
-        setDuration(audioRef.current?.duration || 0);
-      });
-      audioRef.current.addEventListener('ended', () => {
-        setIsPlaying(false);
-      });
-    }
-  }, []);
-
-  const handleAudioPlayPause = (audioUrl: string, messageId: string) => {
-    if (audioRef.current) {
-      if (currentAudioId === messageId) {
-        if (isPlaying) {
-          audioRef.current.pause();
-          setIsPlaying(false);
-        } else {
-          audioRef.current.play();
-          setIsPlaying(true);
-        }
-      } else {
-        audioRef.current.src = audioUrl;
-        audioRef.current.play();
-        setIsPlaying(true);
-        setCurrentAudioId(messageId);
-      }
-    }
-  };
 
   const renderFilePreview = (message: Message) => {
     if (!message.file_url) return null;
@@ -85,51 +47,23 @@ export const MessageList = ({ messages }: MessageListProps) => {
 
       case 'video':
         return (
-          <div className="mt-2 relative group">
+          <div className="mt-2 relative group cursor-pointer" onClick={() => setSelectedMedia(message.file_url!)}>
             <video 
-              className="max-w-[200px] rounded-lg cursor-pointer"
+              className="max-w-[200px] rounded-lg"
               poster={`${message.file_url}#t=0.1`}
-              onClick={() => setSelectedMedia(message.file_url)}
             >
               <source src={message.file_url} type={message.file_type} />
             </video>
-            <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors rounded-lg">
-              <Play className="w-12 h-12 text-white" />
-            </div>
           </div>
         );
 
       case 'audio':
         return (
-          <div className="mt-2 flex items-center gap-2 bg-gray-100 rounded-full p-2">
-            <button
-              onClick={() => handleAudioPlayPause(message.file_url!, message.id)}
-              className="w-8 h-8 flex items-center justify-center bg-primary rounded-full text-white"
-            >
-              {isPlaying && currentAudioId === message.id ? (
-                <Pause className="w-4 h-4" />
-              ) : (
-                <Play className="w-4 h-4" />
-              )}
-            </button>
-            <div className="flex-1">
-              <div className="h-1 bg-gray-200 rounded-full">
-                <div 
-                  className="h-full bg-primary rounded-full transition-all duration-100"
-                  style={{ 
-                    width: currentAudioId === message.id 
-                      ? `${(currentTime / duration) * 100}%` 
-                      : '0%' 
-                  }}
-                />
-              </div>
-            </div>
-            <span className="text-xs text-gray-500">
-              {message.duration ? `${Math.floor(message.duration / 60)}:${(message.duration % 60).toString().padStart(2, '0')}` : '0:00'}
-            </span>
-            <Volume2 className="w-4 h-4 text-gray-500" />
-            <audio ref={audioRef} className="hidden" />
-          </div>
+          <AudioPlayer 
+            audioUrl={message.file_url} 
+            messageId={message.id} 
+            duration={message.duration}
+          />
         );
 
       default:
@@ -146,14 +80,6 @@ export const MessageList = ({ messages }: MessageListProps) => {
         );
     }
   };
-
-  if (!messages || messages.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-full text-gray-500">
-        No messages yet
-      </div>
-    );
-  }
 
   return (
     <>
@@ -235,38 +161,15 @@ export const MessageList = ({ messages }: MessageListProps) => {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={showMediaGallery} onOpenChange={setShowMediaGallery}>
-        <DialogContent className="max-w-4xl">
-          <h2 className="text-lg font-semibold mb-4">Media Gallery</h2>
-          <div className="grid grid-cols-3 gap-4">
-            {mediaMessages.map((message) => (
-              <div 
-                key={message.id}
-                className="aspect-square cursor-pointer rounded-lg overflow-hidden"
-                onClick={() => {
-                  setSelectedMedia(message.file_url!);
-                  setShowMediaGallery(false);
-                }}
-              >
-                {message.file_type?.startsWith('video/') ? (
-                  <video 
-                    className="w-full h-full object-cover"
-                    poster={`${message.file_url}#t=0.1`}
-                  >
-                    <source src={message.file_url} type={message.file_type} />
-                  </video>
-                ) : (
-                  <img 
-                    src={message.file_url!} 
-                    alt={message.file_name || 'Media'} 
-                    className="w-full h-full object-cover"
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-        </DialogContent>
-      </Dialog>
+      <MediaGallery 
+        open={showMediaGallery} 
+        onOpenChange={setShowMediaGallery}
+        messages={messages}
+        onSelectMedia={(url) => {
+          setSelectedMedia(url);
+          setShowMediaGallery(false);
+        }}
+      />
 
       <Dialog open={showPatientInfo} onOpenChange={setShowPatientInfo}>
         <DialogContent>

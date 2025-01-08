@@ -1,24 +1,17 @@
-export interface Profile {
-  id: string;
-  full_name: string;
-  gender: string;
-  age: string;
-  complaint: string;
-  phone?: string;
-  role?: 'admin' | 'patient';
-}
-
 export interface Message {
   id: string;
   content: string;
-  is_from_doctor: boolean;
   created_at: string;
-  delivered_at: string | null;
-  seen_at: string | null;
-  status: string;
+  updated_at: string;
   user_id: string;
-  file_url?: string | null;
-  file_name?: string | null;
-  file_type?: string | null;
+  is_from_doctor: boolean;
+  is_read: boolean;
+  file_url?: string;
+  file_name?: string;
+  file_type?: string;
+  status: string;
+  delivered_at?: string;
+  seen_at?: string;
   duration?: number;
+  is_resolved?: boolean;
 }

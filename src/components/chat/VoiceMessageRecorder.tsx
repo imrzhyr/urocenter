@@ -16,6 +16,8 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout>();
   const startTimeRef = useRef<number>(0);
+  const audioContextRef = useRef<AudioContext>();
+  const audioBufferRef = useRef<AudioBuffer>();
 
   const startRecording = async () => {
     try {
@@ -34,14 +36,20 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
         const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
         setIsUploading(true);
         try {
+          // Get audio duration
+          const arrayBuffer = await audioBlob.arrayBuffer();
+          audioContextRef.current = new AudioContext();
+          audioBufferRef.current = await audioContextRef.current.decodeAudioData(arrayBuffer);
+          const audioDuration = Math.round(audioBufferRef.current.duration);
+
           const file = new File([audioBlob], `voice-message-${Date.now()}.webm`, { type: 'audio/webm' });
           const uploadedFile = await uploadFile(file);
-          const recordingDuration = Math.round((Date.now() - startTimeRef.current) / 1000);
+          
           onRecordingComplete({
             url: uploadedFile.url,
             name: uploadedFile.name,
             type: uploadedFile.type,
-            duration: recordingDuration
+            duration: audioDuration
           });
         } catch (error) {
           console.error('Error uploading voice message:', error);
@@ -49,6 +57,9 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
         } finally {
           setIsUploading(false);
           setDuration(0);
+          if (audioContextRef.current) {
+            audioContextRef.current.close();
+          }
         }
         stream.getTracks().forEach(track => track.stop());
       };
