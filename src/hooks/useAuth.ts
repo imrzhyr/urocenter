@@ -18,7 +18,9 @@ export const useAuth = () => {
         .from('profiles')
         .select('id, phone, password, role')
         .eq('phone', normalizedPhone)
-        .eq('password', password);
+        .eq('password', password)
+        .order('created_at', { ascending: false })
+        .limit(1);
 
       if (profileError) {
         console.error("Error fetching profile:", profileError);
@@ -32,9 +34,8 @@ export const useAuth = () => {
         return null;
       }
 
-      // Get the most recently updated profile if there are multiple
       const profile = profiles[0];
-      console.log("Found profile with phone:", profile.phone);
+      console.log("Found profile with role:", profile.role);
 
       // Update last login
       const { error: updateError } = await supabase
