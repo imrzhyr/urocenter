@@ -9,14 +9,14 @@ interface ProgressStepsProps {
 
 export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
   return (
-    <div className="w-full py-6">
+    <div className="w-full">
       <div className="relative flex justify-between">
-        {/* Progress bar background - moved below steps */}
-        <div className="absolute top-5 left-0 w-full h-0.5 bg-gray-200" />
+        {/* Progress bar background */}
+        <div className="absolute top-5 left-0 w-full h-1 bg-gray-100 rounded-full" />
         
         {/* Animated progress bar */}
         <motion.div
-          className="absolute top-5 left-0 h-0.5 bg-primary"
+          className="absolute top-5 left-0 h-1 bg-primary rounded-full"
           initial={{ width: "0%" }}
           animate={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
           transition={{ duration: 0.5, ease: "easeInOut" }}
@@ -34,12 +34,12 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
             >
               <motion.div
                 className={cn(
-                  "w-10 h-10 rounded-full flex items-center justify-center border-2 bg-white transition-all duration-300 z-10",
+                  "w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300 z-10",
                   index < currentStep
-                    ? "bg-primary border-primary text-white"
+                    ? "bg-primary border-primary text-white shadow-lg"
                     : index === currentStep
-                    ? "border-primary text-primary"
-                    : "border-gray-300 text-gray-300"
+                    ? "border-primary text-primary bg-white shadow-md"
+                    : "border-gray-200 text-gray-400 bg-white"
                 )}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
@@ -53,7 +53,7 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
               <span
                 className={cn(
                   "mt-2 text-xs font-medium transition-colors duration-300",
-                  index <= currentStep ? "text-primary" : "text-gray-300"
+                  index <= currentStep ? "text-primary" : "text-gray-400"
                 )}
               >
                 {step}
