@@ -7,6 +7,7 @@ import { MessagesFilter } from "./MessagesFilter";
 import { MessageStatusBadge } from "./MessageStatusBadge";
 import { PatientMessage, MessageStatus } from "@/types/messages";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 
 export const AdminMessagesList = () => {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ export const AdminMessagesList = () => {
 
   const fetchMessages = async () => {
     try {
+      console.log('Fetching messages for admin list');
       const { data: messagesData, error } = await supabase
         .from('messages')
         .select(`
@@ -35,10 +37,11 @@ export const AdminMessagesList = () => {
 
       if (error) {
         console.error('Error fetching messages:', error);
+        toast.error("Failed to load messages");
         return;
       }
 
-      if (!messagesData || messagesData.length === 0) {
+      if (!messagesData) {
         setMessages([]);
         setIsLoading(false);
         return;
@@ -52,15 +55,13 @@ export const AdminMessagesList = () => {
           (msg: any) => msg.user_id === userId && !msg.is_read
         ).length;
 
-        const status = message.status as MessageStatus || 'not_seen';
-
         if (!acc[userId] || new Date(message.created_at) > new Date(acc[userId].last_message_time)) {
           acc[userId] = {
             id: userId,
             full_name: userName,
             last_message: message.content,
             last_message_time: message.created_at,
-            status,
+            status: message.status as MessageStatus || 'not_seen',
             unread_count: unreadCount
           };
         }
@@ -72,6 +73,7 @@ export const AdminMessagesList = () => {
       setMessages(formattedMessages);
     } catch (error) {
       console.error('Error in fetchMessages:', error);
+      toast.error("Failed to load messages");
     } finally {
       setIsLoading(false);
     }
@@ -99,6 +101,11 @@ export const AdminMessagesList = () => {
       supabase.removeChannel(channel);
     };
   }, []);
+
+  const handlePatientClick = (patientId: string) => {
+    console.log('Navigating to patient chat:', patientId);
+    navigate(`/chat/${patientId}`);
+  };
 
   const filteredMessages = messages.filter(message => {
     const matchesSearch = message.full_name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -138,7 +145,7 @@ export const AdminMessagesList = () => {
               <Button
                 variant="ghost"
                 className="w-full justify-start p-4 h-auto hover:bg-primary/5 transition-all duration-300"
-                onClick={() => navigate(`/chat/${patient.id}`)}
+                onClick={() => handlePatientClick(patient.id)}
               >
                 <div className="flex items-start gap-3 w-full">
                   <div className="bg-primary/10 p-2 rounded-full">

@@ -15,14 +15,10 @@ export const useChat = (userId?: string) => {
     try {
       console.log('Fetching messages for userId:', userId);
       
-      // For admin viewing patient chat, use patient's ID
-      // For patient viewing their own chat, use their own ID
-      const chatUserId = userId;
-      
       const { data: messages, error: messagesError } = await supabase
         .from('messages')
         .select('*')
-        .eq('user_id', chatUserId)
+        .eq('user_id', userId)
         .order('created_at', { ascending: true });
 
       if (messagesError) {
@@ -71,13 +67,9 @@ export const useChat = (userId?: string) => {
     try {
       setIsLoading(true);
 
-      // For admin sending to patient, use patient's ID
-      // For patient sending message, use their own ID
-      const messageUserId = userId;
-
       const messageData = {
         content: content.trim(),
-        user_id: messageUserId,
+        user_id: userId,
         is_from_doctor: profile.role === 'admin',
         status: 'not_seen',
         file_url: fileInfo?.url,

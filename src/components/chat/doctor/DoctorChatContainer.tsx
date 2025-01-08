@@ -31,7 +31,7 @@ export const DoctorChatContainer = ({ patientId }: DoctorChatContainerProps) => 
           .from("profiles")
           .select("full_name")
           .eq("id", patientId)
-          .single();
+          .maybeSingle();
 
         if (error) {
           console.error("Error fetching patient info:", error);
@@ -47,6 +47,14 @@ export const DoctorChatContainer = ({ patientId }: DoctorChatContainerProps) => 
           return;
         }
 
+        // Verify we're not trying to chat with ourselves
+        if (profile?.id === patientId) {
+          console.error("Cannot chat with self");
+          toast.error("Invalid patient selection");
+          navigate("/admin");
+          return;
+        }
+
         console.log('Patient profile found:', patientProfile);
         setPatientName(patientProfile.full_name || "Unknown Patient");
       } catch (error) {
@@ -57,7 +65,7 @@ export const DoctorChatContainer = ({ patientId }: DoctorChatContainerProps) => 
     };
 
     fetchPatientInfo();
-  }, [patientId, navigate]);
+  }, [patientId, navigate, profile?.id]);
 
   const handleSendMessage = async (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }) => {
     if (!patientId || !profile?.id) {
@@ -74,8 +82,9 @@ export const DoctorChatContainer = ({ patientId }: DoctorChatContainerProps) => 
     }
   };
 
-  if (!patientId) {
-    console.log("No patient ID, redirecting to admin dashboard");
+  // Additional validation to prevent self-chat
+  if (!patientId || patientId === profile?.id) {
+    console.log("Invalid patient ID, redirecting to admin dashboard");
     navigate("/admin");
     return null;
   }
