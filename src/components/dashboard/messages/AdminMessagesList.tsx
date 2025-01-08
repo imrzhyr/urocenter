@@ -50,12 +50,17 @@ export const AdminMessagesList = () => {
         return;
       }
 
+      // Filter out admin's own messages and group by patient
       const userMessages = messagesData.reduce((acc: { [key: string]: PatientMessage }, message: any) => {
         const userId = message.user_id;
+        // Skip if this is the admin's own message
+        if (userId === profile?.id) {
+          return acc;
+        }
+        
         const userName = message.profiles?.full_name || "Unknown Patient";
         
         if (!acc[userId] || new Date(message.created_at) > new Date(acc[userId].last_message_time)) {
-          // Count unread messages for this user
           const unreadCount = messagesData.filter(
             msg => msg.user_id === userId && !msg.is_read
           ).length;
@@ -63,7 +68,7 @@ export const AdminMessagesList = () => {
           acc[userId] = {
             id: userId,
             full_name: userName,
-            last_message: message.content,
+            last_message: message.content || "",
             last_message_time: message.created_at,
             status: message.status as MessageStatus || 'not_seen',
             unread_count: unreadCount
@@ -118,11 +123,6 @@ export const AdminMessagesList = () => {
   };
 
   const filteredMessages = messages.filter(message => {
-    // Filter out admin's own messages from the list
-    if (message.id === profile?.id) {
-      return false;
-    }
-    
     const matchesSearch = message.full_name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === "all" || message.status === statusFilter;
     return matchesSearch && matchesStatus;

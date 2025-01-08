@@ -6,11 +6,12 @@ import { useChat } from "@/hooks/useChat";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useProfile } from "@/hooks/useProfile";
+import { Profile } from "@/types/profile";
 
 export const DoctorChatContainer = () => {
   const navigate = useNavigate();
   const { userId } = useParams();
-  const [patientName, setPatientName] = useState("");
+  const [patientProfile, setPatientProfile] = useState<Profile | null>(null);
   const { messages, sendMessage, isLoading, refreshMessages } = useChat(userId);
   const { profile } = useProfile();
 
@@ -31,9 +32,9 @@ export const DoctorChatContainer = () => {
 
       try {
         console.log('Fetching patient info for ID:', userId);
-        const { data: patientProfile, error } = await supabase
+        const { data: patientData, error } = await supabase
           .from("profiles")
-          .select("full_name, id")
+          .select("*")
           .eq("id", userId)
           .single();
 
@@ -44,15 +45,15 @@ export const DoctorChatContainer = () => {
           return;
         }
 
-        if (!patientProfile) {
+        if (!patientData) {
           console.error("No patient found with ID:", userId);
           toast.error("Patient not found");
           navigate("/admin");
           return;
         }
 
-        console.log('Patient profile found:', patientProfile);
-        setPatientName(patientProfile.full_name || "Unknown Patient");
+        console.log('Patient profile found:', patientData);
+        setPatientProfile(patientData);
       } catch (error) {
         console.error("Error in fetchPatientInfo:", error);
         toast.error("Could not load patient information");
@@ -78,6 +79,10 @@ export const DoctorChatContainer = () => {
     }
   };
 
+  if (!patientProfile) {
+    return null;
+  }
+
   return (
     <MessageContainer
       messages={messages}
@@ -86,7 +91,7 @@ export const DoctorChatContainer = () => {
       header={
         <DoctorChatHeader
           patientId={userId || ''}
-          patientName={patientName}
+          patientName={patientProfile.full_name || "Unknown Patient"}
           onRefresh={refreshMessages}
         />
       }

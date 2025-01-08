@@ -72,7 +72,7 @@ export const useChat = (userId?: string) => {
 
       const messageData = {
         content: content.trim(),
-        user_id: userId, // This should be the patient's ID when admin is sending
+        user_id: userId,  // This is the patient's ID
         is_from_doctor: profile.role === 'admin',
         status: 'not_seen',
         file_url: fileInfo?.url,
