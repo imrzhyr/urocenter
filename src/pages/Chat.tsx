@@ -1,23 +1,20 @@
 import { useParams } from "react-router-dom";
 import { DoctorChatContainer } from "@/components/chat/doctor/DoctorChatContainer";
-import { UserChatContainer } from "@/components/chat/UserChatContainer";
 import { useProfile } from "@/hooks/useProfile";
-import { useAuthRedirect } from "@/hooks/useAuthRedirect";
+import { UserChatContainer } from "@/components/chat/UserChatContainer";
 
 const Chat = () => {
-  const { patientId } = useParams();
+  const { userId } = useParams();
   const { profile } = useProfile();
-  useAuthRedirect();
+  const isAdmin = profile?.role === 'admin';
 
-  return (
-    <div className="h-screen w-screen overflow-hidden bg-white">
-      {profile?.role === 'admin' ? (
-        <DoctorChatContainer patientId={patientId} />
-      ) : (
-        <UserChatContainer />
-      )}
-    </div>
-  );
+  // For admin users, show the DoctorChatContainer with the selected patient's ID
+  if (isAdmin && userId) {
+    return <DoctorChatContainer />;
+  }
+
+  // For regular users, show their own chat
+  return <UserChatContainer />;
 };
 
 export default Chat;

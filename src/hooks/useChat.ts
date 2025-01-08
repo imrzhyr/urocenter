@@ -10,7 +10,10 @@ export const useChat = (userId?: string) => {
   const { profile } = useProfile();
 
   const fetchMessages = async () => {
-    if (!userId) return;
+    if (!userId) {
+      console.log('No userId provided to useChat');
+      return;
+    }
     
     try {
       console.log('Fetching messages for userId:', userId);
@@ -50,7 +53,7 @@ export const useChat = (userId?: string) => {
         }
       }
     } catch (error) {
-      console.error('Error fetching messages:', error);
+      console.error('Error in fetchMessages:', error);
       toast.error("Failed to load messages");
     }
   };
@@ -60,7 +63,7 @@ export const useChat = (userId?: string) => {
     fileInfo?: { url: string; name: string; type: string; duration?: number }
   ) => {
     if (!userId || !profile?.id) {
-      toast.error("Unable to send message. Please try signing in again.");
+      toast.error("Unable to send message");
       return;
     }
 
@@ -106,7 +109,7 @@ export const useChat = (userId?: string) => {
     fetchMessages();
 
     const channel = supabase
-      .channel('messages')
+      .channel(`messages_${userId}`)
       .on(
         'postgres_changes',
         {

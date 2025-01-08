@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { MessageContainer } from "../MessageContainer";
 import { DoctorChatHeader } from "./DoctorChatHeader";
 import { useChat } from "@/hooks/useChat";
@@ -7,30 +7,27 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useProfile } from "@/hooks/useProfile";
 
-interface DoctorChatContainerProps {
-  patientId?: string;
-}
-
-export const DoctorChatContainer = ({ patientId }: DoctorChatContainerProps) => {
+export const DoctorChatContainer = () => {
   const navigate = useNavigate();
+  const { userId } = useParams(); // Get userId from URL params
   const [patientName, setPatientName] = useState("");
-  const { messages, sendMessage, isLoading, refreshMessages } = useChat(patientId);
+  const { messages, sendMessage, isLoading, refreshMessages } = useChat(userId);
   const { profile } = useProfile();
 
   useEffect(() => {
     const fetchPatientInfo = async () => {
-      if (!patientId) {
+      if (!userId) {
         console.log("No patient ID provided, redirecting to admin dashboard");
         navigate("/admin");
         return;
       }
 
       try {
-        console.log('Fetching patient info for ID:', patientId);
+        console.log('Fetching patient info for ID:', userId);
         const { data: patientProfile, error } = await supabase
           .from("profiles")
-          .select("full_name")
-          .eq("id", patientId)
+          .select("full_name, id")
+          .eq("id", userId)
           .maybeSingle();
 
         if (error) {
@@ -41,14 +38,14 @@ export const DoctorChatContainer = ({ patientId }: DoctorChatContainerProps) => 
         }
 
         if (!patientProfile) {
-          console.error("No patient found with ID:", patientId);
+          console.error("No patient found with ID:", userId);
           toast.error("Patient not found");
           navigate("/admin");
           return;
         }
 
         // Verify we're not trying to chat with ourselves
-        if (profile?.id === patientId) {
+        if (profile?.id === userId) {
           console.error("Cannot chat with self");
           toast.error("Invalid patient selection");
           navigate("/admin");
@@ -65,10 +62,10 @@ export const DoctorChatContainer = ({ patientId }: DoctorChatContainerProps) => 
     };
 
     fetchPatientInfo();
-  }, [patientId, navigate, profile?.id]);
+  }, [userId, navigate, profile?.id]);
 
   const handleSendMessage = async (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }) => {
-    if (!patientId || !profile?.id) {
+    if (!userId || !profile?.id) {
       toast.error("Unable to send message");
       return;
     }
@@ -83,7 +80,7 @@ export const DoctorChatContainer = ({ patientId }: DoctorChatContainerProps) => 
   };
 
   // Additional validation to prevent self-chat
-  if (!patientId || patientId === profile?.id) {
+  if (!userId || userId === profile?.id) {
     console.log("Invalid patient ID, redirecting to admin dashboard");
     navigate("/admin");
     return null;
@@ -96,7 +93,7 @@ export const DoctorChatContainer = ({ patientId }: DoctorChatContainerProps) => 
       isLoading={isLoading}
       header={
         <DoctorChatHeader
-          patientId={patientId}
+          patientId={userId}
           patientName={patientName}
           onRefresh={refreshMessages}
         />
