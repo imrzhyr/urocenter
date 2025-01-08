@@ -9,40 +9,38 @@ interface ProgressStepsProps {
 
 export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
   return (
-    <div className="w-full">
+    <div className="w-full px-4">
       <div className="relative flex justify-between">
         {/* Progress bar background */}
-        <div className="absolute top-[1.125rem] left-0 w-full h-0.5 bg-gray-100" />
+        <div className="absolute top-[1.125rem] left-[1.125rem] right-[1.125rem] h-0.5 bg-gray-100" />
         
         {/* Animated progress bar */}
         <motion.div
-          className="absolute top-[1.125rem] left-0 h-0.5 bg-primary"
+          className="absolute top-[1.125rem] left-[1.125rem] h-0.5 bg-primary"
           initial={{ width: "0%" }}
           animate={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
-          transition={{ duration: 0.5, ease: "easeInOut" }}
+          transition={{ duration: 0.3, ease: "easeInOut" }}
         />
 
         {/* Steps */}
         <div className="relative flex justify-between w-full">
           {steps.map((step, index) => (
-            <motion.div
+            <div
               key={step}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
               className="flex flex-col items-center"
             >
               <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
                 className={cn(
-                  "w-9 h-9 rounded-full flex items-center justify-center border-2 transition-all duration-300 z-10",
+                  "w-9 h-9 rounded-full flex items-center justify-center border-2 transition-all duration-300 z-10 bg-white",
                   index < currentStep
-                    ? "bg-primary border-primary text-white"
+                    ? "border-primary bg-primary text-white"
                     : index === currentStep
-                    ? "border-primary text-primary bg-white"
-                    : "border-gray-200 text-gray-400 bg-white"
+                    ? "border-primary text-primary"
+                    : "border-gray-200 text-gray-400"
                 )}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
               >
                 {index < currentStep ? (
                   <Check className="w-5 h-5" />
@@ -58,7 +56,7 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
               >
                 {step}
               </span>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

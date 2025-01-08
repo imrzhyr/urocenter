@@ -44,32 +44,30 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-bl from-blue-50 via-white to-sky-50">
+    <main className="min-h-screen bg-gradient-to-bl from-blue-50 via-white to-sky-50">
       <div className="container max-w-2xl mx-auto py-6 px-4">
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <h1 className="text-2xl font-bold text-blue-900">Profile Information</h1>
-            <p className="text-muted-foreground">
-              Please fill in your profile details to continue
-            </p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-6 bg-white/80 backdrop-blur-sm rounded-lg p-6 border border-blue-100 shadow-sm">
-            <ProfileForm
-              profile={profile}
-              onProfileChange={handleProfileChange}
-            />
-
-            <Button 
-              type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700"
-            >
-              Continue to Medical Information
-            </Button>
-          </form>
+        <div className="space-y-2">
+          <h1 className="text-2xl font-bold text-blue-900">Profile Information</h1>
+          <p className="text-muted-foreground">
+            Please fill in your profile details to continue
+          </p>
         </div>
+
+        <form onSubmit={handleSubmit} className="mt-6 space-y-6 bg-white/80 backdrop-blur-sm rounded-lg p-6 border border-blue-100 shadow-sm">
+          <ProfileForm
+            profile={profile}
+            onProfileChange={handleProfileChange}
+          />
+
+          <Button 
+            type="submit"
+            className="w-full bg-blue-600 hover:bg-blue-700"
+          >
+            Continue to Medical Information
+          </Button>
+        </form>
       </div>
-    </div>
+    </main>
   );
 };
 
