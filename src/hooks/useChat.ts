@@ -2,40 +2,19 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Message } from "@/types/profile";
 import { toast } from "sonner";
+import { useProfile } from "./useProfile";
 
 export const useChat = (userId?: string) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-
-  const setUserContext = async (userPhone: string) => {
-    try {
-      const { error } = await supabase.rpc('set_user_context', { 
-        user_phone: userPhone 
-      });
-      
-      if (error) {
-        console.error('Error setting user context:', error);
-        throw error;
-      }
-    } catch (error) {
-      console.error('Error setting user context:', error);
-      throw error;
-    }
-  };
+  const { profile } = useProfile();
 
   const fetchMessages = async () => {
     if (!userId) return;
     
     try {
-      const userPhone = localStorage.getItem('userPhone');
-      if (!userPhone) {
-        console.error('No user phone found');
-        return;
-      }
-
-      await setUserContext(userPhone);
       console.log('Fetching messages for userId:', userId);
-
+      
       const { data: messages, error: messagesError } = await supabase
         .from('messages')
         .select('*')
@@ -50,8 +29,13 @@ export const useChat = (userId?: string) => {
       console.log('Fetched messages:', messages);
       setMessages(messages || []);
 
-      // Mark messages as seen if they're from doctor
-      const unseenMessages = messages?.filter(m => !m.seen_at && m.is_from_doctor) || [];
+      // Mark messages as seen if they're from the other party
+      const unseenMessages = messages?.filter(m => 
+        !m.seen_at && 
+        ((profile?.role === 'admin' && !m.is_from_doctor) || 
+         (profile?.role !== 'admin' && m.is_from_doctor))
+      ) || [];
+
       if (unseenMessages.length > 0) {
         const { error: updateError } = await supabase
           .from('messages')
@@ -73,41 +57,25 @@ export const useChat = (userId?: string) => {
 
   const sendMessage = async (
     content: string,
-    fileInfo?: { url: string; name: string; type: string }
+    fileInfo?: { url: string; name: string; type: string; duration?: number }
   ) => {
-    if (!userId) {
+    if (!userId || !profile?.id) {
       toast.error("Unable to send message. Please try signing in again.");
       return;
     }
 
     try {
       setIsLoading(true);
-      const userPhone = localStorage.getItem('userPhone');
-      if (!userPhone) {
-        throw new Error('No user phone found');
-      }
-
-      await setUserContext(userPhone);
-
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('id, role')
-        .eq('phone', userPhone)
-        .single();
-
-      if (profileError || !profileData) {
-        console.error('Error fetching profile:', profileError);
-        throw new Error('Profile not found');
-      }
 
       const messageData = {
         content: content.trim(),
         user_id: userId,
-        is_from_doctor: profileData.role === 'admin',
+        is_from_doctor: profile.role === 'admin',
         status: 'not_seen',
         file_url: fileInfo?.url,
         file_name: fileInfo?.name,
-        file_type: fileInfo?.type
+        file_type: fileInfo?.type,
+        duration: fileInfo?.duration
       };
 
       console.log('Sending message:', messageData);
@@ -123,7 +91,6 @@ export const useChat = (userId?: string) => {
         throw error;
       }
 
-      // Fetch messages after sending to ensure consistency
       await fetchMessages();
       return data as Message;
     } catch (error: any) {
@@ -150,7 +117,7 @@ export const useChat = (userId?: string) => {
         },
         async (payload) => {
           console.log('Received real-time update:', payload);
-          await fetchMessages(); // Refresh messages on any change
+          await fetchMessages();
         }
       )
       .subscribe();

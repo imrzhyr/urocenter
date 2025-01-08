@@ -42,12 +42,17 @@ export const DoctorChatContainer = ({ patientId }: DoctorChatContainerProps) => 
     fetchPatientInfo();
   }, [patientId, navigate]);
 
+  const handleSendMessage = async (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }) => {
+    if (!patientId) return;
+    await sendMessage(content, fileInfo);
+  };
+
   if (!patientId) return null;
 
   return (
     <MessageContainer
       messages={messages}
-      onSendMessage={sendMessage}
+      onSendMessage={handleSendMessage}
       isLoading={isLoading}
       header={
         <DoctorChatHeader
