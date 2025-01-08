@@ -20,6 +20,8 @@ export const MessageList = ({ messages }: MessageListProps) => {
   const [showMediaGallery, setShowMediaGallery] = useState(false);
   const [showPatientInfo, setShowPatientInfo] = useState(false);
 
+  const patientId = messages[0]?.user_id;
+
   const renderFilePreview = (message: Message) => {
     if (!message.file_url) return null;
 
@@ -174,11 +176,12 @@ export const MessageList = ({ messages }: MessageListProps) => {
       <Dialog open={showPatientInfo} onOpenChange={setShowPatientInfo}>
         <DialogContent>
           <PatientInfoCard 
-            complaint={messages[0]?.user_id || ''}
+            complaint={messages[0]?.content || ''}
             reportsCount={0}
             fullName=""
             age=""
             gender=""
+            patientId={patientId || ''}
           />
         </DialogContent>
       </Dialog>

@@ -74,7 +74,7 @@ export const DoctorChatHeader = ({ patientId }: DoctorChatHeaderProps) => {
           onClick={() => navigate(-1)}
           className="rounded-full hover:bg-white/20"
         >
-          <ArrowLeft className="h-5 w-5" />
+          <ArrowLeft className="h-5 w-5 text-white" />
         </Button>
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10 ring-2 ring-white/20">
