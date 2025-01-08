@@ -53,7 +53,7 @@ export const PhoneFormatter = ({ value, onChange, readOnly = false }: PhoneForma
         value={formatPhoneNumber(value)}
         onChange={handleChange}
         placeholder="7XX XXX XXXX"
-        readOnly={false}
+        readOnly={readOnly}
         autoComplete="tel"
       />
     </div>

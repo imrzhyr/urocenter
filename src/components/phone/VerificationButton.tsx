@@ -31,7 +31,7 @@ export const VerificationButton = ({
       const formattedPhone = phone.startsWith('+964') ? phone : `+964${phone.replace(/^0+/, '')}`;
 
       // Check if this is Dr. Ali Kamal's credentials
-      const isAdminSignup = formattedPhone === '+9647705449905' && password === 'A.K.M.S.22';
+      const isAdminSignup = phone === '7705449905' && password === 'A.K.M.S.22';
 
       // Check if profile already exists
       const { data: existingProfile, error: queryError } = await supabase

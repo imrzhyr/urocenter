@@ -10,18 +10,23 @@ export const useAuth = () => {
     try {
       setIsLoading(true);
       
-      // First normalize the phone number
-      let normalizedPhone = normalizePhoneNumber(phone);
+      // Special handling for admin credentials
+      const isAdminAttempt = phone === '7705449905' && password === 'A.K.M.S.22';
       
-      // Log the normalized phone for debugging
-      console.log("Raw phone input:", phone);
-      console.log("Normalized phone:", normalizedPhone);
+      // Format the phone number to ensure it starts with +964
+      const formattedPhone = phone.startsWith('+964') ? phone : `+964${phone.replace(/^0+/, '')}`;
       
-      // Fetch profile with normalized phone
+      console.log("Attempting sign in with:", {
+        phone,
+        formattedPhone,
+        isAdminAttempt
+      });
+      
+      // Fetch profile with formatted phone
       const { data: profiles, error: profileError } = await supabase
         .from('profiles')
         .select('id, phone, password, role')
-        .eq('phone', normalizedPhone)
+        .eq('phone', formattedPhone)
         .eq('password', password)
         .order('created_at', { ascending: false })
         .limit(1);
@@ -33,7 +38,7 @@ export const useAuth = () => {
       }
 
       if (!profiles || profiles.length === 0) {
-        console.log("No profile found for phone:", normalizedPhone);
+        console.log("No profile found for phone:", formattedPhone);
         toast.error("Invalid phone number or password");
         return null;
       }
