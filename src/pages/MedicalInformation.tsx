@@ -23,7 +23,11 @@ const MedicalInformation = () => {
     >
       <Card className="border-0 shadow-none bg-transparent">
         <CardContent className="space-y-6">
-          <ComplaintInput value={complaint} onChange={setComplaint} />
+          <ComplaintInput 
+            complaint={complaint} 
+            setComplaint={setComplaint}
+            required 
+          />
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Button 
