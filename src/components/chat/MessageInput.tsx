@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Send, Plus } from "lucide-react";
 import { uploadFile } from "@/utils/fileUpload";
 import { toast } from "sonner";
+import { VoiceMessageRecorder } from "./VoiceMessageRecorder";
 
 interface MessageInputProps {
-  onSendMessage: (message: string, fileInfo?: { url: string; name: string; type: string }) => void;
+  onSendMessage: (message: string, fileInfo?: { url: string; name: string; type: string; duration?: number }) => void;
   isLoading: boolean;
 }
 
@@ -49,6 +50,15 @@ export const MessageInput = ({ onSendMessage, isLoading }: MessageInputProps) =>
     }
   };
 
+  const handleVoiceMessage = async (fileInfo: { url: string; name: string; type: string; duration: number }) => {
+    try {
+      await onSendMessage("", { ...fileInfo });
+    } catch (error) {
+      console.error("Error sending voice message:", error);
+      toast.error("Failed to send voice message");
+    }
+  };
+
   return (
     <div className="p-4 bg-gray-50 border-t">
       {selectedFile && (
@@ -79,8 +89,9 @@ export const MessageInput = ({ onSendMessage, isLoading }: MessageInputProps) =>
           onClick={() => fileInputRef.current?.click()}
           className="h-10 w-10 rounded-full hover:bg-gray-200"
         >
-          <Plus className="h-5 w-5 text-[#0066FF]" />
+          <Plus className="h-5 w-5 text-primary" />
         </Button>
+        <VoiceMessageRecorder onRecordingComplete={handleVoiceMessage} />
         <div className="flex-1 bg-white rounded-full shadow-sm">
           <Textarea
             value={newMessage}
@@ -98,7 +109,7 @@ export const MessageInput = ({ onSendMessage, isLoading }: MessageInputProps) =>
         <Button 
           onClick={handleSend} 
           disabled={isLoading || (!newMessage.trim() && !selectedFile)}
-          className="h-10 w-10 rounded-full bg-[#0066FF] hover:bg-blue-700"
+          className="h-10 w-10 rounded-full bg-primary hover:bg-primary/90"
         >
           <Send className="w-5 h-5" />
         </Button>

@@ -95,6 +95,9 @@ export const MessageList = ({ messages }: MessageListProps) => {
                 <div className="h-full bg-primary rounded-full w-0" />
               </div>
             </div>
+            <span className="text-xs text-gray-500">
+              {message.duration ? `${Math.floor(message.duration / 60)}:${(message.duration % 60).toString().padStart(2, '0')}` : '0:00'}
+            </span>
             <Volume2 className="w-4 h-4 text-gray-500" />
             <audio ref={audioRef} className="hidden" />
           </div>

@@ -49,12 +49,14 @@ export type Database = {
           content: string
           created_at: string | null
           delivered_at: string | null
+          duration: number | null
           file_name: string | null
           file_type: string | null
           file_url: string | null
           id: string
           is_from_doctor: boolean | null
           is_read: boolean | null
+          is_resolved: boolean | null
           seen_at: string | null
           status: string
           updated_at: string | null
@@ -64,12 +66,14 @@ export type Database = {
           content: string
           created_at?: string | null
           delivered_at?: string | null
+          duration?: number | null
           file_name?: string | null
           file_type?: string | null
           file_url?: string | null
           id?: string
           is_from_doctor?: boolean | null
           is_read?: boolean | null
+          is_resolved?: boolean | null
           seen_at?: string | null
           status?: string
           updated_at?: string | null
@@ -79,12 +83,14 @@ export type Database = {
           content?: string
           created_at?: string | null
           delivered_at?: string | null
+          duration?: number | null
           file_name?: string | null
           file_type?: string | null
           file_url?: string | null
           id?: string
           is_from_doctor?: boolean | null
           is_read?: boolean | null
+          is_resolved?: boolean | null
           seen_at?: string | null
           status?: string
           updated_at?: string | null

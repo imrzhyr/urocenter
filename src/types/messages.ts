@@ -7,4 +7,5 @@ export interface PatientMessage {
   last_message_time: string;
   status: MessageStatus;
   unread_count: number;
+  duration?: number;
 }
