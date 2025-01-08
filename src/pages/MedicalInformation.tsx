@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FileImage, Camera, ScanLine, FileText, Upload } from "lucide-react";
+import { FileImage, Camera, ScanLine, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { uploadFile } from "@/utils/fileUpload";
 
@@ -81,8 +81,15 @@ const MedicalInformation = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="space-y-6 p-4"
+      className="space-y-6"
     >
+      <div className="space-y-2">
+        <h1 className="text-2xl font-semibold tracking-tight">Medical Information</h1>
+        <p className="text-muted-foreground">
+          Please upload your medical documents or take pictures
+        </p>
+      </div>
+
       <div className="grid grid-cols-2 gap-4">
         {documentTypes.map((type) => (
           <motion.div
@@ -117,7 +124,7 @@ const MedicalInformation = () => {
           onClick={handleFileSelect}
           disabled={isUploading}
         >
-          <Upload className="w-4 h-4" />
+          <FileText className="w-4 h-4" />
           <span>Upload Files</span>
         </Button>
       </div>

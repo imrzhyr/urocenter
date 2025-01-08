@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
 
@@ -12,14 +11,12 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
     <div className="w-full px-4">
       <div className="relative flex justify-between">
         {/* Progress bar background */}
-        <div className="absolute top-[1.125rem] left-[1.125rem] right-[1.125rem] h-0.5 bg-gray-100" />
+        <div className="absolute top-[1.125rem] left-8 right-8 h-0.5 bg-gray-100" />
         
-        {/* Animated progress bar */}
-        <motion.div
-          className="absolute top-[1.125rem] left-[1.125rem] h-0.5 bg-primary"
-          initial={{ width: "0%" }}
-          animate={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
-          transition={{ duration: 0.3, ease: "easeInOut" }}
+        {/* Progress bar */}
+        <div 
+          className="absolute top-[1.125rem] left-8 h-0.5 bg-primary transition-all duration-300"
+          style={{ width: `${(currentStep / (steps.length - 1)) * (100 - (100/steps.length))}%` }}
         />
 
         {/* Steps */}
@@ -29,10 +26,7 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
               key={step}
               className="flex flex-col items-center"
             >
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
+              <div
                 className={cn(
                   "w-9 h-9 rounded-full flex items-center justify-center border-2 transition-all duration-300 z-10 bg-white",
                   index < currentStep
@@ -47,7 +41,7 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
                 ) : (
                   <span>{index + 1}</span>
                 )}
-              </motion.div>
+              </div>
               <span
                 className={cn(
                   "mt-2 text-xs font-medium transition-colors duration-300",
