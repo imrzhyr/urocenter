@@ -20,4 +20,5 @@ export interface Message {
   file_url?: string | null;
   file_name?: string | null;
   file_type?: string | null;
+  duration?: number;
 }
