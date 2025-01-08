@@ -25,14 +25,20 @@ export const DoctorChatContainer = ({ patientId }: DoctorChatContainerProps) => 
       }
 
       try {
+        console.log('Fetching patient info for ID:', patientId);
         const { data: patientProfile, error } = await supabase
           .from("profiles")
           .select("full_name")
           .eq("id", patientId)
           .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error("Error fetching patient info:", error);
+          throw error;
+        }
+
         if (patientProfile) {
+          console.log('Patient profile found:', patientProfile);
           setPatientName(patientProfile.full_name || "Unknown Patient");
         }
       } catch (error) {
@@ -45,8 +51,18 @@ export const DoctorChatContainer = ({ patientId }: DoctorChatContainerProps) => 
   }, [patientId, navigate]);
 
   const handleSendMessage = async (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }) => {
-    if (!patientId) return;
-    await sendMessage(content, fileInfo);
+    if (!patientId || !profile?.id) {
+      toast.error("Unable to send message");
+      return;
+    }
+
+    try {
+      await sendMessage(content, fileInfo);
+      refreshMessages();
+    } catch (error) {
+      console.error("Error sending message:", error);
+      toast.error("Failed to send message");
+    }
   };
 
   if (!patientId) return null;
