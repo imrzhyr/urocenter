@@ -2,8 +2,6 @@ import { useEffect, useRef } from "react";
 import { MessageList } from "./MessageList";
 import { MessageInput } from "./MessageInput";
 import { Message } from "@/types/profile";
-import { Button } from "@/components/ui/button";
-import { FileText } from "lucide-react";
 import { ViewReportsDialog } from "../medical-reports/ViewReportsDialog";
 import { useState } from "react";
 
@@ -33,19 +31,8 @@ export const MessageContainer = ({
 
   return (
     <div className="flex flex-col h-screen w-screen bg-white">
-      <div className="p-4 bg-primary text-white">
-        <div className="flex items-center justify-between">
-          {header}
-          <Button
-            variant="secondary"
-            size="sm"
-            className="gap-2"
-            onClick={() => setShowReports(true)}
-          >
-            <FileText className="w-4 h-4" />
-            Medical Reports
-          </Button>
-        </div>
+      <div className="p-4 bg-primary text-white shadow-md">
+        {header}
       </div>
       <div className="flex-1 overflow-y-auto smooth-scroll content-visibility bg-gray-50">
         <div className="py-4">
