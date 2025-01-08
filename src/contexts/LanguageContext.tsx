@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 type Language = 'en' | 'ar';
 
@@ -20,7 +20,8 @@ const translations = {
     "sign_in": "Sign in",
     "dont_have_account": "Don't have an account?",
     "sign_up": "Sign up",
-    "signing_in": "Signing in..."
+    "signing_in": "Signing in...",
+    // Add more translations as needed
   },
   ar: {
     "welcome_back": "مرحباً بعودتك",
@@ -33,7 +34,8 @@ const translations = {
     "sign_in": "تسجيل الدخول",
     "dont_have_account": "ليس لديك حساب؟",
     "sign_up": "إنشاء حساب",
-    "signing_in": "جاري تسجيل الدخول..."
+    "signing_in": "جاري تسجيل الدخول...",
+    // Add more translations as needed
   }
 };
 
@@ -46,6 +48,11 @@ const LanguageContext = createContext<LanguageContextType>({
 export const LanguageProvider = ({ children }: { children: React.ReactNode }) => {
   const [language, setLanguage] = useState<Language>('en');
 
+  useEffect(() => {
+    document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = language;
+  }, [language]);
+
   const t = (key: string): string => {
     return translations[language][key as keyof typeof translations.en] || key;
   };
@@ -53,7 +60,7 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t }}>
       <div dir={language === 'ar' ? 'rtl' : 'ltr'} 
-           className={language === 'ar' ? 'font-arabic' : ''}>
+           className={`${language === 'ar' ? 'font-arabic' : ''} transition-all duration-300`}>
         {children}
       </div>
     </LanguageContext.Provider>
