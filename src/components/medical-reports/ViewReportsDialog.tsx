@@ -35,40 +35,33 @@ export const ViewReportsDialog = ({ open, onOpenChange, userId }: ViewReportsDia
     }
   }, [open, userId]);
 
+  const handleFileClick = (url: string) => {
+    window.open(url, '_blank');
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 pb-4 border-b">
-            <FileText className="w-5 h-5 text-primary" />
+      <DialogContent className="sm:max-w-[425px]">
+        <div className="grid gap-4">
+          <div className="space-y-4">
             <h2 className="text-lg font-semibold">Medical Reports</h2>
-          </div>
-          
-          {reports.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              No medical reports found
-            </div>
-          ) : (
-            <div className="grid gap-4">
-              {reports.map((report) => (
-                <a
-                  key={report.id}
-                  href={report.file_path}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 p-3 rounded-lg border hover:bg-gray-50 transition-colors"
-                >
-                  <FileText className="w-5 h-5 text-primary" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{report.file_name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(report.created_at).toLocaleDateString()}
-                    </p>
+            {reports.length === 0 ? (
+              <p className="text-sm text-gray-500">No medical reports found.</p>
+            ) : (
+              <div className="space-y-2">
+                {reports.map((report) => (
+                  <div
+                    key={report.id}
+                    onClick={() => handleFileClick(report.file_path)}
+                    className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 cursor-pointer"
+                  >
+                    <FileText className="w-4 h-4 text-blue-600" />
+                    <span className="text-sm">{report.file_name}</span>
                   </div>
-                </a>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

@@ -5,7 +5,7 @@ import { useChat } from "@/hooks/useChat";
 import { toast } from "sonner";
 
 interface DoctorChatContainerProps {
-  patientId?: string;
+  patientId: string;
 }
 
 export const DoctorChatContainer = ({ patientId }: DoctorChatContainerProps) => {

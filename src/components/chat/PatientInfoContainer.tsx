@@ -13,12 +13,14 @@ export const PatientInfoContainer = ({ patientId }: PatientInfoContainerProps) =
     fullName: string;
     age: string;
     gender: string;
+    isResolved: boolean;
   }>({ 
     complaint: "", 
     reportsCount: 0,
     fullName: "",
     age: "",
-    gender: ""
+    gender: "",
+    isResolved: false
   });
 
   useEffect(() => {
@@ -38,12 +40,20 @@ export const PatientInfoContainer = ({ patientId }: PatientInfoContainerProps) =
             .select('id')
             .eq('user_id', profileData.id);
 
+          const { data: messageData } = await supabase
+            .from('messages')
+            .select('is_resolved')
+            .eq('user_id', patientId)
+            .limit(1)
+            .single();
+
           setPatientInfo({
             complaint: profileData.complaint || "",
             reportsCount: reports?.length || 0,
             fullName: profileData.full_name || "",
             age: profileData.age || "",
-            gender: profileData.gender || ""
+            gender: profileData.gender || "",
+            isResolved: messageData?.is_resolved || false
           });
         }
       } catch (error) {
@@ -54,6 +64,8 @@ export const PatientInfoContainer = ({ patientId }: PatientInfoContainerProps) =
     fetchPatientInfo();
   }, [patientId]);
 
+  if (!patientId) return null;
+
   return (
     <PatientInfoCard 
       complaint={patientInfo.complaint}
@@ -61,6 +73,8 @@ export const PatientInfoContainer = ({ patientId }: PatientInfoContainerProps) =
       fullName={patientInfo.fullName}
       age={patientInfo.age}
       gender={patientInfo.gender}
+      patientId={patientId}
+      isResolved={patientInfo.isResolved}
     />
   );
 };
