@@ -1,14 +1,14 @@
 import { Routes, Route } from "react-router-dom";
-import { SignIn } from "./pages/SignIn";
-import { SignUp } from "./pages/SignUp";
-import { Profile } from "./pages/Profile";
-import { Dashboard } from "./pages/Dashboard";
-import { AdminDashboard } from "./pages/AdminDashboard";
-import { Welcome } from "./pages/Welcome";
-import { Chat } from "./pages/Chat";
-import { UserChat } from "./pages/UserChat";
-import { MedicalInformation } from "./pages/MedicalInformation";
-import { Payment } from "./pages/Payment";
+import SignIn from "./pages/SignIn";
+import SignUp from "./pages/SignUp";
+import Profile from "./pages/Profile";
+import Dashboard from "./pages/Dashboard";
+import AdminDashboard from "./pages/AdminDashboard";
+import Welcome from "./pages/Welcome";
+import Chat from "./pages/Chat";
+import UserChat from "./pages/UserChat";
+import MedicalInformation from "./pages/MedicalInformation";
+import Payment from "./pages/Payment";
 
 export const AppRoutes = () => {
   return (
