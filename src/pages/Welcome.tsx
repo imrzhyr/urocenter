@@ -1,13 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Globe, Stethoscope, MessageCircle } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Stethoscope, MessageCircle } from "lucide-react";
 import { TestimonialsCarousel } from "@/components/testimonials/TestimonialsCarousel";
+import { LanguageSelector } from "@/components/LanguageSelector";
 
 const Welcome = () => {
   const navigate = useNavigate();
@@ -26,23 +21,13 @@ const Welcome = () => {
   ];
 
   return (
-    <div className="h-screen flex flex-col bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-50 via-white to-sky-50 overflow-hidden">
+    <div className="min-h-screen flex flex-col bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-50 via-white to-sky-50">
       <div className="p-4 flex justify-between items-center bg-white/80 backdrop-blur-sm">
         <h1 className="text-2xl font-bold text-primary">UroCenter</h1>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <Globe className="w-5 h-5" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem>English</DropdownMenuItem>
-            <DropdownMenuItem>العربية</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <LanguageSelector />
       </div>
       
-      <div className="flex-1 flex flex-col items-center justify-center px-4 py-2">
+      <div className="flex-1 flex flex-col items-center justify-center px-4 py-2 max-w-7xl mx-auto w-full">
         <div className="text-center">
           <div className="relative inline-block">
             <img
@@ -62,7 +47,7 @@ const Welcome = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 w-full mt-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full mt-6">
           {features.map((feature) => (
             <div
               key={feature.title}
@@ -79,7 +64,7 @@ const Welcome = () => {
 
         <TestimonialsCarousel />
 
-        <div className="w-full mt-6 space-y-3">
+        <div className="w-full mt-6 space-y-3 max-w-md mx-auto">
           <Button
             className="w-full py-5 bg-primary hover:bg-primary/90 transition-all duration-300"
             onClick={() => navigate("/signup")}
@@ -97,6 +82,10 @@ const Welcome = () => {
           </p>
         </div>
       </div>
+      
+      <footer className="p-4 text-center text-sm text-muted-foreground">
+        © 2024 All rights reserved
+      </footer>
     </div>
   );
 };
