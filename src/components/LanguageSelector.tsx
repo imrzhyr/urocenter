@@ -6,6 +6,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Globe } from "lucide-react";
 
 export const LanguageSelector = () => {
   const { language, setLanguage, t } = useLanguage();
@@ -15,12 +16,8 @@ export const LanguageSelector = () => {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="relative group">
           <span className="flex items-center gap-2">
-            <img 
-              src={language === 'en' ? 'https://flagcdn.com/w20/us.png' : 'https://flagcdn.com/w20/iq.png'} 
-              alt={language === 'en' ? 'English' : 'العربية'} 
-              className="w-5 h-4 object-cover"
-            />
-            {t('languages')}
+            <Globe className="w-4 h-4" />
+            {language === 'en' ? 'English / العربية' : 'العربية / English'}
           </span>
         </Button>
       </DropdownMenuTrigger>

@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { Check } from "lucide-react";
 
 interface ProgressStepsProps {
   steps: string[];
@@ -8,61 +9,59 @@ interface ProgressStepsProps {
 
 export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
   return (
-    <div className="w-full py-4">
-      <div className="flex justify-between">
-        {steps.map((step, index) => (
-          <motion.div 
-            key={step} 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className="flex flex-col items-center"
-          >
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: index * 0.1 + 0.2 }}
-              className={cn(
-                "w-8 h-8 flex items-center justify-center rounded-full border-2 transition-all duration-300",
-                index < currentStep
-                  ? "bg-primary border-primary text-white"
-                  : index === currentStep
-                  ? "border-primary text-primary"
-                  : "border-gray-300 text-gray-300"
-              )}
-            >
-              {index + 1}
-            </motion.div>
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: index * 0.1 + 0.3 }}
-              className={cn(
-                "mt-2 text-sm transition-colors duration-300",
-                index <= currentStep ? "text-primary" : "text-gray-300"
-              )}
-            >
-              {step}
-            </motion.span>
-          </motion.div>
-        ))}
-      </div>
-      <motion.div 
-        initial={{ scaleX: 0 }}
-        animate={{ scaleX: 1 }}
-        transition={{ duration: 0.5 }}
-        className="mt-4 h-1 bg-gray-200 rounded"
-      >
+    <div className="w-full py-2">
+      <div className="relative">
+        {/* Progress bar background */}
+        <div className="absolute top-5 left-0 w-full h-1 bg-gray-200 rounded-full" />
+        
+        {/* Animated progress bar */}
         <motion.div
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="h-full bg-primary rounded transition-all duration-300"
-          style={{
-            width: `${(currentStep / (steps.length - 1)) * 100}%`,
-          }}
+          className="absolute top-5 left-0 h-1 bg-primary rounded-full"
+          initial={{ width: "0%" }}
+          animate={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
+          transition={{ duration: 0.5, ease: "easeInOut" }}
         />
-      </motion.div>
+
+        {/* Steps */}
+        <div className="relative flex justify-between">
+          {steps.map((step, index) => (
+            <motion.div
+              key={step}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className="flex flex-col items-center"
+            >
+              <motion.div
+                className={cn(
+                  "w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300",
+                  index < currentStep
+                    ? "bg-primary border-primary text-white"
+                    : index === currentStep
+                    ? "border-primary text-primary"
+                    : "border-gray-300 text-gray-300"
+                )}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {index < currentStep ? (
+                  <Check className="w-5 h-5" />
+                ) : (
+                  <span>{index + 1}</span>
+                )}
+              </motion.div>
+              <span
+                className={cn(
+                  "mt-2 text-xs font-medium transition-colors duration-300",
+                  index <= currentStep ? "text-primary" : "text-gray-300"
+                )}
+              >
+                {step}
+              </span>
+            </motion.div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

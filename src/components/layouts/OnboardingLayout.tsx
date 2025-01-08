@@ -1,7 +1,9 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { ProgressSteps } from "@/components/ProgressSteps";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Outlet } from "react-router-dom";
+import { LanguageSelector } from "@/components/LanguageSelector";
+import { ArrowLeft } from "lucide-react";
 
 const steps = ["Sign Up", "Profile", "Medical Info", "Payment"];
 
@@ -22,20 +24,33 @@ const getStepFromPath = (pathname: string) => {
 
 export const OnboardingLayout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const currentStep = getStepFromPath(location.pathname);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-tl from-sky-50 via-white to-blue-50">
-      <div className="container max-w-4xl mx-auto py-6 px-4">
-        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm rounded-lg shadow-sm mb-6">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-primary/5 via-white to-background">
+      <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-gray-100">
+        <div className="container max-w-4xl mx-auto p-4 flex justify-between items-center">
+          <button 
+            onClick={() => navigate(-1)}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <LanguageSelector />
+        </div>
+        <div className="container max-w-4xl mx-auto px-4 pb-2">
           <ProgressSteps steps={steps} currentStep={currentStep} />
         </div>
+      </div>
+
+      <div className="flex-1 container max-w-4xl mx-auto p-4">
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
             className="flex-1"
           >
