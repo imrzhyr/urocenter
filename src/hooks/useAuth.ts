@@ -17,8 +17,8 @@ export const useAuth = () => {
       const { data: profiles, error: profileError } = await supabase
         .from('profiles')
         .select('id, phone, password, role')
-        .filter('phone', 'ilike', `%${normalizedPhone}`)
-        .maybeSingle();
+        .eq('phone', normalizedPhone)
+        .eq('password', password);
 
       if (profileError) {
         console.error("Error fetching profile:", profileError);
@@ -26,32 +26,27 @@ export const useAuth = () => {
         return null;
       }
 
-      if (!profiles) {
+      if (!profiles || profiles.length === 0) {
         console.log("No profile found for phone:", normalizedPhone);
         toast.error("Invalid phone number or password");
         return null;
       }
 
-      console.log("Found profile with phone:", profiles.phone);
-
-      // Then verify the password
-      if (profiles.password !== password) {
-        console.log("Password mismatch for phone:", normalizedPhone);
-        toast.error("Invalid phone number or password");
-        return null;
-      }
+      // Get the most recently updated profile if there are multiple
+      const profile = profiles[0];
+      console.log("Found profile with phone:", profile.phone);
 
       // Update last login
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ last_login: new Date().toISOString() })
-        .eq('phone', profiles.phone);
+        .eq('id', profile.id);
 
       if (updateError) {
         console.error("Failed to update last login:", updateError);
       }
 
-      return profiles;
+      return profile;
 
     } catch (error) {
       console.error("Sign in error:", error);
