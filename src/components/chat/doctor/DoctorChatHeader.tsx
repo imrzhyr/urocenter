@@ -66,7 +66,7 @@ export const DoctorChatHeader = ({ patientId }: DoctorChatHeaderProps) => {
   };
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between bg-primary/95 backdrop-blur-sm p-4 rounded-b-2xl shadow-md">
       <div className="flex items-center gap-4">
         <Button 
           variant="ghost" 
@@ -77,7 +77,7 @@ export const DoctorChatHeader = ({ patientId }: DoctorChatHeaderProps) => {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div className="flex items-center gap-3">
-          <Avatar className="h-10 w-10">
+          <Avatar className="h-10 w-10 ring-2 ring-white/20">
             <AvatarFallback>
               <User className="w-5 h-5" />
             </AvatarFallback>
@@ -102,13 +102,13 @@ export const DoctorChatHeader = ({ patientId }: DoctorChatHeaderProps) => {
           variant="ghost"
           size="sm"
           onClick={() => setShowReports(true)}
-          className="gap-2 hover:bg-white/20"
+          className="gap-2 hover:bg-white/20 text-white"
         >
           <FileText className="w-4 h-4" />
           Reports
         </Button>
       </div>
-      <ViewReportsDialog open={showReports} onOpenChange={setShowReports} />
+      <ViewReportsDialog open={showReports} onOpenChange={setShowReports} userId={patientId} />
     </div>
   );
 };

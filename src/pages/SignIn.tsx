@@ -47,9 +47,7 @@ const SignIn = () => {
           </p>
         </div>
         
-        <div className="bg-white rounded-lg p-6 shadow-sm">
-          <PhoneInput value={phone} onChange={setPhone} />
-        </div>
+        <PhoneInput value={phone} onChange={setPhone} />
       </div>
       
       <footer className="p-4 text-center text-sm text-muted-foreground mt-auto">
