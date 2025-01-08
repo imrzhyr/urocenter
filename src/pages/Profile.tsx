@@ -3,12 +3,29 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ProfileForm } from "@/components/ProfileForm";
 import { motion } from "framer-motion";
+import type { Profile } from "@/types/profile";
 
-const Profile = () => {
+const ProfilePage = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [profile, setProfile] = useState<Profile>({
+    id: '',
+    full_name: '',
+    gender: '',
+    age: '',
+    complaint: '',
+    phone: '',
+    role: 'patient'
+  });
 
-  const handleSubmit = async (data: any) => {
+  const handleProfileChange = (field: keyof Profile, value: string) => {
+    setProfile(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
       // Form submission logic
@@ -34,11 +51,13 @@ const Profile = () => {
         </p>
       </div>
 
-      <ProfileForm onSubmit={handleSubmit} />
+      <ProfileForm 
+        profile={profile}
+        onProfileChange={handleProfileChange}
+      />
 
       <Button
-        type="submit"
-        form="profile-form"
+        onClick={handleSubmit}
         disabled={isSubmitting}
         className="w-full"
       >
@@ -48,4 +67,4 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default ProfilePage;
