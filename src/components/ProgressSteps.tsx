@@ -12,11 +12,11 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
     <div className="w-full">
       <div className="relative flex justify-between">
         {/* Progress bar background */}
-        <div className="absolute top-5 left-0 w-full h-1 bg-gray-100 rounded-full" />
+        <div className="absolute top-[1.125rem] left-0 w-full h-0.5 bg-gray-100" />
         
         {/* Animated progress bar */}
         <motion.div
-          className="absolute top-5 left-0 h-1 bg-primary rounded-full"
+          className="absolute top-[1.125rem] left-0 h-0.5 bg-primary"
           initial={{ width: "0%" }}
           animate={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
           transition={{ duration: 0.5, ease: "easeInOut" }}
@@ -34,11 +34,11 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
             >
               <motion.div
                 className={cn(
-                  "w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300 z-10",
+                  "w-9 h-9 rounded-full flex items-center justify-center border-2 transition-all duration-300 z-10",
                   index < currentStep
-                    ? "bg-primary border-primary text-white shadow-lg"
+                    ? "bg-primary border-primary text-white"
                     : index === currentStep
-                    ? "border-primary text-primary bg-white shadow-md"
+                    ? "border-primary text-primary bg-white"
                     : "border-gray-200 text-gray-400 bg-white"
                 )}
                 whileHover={{ scale: 1.1 }}

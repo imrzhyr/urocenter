@@ -29,7 +29,7 @@ export const OnboardingLayout = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-primary/5 via-white to-background">
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-sm">
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-gray-100">
         <div className="container max-w-4xl mx-auto p-4 flex justify-between items-center">
           <button 
             onClick={() => navigate(-1)} 
@@ -39,7 +39,7 @@ export const OnboardingLayout = () => {
           </button>
           <LanguageSelector />
         </div>
-        <div className="container max-w-4xl mx-auto px-4 pb-4">
+        <div className="container max-w-4xl mx-auto px-4 pb-6">
           <ProgressSteps steps={steps} currentStep={currentStep} />
         </div>
       </header>
