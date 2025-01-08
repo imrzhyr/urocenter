@@ -48,16 +48,19 @@ export const OnboardingLayout = () => {
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-            className="flex-1"
+            initial={{ opacity: 1 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 1 }}
+            className="flex-1 h-full"
           >
             <Outlet />
           </motion.div>
         </AnimatePresence>
       </main>
+
+      <footer className="p-4 text-center text-sm text-muted-foreground">
+        © 2024 All rights reserved
+      </footer>
     </div>
   );
 };
