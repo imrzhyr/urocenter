@@ -8,6 +8,7 @@ import { MessageStatusBadge } from "./MessageStatusBadge";
 import { PatientMessage, MessageStatus } from "@/types/messages";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
+import { useProfile } from "@/hooks/useProfile";
 
 export const AdminMessagesList = () => {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ export const AdminMessagesList = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<MessageStatus | "all">("all");
   const [isLoading, setIsLoading] = useState(true);
+  const { profile } = useProfile();
 
   const fetchMessages = async () => {
     try {
@@ -105,11 +107,22 @@ export const AdminMessagesList = () => {
   }, []);
 
   const handlePatientClick = (patientId: string) => {
+    // Prevent clicking on admin's own chat
+    if (patientId === profile?.id) {
+      toast.error("Cannot chat with yourself");
+      return;
+    }
+    
     console.log('Navigating to patient chat:', patientId);
     navigate(`/chat/${patientId}`);
   };
 
   const filteredMessages = messages.filter(message => {
+    // Filter out admin's own messages from the list
+    if (message.id === profile?.id) {
+      return false;
+    }
+    
     const matchesSearch = message.full_name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === "all" || message.status === statusFilter;
     return matchesSearch && matchesStatus;

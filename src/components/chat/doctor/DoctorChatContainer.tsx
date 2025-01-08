@@ -22,6 +22,13 @@ export const DoctorChatContainer = () => {
         return;
       }
 
+      // Prevent self-chat
+      if (userId === profile?.id) {
+        console.log("Cannot chat with self, redirecting to admin dashboard");
+        navigate("/admin");
+        return;
+      }
+
       try {
         console.log('Fetching patient info for ID:', userId);
         const { data: patientProfile, error } = await supabase
@@ -54,7 +61,7 @@ export const DoctorChatContainer = () => {
     };
 
     fetchPatientInfo();
-  }, [userId, navigate]);
+  }, [userId, navigate, profile?.id]);
 
   const handleSendMessage = async (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }) => {
     if (!userId || !profile?.id) {
