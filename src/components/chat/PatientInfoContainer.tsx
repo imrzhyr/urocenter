@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PatientInfoCard } from "@/components/chat/PatientInfoCard";
+import { toast } from "sonner";
 
 interface PatientInfoContainerProps {
   patientId?: string;
@@ -58,6 +59,7 @@ export const PatientInfoContainer = ({ patientId }: PatientInfoContainerProps) =
         }
       } catch (error) {
         console.error('Error fetching patient info:', error);
+        toast.error("Failed to load patient information");
       }
     };
 
