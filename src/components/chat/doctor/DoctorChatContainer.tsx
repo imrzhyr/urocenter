@@ -9,7 +9,7 @@ import { useProfile } from "@/hooks/useProfile";
 
 export const DoctorChatContainer = () => {
   const navigate = useNavigate();
-  const { userId } = useParams(); // Get userId from URL params
+  const { userId } = useParams();
   const [patientName, setPatientName] = useState("");
   const { messages, sendMessage, isLoading, refreshMessages } = useChat(userId);
   const { profile } = useProfile();
@@ -28,7 +28,7 @@ export const DoctorChatContainer = () => {
           .from("profiles")
           .select("full_name, id")
           .eq("id", userId)
-          .maybeSingle();
+          .single();
 
         if (error) {
           console.error("Error fetching patient info:", error);
@@ -44,14 +44,6 @@ export const DoctorChatContainer = () => {
           return;
         }
 
-        // Verify we're not trying to chat with ourselves
-        if (profile?.id === userId) {
-          console.error("Cannot chat with self");
-          toast.error("Invalid patient selection");
-          navigate("/admin");
-          return;
-        }
-
         console.log('Patient profile found:', patientProfile);
         setPatientName(patientProfile.full_name || "Unknown Patient");
       } catch (error) {
@@ -62,7 +54,7 @@ export const DoctorChatContainer = () => {
     };
 
     fetchPatientInfo();
-  }, [userId, navigate, profile?.id]);
+  }, [userId, navigate]);
 
   const handleSendMessage = async (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }) => {
     if (!userId || !profile?.id) {
@@ -79,13 +71,6 @@ export const DoctorChatContainer = () => {
     }
   };
 
-  // Additional validation to prevent self-chat
-  if (!userId || userId === profile?.id) {
-    console.log("Invalid patient ID, redirecting to admin dashboard");
-    navigate("/admin");
-    return null;
-  }
-
   return (
     <MessageContainer
       messages={messages}
@@ -93,7 +78,7 @@ export const DoctorChatContainer = () => {
       isLoading={isLoading}
       header={
         <DoctorChatHeader
-          patientId={userId}
+          patientId={userId || ''}
           patientName={patientName}
           onRefresh={refreshMessages}
         />

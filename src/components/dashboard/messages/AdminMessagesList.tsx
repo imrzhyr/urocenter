@@ -19,6 +19,7 @@ export const AdminMessagesList = () => {
   const fetchMessages = async () => {
     try {
       console.log('Fetching messages for admin list');
+      
       const { data: messagesData, error } = await supabase
         .from('messages')
         .select(`
@@ -51,11 +52,12 @@ export const AdminMessagesList = () => {
         const userId = message.user_id;
         const userName = message.profiles?.full_name || "Unknown Patient";
         
-        const unreadCount = messagesData.filter(
-          (msg: any) => msg.user_id === userId && !msg.is_read
-        ).length;
-
         if (!acc[userId] || new Date(message.created_at) > new Date(acc[userId].last_message_time)) {
+          // Count unread messages for this user
+          const unreadCount = messagesData.filter(
+            msg => msg.user_id === userId && !msg.is_read
+          ).length;
+
           acc[userId] = {
             id: userId,
             full_name: userName,
