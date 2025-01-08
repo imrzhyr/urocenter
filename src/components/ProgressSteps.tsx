@@ -9,21 +9,21 @@ interface ProgressStepsProps {
 
 export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
   return (
-    <div className="w-full py-2">
-      <div className="relative">
-        {/* Progress bar background */}
-        <div className="absolute top-5 left-0 w-full h-1 bg-gray-200 rounded-full" />
+    <div className="w-full py-6">
+      <div className="relative flex justify-between">
+        {/* Progress bar background - moved below steps */}
+        <div className="absolute top-5 left-0 w-full h-0.5 bg-gray-200" />
         
         {/* Animated progress bar */}
         <motion.div
-          className="absolute top-5 left-0 h-1 bg-primary rounded-full"
+          className="absolute top-5 left-0 h-0.5 bg-primary"
           initial={{ width: "0%" }}
           animate={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
           transition={{ duration: 0.5, ease: "easeInOut" }}
         />
 
         {/* Steps */}
-        <div className="relative flex justify-between">
+        <div className="relative flex justify-between w-full">
           {steps.map((step, index) => (
             <motion.div
               key={step}
@@ -34,7 +34,7 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
             >
               <motion.div
                 className={cn(
-                  "w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300",
+                  "w-10 h-10 rounded-full flex items-center justify-center border-2 bg-white transition-all duration-300 z-10",
                   index < currentStep
                     ? "bg-primary border-primary text-white"
                     : index === currentStep

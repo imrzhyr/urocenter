@@ -29,7 +29,7 @@ export const OnboardingLayout = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-primary/5 via-white to-background">
-      <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-gray-100">
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-gray-100">
         <div className="container max-w-4xl mx-auto p-4 flex justify-between items-center">
           <button 
             onClick={() => navigate(-1)}
@@ -39,12 +39,12 @@ export const OnboardingLayout = () => {
           </button>
           <LanguageSelector />
         </div>
-        <div className="container max-w-4xl mx-auto px-4 pb-2">
+        <div className="container max-w-4xl mx-auto px-4">
           <ProgressSteps steps={steps} currentStep={currentStep} />
         </div>
-      </div>
+      </header>
 
-      <div className="flex-1 container max-w-4xl mx-auto p-4">
+      <main className="flex-1 container max-w-4xl mx-auto p-4">
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
@@ -57,7 +57,7 @@ export const OnboardingLayout = () => {
             <Outlet />
           </motion.div>
         </AnimatePresence>
-      </div>
+      </main>
     </div>
   );
 };
