@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PhoneInput } from "@/components/PhoneInput";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -23,9 +22,9 @@ const SignIn = () => {
         <LanguageSelector />
       </div>
       
-      <Card className="container max-w-md mx-auto my-auto shadow-lg border-0">
-        <CardHeader className="text-center">
-          <div className="mx-auto w-16 h-16 bg-primary rounded-2xl flex items-center justify-center shadow-lg -mt-8 mb-4">
+      <div className="container max-w-md mx-auto my-auto px-4">
+        <div className="text-center mb-8">
+          <div className="mx-auto w-16 h-16 bg-primary rounded-2xl flex items-center justify-center shadow-lg mb-6">
             <svg
               className="w-8 h-8 text-white"
               fill="none"
@@ -40,17 +39,18 @@ const SignIn = () => {
               />
             </svg>
           </div>
-          <CardTitle className="text-2xl font-semibold text-primary">
+          <h1 className="text-2xl font-semibold text-primary">
             {t('welcome_back')}
-          </CardTitle>
+          </h1>
           <p className="text-muted-foreground text-sm mt-2">
             {t('sign_in_continue')}
           </p>
-        </CardHeader>
-        <CardContent>
+        </div>
+        
+        <div className="bg-white rounded-lg p-6 shadow-sm">
           <PhoneInput value={phone} onChange={setPhone} />
-        </CardContent>
-      </Card>
+        </div>
+      </div>
       
       <footer className="p-4 text-center text-sm text-muted-foreground mt-auto">
         {t('all_rights_reserved')}
