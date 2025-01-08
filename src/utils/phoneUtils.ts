@@ -34,5 +34,10 @@ export const normalizePhoneNumber = (phone: string) => {
     digits = digits.slice(3);
   }
   
+  // Ensure exactly 10 digits for Iraqi phone numbers
+  if (digits.length > 10) {
+    digits = digits.slice(-10);
+  }
+  
   return digits;
 };

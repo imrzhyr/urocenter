@@ -9,11 +9,15 @@ export const useAuth = () => {
   const signIn = async (phone: string, password: string) => {
     try {
       setIsLoading(true);
-      const normalizedPhone = normalizePhoneNumber(phone);
       
-      console.log("Attempting to sign in with normalized phone:", normalizedPhone);
+      // First normalize the phone number
+      let normalizedPhone = normalizePhoneNumber(phone);
       
-      // First verify the phone exists
+      // Log the normalized phone for debugging
+      console.log("Raw phone input:", phone);
+      console.log("Normalized phone:", normalizedPhone);
+      
+      // Fetch profile with normalized phone
       const { data: profiles, error: profileError } = await supabase
         .from('profiles')
         .select('id, phone, password, role')
@@ -35,7 +39,7 @@ export const useAuth = () => {
       }
 
       const profile = profiles[0];
-      console.log("Found profile with role:", profile.role);
+      console.log("Found profile:", { phone: profile.phone, role: profile.role });
 
       // Update last login
       const { error: updateError } = await supabase
