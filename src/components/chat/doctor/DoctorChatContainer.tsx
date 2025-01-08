@@ -44,6 +44,7 @@ export const DoctorChatContainer = ({ patientId }: DoctorChatContainerProps) => 
       } catch (error) {
         console.error("Error fetching patient info:", error);
         toast.error("Could not load patient information");
+        navigate("/admin");
       }
     };
 
@@ -65,7 +66,10 @@ export const DoctorChatContainer = ({ patientId }: DoctorChatContainerProps) => 
     }
   };
 
-  if (!patientId) return null;
+  if (!patientId) {
+    navigate("/admin");
+    return null;
+  }
 
   return (
     <MessageContainer
