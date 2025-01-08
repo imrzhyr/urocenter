@@ -5,6 +5,7 @@ import { DoctorChatHeader } from "./DoctorChatHeader";
 import { useChat } from "@/hooks/useChat";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useProfile } from "@/hooks/useProfile";
 
 interface DoctorChatContainerProps {
   patientId?: string;
@@ -14,6 +15,7 @@ export const DoctorChatContainer = ({ patientId }: DoctorChatContainerProps) => 
   const navigate = useNavigate();
   const [patientName, setPatientName] = useState("");
   const { messages, sendMessage, isLoading, refreshMessages } = useChat(patientId);
+  const { profile } = useProfile();
 
   useEffect(() => {
     const fetchPatientInfo = async () => {
@@ -23,15 +25,15 @@ export const DoctorChatContainer = ({ patientId }: DoctorChatContainerProps) => 
       }
 
       try {
-        const { data: profile, error } = await supabase
+        const { data: patientProfile, error } = await supabase
           .from("profiles")
           .select("full_name")
           .eq("id", patientId)
           .single();
 
         if (error) throw error;
-        if (profile) {
-          setPatientName(profile.full_name || "Unknown Patient");
+        if (patientProfile) {
+          setPatientName(patientProfile.full_name || "Unknown Patient");
         }
       } catch (error) {
         console.error("Error fetching patient info:", error);

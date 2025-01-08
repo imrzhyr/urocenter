@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useState } from "react";
 import { PatientInfoContainer } from "../PatientInfoContainer";
+import { useProfile } from "@/hooks/useProfile";
 
 interface DoctorChatHeaderProps {
   patientId: string;
@@ -19,6 +20,8 @@ export const DoctorChatHeader = ({
 }: DoctorChatHeaderProps) => {
   const navigate = useNavigate();
   const [showReports, setShowReports] = useState(false);
+  const { profile } = useProfile();
+  const isAdmin = profile?.role === 'admin';
 
   return (
     <div className="flex items-center justify-between">
@@ -39,7 +42,9 @@ export const DoctorChatHeader = ({
           </Avatar>
           <div>
             <h2 className="font-medium leading-none">{patientName}</h2>
-            <p className="text-sm text-white/60">Patient</p>
+            <p className="text-sm text-white/60">
+              {isAdmin ? "Patient" : "Doctor"}
+            </p>
           </div>
         </div>
       </div>
