@@ -5,6 +5,7 @@ import { SignInButton } from "./phone/SignInButton";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface PhoneInputProps {
   value: string;
@@ -16,6 +17,7 @@ export const PhoneInput = ({ value, onChange, isSignUp = false }: PhoneInputProp
   const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const { t } = useLanguage();
 
   return (
     <div className="space-y-6">
@@ -32,7 +34,7 @@ export const PhoneInput = ({ value, onChange, isSignUp = false }: PhoneInputProp
             type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter your password"
+            placeholder={t('enter_password')}
             className="pr-10"
           />
           <button
@@ -51,12 +53,12 @@ export const PhoneInput = ({ value, onChange, isSignUp = false }: PhoneInputProp
             <VerificationButton phone={value} password={password} />
           </div>
           <div className="text-center text-sm text-muted-foreground">
-            Already have an account?{" "}
+            {t('dont_have_account')}{" "}
             <button
               onClick={() => navigate("/signin")}
               className="text-primary hover:underline font-medium"
             >
-              Sign in
+              {t('sign_in')}
             </button>
           </div>
         </>
@@ -66,12 +68,12 @@ export const PhoneInput = ({ value, onChange, isSignUp = false }: PhoneInputProp
             <SignInButton phone={value} password={password} />
           </div>
           <div className="text-center text-sm text-muted-foreground">
-            Don't have an account?{" "}
+            {t('dont_have_account')}{" "}
             <button
               onClick={() => navigate("/signup")}
               className="text-primary hover:underline font-medium"
             >
-              Sign up
+              {t('sign_up')}
             </button>
           </div>
         </>
