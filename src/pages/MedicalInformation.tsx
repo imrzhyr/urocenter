@@ -3,23 +3,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { FileText, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
-import { ProgressSteps } from "@/components/ProgressSteps";
 import { MedicalReportUpload } from "@/components/medical-reports/MedicalReportUpload";
 
 const MedicalInformation = () => {
   const navigate = useNavigate();
-  const steps = ["Sign Up", "Profile", "Medical Info", "Payment"];
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary/5 to-background">
       <div className="container max-w-4xl py-8">
-        <ProgressSteps steps={steps} currentStep={2} />
-        
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="space-y-8 mt-8"
+          className="space-y-8"
         >
           <div className="text-center space-y-4">
             <h1 className="text-4xl font-bold text-primary">Medical Documentation</h1>

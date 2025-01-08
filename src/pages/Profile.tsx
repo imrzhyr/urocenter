@@ -3,20 +3,16 @@ import { toast } from "sonner";
 import { ProfileForm } from "@/components/ProfileForm";
 import { Button } from "@/components/ui/button";
 import { useProfile } from "@/hooks/useProfile";
-import { ProgressSteps } from "@/components/ProgressSteps";
 
 const Profile = () => {
   const navigate = useNavigate();
   const { profile, updateProfile, isLoading, setState } = useProfile();
-  const steps = ["Sign Up", "Profile", "Medical Info", "Payment"];
 
   const handleProfileChange = (field: keyof typeof profile, value: string) => {
-    // Just update the local state without calling updateProfile
     const updatedProfile = {
       ...profile,
       [field]: value,
     };
-    // Update the local profile state without making an API call
     setState({ profile: updatedProfile });
   };
 
@@ -50,8 +46,7 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-gradient-to-bl from-blue-50 via-white to-sky-50">
       <div className="container max-w-2xl mx-auto py-6 px-4">
-        <ProgressSteps steps={steps} currentStep={1} />
-        <div className="space-y-6 mt-8">
+        <div className="space-y-6">
           <div className="space-y-2">
             <h1 className="text-2xl font-bold text-blue-900">Profile Information</h1>
             <p className="text-muted-foreground">
