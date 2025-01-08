@@ -1,25 +1,25 @@
 import { useParams, Navigate } from "react-router-dom";
 import { DoctorChatContainer } from "@/components/chat/doctor/DoctorChatContainer";
 import { useProfile } from "@/hooks/useProfile";
-import { UserChatContainer } from "@/components/chat/UserChatContainer";
+import { PatientChatContainer } from "@/components/chat/patient/PatientChatContainer";
 
 const Chat = () => {
   const { userId } = useParams();
   const { profile } = useProfile();
   const isAdmin = profile?.role === 'admin';
 
-  // Prevent admin from chatting with themselves
-  if (isAdmin && userId === profile?.id) {
-    return <Navigate to="/admin" replace />;
+  // If no userId is provided and user is not admin, show patient chat container
+  if (!userId && !isAdmin) {
+    return <PatientChatContainer />;
   }
 
-  // For admin users, show the DoctorChatContainer with the selected patient's ID
-  if (isAdmin && userId) {
+  // If userId is provided and user is admin, show doctor chat container
+  if (userId && isAdmin) {
     return <DoctorChatContainer />;
   }
 
-  // For regular users, show their own chat
-  return <UserChatContainer />;
+  // For any other case, redirect to appropriate dashboard
+  return <Navigate to={isAdmin ? "/admin" : "/dashboard"} replace />;
 };
 
 export default Chat;

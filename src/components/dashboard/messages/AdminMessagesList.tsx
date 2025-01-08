@@ -107,6 +107,7 @@ export const AdminMessagesList = () => {
       .subscribe();
 
     return () => {
+      console.log('Cleaning up subscription');
       supabase.removeChannel(channel);
     };
   }, []);

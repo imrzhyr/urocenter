@@ -26,6 +26,7 @@ export const DoctorChatContainer = () => {
       // Prevent self-chat
       if (userId === profile?.id) {
         console.log("Cannot chat with self, redirecting to admin dashboard");
+        toast.error("Cannot chat with yourself");
         navigate("/admin");
         return;
       }
@@ -52,6 +53,14 @@ export const DoctorChatContainer = () => {
           return;
         }
 
+        // Verify that the logged-in user is an admin
+        if (profile?.role !== 'admin') {
+          console.error("Non-admin user attempting to access doctor chat");
+          toast.error("Unauthorized access");
+          navigate("/dashboard");
+          return;
+        }
+
         console.log('Patient profile found:', patientData);
         setPatientProfile(patientData);
       } catch (error) {
@@ -62,7 +71,7 @@ export const DoctorChatContainer = () => {
     };
 
     fetchPatientInfo();
-  }, [userId, navigate, profile?.id]);
+  }, [userId, navigate, profile?.id, profile?.role]);
 
   const handleSendMessage = async (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }) => {
     if (!userId || !profile?.id) {
