@@ -1,9 +1,11 @@
 import { Message } from "@/types/profile";
 import { MessageStatus } from "./MessageStatus";
-import { FileText, Play, Pause, Volume2 } from "lucide-react";
+import { FileText, Play, Pause, Volume2, Image as ImageIcon, Info } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { PatientInfoCard } from "./PatientInfoCard";
 
 interface MessageListProps {
   messages: Message[];
@@ -13,9 +15,29 @@ export const MessageList = ({ messages }: MessageListProps) => {
   const { profile } = useProfile();
   const isAdmin = profile?.role === 'admin';
   const [selectedMedia, setSelectedMedia] = useState<string | null>(null);
+  const [showMediaGallery, setShowMediaGallery] = useState(false);
+  const [showPatientInfo, setShowPatientInfo] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentAudioId, setCurrentAudioId] = useState<string | null>(null);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  const mediaMessages = messages.filter(m => m.file_url && (m.file_type?.startsWith('image/') || m.file_type?.startsWith('video/')));
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.addEventListener('timeupdate', () => {
+        setCurrentTime(audioRef.current?.currentTime || 0);
+      });
+      audioRef.current.addEventListener('loadedmetadata', () => {
+        setDuration(audioRef.current?.duration || 0);
+      });
+      audioRef.current.addEventListener('ended', () => {
+        setIsPlaying(false);
+      });
+    }
+  }, []);
 
   const handleAudioPlayPause = (audioUrl: string, messageId: string) => {
     if (audioRef.current) {
@@ -92,7 +114,14 @@ export const MessageList = ({ messages }: MessageListProps) => {
             </button>
             <div className="flex-1">
               <div className="h-1 bg-gray-200 rounded-full">
-                <div className="h-full bg-primary rounded-full w-0" />
+                <div 
+                  className="h-full bg-primary rounded-full transition-all duration-100"
+                  style={{ 
+                    width: currentAudioId === message.id 
+                      ? `${(currentTime / duration) * 100}%` 
+                      : '0%' 
+                  }}
+                />
               </div>
             </div>
             <span className="text-xs text-gray-500">
@@ -128,6 +157,31 @@ export const MessageList = ({ messages }: MessageListProps) => {
 
   return (
     <>
+      <div className="flex items-center justify-between px-4 py-2 bg-white border-b">
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowMediaGallery(true)}
+            className="gap-2"
+          >
+            <ImageIcon className="w-4 h-4" />
+            Media Gallery
+          </Button>
+          {isAdmin && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowPatientInfo(true)}
+              className="gap-2"
+            >
+              <Info className="w-4 h-4" />
+              Patient Info
+            </Button>
+          )}
+        </div>
+      </div>
+
       <div className="space-y-4 px-4">
         {messages.map((message) => {
           const shouldAlignRight = isAdmin ? message.is_from_doctor : !message.is_from_doctor;
@@ -178,6 +232,51 @@ export const MessageList = ({ messages }: MessageListProps) => {
               className="w-full h-full object-contain rounded-lg"
             />
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showMediaGallery} onOpenChange={setShowMediaGallery}>
+        <DialogContent className="max-w-4xl">
+          <h2 className="text-lg font-semibold mb-4">Media Gallery</h2>
+          <div className="grid grid-cols-3 gap-4">
+            {mediaMessages.map((message) => (
+              <div 
+                key={message.id}
+                className="aspect-square cursor-pointer rounded-lg overflow-hidden"
+                onClick={() => {
+                  setSelectedMedia(message.file_url!);
+                  setShowMediaGallery(false);
+                }}
+              >
+                {message.file_type?.startsWith('video/') ? (
+                  <video 
+                    className="w-full h-full object-cover"
+                    poster={`${message.file_url}#t=0.1`}
+                  >
+                    <source src={message.file_url} type={message.file_type} />
+                  </video>
+                ) : (
+                  <img 
+                    src={message.file_url!} 
+                    alt={message.file_name || 'Media'} 
+                    className="w-full h-full object-cover"
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showPatientInfo} onOpenChange={setShowPatientInfo}>
+        <DialogContent>
+          <PatientInfoCard 
+            complaint={messages[0]?.user_id || ''}
+            reportsCount={0}
+            fullName=""
+            age=""
+            gender=""
+          />
         </DialogContent>
       </Dialog>
     </>

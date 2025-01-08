@@ -36,12 +36,12 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
         try {
           const file = new File([audioBlob], `voice-message-${Date.now()}.webm`, { type: 'audio/webm' });
           const uploadedFile = await uploadFile(file);
-          const finalDuration = Math.round((Date.now() - startTimeRef.current) / 1000);
+          const recordingDuration = Math.round((Date.now() - startTimeRef.current) / 1000);
           onRecordingComplete({
             url: uploadedFile.url,
             name: uploadedFile.name,
             type: uploadedFile.type,
-            duration: finalDuration
+            duration: recordingDuration
           });
         } catch (error) {
           console.error('Error uploading voice message:', error);
