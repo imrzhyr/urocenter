@@ -4,11 +4,12 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FileImage, Camera, ScanLine, FileText } from "lucide-react";
 import { toast } from "sonner";
-import { uploadFile } from "@/utils/fileUpload";
+import { supabase } from "@/integrations/supabase/client";
 
 const MedicalInformation = () => {
   const navigate = useNavigate();
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadCount, setUploadCount] = useState(0);
 
   const documentTypes = [
     {
@@ -40,11 +41,56 @@ const MedicalInformation = () => {
   const handleFileUpload = async (file: File) => {
     try {
       setIsUploading(true);
-      await uploadFile(file);
-      toast.success("File uploaded successfully");
+      const userPhone = localStorage.getItem('userPhone');
+      if (!userPhone) {
+        toast.error("Please sign in to upload files");
+        return;
+      }
+
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('phone', userPhone)
+        .single();
+
+      if (!profileData) {
+        toast.error("Profile not found");
+        return;
+      }
+
+      const fileName = `${profileData.id}/${crypto.randomUUID()}-${file.name}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('medical_reports')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) {
+        console.error("Storage upload error:", uploadError);
+        throw uploadError;
+      }
+
+      const { error: dbError } = await supabase
+        .from('medical_reports')
+        .insert({
+          user_id: profileData.id,
+          file_name: file.name,
+          file_path: fileName,
+          file_type: file.type,
+        });
+
+      if (dbError) {
+        console.error("Database insert error:", dbError);
+        throw dbError;
+      }
+
+      setUploadCount(prev => prev + 1);
+      toast.success(`File uploaded successfully (${uploadCount + 1} files uploaded)`);
     } catch (error) {
-      toast.error("Failed to upload file");
       console.error("Upload error:", error);
+      toast.error("Failed to upload file");
     } finally {
       setIsUploading(false);
     }
@@ -78,9 +124,9 @@ const MedicalInformation = () => {
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
+      initial={{ opacity: 1 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      exit={{ opacity: 1 }}
       className="space-y-6"
     >
       <div className="space-y-2">
@@ -88,6 +134,11 @@ const MedicalInformation = () => {
         <p className="text-muted-foreground">
           Please upload your medical documents or take pictures
         </p>
+        {uploadCount > 0 && (
+          <p className="text-sm text-primary font-medium">
+            {uploadCount} file{uploadCount !== 1 ? 's' : ''} uploaded successfully
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -132,6 +183,7 @@ const MedicalInformation = () => {
       <Button 
         className="w-full"
         onClick={() => navigate("/payment")}
+        disabled={isUploading}
       >
         Continue
       </Button>

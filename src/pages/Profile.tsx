@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ProfileForm } from "@/components/ProfileForm";
 import { motion } from "framer-motion";
 import type { Profile } from "@/types/profile";
+import { toast } from "sonner";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
@@ -25,13 +26,26 @@ const ProfilePage = () => {
     }));
   };
 
+  const isFormValid = () => {
+    const hasValidName = profile.full_name?.trim().split(' ').length >= 2;
+    return hasValidName && 
+      profile.gender && 
+      profile.age && 
+      profile.complaint;
+  };
+
   const handleSubmit = async () => {
+    if (!isFormValid()) {
+      toast.error("Please fill in all required fields correctly");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      // Form submission logic
       navigate("/medical-information");
     } catch (error) {
       console.error("Error:", error);
+      toast.error("An error occurred while saving your profile");
     } finally {
       setIsSubmitting(false);
     }
@@ -39,9 +53,9 @@ const ProfilePage = () => {
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
+      initial={{ opacity: 1 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      exit={{ opacity: 1 }}
       className="space-y-6"
     >
       <div className="space-y-2">
@@ -58,7 +72,7 @@ const ProfilePage = () => {
 
       <Button
         onClick={handleSubmit}
-        disabled={isSubmitting}
+        disabled={!isFormValid() || isSubmitting}
         className="w-full"
       >
         {isSubmitting ? "Saving..." : "Continue"}
