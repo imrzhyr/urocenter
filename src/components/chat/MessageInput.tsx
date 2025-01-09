@@ -60,7 +60,7 @@ export const MessageInput = ({ onSendMessage, isLoading }: MessageInputProps) =>
   };
 
   return (
-    <div className="border-t">
+    <div>
       {selectedFile && (
         <div className="mb-2 p-2 bg-white rounded-md flex items-center justify-between animate-fade-up shadow-sm">
           <span className="text-sm text-gray-700 truncate">{selectedFile.name}</span>
@@ -87,7 +87,7 @@ export const MessageInput = ({ onSendMessage, isLoading }: MessageInputProps) =>
           variant="ghost"
           size="icon"
           onClick={() => fileInputRef.current?.click()}
-          className="h-10 w-10 rounded-full hover:bg-gray-200"
+          className="h-10 w-10 rounded-full hover:bg-gray-100"
         >
           <Plus className="h-5 w-5 text-primary" />
         </Button>
