@@ -70,8 +70,7 @@ const translations = {
     "schedule_checkups": "Schedule regular check-ups for prostate health",
     "monitor_habits": "Monitor your urinary habits and report changes",
     "start_journey": "Start Your Journey",
-    "sign_in": "Sign In",
-    "already_account": "Already have an account?",
+    "already_account": "Already have an account?"
   },
   ar: {
     "welcome_back": "مرحباً بعودتك",
@@ -134,8 +133,7 @@ const translations = {
     "schedule_checkups": "جدولة فحوصات منتظمة لصحة البروستاتا",
     "monitor_habits": "راقب عاداتك البولية وأبلغ عن التغييرات",
     "start_journey": "ابدأ رحلتك",
-    "sign_in": "تسجيل الدخول",
-    "already_account": "هل لديك حساب بالفعل؟",
+    "already_account": "هل لديك حساب بالفعل؟"
   }
 };
 
