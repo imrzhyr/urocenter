@@ -50,7 +50,7 @@ export const AdminMessagesList = () => {
         return;
       }
 
-      // Filter out admin's own messages and group by patient
+      // Group messages by patient and get the latest message for each
       const userMessages = messagesData.reduce((acc: { [key: string]: PatientMessage }, message: any) => {
         const userId = message.user_id;
         // Skip if this is the admin's own message
@@ -113,7 +113,6 @@ export const AdminMessagesList = () => {
   }, []);
 
   const handlePatientClick = (patientId: string) => {
-    // Prevent clicking on admin's own chat
     if (patientId === profile?.id) {
       toast.error("Cannot chat with yourself");
       return;
