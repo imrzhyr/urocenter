@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Profile } from "@/types/profile";
+import { toast } from "sonner";
 
 export const useProfile = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -58,5 +59,35 @@ export const useProfile = () => {
     };
   }, []);
 
-  return { profile, isLoading };
+  const updateProfile = async (updatedProfile: Profile): Promise<boolean> => {
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      const phone = session?.session?.user?.phone;
+
+      if (!phone) {
+        toast.error("No authenticated user found");
+        return false;
+      }
+
+      const { error } = await supabase
+        .from('profiles')
+        .update(updatedProfile)
+        .eq('phone', phone);
+
+      if (error) {
+        console.error('Error updating profile:', error);
+        toast.error("Failed to update profile");
+        return false;
+      }
+
+      setProfile(updatedProfile);
+      return true;
+    } catch (error) {
+      console.error('Error in updateProfile:', error);
+      toast.error("An error occurred while updating profile");
+      return false;
+    }
+  };
+
+  return { profile, isLoading, updateProfile };
 };
