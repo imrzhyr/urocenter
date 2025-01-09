@@ -1,119 +1,148 @@
-import { useState, useEffect, useCallback } from "react";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
-import { LoadingScreen } from "@/components/LoadingScreen";
-import { DocumentTypeCard } from "@/components/medical-information/DocumentTypeCard";
-import { UploadButtons } from "@/components/medical-information/UploadButtons";
+import { useState, useRef } from "react";
 import { MedicalInformationHeader } from "@/components/medical-information/MedicalInformationHeader";
-import { useFileUploadHandler } from "@/components/medical-information/FileUploadHandler";
-import { useOnboarding } from "@/hooks/useOnboarding";
-import { ScanLine, FileText } from "lucide-react";
-
-const documentTypes = [
-  {
-    title: "Diagnostic Imaging",
-    icon: ScanLine,
-    description: "Upload CT scans, X-rays, or MRI results",
-    color: "bg-blue-50 text-blue-600",
-  },
-  {
-    title: "Lab Reports",
-    icon: FileText,
-    description: "Blood tests, urinalysis, or other lab results",
-    color: "bg-green-50 text-green-600",
-  },
-  {
-    title: "Medical Records",
-    icon: FileText,
-    description: "Previous medical records or doctor's notes",
-    color: "bg-purple-50 text-purple-600",
-  },
-  {
-    title: "Other Documents",
-    icon: FileText,
-    description: "Any other relevant medical documentation",
-    color: "bg-orange-50 text-orange-600",
-  },
-];
+import { DocumentTypes } from "@/components/medical-information/DocumentTypes";
+import { UploadSection } from "@/components/medical-information/UploadSection";
+import { FileUploadHandler } from "@/components/medical-information/FileUploadHandler";
+import { useNavigate } from "react-router-dom";
+import { useProfile } from "@/hooks/useProfile";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const MedicalInformation = () => {
+  const [uploadCount, setUploadCount] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
   const navigate = useNavigate();
-  const [isPageLoading, setIsPageLoading] = useState(true);
-  const { isUploading, uploadCount, handleFileUpload } = useFileUploadHandler();
-  const { profile, isLoading, refetch } = useOnboarding();
+  const { profile } = useProfile();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    const checkProfile = async () => {
-      if (!profile?.full_name || !profile?.complaint) {
-        toast.error("Please complete your profile first");
-        navigate("/profile");
-        return;
-      }
-      setIsPageLoading(false);
-    };
+  const handleUploadComplete = () => {
+    setUploadCount((prev) => prev + 1);
+    setIsUploading(false);
+  };
 
-    if (!isLoading) {
-      checkProfile();
+  const handleCameraCapture = () => {
+    if (!profile?.id) {
+      toast.error("Please complete your profile first");
+      return;
     }
-  }, [navigate, profile, isLoading]);
 
-  const handleCameraCapture = useCallback(() => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
     input.capture = 'environment';
-    input.onchange = (e) => {
+    input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
-      if (file) handleFileUpload(file);
-    };
-    input.click();
-  }, [handleFileUpload]);
+      if (file) {
+        setIsUploading(true);
+        try {
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${Math.random()}.${fileExt}`;
+          const filePath = `${profile.id}/${fileName}`;
 
-  const handleFileSelect = useCallback(() => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.pdf,.jpg,.jpeg,.png';
-    input.multiple = true;
-    input.onchange = (e) => {
-      const files = (e.target as HTMLInputElement).files;
-      if (files) {
-        Array.from(files).forEach(handleFileUpload);
+          const { error: uploadError } = await supabase.storage
+            .from('medical-documents')
+            .upload(filePath, file);
+
+          if (uploadError) {
+            throw uploadError;
+          }
+
+          const { data: { publicUrl } } = supabase.storage
+            .from('medical-documents')
+            .getPublicUrl(filePath);
+
+          await supabase.from('medical_documents').insert({
+            user_id: profile.id,
+            file_url: publicUrl,
+            file_name: file.name,
+            file_type: file.type,
+          });
+
+          toast.success('Document uploaded successfully');
+          handleUploadComplete();
+        } catch (error) {
+          console.error('Error uploading document:', error);
+          toast.error('Failed to upload document');
+          setIsUploading(false);
+        }
       }
     };
     input.click();
-  }, [handleFileUpload]);
+  };
 
-  if (isPageLoading || isLoading) {
-    return <LoadingScreen message="Loading medical information..." />;
-  }
+  const handleFileSelect = () => {
+    if (!profile?.id) {
+      toast.error("Please complete your profile first");
+      return;
+    }
+
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.pdf,.doc,.docx,.jpg,.jpeg,.png,.mp4,.mov,.mp3,.wav';
+    input.multiple = true;
+    input.onchange = async (e) => {
+      const files = Array.from(e.target.files || []);
+      if (files.length > 0) {
+        setIsUploading(true);
+        try {
+          for (const file of files) {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Math.random()}.${fileExt}`;
+            const filePath = `${profile.id}/${fileName}`;
+
+            const { error: uploadError } = await supabase.storage
+              .from('medical-documents')
+              .upload(filePath, file);
+
+            if (uploadError) {
+              throw uploadError;
+            }
+
+            const { data: { publicUrl } } = supabase.storage
+              .from('medical-documents')
+              .getPublicUrl(filePath);
+
+            await supabase.from('medical_documents').insert({
+              user_id: profile.id,
+              file_url: publicUrl,
+              file_name: file.name,
+              file_type: file.type,
+            });
+          }
+
+          toast.success(`${files.length} document(s) uploaded successfully`);
+          handleUploadComplete();
+        } catch (error) {
+          console.error('Error uploading documents:', error);
+          toast.error('Failed to upload documents');
+          setIsUploading(false);
+        }
+      }
+    };
+    input.click();
+  };
 
   return (
     <div className="space-y-6">
       <MedicalInformationHeader uploadCount={uploadCount} />
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {documentTypes.map((type) => (
-          <DocumentTypeCard
-            key={type.title}
-            {...type}
-          />
-        ))}
-      </div>
-
-      <UploadButtons
-        onCameraCapture={handleCameraCapture}
-        onFileSelect={handleFileSelect}
-        isUploading={isUploading}
-      />
-
-      <Button 
-        className="w-full bg-primary hover:bg-primary/90"
-        onClick={() => navigate("/payment")}
-        disabled={isUploading}
+      <DocumentTypes />
+      <FileUploadHandler
+        onUploadComplete={handleUploadComplete}
+        setIsUploading={setIsUploading}
       >
-        Continue
-      </Button>
+        <UploadSection
+          onCameraCapture={handleCameraCapture}
+          onFileSelect={handleFileSelect}
+          isUploading={isUploading}
+        />
+      </FileUploadHandler>
+      <input
+        type="file"
+        ref={fileInputRef}
+        className="hidden"
+        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.mp4,.mov,.mp3,.wav"
+        multiple
+      />
     </div>
   );
 };

@@ -1,21 +1,30 @@
 import { Routes, Route } from "react-router-dom";
+import { OnboardingLayout } from "@/components/layouts/OnboardingLayout";
+
+// Auth Pages
+import SignIn from "@/pages/SignIn";
+import SignUp from "@/pages/SignUp";
+
+// Main Pages
+import Welcome from "@/pages/Welcome";
+import Dashboard from "@/pages/Dashboard";
+import AdminDashboard from "@/pages/AdminDashboard";
+
+// Profile Pages
+import { ProfilePage } from "@/pages/Profile";
+import { EditProfileForm } from "@/components/profile/EditProfileForm";
+import MedicalInformation from "@/pages/MedicalInformation";
+import Payment from "@/pages/Payment";
+
+// Chat & Call Pages
 import Chat from "@/pages/Chat";
 import UserChat from "@/pages/UserChat";
 import { CallPage } from "@/components/call/CallPage";
-import AdminDashboard from "@/pages/AdminDashboard";
-import Dashboard from "@/pages/Dashboard";
-import SignIn from "@/pages/SignIn";
-import SignUp from "@/pages/SignUp";
-import { ProfilePage } from "@/pages/Profile";
-import Welcome from "@/pages/Welcome";
-import MedicalInformation from "@/pages/MedicalInformation";
-import Payment from "@/pages/Payment";
-import { OnboardingLayout } from "@/components/layouts/OnboardingLayout";
-import { EditProfileForm } from "@/components/profile/EditProfileForm";
 
 export const AppRoutes = () => {
   return (
     <Routes>
+      {/* Public Routes */}
       <Route path="/" element={<Welcome />} />
       <Route path="/signin" element={<SignIn />} />
       
@@ -28,8 +37,11 @@ export const AppRoutes = () => {
         <Route path="/payment" element={<Payment />} />
       </Route>
 
+      {/* Protected Routes */}
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/admin" element={<AdminDashboard />} />
+      
+      {/* Chat & Call Routes */}
       <Route path="/chat" element={<Chat />} />
       <Route path="/chat/:userId" element={<Chat />} />
       <Route path="/user-chat" element={<UserChat />} />
