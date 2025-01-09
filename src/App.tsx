@@ -1,17 +1,26 @@
-import { BrowserRouter } from "react-router-dom";
-import { AppRoutes } from "./AppRoutes";
-import { Toaster } from "./components/ui/toaster";
-import { LanguageProvider } from "./contexts/LanguageContext";
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useProfile } from '@/hooks/useProfile';
 
-function App() {
+const App = () => {
+  const navigate = useNavigate();
+  const { profile } = useProfile();
+
+  useEffect(() => {
+    if (profile?.id) {
+      if (profile.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
+    }
+  }, [profile, navigate]);
+
   return (
-    <LanguageProvider>
-      <BrowserRouter>
-        <AppRoutes />
-        <Toaster />
-      </BrowserRouter>
-    </LanguageProvider>
+    <div>
+      {/* Your existing routes and components go here */}
+    </div>
   );
-}
+};
 
 export default App;

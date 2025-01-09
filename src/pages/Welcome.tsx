@@ -33,7 +33,7 @@ const Welcome = () => {
         <LanguageSelector />
       </div>
       
-      <div className="flex-1 flex flex-col items-center justify-center px-4 py-2 max-w-7xl mx-auto w-full space-y-6">
+      <div className="flex-1 flex flex-col items-center justify-center px-4 py-2 max-w-3xl mx-auto w-full space-y-6">
         <motion.div 
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -58,7 +58,7 @@ const Welcome = () => {
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-2 gap-2 w-full">
+        <div className="grid grid-cols-2 gap-2 max-w-lg w-full">
           {features.map((feature, index) => (
             <motion.div
               key={feature.title}
