@@ -34,8 +34,14 @@ const ProfilePage = () => {
       if (initialProfile) {
         console.log("Setting initial profile:", initialProfile);
         setProfile(prev => ({
-          ...initialProfile,
-          phone: userPhone
+          ...prev,
+          id: initialProfile.id || prev.id,
+          full_name: initialProfile.full_name || prev.full_name,
+          gender: initialProfile.gender || prev.gender,
+          age: initialProfile.age || prev.age,
+          complaint: initialProfile.complaint || prev.complaint,
+          phone: userPhone,
+          role: initialProfile.role || 'patient'
         }));
       }
     };
@@ -82,7 +88,7 @@ const ProfilePage = () => {
   };
 
   if (isLoading) {
-    return <LoadingScreen message="Loading profile..." />;
+    return <LoadingScreen message="Loading your profile..." />;
   }
 
   return (
@@ -90,10 +96,10 @@ const ProfilePage = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="space-y-6"
+      className="space-y-6 p-4 md:p-6 max-w-2xl mx-auto"
     >
       <div className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight">Profile Information</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Complete Your Profile</h1>
         <p className="text-muted-foreground">
           Please provide your basic information to continue
         </p>
