@@ -10,16 +10,16 @@ interface LanguageContextType {
 
 const translations = {
   en: {
-    "welcome_back": "Welcome Back",
+    "welcome_back": "Welcome Back!",
     "sign_in_continue": "Sign in to continue to your account",
     "continue_with_google": "Continue with Google",
-    "all_rights_reserved": "© 2024 All rights reserved",
+    "all_rights_reserved": "© 2024 All Rights Reserved",
     "languages": "Languages",
     "enter_phone": "Enter your phone number",
     "enter_password": "Enter your password",
-    "sign_in": "Sign in",
+    "sign_in": "Sign In",
     "dont_have_account": "Don't have an account?",
-    "sign_up": "Sign up",
+    "sign_up": "Sign Up",
     "signing_in": "Signing in...",
     "edit_profile": "Edit Profile",
     "logout": "Logout",
@@ -52,6 +52,12 @@ const translations = {
     "medical_images": "Medical Images",
     "video_reports": "Video Reports",
     "audio_records": "Audio Records",
+    "have_account": "Have an account?",
+    "create_account": "Create Account",
+    "start_journey": "Start Your Journey",
+    "about_dr": "About Dr. Ali Kamal",
+    "contact_info": "Contact Information",
+    "view_location": "View on Map",
   },
   ar: {
     "welcome_back": "مرحباً بعودتك",
