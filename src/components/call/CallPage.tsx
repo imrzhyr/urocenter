@@ -86,7 +86,13 @@ export const CallPage = () => {
         .eq('receiver_id', profile.id)
         .eq('caller_id', userId)
         .eq('status', 'active')
-        .single();
+        .order('created_at', { ascending: false })
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error checking incoming call:', error);
+        return;
+      }
 
       if (data) {
         setIsIncoming(true);
