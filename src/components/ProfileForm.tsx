@@ -17,7 +17,7 @@ export const ProfileForm = memo(({
   const hasValidName = profile.full_name?.trim().split(' ').length >= 2;
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 bg-white">
       <div className="space-y-2">
         <Label htmlFor="fullName">Full Name *</Label>
         <Input
@@ -30,7 +30,7 @@ export const ProfileForm = memo(({
             onProfileChange('full_name', names);
           }}
           placeholder="Enter your full name (at least two names)"
-          className={`${!hasValidName && profile.full_name ? 'border-red-500' : ''}`}
+          className={`${!hasValidName && profile.full_name ? 'border-red-500' : ''} bg-white`}
           required
         />
         {profile.full_name && !hasValidName && (
@@ -67,6 +67,7 @@ export const ProfileForm = memo(({
           required
           min="0"
           max="150"
+          className="bg-white"
         />
       </div>
 
