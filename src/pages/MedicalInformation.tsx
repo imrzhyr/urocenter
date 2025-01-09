@@ -94,11 +94,12 @@ const MedicalInformation = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="space-y-6"
+      transition={{ duration: 0.15 }}
+      className="space-y-6 bg-white p-4 rounded-lg shadow-sm"
     >
       <MedicalInformationHeader uploadCount={uploadCount} />
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {documentTypes.map((type) => (
           <DocumentTypeCard
             key={type.title}
@@ -115,7 +116,7 @@ const MedicalInformation = () => {
       />
 
       <Button 
-        className="w-full"
+        className="w-full bg-primary hover:bg-primary/90"
         onClick={() => navigate("/payment")}
         disabled={isUploading}
       >
