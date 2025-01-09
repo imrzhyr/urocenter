@@ -10,25 +10,22 @@ export const PhoneFormatter = ({ value, onChange, readOnly = false }: PhoneForma
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let val = e.target.value;
     
-    // Remove any non-numeric characters except spaces
-    val = val.replace(/[^\d\s]/g, "");
-    
-    // Remove spaces to get clean number
-    const cleanNumber = val.replace(/\s/g, "");
+    // Remove all non-numeric characters
+    val = val.replace(/\D/g, "");
     
     // Remove the country code if present
-    if (cleanNumber.startsWith('964')) {
-      val = cleanNumber.slice(3);
+    if (val.startsWith('964')) {
+      val = val.slice(3);
     }
     
     // Remove leading zero if present
-    if (cleanNumber.startsWith('0')) {
-      val = cleanNumber.slice(1);
+    if (val.startsWith('0')) {
+      val = val.slice(1);
     }
     
     // Only update if we have 10 or fewer digits
-    if (cleanNumber.length <= 10) {
-      onChange(cleanNumber);
+    if (val.length <= 10) {
+      onChange(val);
     }
   };
 
