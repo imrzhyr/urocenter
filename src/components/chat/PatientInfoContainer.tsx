@@ -15,13 +15,17 @@ export const PatientInfoContainer = ({ patientId }: PatientInfoContainerProps) =
     age: string;
     gender: string;
     isResolved: boolean;
+    phone: string;
+    createdAt: string;
   }>({ 
     complaint: "", 
     reportsCount: 0,
     fullName: "",
     age: "",
     gender: "",
-    isResolved: false
+    isResolved: false,
+    phone: "",
+    createdAt: ""
   });
 
   useEffect(() => {
@@ -31,7 +35,7 @@ export const PatientInfoContainer = ({ patientId }: PatientInfoContainerProps) =
 
         const { data: profileData } = await supabase
           .from('profiles')
-          .select('id, complaint, full_name, age, gender')
+          .select('id, complaint, full_name, age, gender, phone, created_at')
           .eq('id', patientId)
           .single();
 
@@ -54,7 +58,9 @@ export const PatientInfoContainer = ({ patientId }: PatientInfoContainerProps) =
             fullName: profileData.full_name || "",
             age: profileData.age || "",
             gender: profileData.gender || "",
-            isResolved: messageData?.is_resolved || false
+            isResolved: messageData?.is_resolved || false,
+            phone: profileData.phone || "",
+            createdAt: profileData.created_at || ""
           });
         }
       } catch (error) {
@@ -77,6 +83,8 @@ export const PatientInfoContainer = ({ patientId }: PatientInfoContainerProps) =
       gender={patientInfo.gender}
       patientId={patientId}
       isResolved={patientInfo.isResolved}
+      phone={patientInfo.phone}
+      createdAt={patientInfo.createdAt}
     />
   );
 };

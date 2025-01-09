@@ -5,6 +5,7 @@ import { ViewReportsDialog } from "../medical-reports/ViewReportsDialog";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { format } from "date-fns";
 
 interface PatientInfoCardProps {
   complaint: string;
@@ -14,6 +15,8 @@ interface PatientInfoCardProps {
   gender: string;
   patientId: string;
   isResolved?: boolean;
+  phone?: string;
+  createdAt?: string;
 }
 
 export const PatientInfoCard = ({
@@ -23,7 +26,9 @@ export const PatientInfoCard = ({
   age,
   gender,
   patientId,
-  isResolved = false
+  isResolved = false,
+  phone,
+  createdAt
 }: PatientInfoCardProps) => {
   const [showReports, setShowReports] = useState(false);
   const [isResolvedState, setIsResolvedState] = useState(isResolved);
@@ -66,6 +71,14 @@ export const PatientInfoCard = ({
           <div className="flex justify-between items-center">
             <h3 className="font-medium">Gender</h3>
             <p>{gender || "Not provided"}</p>
+          </div>
+          <div className="flex justify-between items-center">
+            <h3 className="font-medium">Phone</h3>
+            <p>{phone || "Not provided"}</p>
+          </div>
+          <div className="flex justify-between items-center">
+            <h3 className="font-medium">Member Since</h3>
+            <p>{createdAt ? format(new Date(createdAt), 'MMM d, yyyy') : "Not available"}</p>
           </div>
           <div className="space-y-1">
             <h3 className="font-medium">Complaint</h3>
