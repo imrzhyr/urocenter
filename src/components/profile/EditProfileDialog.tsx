@@ -81,7 +81,10 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog 
+      open={open} 
+      onOpenChange={handleClose}
+    >
       <DialogContent 
         className="max-w-2xl p-6 bg-white"
         onEscapeKeyDown={handleClose}
