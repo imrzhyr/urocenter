@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
 import { useState } from "react";
-import { EditProfileDialog } from "@/components/profile/EditProfileDialog";
+import { NewEditProfileDialog } from "@/components/profile/NewEditProfileDialog";
 
 export const UserMenu = () => {
   const navigate = useNavigate();
@@ -32,7 +32,10 @@ export const UserMenu = () => {
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56 bg-white border shadow-lg">
-          <DropdownMenuItem onClick={() => setShowEditProfile(true)} className="cursor-pointer">
+          <DropdownMenuItem 
+            onClick={() => setShowEditProfile(true)} 
+            className="cursor-pointer"
+          >
             {t('edit_profile')}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
@@ -42,10 +45,12 @@ export const UserMenu = () => {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <EditProfileDialog 
-        open={showEditProfile} 
-        onOpenChange={setShowEditProfile}
-      />
+      {showEditProfile && (
+        <NewEditProfileDialog 
+          open={showEditProfile} 
+          onClose={() => setShowEditProfile(false)}
+        />
+      )}
     </>
   );
 };

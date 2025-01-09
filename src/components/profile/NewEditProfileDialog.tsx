@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ProfileForm } from "@/components/ProfileForm";
 import { Button } from "@/components/ui/button";
 import { useProfile } from "@/hooks/useProfile";
@@ -6,15 +6,15 @@ import { useState, useEffect } from "react";
 import type { Profile } from "@/types/profile";
 import { toast } from "sonner";
 
-interface EditProfileDialogProps {
+interface NewEditProfileDialogProps {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
+  onClose: () => void;
 }
 
-export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps) => {
+export const NewEditProfileDialog = ({ open, onClose }: NewEditProfileDialogProps) => {
   const { profile: initialProfile, updateProfile } = useProfile();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [profile, setProfile] = useState<Profile>(initialProfile || {
+  const [profile, setProfile] = useState<Profile>({
     id: '',
     full_name: '',
     gender: '',
@@ -56,7 +56,7 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
       const success = await updateProfile(profile);
       if (success) {
         toast.success("Profile updated successfully");
-        handleClose();
+        onClose();
       }
     } catch (error) {
       console.error("Error:", error);
@@ -66,35 +66,17 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
     }
   };
 
-  const handleClose = () => {
-    setIsSubmitting(false);
-    setProfile(initialProfile || {
-      id: '',
-      full_name: '',
-      gender: '',
-      age: '',
-      complaint: '',
-      phone: '',
-      role: 'patient'
-    });
-    onOpenChange(false);
-  };
+  if (!open) return null;
 
   return (
-    <Dialog 
-      open={open} 
-      onOpenChange={handleClose}
-    >
+    <Dialog open={open} onOpenChange={onClose}>
       <DialogContent 
         className="max-w-2xl p-6 bg-white"
-        onEscapeKeyDown={handleClose}
-        onInteractOutside={handleClose}
+        onEscapeKeyDown={onClose}
+        onPointerDownOutside={onClose}
       >
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold">Edit Profile</DialogTitle>
-          <DialogDescription className="text-muted-foreground">
-            Make changes to your profile information here.
-          </DialogDescription>
         </DialogHeader>
         
         <div className="mt-6">
@@ -107,7 +89,7 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
         <div className="mt-6 flex justify-end gap-3">
           <Button
             variant="outline"
-            onClick={handleClose}
+            onClick={onClose}
             type="button"
           >
             Cancel
