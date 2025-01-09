@@ -23,31 +23,11 @@ const ProfilePage = () => {
   });
 
   useEffect(() => {
-    const fetchInitialData = async () => {
-      const userPhone = localStorage.getItem('userPhone');
-      if (!userPhone) {
-        toast.error("No phone number found");
-        navigate("/signup");
-        return;
-      }
-
-      if (initialProfile) {
-        console.log("Setting initial profile:", initialProfile);
-        setProfile(prev => ({
-          ...prev,
-          id: initialProfile.id || prev.id,
-          full_name: initialProfile.full_name || prev.full_name,
-          gender: initialProfile.gender || prev.gender,
-          age: initialProfile.age || prev.age,
-          complaint: initialProfile.complaint || prev.complaint,
-          phone: userPhone,
-          role: initialProfile.role || 'patient'
-        }));
-      }
-    };
-
-    fetchInitialData();
-  }, [initialProfile, navigate]);
+    if (initialProfile) {
+      console.log("Setting initial profile:", initialProfile);
+      setProfile(initialProfile);
+    }
+  }, [initialProfile]);
 
   const handleProfileChange = (field: keyof Profile, value: string) => {
     console.log("Updating field:", field, "with value:", value);

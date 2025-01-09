@@ -62,8 +62,7 @@ export const useProfile = () => {
         profileState = newProfile;
         listeners.forEach(listener => listener(newProfile));
       } else {
-        console.log("No profile found for phone:", userPhone);
-        // Create a new profile if none exists
+        console.log("No profile found, creating new profile for phone:", userPhone);
         const { data: newProfileData, error: createError } = await supabase
           .from('profiles')
           .insert([
@@ -111,6 +110,8 @@ export const useProfile = () => {
         toast.error("No phone number found");
         return false;
       }
+
+      console.log("Updating profile:", updatedProfile);
 
       const { error: updateError } = await supabase
         .from('profiles')
