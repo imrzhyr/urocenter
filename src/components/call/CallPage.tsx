@@ -25,7 +25,6 @@ export const CallPage = () => {
   const [callStatus, setCallStatus] = useState<CallStatus>('ringing');
   const [isIncoming, setIsIncoming] = useState(false);
 
-  // Define handleEndCall before it's used
   const handleEndCall = async () => {
     if (!userId || !profile?.id || !callStartTime) return;
 
@@ -43,6 +42,8 @@ export const CallPage = () => {
 
       if (callError) {
         console.error('Error updating call record:', callError);
+        toast.error("Could not end call");
+        return;
       }
 
       const { error: messageError } = await supabase
@@ -76,40 +77,50 @@ export const CallPage = () => {
 
   useEffect(() => {
     const fetchUserDetails = async () => {
-      if (!userId) return;
-      
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('full_name, id')
-        .eq('id', userId)
-        .single();
-
-      if (error) {
-        console.error('Error fetching user details:', error);
-        toast.error('Could not fetch user details');
+      if (!userId || !profile?.id) {
+        console.error('Missing userId or profile');
+        toast.error('Could not initiate call');
+        navigate(-1);
         return;
       }
-
-      setCallingUser(data);
       
-      // Create call record
-      const { error: callError } = await supabase
-        .from('calls')
-        .insert({
-          caller_id: profile?.id,
-          receiver_id: userId,
-          status: 'active'
-        });
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('full_name, id')
+          .eq('id', userId)
+          .single();
 
-      if (callError) {
-        console.error('Error creating call record:', callError);
-        toast.error('Could not initiate call');
-        return;
+        if (error) {
+          console.error('Error fetching user details:', error);
+          toast.error('Could not fetch user details');
+          return;
+        }
+
+        setCallingUser(data);
+        
+        // Create call record with explicit caller_id and receiver_id
+        const { error: callError } = await supabase
+          .from('calls')
+          .insert({
+            caller_id: profile.id,
+            receiver_id: userId,
+            status: 'active'
+          });
+
+        if (callError) {
+          console.error('Error creating call record:', callError);
+          toast.error('Could not initiate call');
+          return;
+        }
+      } catch (error) {
+        console.error('Error in fetchUserDetails:', error);
+        toast.error('An error occurred');
       }
     };
 
     fetchUserDetails();
-  }, [userId, profile?.id]);
+  }, [userId, profile?.id, navigate]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
