@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import type { Profile } from "@/types/profile";
 import { toast } from "sonner";
 import { useProfile } from "@/hooks/useProfile";
+import { LoadingScreen } from "@/components/LoadingScreen";
 
 const ProfilePage = () => {
   const navigate = useNavigate();

@@ -1,88 +1,64 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 interface VerificationButtonProps {
   phone: string;
   password: string;
+  onSuccess?: () => void;
 }
 
-export const VerificationButton = ({
-  phone,
-  password,
-}: VerificationButtonProps) => {
-  const navigate = useNavigate();
+export const VerificationButton = ({ phone, password, onSuccess }: VerificationButtonProps) => {
   const [isLoading, setIsLoading] = useState(false);
-
-  const isValid = phone.length > 0 && password.length >= 6;
+  const navigate = useNavigate();
 
   const handleSignUp = async () => {
-    if (!isValid) {
-      toast.error("Please enter a valid phone number and password");
+    if (!phone || !password) {
+      toast.error("Please enter both phone number and password");
       return;
     }
 
+    setIsLoading(true);
     try {
-      setIsLoading(true);
+      const formattedPhone = `+964${phone}`;
+      localStorage.setItem('userPhone', formattedPhone);
 
-      // Format the phone number to ensure it starts with +964
-      const formattedPhone = phone.startsWith('+964') ? phone : `+964${phone.replace(/^0+/, '')}`;
-
-      // Check if this is Dr. Ali Kamal's credentials
-      const isAdminSignup = phone === '7705449905' && password === 'A.K.M.S.22';
-
-      // Check if profile already exists
-      const { data: existingProfile, error: queryError } = await supabase
+      const { data: existingProfile, error: fetchError } = await supabase
         .from('profiles')
-        .select('phone')
+        .select('*')
         .eq('phone', formattedPhone)
-        .maybeSingle();
-
-      if (queryError) {
-        console.error("Profile query error:", queryError);
-        toast.error("Could not check existing profiles");
-        return;
-      }
+        .single();
 
       if (existingProfile) {
-        toast.error("An account with this phone number already exists");
+        toast.error("This phone number is already registered");
         return;
       }
 
-      // Create profile with phone and password
-      const { error: profileError } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
-        .insert({
-          phone: formattedPhone,
-          password,
-          auth_method: 'password',
-          role: isAdminSignup ? 'admin' : 'patient',
-          full_name: isAdminSignup ? 'Dr. Ali Kamal' : null
-        });
+        .insert([
+          {
+            phone: formattedPhone,
+            password: password,
+            role: 'patient'
+          }
+        ])
+        .select()
+        .single();
 
-      if (profileError) {
-        console.error("Profile creation error:", profileError);
-        toast.error("Could not create account. Please try again.");
-        return;
-      }
+      if (error) throw error;
 
-      // Store the phone number in localStorage for future use
-      localStorage.setItem('userPhone', formattedPhone);
-      
-      toast.success("Account created successfully!");
-      
-      // Redirect based on role
-      if (isAdminSignup) {
-        navigate("/admin");
+      toast.success("Sign up successful!");
+      if (onSuccess) {
+        onSuccess();
       } else {
-        navigate("/profile");
+        navigate('/profile', { replace: true });
       }
-      
-    } catch (error: any) {
-      console.error("Unexpected error:", error);
-      toast.error("An unexpected error occurred");
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error("Failed to sign up. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -91,8 +67,8 @@ export const VerificationButton = ({
   return (
     <Button
       onClick={handleSignUp}
+      disabled={isLoading}
       className="w-full"
-      disabled={!isValid || isLoading}
     >
       {isLoading ? "Creating account..." : "Create account"}
     </Button>

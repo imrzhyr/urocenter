@@ -11,9 +11,10 @@ interface PhoneInputProps {
   value: string;
   onChange: (value: string) => void;
   isSignUp?: boolean;
+  onSignUpSuccess?: () => void;
 }
 
-export const PhoneInput = ({ value, onChange, isSignUp = false }: PhoneInputProps) => {
+export const PhoneInput = ({ value, onChange, isSignUp = false, onSignUpSuccess }: PhoneInputProps) => {
   const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -50,7 +51,7 @@ export const PhoneInput = ({ value, onChange, isSignUp = false }: PhoneInputProp
       {isSignUp ? (
         <>
           <div>
-            <VerificationButton phone={value} password={password} />
+            <VerificationButton phone={value} password={password} onSuccess={onSignUpSuccess} />
           </div>
           <div className="text-center text-sm text-muted-foreground">
             {t('dont_have_account')}{" "}
