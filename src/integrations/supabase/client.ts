@@ -10,16 +10,19 @@ const retryDelay = 1000; // 1 second
 
 const fetchWithRetry = async (url: string, options: any, retries = maxRetries): Promise<Response> => {
   try {
+    const headers = {
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey',
+      ...options.headers,
+    };
+
     const response = await fetch(url, {
       ...options,
-      headers: {
-        ...options.headers,
-        'apikey': SUPABASE_ANON_KEY,
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey',
-      },
+      headers,
     });
     
     if (!response.ok) {
@@ -48,9 +51,9 @@ export const supabase = createClient<Database>(
     global: {
       fetch: fetchWithRetry as any,
       headers: {
-        'X-Client-Info': 'supabase-js-web',
         'apikey': SUPABASE_ANON_KEY,
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'X-Client-Info': 'supabase-js-web'
       },
     },
     db: {
