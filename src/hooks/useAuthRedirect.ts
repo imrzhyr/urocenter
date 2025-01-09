@@ -8,40 +8,38 @@ export const useAuthRedirect = () => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        const userPhone = localStorage.getItem('userPhone');
-        if (!userPhone) {
-          toast.error("Please sign in to access the chat");
-          navigate("/signin", { replace: true });
-          return;
-        }
+      const userPhone = localStorage.getItem('userPhone');
+      
+      if (!userPhone) {
+        toast.error("Please sign in to access the chat");
+        navigate("/signin", { replace: true });
+        return;
+      }
 
-        const { data: profile } = await supabase
+      try {
+        const { data: profile, error } = await supabase
           .from('profiles')
           .select('*')
           .eq('phone', userPhone)
           .maybeSingle();
+
+        if (error) {
+          console.error("Error fetching profile:", error);
+          throw error;
+        }
 
         if (!profile) {
           localStorage.removeItem('userPhone');
           toast.error("Please sign in to access the chat");
           navigate("/signin", { replace: true });
         }
+      } catch (error) {
+        console.error("Error in auth check:", error);
+        toast.error("An error occurred while checking authentication");
+        navigate("/signin", { replace: true });
       }
     };
 
     checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_OUT') {
-        localStorage.removeItem('userPhone');
-        navigate("/signin", { replace: true });
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
   }, [navigate]);
 };
