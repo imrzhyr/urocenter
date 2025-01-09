@@ -1,17 +1,30 @@
 import { motion } from "framer-motion";
-import { Calendar, Clock, Award, Star } from "lucide-react";
+import { Calendar, Clock, Award, Star, MapPin, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const DoctorProfileCard = () => {
   const navigate = useNavigate();
+  const { currentLanguage } = useLanguage();
+
+  const clinicInfo = {
+    en: "Sulaymaniyah - Ibrahim Pasha Street - Opposite to Sherko Printing & Advertising - Aran Building - Second Floor - Dr. Ali Kamal",
+    ar: "السليمانية- شارع ابراهيم باشا- مقابل مطبعة واعلانات شيركو- عمارة أران- الطابق الثاني- دكتور علي كمال"
+  };
+
+  const phoneNumbers = [
+    "07729996924",
+    "07705449905",
+    "07705486036"
+  ];
 
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
-      className="bg-white rounded-2xl p-6 shadow-lg"
+      className="bg-white rounded-2xl p-6 shadow-lg space-y-6"
     >
       <div className="text-center space-y-4">
         <div className="relative w-32 h-32 mx-auto">
@@ -48,14 +61,38 @@ export const DoctorProfileCard = () => {
           </div>
         </div>
 
-        <div className="space-y-3 pt-4">
-          <div className="flex items-center text-sm text-gray-600">
-            <Calendar className="w-4 h-4 mr-2 text-primary" />
-            <span>Available Mon-Fri</span>
-          </div>
-          <div className="flex items-center text-sm text-gray-600">
-            <Clock className="w-4 h-4 mr-2 text-primary" />
-            <span>9:00 AM - 5:00 PM</span>
+        <div className="space-y-4 pt-4 border-t border-gray-100">
+          <div className="space-y-2">
+            <div className="flex items-center text-sm text-gray-600">
+              <Clock className="w-4 h-4 mr-2 text-primary" />
+              <span>2:00 PM - 6:00 PM (Closed on Fridays)</span>
+            </div>
+            <div className="flex items-center text-sm text-gray-600">
+              <MapPin className="w-4 h-4 mr-2 text-primary" />
+              <a 
+                href="https://maps.google.com/?q=35.561398,45.450352"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-primary transition-colors"
+              >
+                {clinicInfo[currentLanguage === 'ar' ? 'ar' : 'en']}
+              </a>
+            </div>
+            <div className="flex items-center text-sm text-gray-600">
+              <Phone className="w-4 h-4 mr-2 text-primary" />
+              <div className="flex flex-col">
+                {phoneNumbers.map((number, index) => (
+                  <a 
+                    key={number}
+                    href={`tel:${number}`}
+                    className="hover:text-primary transition-colors"
+                  >
+                    {number}
+                    {index !== phoneNumbers.length - 1 && " / "}
+                  </a>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 

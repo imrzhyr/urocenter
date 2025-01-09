@@ -5,7 +5,7 @@ export const DocumentTypes = () => {
   const documentTypes = [
     {
       title: "Medical Reports",
-      description: "Upload your medical reports and test results",
+      description: "Lab results, prescriptions, and medical records",
       icon: FileText,
       color: "bg-blue-100 text-blue-600",
     },
@@ -30,7 +30,7 @@ export const DocumentTypes = () => {
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-2 gap-4 max-w-3xl mx-auto">
       {documentTypes.map((type) => (
         <DocumentTypeCard key={type.title} {...type} />
       ))}

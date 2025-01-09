@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ProfileForm } from "@/components/ProfileForm";
 import { Button } from "@/components/ui/button";
 import { useProfile } from "@/hooks/useProfile";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Profile } from "@/types/profile";
 import { toast } from "sonner";
 
@@ -23,6 +23,12 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
     phone: '',
     role: 'patient'
   });
+
+  useEffect(() => {
+    if (initialProfile && open) {
+      setProfile(initialProfile);
+    }
+  }, [initialProfile, open]);
 
   const handleProfileChange = (field: keyof Profile, value: string) => {
     setProfile(prev => ({
@@ -62,7 +68,7 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl p-6">
+      <DialogContent className="max-w-2xl p-6 bg-white">
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold">Edit Profile</DialogTitle>
         </DialogHeader>

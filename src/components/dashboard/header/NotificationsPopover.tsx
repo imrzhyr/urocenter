@@ -76,14 +76,14 @@ export const NotificationsPopover = () => {
     <Popover>
       <PopoverTrigger asChild>
         <button className="relative p-2 hover:bg-gray-100 rounded-full">
-          <Bell className="w-5 h-5 text-gray-600" />
+          <Bell className="w-5 h-5 text-primary" />
           {hasUnread && (
             <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
           )}
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-0" align="end">
-        <div className="p-4 border-b bg-white">
+      <PopoverContent className="w-80 p-0 bg-white border shadow-lg" align="end" sideOffset={5}>
+        <div className="p-4 border-b">
           <h4 className="font-semibold text-gray-900">Notifications</h4>
         </div>
         <ScrollArea className="h-[300px]">
@@ -92,7 +92,7 @@ export const NotificationsPopover = () => {
               {notifications.map((notification) => (
                 <div 
                   key={notification.id} 
-                  className="p-4 hover:bg-gray-50 bg-white bg-opacity-90"
+                  className="p-4 hover:bg-gray-50 transition-colors"
                 >
                   <p className="text-sm text-gray-800">{notification.message}</p>
                   <span className="text-xs text-gray-500">
@@ -102,7 +102,7 @@ export const NotificationsPopover = () => {
               ))}
             </div>
           ) : (
-            <div className="p-4 text-center text-gray-500 bg-white">
+            <div className="p-4 text-center text-gray-500">
               No new notifications
             </div>
           )}
