@@ -56,7 +56,7 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
       const success = await updateProfile(profile);
       if (success) {
         toast.success("Profile updated successfully");
-        onOpenChange(false);
+        handleClose();
       }
     } catch (error) {
       console.error("Error:", error);
@@ -68,11 +68,20 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
 
   const handleClose = () => {
     setIsSubmitting(false);
+    setProfile(initialProfile || {
+      id: '',
+      full_name: '',
+      gender: '',
+      age: '',
+      complaint: '',
+      phone: '',
+      role: 'patient'
+    });
     onOpenChange(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={handleClose} modal>
       <DialogContent className="max-w-2xl p-6 bg-white">
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold">Edit Profile</DialogTitle>
