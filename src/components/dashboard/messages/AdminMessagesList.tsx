@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { MessagesFilter } from "./MessagesFilter";
 import { MessageStatusBadge } from "./MessageStatusBadge";
@@ -33,6 +32,7 @@ export const AdminMessagesList = () => {
           is_read,
           is_resolved,
           user_id,
+          is_from_doctor,
           profiles (
             id,
             full_name
@@ -61,8 +61,9 @@ export const AdminMessagesList = () => {
         const userName = message.profiles?.full_name || "Unknown Patient";
         
         if (!acc[userId] || new Date(message.created_at) > new Date(acc[userId].last_message_time)) {
+          // Only count unread messages from patients, not from doctor
           const unreadCount = messagesData.filter(
-            msg => msg.user_id === userId && !msg.is_read
+            msg => msg.user_id === userId && !msg.is_read && !msg.is_from_doctor
           ).length;
 
           acc[userId] = {
@@ -113,10 +114,26 @@ export const AdminMessagesList = () => {
     };
   }, []);
 
-  const handlePatientClick = (patientId: string) => {
+  const handlePatientClick = async (patientId: string) => {
     if (patientId === profile?.id) {
       toast.error("Cannot chat with yourself");
       return;
+    }
+    
+    // Mark all unread messages as read when opening the chat
+    const { error } = await supabase
+      .from('messages')
+      .update({ 
+        is_read: true,
+        status: 'seen',
+        seen_at: new Date().toISOString()
+      })
+      .eq('user_id', patientId)
+      .eq('is_read', false)
+      .eq('is_from_doctor', false);
+
+    if (error) {
+      console.error('Error marking messages as read:', error);
     }
     
     console.log('Navigating to patient chat:', patientId);
@@ -174,7 +191,7 @@ export const AdminMessagesList = () => {
                       <span className="font-medium text-base">{patient.full_name}</span>
                       <div className="flex items-center gap-2">
                         {patient.is_resolved && (
-                          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                          <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
                             Resolved
                           </span>
                         )}

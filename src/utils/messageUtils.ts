@@ -11,6 +11,7 @@ export const fetchPatientMessages = async (): Promise<PatientMessage[]> => {
       status,
       is_read,
       user_id,
+      is_from_doctor,
       profiles (
         id,
         full_name
@@ -28,9 +29,9 @@ export const fetchPatientMessages = async (): Promise<PatientMessage[]> => {
     const userId = message.user_id;
     
     if (!acc[userId] || new Date(message.created_at) > new Date(acc[userId].last_message_time)) {
-      // Count unread messages for this user
+      // Count unread messages for this user (only from patient)
       const unreadCount = messagesData.filter(
-        msg => msg.user_id === userId && !msg.is_read
+        msg => msg.user_id === userId && !msg.is_read && !msg.is_from_doctor
       ).length;
 
       const status = message.status as MessageStatus || 'not_seen';
