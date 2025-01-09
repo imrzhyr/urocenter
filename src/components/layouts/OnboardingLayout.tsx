@@ -1,4 +1,3 @@
-import { motion, AnimatePresence } from "framer-motion";
 import { ProgressSteps } from "@/components/ProgressSteps";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Outlet } from "react-router-dom";
@@ -45,21 +44,9 @@ export const OnboardingLayout = () => {
       </header>
 
       <main className="flex-1 container max-w-4xl mx-auto p-4">
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div
-            key={location.pathname}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ 
-              duration: 0.2,
-              ease: "easeInOut"
-            }}
-            className="flex-1 h-full bg-white rounded-lg shadow-sm p-6"
-          >
-            <Outlet />
-          </motion.div>
-        </AnimatePresence>
+        <div className="flex-1 h-full bg-white rounded-lg shadow-sm p-6">
+          <Outlet />
+        </div>
       </main>
 
       <footer className="p-4 text-center text-sm text-muted-foreground bg-white">

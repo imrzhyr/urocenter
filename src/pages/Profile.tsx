@@ -54,11 +54,8 @@ export const ProfilePage = () => {
     try {
       const success = await updateProfile(profile);
       if (success) {
-        // First update local state
         await refetch();
-        // Then navigate
         navigate("/medical-information");
-        // Show success toast after navigation
         toast.success("Profile updated successfully");
       }
     } catch (error) {
