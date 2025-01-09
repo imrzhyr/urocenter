@@ -23,7 +23,7 @@ export const PhoneInput = ({ value, onChange, isSignUp = false }: PhoneInputProp
     <div className="space-y-6">
       <div className="space-y-2">
         <div className="flex gap-2">
-          <PhoneFormatter value={value} onChange={onChange} readOnly={isSignUp} />
+          <PhoneFormatter value={value} onChange={onChange} />
         </div>
       </div>
 
