@@ -14,14 +14,14 @@ export const DocumentTypeCard = ({
   color,
 }: DocumentTypeCardProps) => {
   return (
-    <div className="p-6 rounded-lg border border-border bg-card transition-colors">
-      <div className="flex items-start space-x-4">
-        <div className={`p-2 rounded-lg ${color}`}>
-          <Icon className="w-6 h-6" />
+    <div className="p-4 rounded-lg border border-border bg-card transition-colors h-full">
+      <div className="flex flex-col space-y-3">
+        <div className={`p-2 rounded-lg ${color} w-fit`}>
+          <Icon className="w-5 h-5" />
         </div>
-        <div className="flex-1">
-          <h3 className="font-medium mb-1">{title}</h3>
-          <p className="text-sm text-muted-foreground">{description}</p>
+        <div>
+          <h3 className="font-medium text-sm mb-1">{title}</h3>
+          <p className="text-xs text-muted-foreground line-clamp-2">{description}</p>
         </div>
       </div>
     </div>

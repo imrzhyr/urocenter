@@ -30,7 +30,7 @@ export const DocumentTypes = () => {
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-4 max-w-3xl mx-auto">
+    <div className="grid grid-cols-2 gap-4 max-w-2xl mx-auto">
       {documentTypes.map((type) => (
         <DocumentTypeCard key={type.title} {...type} />
       ))}

@@ -27,9 +27,9 @@ export const UserMenu = () => {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon">
-            <User className="w-5 h-5" />
-          </Button>
+          <button className="p-2 hover:bg-gray-100 rounded-full">
+            <User className="w-5 h-5 text-primary" />
+          </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56 bg-white border shadow-lg">
           <DropdownMenuItem onClick={() => setShowEditProfile(true)} className="cursor-pointer">
