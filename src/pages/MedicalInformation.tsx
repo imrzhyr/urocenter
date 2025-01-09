@@ -1,15 +1,56 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FileImage, Camera, ScanLine, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { LoadingScreen } from "@/components/LoadingScreen";
 
 const MedicalInformation = () => {
   const navigate = useNavigate();
   const [isUploading, setIsUploading] = useState(false);
   const [uploadCount, setUploadCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  useEffect(() => {
+    const checkUserProfile = async () => {
+      try {
+        const userPhone = localStorage.getItem('userPhone');
+        if (!userPhone) {
+          toast.error("No user phone found");
+          navigate("/signin");
+          return;
+        }
+
+        const { data: profileData, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('phone', userPhone)
+          .single();
+
+        if (error) {
+          console.error("Error fetching profile:", error);
+          toast.error("Error loading profile");
+          return;
+        }
+
+        if (!profileData) {
+          navigate("/profile");
+          return;
+        }
+
+        setIsInitialized(true);
+      } catch (error) {
+        console.error("Error in checkUserProfile:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkUserProfile();
+  }, [navigate]);
 
   const documentTypes = [
     {
@@ -122,11 +163,19 @@ const MedicalInformation = () => {
     input.click();
   };
 
+  if (isLoading) {
+    return <LoadingScreen message="Loading medical information..." />;
+  }
+
+  if (!isInitialized) {
+    return null;
+  }
+
   return (
     <motion.div
-      initial={{ opacity: 1 }}
+      initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
       className="space-y-6"
     >
       <div className="space-y-2">
