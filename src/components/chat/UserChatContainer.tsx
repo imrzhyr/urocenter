@@ -28,6 +28,7 @@ export const UserChatContainer = () => {
       onSendMessage={handleSendMessage}
       isLoading={isLoading}
       header={<PatientChatHeader />}
+      userId={profile.id}
     />
   );
 };

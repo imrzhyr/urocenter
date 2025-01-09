@@ -9,6 +9,65 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      calls: {
+        Row: {
+          caller_id: string
+          duration: number | null
+          ended_at: string | null
+          id: string
+          receiver_id: string
+          started_at: string | null
+          status: string
+        }
+        Insert: {
+          caller_id: string
+          duration?: number | null
+          ended_at?: string | null
+          id?: string
+          receiver_id: string
+          started_at?: string | null
+          status?: string
+        }
+        Update: {
+          caller_id?: string
+          duration?: number | null
+          ended_at?: string | null
+          id?: string
+          receiver_id?: string
+          started_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calls_caller_id_fkey"
+            columns: ["caller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calls_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_caller"
+            columns: ["caller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_receiver"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       medical_reports: {
         Row: {
           created_at: string
@@ -46,6 +105,7 @@ export type Database = {
       }
       messages: {
         Row: {
+          call_duration: number | null
           content: string
           created_at: string | null
           delivered_at: string | null
@@ -63,6 +123,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          call_duration?: number | null
           content: string
           created_at?: string | null
           delivered_at?: string | null
@@ -80,6 +141,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          call_duration?: number | null
           content?: string
           created_at?: string | null
           delivered_at?: string | null

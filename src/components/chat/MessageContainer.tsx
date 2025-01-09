@@ -4,19 +4,22 @@ import { MessageInput } from "./MessageInput";
 import { Message } from "@/types/profile";
 import { ViewReportsDialog } from "../medical-reports/ViewReportsDialog";
 import { useState } from "react";
+import { CallButton } from "./CallButton";
 
 interface MessageContainerProps {
   messages: Message[];
   onSendMessage: (message: string, fileInfo?: { url: string; name: string; type: string; duration?: number }) => void;
   isLoading: boolean;
   header: React.ReactNode;
+  userId: string;
 }
 
 export const MessageContainer = ({
   messages,
   onSendMessage,
   isLoading,
-  header
+  header,
+  userId
 }: MessageContainerProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [showReports, setShowReports] = useState(false);
@@ -31,8 +34,9 @@ export const MessageContainer = ({
 
   return (
     <div className="flex flex-col h-screen w-screen bg-white">
-      <div className="p-4 bg-primary text-white shadow-md">
-        {header}
+      <div className="p-4 bg-primary text-white shadow-md flex justify-between items-center">
+        <div className="flex-1">{header}</div>
+        <CallButton userId={userId} className="text-white hover:bg-white/10" />
       </div>
       <div className="flex-1 overflow-y-auto smooth-scroll content-visibility bg-gray-50">
         <div className="py-4">

@@ -104,6 +104,7 @@ export const DoctorChatContainer = () => {
           onRefresh={refreshMessages}
         />
       }
+      userId={userId || ''}
     />
   );
 };
