@@ -30,15 +30,6 @@ export const NewEditProfileDialog = ({ open, onClose }: NewEditProfileDialogProp
     }
   }, [initialProfile, open]);
 
-  // Cleanup effect to ensure pointer-events style is removed
-  useEffect(() => {
-    return () => {
-      if (document.body.style.getPropertyValue('pointer-events') === 'none') {
-        document.body.style.removeProperty('pointer-events');
-      }
-    };
-  }, []);
-
   const handleProfileChange = (field: keyof Profile, value: string) => {
     setProfile(prev => ({
       ...prev,
@@ -55,9 +46,6 @@ export const NewEditProfileDialog = ({ open, onClose }: NewEditProfileDialogProp
   };
 
   const handleClose = () => {
-    if (document.body.style.getPropertyValue('pointer-events') === 'none') {
-      document.body.style.removeProperty('pointer-events');
-    }
     onClose();
   };
 
