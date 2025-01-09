@@ -9,6 +9,7 @@ import SignUp from "@/pages/SignUp";
 import Welcome from "@/pages/Welcome";
 import Dashboard from "@/pages/Dashboard";
 import AdminDashboard from "@/pages/AdminDashboard";
+import Settings from "@/pages/Settings";
 
 // Profile Pages
 import { ProfilePage } from "@/pages/Profile";
@@ -40,6 +41,7 @@ export const AppRoutes = () => {
       {/* Protected Routes */}
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/admin" element={<AdminDashboard />} />
+      <Route path="/settings" element={<Settings />} />
       
       {/* Chat & Call Routes */}
       <Route path="/chat" element={<Chat />} />

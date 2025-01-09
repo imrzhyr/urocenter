@@ -33,9 +33,6 @@ export const DoctorProfileCard = () => {
             alt="Dr. Ali Kamal in Surgery"
             className="rounded-full object-cover w-full h-full border-4 border-primary"
           />
-          <div className="absolute -bottom-2 -right-2 bg-[#0EA5E9] text-white p-2 rounded-full">
-            <div className="w-4 h-4 rounded-full bg-green-500 animate-pulse" />
-          </div>
         </div>
         
         <div>

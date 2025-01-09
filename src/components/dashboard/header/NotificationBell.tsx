@@ -1,18 +1,14 @@
 import { Bell } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-interface NotificationBellProps {
-  hasUnreadMessages: boolean;
-}
-
-export const NotificationBell = ({ hasUnreadMessages }: NotificationBellProps) => {
+export const NotificationBell = () => {
   return (
-    <div className="relative">
-      <Bell
-        className={`w-5 h-5 ${hasUnreadMessages ? 'text-primary' : 'text-muted-foreground'}`}
-      />
-      {hasUnreadMessages && (
-        <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full" />
-      )}
-    </div>
+    <Button
+      variant="ghost"
+      size="icon"
+      className="w-10 h-10 p-2 hover:bg-gray-100 rounded-full"
+    >
+      <Bell className="w-5 h-5 text-primary" />
+    </Button>
   );
 };
