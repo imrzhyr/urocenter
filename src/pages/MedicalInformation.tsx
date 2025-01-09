@@ -5,10 +5,15 @@ import { UploadSection } from "@/components/medical-information/UploadSection";
 import { useFileUploadHandler } from "@/components/medical-information/FileUploadHandler";
 import { useProfile } from "@/hooks/useProfile";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const MedicalInformation = () => {
   const { isUploading, uploadCount, handleFileUpload } = useFileUploadHandler();
   const { profile } = useProfile();
+  const navigate = useNavigate();
+  const { t } = useLanguage();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleCameraCapture = () => {
@@ -69,6 +74,14 @@ const MedicalInformation = () => {
         accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.mp4,.mov,.mp3,.wav"
         multiple
       />
+      <div className="flex justify-end mt-6">
+        <Button
+          onClick={() => navigate("/payment")}
+          className="w-full md:w-auto"
+        >
+          {t("continue")}
+        </Button>
+      </div>
     </div>
   );
 };

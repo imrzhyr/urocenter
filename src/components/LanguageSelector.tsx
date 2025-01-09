@@ -19,7 +19,7 @@ export const LanguageSelector = () => {
           <span>{language === 'en' ? 'English' : 'العربية'}</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-40">
+      <DropdownMenuContent align="end" className="w-40 bg-background">
         <DropdownMenuItem onClick={() => setLanguage('en')} className="cursor-pointer">
           <img src="https://flagcdn.com/w20/us.png" alt="USA" className="w-5 h-4 mr-2" />
           English

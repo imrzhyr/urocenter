@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ProgressStepsProps {
   steps: string[];
@@ -7,6 +8,9 @@ interface ProgressStepsProps {
 }
 
 export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
+  const { language, t } = useLanguage();
+  const isRTL = language === 'ar';
+
   return (
     <div className="w-full px-4">
       <div className="relative flex justify-between">
@@ -20,8 +24,16 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
         <div 
           className="absolute top-[1.125rem] h-0.5 bg-primary transition-all duration-500 ease-in-out"
           style={{ 
-            left: '4%',
-            width: `${(currentStep / (steps.length - 1)) * 92}%`,
+            ...(isRTL 
+              ? { 
+                  right: '4%',
+                  width: `${(currentStep / (steps.length - 1)) * 92}%`,
+                }
+              : {
+                  left: '4%',
+                  width: `${(currentStep / (steps.length - 1)) * 92}%`,
+                }
+            ),
             zIndex: 1 
           }}
         />
@@ -55,7 +67,7 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
                   index <= currentStep ? "text-primary" : "text-gray-400"
                 )}
               >
-                {step}
+                {t(step.toLowerCase().replace(" ", "_"))}
               </span>
             </div>
           ))}
