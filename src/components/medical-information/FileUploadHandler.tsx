@@ -59,7 +59,7 @@ export const useFileUploadHandler = () => {
       }
 
       setUploadCount(prev => prev + 1);
-      toast.success(`File uploaded successfully (${uploadCount + 1} files uploaded)`);
+      toast.success(`File uploaded successfully`);
     } catch (error) {
       console.error("Upload error:", error);
       toast.error("Failed to upload file");
