@@ -14,13 +14,13 @@ interface EditProfileDialogProps {
 export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps) => {
   const { profile: initialProfile, updateProfile } = useProfile();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [profile, setProfile] = useState<Profile>(initialProfile || {
+  const [profile, setProfile] = useState<Profile>({
     id: '',
     full_name: '',
     gender: '',
     age: '',
     complaint: '',
-    phone: '',
+    phone: localStorage.getItem('userPhone') || '',
     role: 'patient'
   });
 
@@ -66,21 +66,8 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
     }
   };
 
-  const handleClose = () => {
-    setProfile(initialProfile || {
-      id: '',
-      full_name: '',
-      gender: '',
-      age: '',
-      complaint: '',
-      phone: '',
-      role: 'patient'
-    });
-    onOpenChange(false);
-  };
-
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl p-6">
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold">Edit Profile</DialogTitle>
@@ -96,7 +83,7 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
         <div className="mt-6 flex justify-end gap-3">
           <Button
             variant="outline"
-            onClick={handleClose}
+            onClick={() => onOpenChange(false)}
             type="button"
           >
             Cancel

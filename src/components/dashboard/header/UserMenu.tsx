@@ -20,14 +20,14 @@ export const UserMenu = () => {
   const handleLogout = () => {
     localStorage.removeItem('userPhone');
     navigate("/", { replace: true });
-    toast.success(t('logged_out_successfully'));
+    toast.success("Logged out successfully");
   };
 
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" className="text-primary">
             <User className="w-5 h-5" />
           </Button>
         </DropdownMenuTrigger>
@@ -37,7 +37,7 @@ export const UserMenu = () => {
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
             <LogOut className="w-4 h-4 mr-2" />
-            {t('logout')}
+            Logout
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
