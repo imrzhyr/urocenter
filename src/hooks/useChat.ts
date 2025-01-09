@@ -78,7 +78,8 @@ export const useChat = (userId?: string) => {
         file_url: fileInfo?.url,
         file_name: fileInfo?.name,
         file_type: fileInfo?.type,
-        duration: fileInfo?.duration
+        duration: fileInfo?.duration,
+        sender_name: profile.full_name || 'Unknown User'
       };
 
       console.log('Sending message:', messageData);

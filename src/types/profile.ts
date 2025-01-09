@@ -14,6 +14,7 @@ export interface Message {
   seen_at?: string;
   duration?: number;
   is_resolved?: boolean;
+  sender_name?: string;
 }
 
 export interface Profile {

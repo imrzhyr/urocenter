@@ -118,6 +118,7 @@ export type Database = {
           is_read: boolean | null
           is_resolved: boolean | null
           seen_at: string | null
+          sender_name: string | null
           status: string
           updated_at: string | null
           user_id: string
@@ -136,6 +137,7 @@ export type Database = {
           is_read?: boolean | null
           is_resolved?: boolean | null
           seen_at?: string | null
+          sender_name?: string | null
           status?: string
           updated_at?: string | null
           user_id: string
@@ -154,6 +156,7 @@ export type Database = {
           is_read?: boolean | null
           is_resolved?: boolean | null
           seen_at?: string | null
+          sender_name?: string | null
           status?: string
           updated_at?: string | null
           user_id?: string
