@@ -97,7 +97,6 @@ const MedicalInformation = () => {
           <DocumentTypeCard
             key={type.title}
             {...type}
-            onClick={handleFileSelect}
           />
         ))}
       </div>

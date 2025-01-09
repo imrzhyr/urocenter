@@ -1,33 +1,29 @@
 import { LucideIcon } from "lucide-react";
-import { motion } from "framer-motion";
 
 interface DocumentTypeCardProps {
   title: string;
-  icon: LucideIcon;
   description: string;
+  icon: LucideIcon;
   color: string;
-  onClick: () => void;
 }
 
 export const DocumentTypeCard = ({
   title,
-  icon: Icon,
   description,
+  icon: Icon,
   color,
-  onClick,
 }: DocumentTypeCardProps) => {
   return (
-    <motion.div
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 cursor-pointer"
-      onClick={onClick}
-    >
-      <div className={`${color} w-12 h-12 rounded-lg flex items-center justify-center mb-4`}>
-        <Icon className="w-6 h-6" />
+    <div className="p-6 rounded-lg border border-border bg-card transition-colors">
+      <div className="flex items-start space-x-4">
+        <div className={`p-2 rounded-lg ${color}`}>
+          <Icon className="w-6 h-6" />
+        </div>
+        <div className="flex-1">
+          <h3 className="font-medium mb-1">{title}</h3>
+          <p className="text-sm text-muted-foreground">{description}</p>
+        </div>
       </div>
-      <h3 className="font-semibold text-lg mb-2">{title}</h3>
-      <p className="text-muted-foreground text-sm">{description}</p>
-    </motion.div>
+    </div>
   );
 };
