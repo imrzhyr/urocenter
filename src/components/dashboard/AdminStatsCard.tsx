@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Users, MessageSquare, CheckCircle, AlertCircle } from "lucide-react";
+import { Users, MessageSquare, UserPlus, CheckCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
 
 interface AdminStats {
   total_patients: number;
   total_messages: number;
-  unread_messages: number;
+  new_patients: number;
   resolved_chats: number;
 }
 
@@ -15,14 +15,49 @@ export const AdminStatsCard = () => {
   const [stats, setStats] = useState<AdminStats | null>(null);
 
   const fetchStats = async () => {
-    const { data, error } = await supabase.rpc('get_admin_stats');
-    if (error) {
-      console.error("Error fetching admin stats:", error);
+    // Get all messages grouped by user_id to check for new patients
+    const { data: messagesData, error: messagesError } = await supabase
+      .from('messages')
+      .select('user_id, is_read, is_from_doctor, is_resolved')
+      .order('created_at', { ascending: true });
+
+    if (messagesError) {
+      console.error("Error fetching messages:", messagesError);
       return;
     }
-    if (data && data.length > 0) {
-      setStats(data[0]);
-    }
+
+    // Get total patients count
+    const { count: totalPatients } = await supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true })
+      .eq('role', 'patient');
+
+    // Calculate new patients (patients with unread first message)
+    const newPatientsSet = new Set();
+    const seenPatientsSet = new Set();
+    const resolvedChatsSet = new Set();
+
+    messagesData?.forEach(message => {
+      if (!message.is_from_doctor) {
+        if (!message.is_read && !seenPatientsSet.has(message.user_id)) {
+          newPatientsSet.add(message.user_id);
+        }
+        if (message.is_read) {
+          seenPatientsSet.add(message.user_id);
+          newPatientsSet.delete(message.user_id);
+        }
+        if (message.is_resolved) {
+          resolvedChatsSet.add(message.user_id);
+        }
+      }
+    });
+
+    setStats({
+      total_patients: totalPatients || 0,
+      total_messages: messagesData?.length || 0,
+      new_patients: newPatientsSet.size,
+      resolved_chats: resolvedChatsSet.size
+    });
   };
 
   useEffect(() => {
@@ -64,9 +99,9 @@ export const AdminStatsCard = () => {
       bgColor: "bg-green-50",
     },
     {
-      title: "Unread",
-      value: stats?.unread_messages || 0,
-      icon: AlertCircle,
+      title: "New Patients",
+      value: stats?.new_patients || 0,
+      icon: UserPlus,
       color: "text-yellow-600",
       bgColor: "bg-yellow-50",
     },

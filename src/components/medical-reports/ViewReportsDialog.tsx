@@ -2,6 +2,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { FileText } from "lucide-react";
+import { useProfile } from "@/hooks/useProfile";
 
 interface ViewReportsDialogProps {
   open: boolean;
@@ -11,15 +12,19 @@ interface ViewReportsDialogProps {
 
 export const ViewReportsDialog = ({ open, onOpenChange, userId }: ViewReportsDialogProps) => {
   const [reports, setReports] = useState<any[]>([]);
+  const { profile } = useProfile();
 
   useEffect(() => {
     const fetchReports = async () => {
-      if (!userId) return;
+      // If userId is provided, use it (admin view), otherwise use current user's id (patient view)
+      const targetUserId = userId || profile?.id;
+      
+      if (!targetUserId) return;
 
       const { data, error } = await supabase
         .from('medical_reports')
         .select('*')
-        .eq('user_id', userId)
+        .eq('user_id', targetUserId)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -33,10 +38,20 @@ export const ViewReportsDialog = ({ open, onOpenChange, userId }: ViewReportsDia
     if (open) {
       fetchReports();
     }
-  }, [open, userId]);
+  }, [open, userId, profile?.id]);
 
-  const handleFileClick = (url: string) => {
-    window.open(url, '_blank');
+  const handleFileClick = async (filePath: string) => {
+    try {
+      const { data } = supabase.storage
+        .from('medical_reports')
+        .getPublicUrl(filePath);
+        
+      if (data?.publicUrl) {
+        window.open(data.publicUrl, '_blank');
+      }
+    } catch (error) {
+      console.error('Error getting file URL:', error);
+    }
   };
 
   return (
