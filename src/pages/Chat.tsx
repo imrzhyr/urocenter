@@ -8,6 +8,11 @@ const Chat = () => {
   const { profile } = useProfile();
   const isAdmin = profile?.role === 'admin';
 
+  // If user is not logged in, redirect to signin
+  if (!profile) {
+    return <Navigate to="/signin" replace />;
+  }
+
   // If no userId is provided and user is not admin, show patient chat container
   if (!userId && !isAdmin) {
     return <UserChatContainer />;

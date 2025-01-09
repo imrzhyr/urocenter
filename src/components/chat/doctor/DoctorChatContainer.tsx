@@ -23,14 +23,6 @@ export const DoctorChatContainer = () => {
         return;
       }
 
-      // Prevent self-chat
-      if (userId === profile?.id) {
-        console.log("Cannot chat with self, redirecting to admin dashboard");
-        toast.error("Cannot chat with yourself");
-        navigate("/admin");
-        return;
-      }
-
       try {
         console.log('Fetching patient info for ID:', userId);
         const { data: patientData, error } = await supabase
@@ -58,6 +50,14 @@ export const DoctorChatContainer = () => {
           console.error("Non-admin user attempting to access doctor chat");
           toast.error("Unauthorized access");
           navigate("/dashboard");
+          return;
+        }
+
+        // Verify we're not trying to chat with ourselves
+        if (userId === profile?.id) {
+          console.error("Cannot chat with self");
+          toast.error("Cannot chat with yourself");
+          navigate("/admin");
           return;
         }
 
