@@ -1,12 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Stethoscope, MessageCircle } from "lucide-react";
+import { Stethoscope, MessageCircle, Moon, Sun } from "lucide-react";
 import { TestimonialsCarousel } from "@/components/testimonials/TestimonialsCarousel";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { motion } from "framer-motion";
+import { useTheme } from "next-themes";
 
 const Welcome = () => {
   const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
 
   const features = [
     {
@@ -26,11 +28,24 @@ const Welcome = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen flex flex-col bg-gradient-to-br from-primary/5 via-white to-background"
+      className="min-h-screen flex flex-col bg-gradient-to-br from-primary/5 via-white to-background dark:from-primary/20 dark:via-[#1A1F2C] dark:to-[#1A1F2C]"
     >
-      <div className="p-4 flex justify-between items-center bg-white/80 backdrop-blur-sm border-b border-gray-100">
-        <h1 className="text-xl font-bold text-primary">UroCenter</h1>
-        <LanguageSelector />
+      <div className="p-4 flex justify-between items-center bg-white/80 dark:bg-[#1A1F2C]/80 backdrop-blur-sm border-b border-gray-100 dark:border-gray-800">
+        <h1 className="text-xl font-bold text-primary dark:text-white">UroCenter</h1>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          >
+            {theme === "dark" ? (
+              <Sun className="h-4 w-4" />
+            ) : (
+              <Moon className="h-4 w-4" />
+            )}
+          </Button>
+          <LanguageSelector />
+        </div>
       </div>
       
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-2 max-w-7xl mx-auto w-full space-y-6">
@@ -97,7 +112,7 @@ const Welcome = () => {
         </div>
       </div>
       
-      <footer className="p-3 text-center text-xs text-muted-foreground">
+      <footer className="p-3 text-center text-xs text-muted-foreground dark:text-gray-400">
         © 2024 All rights reserved
       </footer>
     </motion.div>

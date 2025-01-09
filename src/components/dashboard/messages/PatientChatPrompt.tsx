@@ -46,7 +46,7 @@ export const PatientChatPrompt = () => {
 
   if (!lastMessage) {
     return (
-      <div className="text-center space-y-4 py-4">
+      <div className="text-center space-y-4 py-4 w-full">
         <div className="relative inline-block">
           <div className="relative">
             <div className="p-4 bg-blue-50 rounded-full">
@@ -76,7 +76,7 @@ export const PatientChatPrompt = () => {
   return (
     <div 
       onClick={() => navigate('/chat')}
-      className="cursor-pointer hover:bg-gray-50 transition-colors p-4 rounded-lg border"
+      className="w-full cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors p-4 rounded-lg border dark:border-gray-700"
     >
       <div className="flex items-center gap-3 mb-2">
         <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
@@ -87,14 +87,14 @@ export const PatientChatPrompt = () => {
           />
         </div>
         <div>
-          <h3 className="font-medium text-gray-900">Dr. Ali Kamal</h3>
-          <p className="text-xs text-gray-500">
+          <h3 className="font-medium text-gray-900 dark:text-gray-100">Dr. Ali Kamal</h3>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
             {format(new Date(lastMessage.created_at), 'MMM d, h:mm a')}
           </p>
         </div>
       </div>
       <div className="pl-[60px]">
-        <p className="text-sm text-gray-600 truncate">
+        <p className="text-sm text-gray-600 dark:text-gray-300 truncate">
           {lastMessage.content || (lastMessage.file_url ? 'Sent an attachment' : '')}
         </p>
       </div>

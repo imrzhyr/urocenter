@@ -24,7 +24,7 @@ export const DoctorProfileCard = () => {
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
-      className="bg-white rounded-2xl p-6 shadow-lg space-y-6"
+      className="bg-white dark:bg-[#1A1F2C] rounded-2xl p-6 shadow-lg space-y-6"
     >
       <div className="text-center space-y-4">
         <div className="relative w-32 h-32 mx-auto">
@@ -36,35 +36,34 @@ export const DoctorProfileCard = () => {
         </div>
         
         <div>
-          <h2 className="text-xl font-semibold text-gray-900">Dr. Ali Kamal</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Dr. Ali Kamal</h2>
           <p className="text-sm text-primary">Urologist & General Surgeon</p>
-          <p className="text-xs text-[#0EA5E9] mt-1">Available for Consultation</p>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
+        <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100 dark:border-gray-700">
           <div className="text-center">
             <div className="flex items-center justify-center text-primary mb-1">
               <Award className="w-4 h-4 mr-1" />
             </div>
             <p className="text-2xl font-bold text-primary">15+</p>
-            <p className="text-xs text-gray-600">Years Experience</p>
+            <p className="text-xs text-gray-600 dark:text-gray-300">Years Experience</p>
           </div>
           <div className="text-center">
             <div className="flex items-center justify-center text-primary mb-1">
               <Star className="w-4 h-4 mr-1" />
             </div>
             <p className="text-2xl font-bold text-primary">4.9</p>
-            <p className="text-xs text-gray-600">Rating</p>
+            <p className="text-xs text-gray-600 dark:text-gray-300">Rating</p>
           </div>
         </div>
 
-        <div className="space-y-4 pt-4 border-t border-gray-100">
+        <div className="space-y-4 pt-4 border-t border-gray-100 dark:border-gray-700">
           <div className="space-y-2">
-            <div className="flex items-center text-sm text-gray-600">
+            <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
               <Clock className="w-4 h-4 min-w-[16px] text-primary mr-2" />
               <span>2:00 PM - 6:00 PM (Closed on Fridays)</span>
             </div>
-            <div className="flex items-start text-sm text-gray-600">
+            <div className="flex items-start text-sm text-gray-600 dark:text-gray-300">
               <MapPin className="w-4 h-4 min-w-[16px] text-primary mr-2 mt-1" />
               <a 
                 href="https://maps.google.com/?q=35.561398,45.450352"
@@ -75,7 +74,7 @@ export const DoctorProfileCard = () => {
                 {clinicInfo[language === 'ar' ? 'ar' : 'en']}
               </a>
             </div>
-            <div className="flex items-center text-sm text-gray-600">
+            <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
               <Phone className="w-4 h-4 min-w-[16px] text-primary mr-2" />
               <div className="flex flex-col">
                 {phoneNumbers.map((number, index) => (

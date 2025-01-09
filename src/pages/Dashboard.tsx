@@ -53,14 +53,14 @@ const Dashboard = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
+      <div className="min-h-screen flex items-center justify-center bg-background dark:bg-[#1A1F2C]">
         <div className="animate-pulse text-primary">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen bg-background dark:bg-[#1A1F2C]">
       <DashboardHeader />
       <main className="container mx-auto py-6 px-4">
         <div className="max-w-7xl mx-auto">
@@ -70,7 +70,7 @@ const Dashboard = () => {
             transition={{ duration: 0.5 }}
             className="text-center mb-6"
           >
-            <h1 className="text-2xl md:text-3xl font-bold text-primary">
+            <h1 className="text-2xl md:text-3xl font-bold text-primary dark:text-white">
               Welcome to Your Virtual Consultation Space
             </h1>
           </motion.div>

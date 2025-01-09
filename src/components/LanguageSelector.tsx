@@ -15,10 +15,7 @@ export const LanguageSelector = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="relative group">
-          <span className="flex items-center gap-2">
-            <Globe className="w-4 h-4" />
-            {language === 'en' ? 'English / العربية' : 'العربية / English'}
-          </span>
+          <Globe className="w-4 h-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-40">
