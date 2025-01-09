@@ -10,8 +10,8 @@ import { CallAvatar } from "./CallAvatar";
 import { CallControls } from "./CallControls";
 import { IncomingCallControls } from "./IncomingCallControls";
 import { formatDuration } from "@/utils/callUtils";
-import type { Call, CallStatus, CallingUser } from "@/types/call";
-import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
+import type { CallStatus, CallingUser } from "@/types/call";
+import { useCallSubscription } from "@/hooks/useCallSubscription";
 
 export const CallPage = () => {
   const { userId } = useParams();
@@ -57,38 +57,19 @@ export const CallPage = () => {
         toast.error('Could not initiate call');
         return;
       }
-
-      // Subscribe to call status changes
-      const channel = supabase
-        .channel('call_status')
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'calls',
-            filter: `receiver_id=eq.${userId}`
-          },
-          (payload: RealtimePostgresChangesPayload<Call>) => {
-            if (!payload.new) return;
-            const newStatus = payload.new.status;
-            if (newStatus === 'accepted') {
-              setCallStatus('connected');
-              setCallStartTime(new Date());
-            } else if (newStatus === 'rejected' || newStatus === 'ended') {
-              handleEndCall();
-            }
-          }
-        )
-        .subscribe();
-
-      return () => {
-        supabase.removeChannel(channel);
-      };
     };
 
     fetchUserDetails();
   }, [userId, profile?.id]);
+
+  useCallSubscription({
+    userId: userId || '',
+    onCallAccepted: () => {
+      setCallStatus('connected');
+      setCallStartTime(new Date());
+    },
+    onCallEnded: handleEndCall
+  });
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
