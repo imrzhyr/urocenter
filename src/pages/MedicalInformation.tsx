@@ -6,6 +6,8 @@ import { FileImage, Camera, ScanLine, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { LoadingScreen } from "@/components/LoadingScreen";
+import { DocumentTypeCard } from "@/components/medical-information/DocumentTypeCard";
+import { UploadButtons } from "@/components/medical-information/UploadButtons";
 
 const MedicalInformation = () => {
   const navigate = useNavigate();
@@ -20,30 +22,33 @@ const MedicalInformation = () => {
         const userPhone = localStorage.getItem('userPhone');
         if (!userPhone) {
           toast.error("No user phone found");
-          navigate("/signin");
+          navigate("/signin", { replace: true });
           return;
         }
 
         const { data: profileData, error } = await supabase
           .from('profiles')
-          .select('*')
+          .select('full_name, complaint')
           .eq('phone', userPhone)
           .single();
 
         if (error) {
           console.error("Error fetching profile:", error);
           toast.error("Error loading profile");
+          navigate("/profile", { replace: true });
           return;
         }
 
-        if (!profileData) {
-          navigate("/profile");
+        if (!profileData?.full_name || !profileData?.complaint) {
+          toast.error("Please complete your profile first");
+          navigate("/profile", { replace: true });
           return;
         }
 
         setIsInitialized(true);
       } catch (error) {
         console.error("Error in checkUserProfile:", error);
+        navigate("/profile", { replace: true });
       } finally {
         setIsLoading(false);
       }
@@ -55,25 +60,25 @@ const MedicalInformation = () => {
   const documentTypes = [
     {
       title: "Diagnostic Imaging",
-      icon: <ScanLine className="w-6 h-6" />,
+      icon: ScanLine,
       description: "Upload CT scans, X-rays, or MRI results",
       color: "bg-blue-50 text-blue-600",
     },
     {
       title: "Lab Reports",
-      icon: <FileText className="w-6 h-6" />,
+      icon: FileText,
       description: "Blood tests, urinalysis, or other lab results",
       color: "bg-green-50 text-green-600",
     },
     {
       title: "Medical Records",
-      icon: <FileImage className="w-6 h-6" />,
+      icon: FileImage,
       description: "Previous medical records or doctor's notes",
       color: "bg-purple-50 text-purple-600",
     },
     {
       title: "Other Documents",
-      icon: <FileText className="w-6 h-6" />,
+      icon: FileText,
       description: "Any other relevant medical documentation",
       color: "bg-orange-50 text-orange-600",
     },
@@ -85,6 +90,7 @@ const MedicalInformation = () => {
       const userPhone = localStorage.getItem('userPhone');
       if (!userPhone) {
         toast.error("Please sign in to upload files");
+        navigate("/signin", { replace: true });
         return;
       }
 
@@ -96,6 +102,7 @@ const MedicalInformation = () => {
 
       if (!profileData) {
         toast.error("Profile not found");
+        navigate("/profile", { replace: true });
         return;
       }
 
@@ -192,46 +199,23 @@ const MedicalInformation = () => {
 
       <div className="grid grid-cols-2 gap-4">
         {documentTypes.map((type) => (
-          <motion.div
+          <DocumentTypeCard
             key={type.title}
-            whileHover={{ scale: 1.02 }}
-            className={`p-4 rounded-lg ${type.color} transition-colors cursor-pointer`}
+            {...type}
             onClick={handleFileSelect}
-          >
-            <div className="flex flex-col items-center text-center space-y-2">
-              {type.icon}
-              <h3 className="font-semibold">{type.title}</h3>
-              <p className="text-sm opacity-75">{type.description}</p>
-            </div>
-          </motion.div>
+          />
         ))}
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <Button 
-          variant="outline" 
-          className="flex items-center justify-center gap-2 bg-primary/5 hover:bg-primary/10 text-primary border-primary/20"
-          onClick={handleCameraCapture}
-          disabled={isUploading}
-        >
-          <Camera className="w-4 h-4" />
-          <span>Take Picture</span>
-        </Button>
-        
-        <Button 
-          variant="outline" 
-          className="flex items-center justify-center gap-2 bg-secondary/5 hover:bg-secondary/10 text-secondary border-secondary/20"
-          onClick={handleFileSelect}
-          disabled={isUploading}
-        >
-          <FileText className="w-4 h-4" />
-          <span>Upload Files</span>
-        </Button>
-      </div>
+      <UploadButtons
+        onCameraCapture={handleCameraCapture}
+        onFileSelect={handleFileSelect}
+        isUploading={isUploading}
+      />
 
       <Button 
         className="w-full"
-        onClick={() => navigate("/payment")}
+        onClick={() => navigate("/payment", { replace: true })}
         disabled={isUploading}
       >
         Continue

@@ -3,10 +3,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PhoneInput } from "@/components/PhoneInput";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const SignUp = () => {
   const [phone, setPhone] = useState("");
   const { t } = useLanguage();
+  const navigate = useNavigate();
+
+  const handleSignUpSuccess = () => {
+    navigate("/profile", { replace: true });
+  };
 
   return (
     <motion.div 
@@ -43,7 +49,12 @@ const SignUp = () => {
         </CardHeader>
         <CardContent className="pt-0">
           <div className="rounded-lg">
-            <PhoneInput value={phone} onChange={setPhone} isSignUp={true} />
+            <PhoneInput 
+              value={phone} 
+              onChange={setPhone} 
+              isSignUp={true} 
+              onSignUpSuccess={handleSignUpSuccess}
+            />
           </div>
         </CardContent>
       </Card>

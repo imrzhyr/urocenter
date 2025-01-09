@@ -59,7 +59,7 @@ const ProfilePage = () => {
       const success = await updateProfile(profile);
       if (success) {
         toast.success("Profile updated successfully");
-        navigate("/medical-information");
+        navigate("/medical-information", { replace: true });
       }
     } catch (error) {
       console.error("Error:", error);
@@ -70,20 +70,14 @@ const ProfilePage = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-pulse">Loading...</div>
-      </div>
-    );
+    return <LoadingScreen message="Loading profile..." />;
   }
-
-  console.log("Current profile state:", profile);
 
   return (
     <motion.div
-      initial={{ opacity: 1 }}
+      initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
       className="space-y-6"
     >
       <div className="space-y-2">
