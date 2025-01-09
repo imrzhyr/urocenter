@@ -36,7 +36,17 @@ export const CallPage = () => {
   useEffect(() => {
     const fetchUserDetails = async () => {
       if (!userId) return;
+
+      // If user is patient, set calling user as Dr. Ali Kamal
+      if (profile?.role === 'patient') {
+        setCallingUser({
+          full_name: 'Dr. Ali Kamal',
+          id: userId
+        });
+        return;
+      }
       
+      // If admin, fetch patient details
       const { data, error } = await supabase
         .from('profiles')
         .select('full_name, id')
@@ -67,16 +77,38 @@ export const CallPage = () => {
       }
     };
 
+    const checkIfIncoming = async () => {
+      if (!profile?.id || !userId) return;
+
+      const { data, error } = await supabase
+        .from('calls')
+        .select('*')
+        .eq('receiver_id', profile.id)
+        .eq('caller_id', userId)
+        .eq('status', 'active')
+        .single();
+
+      if (data) {
+        setIsIncoming(true);
+        setCallStatus('ringing');
+      }
+    };
+
     fetchUserDetails();
-  }, [userId, profile?.id]);
+    checkIfIncoming();
+  }, [userId, profile?.id, profile?.role]);
 
   useCallSubscription({
     userId: userId || '',
     onCallAccepted: () => {
       setCallStatus('connected');
       setCallStartTime(new Date());
+      toast.success('Call connected');
     },
-    onCallEnded: () => handleEndCall(callStartTime)
+    onCallEnded: () => {
+      handleEndCall(callStartTime);
+      toast.info('Call ended');
+    }
   });
 
   useEffect(() => {
@@ -126,7 +158,7 @@ export const CallPage = () => {
           />
           <h2 className="text-xl font-semibold mb-2">{callingUser?.full_name}</h2>
           <p className="text-gray-500">
-            {callStatus === 'ringing' && 'Calling...'}
+            {callStatus === 'ringing' && (isIncoming ? 'Incoming call...' : 'Calling...')}
             {callStatus === 'connected' && 'In call'}
             {callStatus === 'ended' && 'Call ended'}
           </p>

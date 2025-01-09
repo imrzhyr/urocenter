@@ -14,20 +14,26 @@ export const IncomingCallControls = ({
     <div className="grid grid-cols-2 gap-4">
       <Button
         variant="outline"
-        className="flex flex-col items-center p-4 bg-green-50 hover:bg-green-100"
+        size="lg"
+        className="flex flex-col items-center justify-center h-20 bg-green-50 hover:bg-green-100 border-green-200"
         onClick={onAccept}
       >
-        <Phone className="h-6 w-6 mb-2 text-green-500" />
-        <span className="text-sm">Accept</span>
+        <div className="flex flex-col items-center">
+          <Phone className="h-6 w-6 mb-2 text-green-500" />
+          <span className="text-sm">Accept</span>
+        </div>
       </Button>
 
       <Button
         variant="outline"
-        className="flex flex-col items-center p-4 bg-red-50 hover:bg-red-100"
+        size="lg"
+        className="flex flex-col items-center justify-center h-20 bg-red-50 hover:bg-red-100 border-red-200"
         onClick={onReject}
       >
-        <X className="h-6 w-6 mb-2 text-red-500" />
-        <span className="text-sm">Reject</span>
+        <div className="flex flex-col items-center">
+          <X className="h-6 w-6 mb-2 text-red-500" />
+          <span className="text-sm">Reject</span>
+        </div>
       </Button>
     </div>
   );
