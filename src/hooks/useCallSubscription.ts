@@ -26,10 +26,10 @@ export const useCallSubscription = ({
           filter: `receiver_id=eq.${userId}`
         },
         (payload: RealtimePostgresChangesPayload<Call>) => {
-          // Ensure payload.new exists and has a status before accessing it
           if (!payload.new || !('status' in payload.new)) return;
           
           const newStatus = payload.new.status;
+          console.log('Call status changed:', newStatus);
           
           if (newStatus === 'accepted') {
             onCallAccepted();
