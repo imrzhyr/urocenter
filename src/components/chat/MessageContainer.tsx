@@ -33,7 +33,7 @@ export const MessageContainer = ({
   }, [messages]);
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-white">
+    <div className="flex flex-col h-[100vh] w-full bg-gray-50">
       <div className="p-4 bg-primary text-white shadow-md">
         <div className="container mx-auto max-w-4xl flex justify-between items-center gap-4">
           <div className="flex-1 min-w-0">
@@ -45,17 +45,12 @@ export const MessageContainer = ({
       <div className="flex-1 overflow-y-auto smooth-scroll content-visibility bg-gray-50">
         <div className="container mx-auto max-w-4xl">
           <div className="py-4">
-            <div className="text-center mb-6">
-              <span className="text-xs text-gray-500 bg-white px-3 py-1 rounded-full shadow-sm">
-                TODAY
-              </span>
-            </div>
             <MessageList messages={messages} />
           </div>
         </div>
         <div ref={messagesEndRef} />
       </div>
-      <div className="container mx-auto max-w-4xl">
+      <div className="container mx-auto max-w-4xl bg-white border-t">
         <MessageInput onSendMessage={onSendMessage} isLoading={isLoading} />
       </div>
       <ViewReportsDialog open={showReports} onOpenChange={setShowReports} />

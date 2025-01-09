@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import type { Call } from "@/types/call";
-import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
+import { toast } from "sonner";
 
 interface UseCallSubscriptionProps {
   userId: string;
@@ -9,38 +8,51 @@ interface UseCallSubscriptionProps {
   onCallEnded: () => void;
 }
 
-export const useCallSubscription = ({ 
-  userId, 
-  onCallAccepted, 
-  onCallEnded 
+export const useCallSubscription = ({
+  userId,
+  onCallAccepted,
+  onCallEnded,
 }: UseCallSubscriptionProps) => {
   useEffect(() => {
+    console.log('Setting up call subscription for userId:', userId);
+
     const channel = supabase
-      .channel('call_status')
+      .channel(`calls_${userId}`)
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
           table: 'calls',
-          filter: `receiver_id=eq.${userId}`
+          filter: `receiver_id=eq.${userId}`,
         },
-        (payload: RealtimePostgresChangesPayload<Call>) => {
-          if (!payload.new || !('status' in payload.new)) return;
-          
-          const newStatus = payload.new.status;
-          console.log('Call status changed:', newStatus);
-          
-          if (newStatus === 'accepted') {
-            onCallAccepted();
-          } else if (newStatus === 'rejected' || newStatus === 'ended') {
-            onCallEnded();
+        async (payload) => {
+          console.log('Received call update:', payload);
+
+          if (payload.eventType === 'INSERT') {
+            console.log('New call received');
+            toast.info('Incoming call...');
+          } else if (payload.eventType === 'UPDATE') {
+            const newStatus = payload.new.status;
+            console.log('Call status updated to:', newStatus);
+
+            if (newStatus === 'accepted') {
+              onCallAccepted();
+            } else if (newStatus === 'ended') {
+              onCallEnded();
+            }
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Call subscription status:', status);
+        if (status === 'SUBSCRIBED') {
+          console.log('Successfully subscribed to call updates');
+        }
+      });
 
     return () => {
+      console.log('Cleaning up call subscription');
       supabase.removeChannel(channel);
     };
   }, [userId, onCallAccepted, onCallEnded]);

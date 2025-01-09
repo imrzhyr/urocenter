@@ -1,50 +1,44 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { formatDuration } from "@/utils/callUtils";
-import type { Profile } from "@/types/profile";
+import { Profile } from "@/types/profile";
 
 export const useCallHandlers = (userId: string | undefined, profile: Profile | null) => {
-  const navigate = useNavigate();
   const [duration, setDuration] = useState(0);
 
   const handleEndCall = async (callStartTime?: Date) => {
-    if (!userId || !profile?.id || !callStartTime) return;
+    if (!userId || !profile?.id) return;
 
     try {
-      const { error: callError } = await supabase
+      console.log('Ending call between:', profile.id, 'and', userId);
+
+      let finalDuration = 0;
+      if (callStartTime) {
+        finalDuration = Math.floor(
+          (new Date().getTime() - callStartTime.getTime()) / 1000
+        );
+      }
+
+      const { error } = await supabase
         .from('calls')
         .update({
+          status: 'ended',
           ended_at: new Date().toISOString(),
-          duration,
-          status: 'ended'
+          duration: finalDuration
         })
-        .eq('caller_id', profile.id)
-        .eq('receiver_id', userId)
-        .eq('status', 'active');
+        .eq('status', 'active')
+        .or(`caller_id.eq.${profile.id},receiver_id.eq.${profile.id}`);
 
-      if (callError) {
-        console.error('Error updating call record:', callError);
+      if (error) {
+        console.error('Error ending call:', error);
+        toast.error('Could not end call');
+        return;
       }
 
-      const { error: messageError } = await supabase
-        .from('messages')
-        .insert({
-          user_id: userId,
-          content: `Call ended - Duration: ${formatDuration(duration)}`,
-          is_from_doctor: profile.role === 'admin',
-          call_duration: duration
-        });
-
-      if (messageError) {
-        console.error('Error creating call message:', messageError);
-      }
-
-      navigate(-1);
+      toast.success('Call ended');
     } catch (error) {
-      console.error('Error ending call:', error);
-      toast.error('Error ending call');
+      console.error('Error in handleEndCall:', error);
+      toast.error('Failed to end call');
     }
   };
 
@@ -52,24 +46,26 @@ export const useCallHandlers = (userId: string | undefined, profile: Profile | n
     if (!userId || !profile?.id) return;
 
     try {
+      console.log('Accepting call from:', userId);
+
       const { error } = await supabase
         .from('calls')
-        .update({
-          status: 'accepted',
-          started_at: new Date().toISOString()
-        })
+        .update({ status: 'accepted' })
         .eq('caller_id', userId)
         .eq('receiver_id', profile.id)
-        .eq('status', 'active');
+        .eq('status', 'active')
+        .single();
 
       if (error) {
         console.error('Error accepting call:', error);
         toast.error('Could not accept call');
         return;
       }
+
+      toast.success('Call accepted');
     } catch (error) {
-      console.error('Error accepting call:', error);
-      toast.error('Error accepting call');
+      console.error('Error in handleAcceptCall:', error);
+      toast.error('Failed to accept call');
     }
   };
 
@@ -77,15 +73,15 @@ export const useCallHandlers = (userId: string | undefined, profile: Profile | n
     if (!userId || !profile?.id) return;
 
     try {
+      console.log('Rejecting call from:', userId);
+
       const { error } = await supabase
         .from('calls')
-        .update({
-          status: 'rejected',
-          ended_at: new Date().toISOString()
-        })
+        .update({ status: 'rejected' })
         .eq('caller_id', userId)
         .eq('receiver_id', profile.id)
-        .eq('status', 'active');
+        .eq('status', 'active')
+        .single();
 
       if (error) {
         console.error('Error rejecting call:', error);
@@ -93,10 +89,10 @@ export const useCallHandlers = (userId: string | undefined, profile: Profile | n
         return;
       }
 
-      navigate(-1);
+      toast.success('Call rejected');
     } catch (error) {
-      console.error('Error rejecting call:', error);
-      toast.error('Error rejecting call');
+      console.error('Error in handleRejectCall:', error);
+      toast.error('Failed to reject call');
     }
   };
 
