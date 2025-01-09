@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -14,9 +14,16 @@ export const VerificationButton = ({ phone, password, onSuccess }: VerificationB
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
+  // Validation rules
+  const isValid = useMemo(() => {
+    const isPhoneValid = phone.length >= 10 && /^\d+$/.test(phone);
+    const isPasswordValid = password.length >= 6;
+    return isPhoneValid && isPasswordValid;
+  }, [phone, password]);
+
   const handleSignUp = async () => {
-    if (!phone || !password) {
-      toast.error("Please enter both phone number and password");
+    if (!isValid) {
+      toast.error("Please enter a valid phone number and password (minimum 6 characters)");
       return;
     }
 
@@ -83,8 +90,9 @@ export const VerificationButton = ({ phone, password, onSuccess }: VerificationB
   return (
     <Button
       onClick={handleSignUp}
-      disabled={isLoading}
-      className="w-full"
+      disabled={!isValid || isLoading}
+      className="w-full transition-all duration-200"
+      variant={isValid ? "default" : "secondary"}
     >
       {isLoading ? "Creating account..." : "Create account"}
     </Button>
