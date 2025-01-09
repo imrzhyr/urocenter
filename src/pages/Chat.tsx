@@ -2,39 +2,29 @@ import { useParams, Navigate } from "react-router-dom";
 import { DoctorChatContainer } from "@/components/chat/doctor/DoctorChatContainer";
 import { useProfile } from "@/hooks/useProfile";
 import { UserChatContainer } from "@/components/chat/UserChatContainer";
-import { LoadingScreen } from "@/components/LoadingScreen";
 
 const Chat = () => {
   const { userId } = useParams();
-  const { profile, isLoading } = useProfile();
+  const { profile } = useProfile();
+  const isAdmin = profile?.role === 'admin';
 
-  if (isLoading) {
-    return <LoadingScreen message="Loading profile..." />;
-  }
-
-  // Check if user is logged in by checking localStorage
-  const userPhone = localStorage.getItem('userPhone');
-  if (!userPhone) {
+  // If user is not logged in, redirect to signin
+  if (!profile) {
     return <Navigate to="/signin" replace />;
   }
 
-  // If user is admin and no userId is provided, redirect to admin dashboard
-  if (!userId && profile?.role === 'admin') {
-    return <Navigate to="/admin" replace />;
-  }
-
   // If no userId is provided and user is not admin, show patient chat container
-  if (!userId && profile?.role !== 'admin') {
+  if (!userId && !isAdmin) {
     return <UserChatContainer />;
   }
 
   // If userId is provided and user is admin, show doctor chat container
-  if (userId && profile?.role === 'admin') {
+  if (userId && isAdmin) {
     return <DoctorChatContainer />;
   }
 
   // For any other case, redirect to appropriate dashboard
-  return <Navigate to={profile?.role === 'admin' ? "/admin" : "/dashboard"} replace />;
+  return <Navigate to={isAdmin ? "/admin" : "/dashboard"} replace />;
 };
 
 export default Chat;

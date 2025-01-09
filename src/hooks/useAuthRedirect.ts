@@ -8,40 +8,40 @@ export const useAuthRedirect = () => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const userPhone = localStorage.getItem('userPhone');
-      
-      if (!userPhone) {
-        console.log("No user phone found in localStorage");
-        toast.error("Please sign in to access the chat");
-        navigate("/signin", { replace: true });
-        return;
-      }
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        const userPhone = localStorage.getItem('userPhone');
+        if (!userPhone) {
+          toast.error("Please sign in to access the chat");
+          navigate("/signin", { replace: true });
+          return;
+        }
 
-      try {
-        const { data: profile, error } = await supabase
+        const { data: profile } = await supabase
           .from('profiles')
           .select('*')
           .eq('phone', userPhone)
-          .single();
-
-        if (error) {
-          console.error("Error fetching profile:", error);
-          throw error;
-        }
+          .maybeSingle();
 
         if (!profile) {
-          console.log("No profile found for phone:", userPhone);
           localStorage.removeItem('userPhone');
           toast.error("Please sign in to access the chat");
           navigate("/signin", { replace: true });
         }
-      } catch (error) {
-        console.error("Error in auth check:", error);
-        toast.error("An error occurred while checking authentication");
-        navigate("/signin", { replace: true });
       }
     };
 
     checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT') {
+        localStorage.removeItem('userPhone');
+        navigate("/signin", { replace: true });
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 };

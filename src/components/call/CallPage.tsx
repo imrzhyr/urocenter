@@ -25,6 +25,69 @@ export const CallPage = () => {
   const [callStatus, setCallStatus] = useState<CallStatus>('ringing');
   const [isIncoming, setIsIncoming] = useState(false);
 
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      if (!userId) return;
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('full_name, id')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        console.error('Error fetching user details:', error);
+        toast.error('Could not fetch user details');
+        return;
+      }
+
+      setCallingUser(data);
+      
+      // Create call record
+      const { error: callError } = await supabase
+        .from('calls')
+        .insert({
+          caller_id: profile?.id,
+          receiver_id: userId,
+          status: 'active'
+        });
+
+      if (callError) {
+        console.error('Error creating call record:', callError);
+        toast.error('Could not initiate call');
+        return;
+      }
+    };
+
+    fetchUserDetails();
+  }, [userId, profile?.id]);
+
+  useCallSubscription({
+    userId: userId || '',
+    onCallAccepted: () => {
+      setCallStatus('connected');
+      setCallStartTime(new Date());
+    },
+    onCallEnded: handleEndCall
+  });
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    
+    if (callStartTime) {
+      interval = setInterval(() => {
+        const seconds = Math.floor((new Date().getTime() - callStartTime.getTime()) / 1000);
+        setDuration(seconds);
+      }, 1000);
+    }
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [callStartTime]);
+
   const handleEndCall = async () => {
     if (!userId || !profile?.id || !callStartTime) return;
 
@@ -42,8 +105,6 @@ export const CallPage = () => {
 
       if (callError) {
         console.error('Error updating call record:', callError);
-        toast.error("Could not end call");
-        return;
       }
 
       const { error: messageError } = await supabase
@@ -65,79 +126,6 @@ export const CallPage = () => {
       toast.error('Error ending call');
     }
   };
-
-  useCallSubscription({
-    userId: userId || '',
-    onCallAccepted: () => {
-      setCallStatus('connected');
-      setCallStartTime(new Date());
-    },
-    onCallEnded: handleEndCall
-  });
-
-  useEffect(() => {
-    const fetchUserDetails = async () => {
-      if (!userId || !profile?.id) {
-        console.error('Missing userId or profile');
-        toast.error('Could not initiate call');
-        navigate(-1);
-        return;
-      }
-      
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('full_name, id')
-          .eq('id', userId)
-          .single();
-
-        if (error) {
-          console.error('Error fetching user details:', error);
-          toast.error('Could not fetch user details');
-          return;
-        }
-
-        setCallingUser(data);
-        
-        // Create call record with explicit caller_id and receiver_id
-        const { error: callError } = await supabase
-          .from('calls')
-          .insert({
-            caller_id: profile.id,
-            receiver_id: userId,
-            status: 'active'
-          });
-
-        if (callError) {
-          console.error('Error creating call record:', callError);
-          toast.error('Could not initiate call');
-          return;
-        }
-      } catch (error) {
-        console.error('Error in fetchUserDetails:', error);
-        toast.error('An error occurred');
-      }
-    };
-
-    fetchUserDetails();
-  }, [userId, profile?.id, navigate]);
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    
-    if (callStartTime) {
-      interval = setInterval(() => {
-        const seconds = Math.floor((new Date().getTime() - callStartTime.getTime()) / 1000);
-        setDuration(seconds);
-      }, 1000);
-    }
-
-    return () => {
-      if (interval) {
-        clearInterval(interval);
-      }
-    };
-  }, [callStartTime]);
 
   const handleAcceptCall = async () => {
     if (!userId || !profile?.id) return;

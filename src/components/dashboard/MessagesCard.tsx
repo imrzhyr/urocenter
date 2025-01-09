@@ -26,7 +26,9 @@ export const MessagesCard = () => {
             </p>
           </div>
         </div>
-        {isAdmin ? <AdminMessagesList /> : <PatientChatPrompt />}
+        <div className="flex items-center justify-center">
+          {isAdmin ? <AdminMessagesList /> : <PatientChatPrompt />}
+        </div>
       </div>
     </div>
   );

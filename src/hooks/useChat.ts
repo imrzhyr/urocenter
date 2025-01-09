@@ -16,7 +16,6 @@ export const useChat = (userId?: string) => {
     }
     
     try {
-      setIsLoading(true);
       console.log('Fetching messages for userId:', userId);
       
       const { data: messages, error: messagesError } = await supabase
@@ -56,8 +55,6 @@ export const useChat = (userId?: string) => {
     } catch (error) {
       console.error('Error in fetchMessages:', error);
       toast.error("Failed to load messages");
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -109,31 +106,29 @@ export const useChat = (userId?: string) => {
   };
 
   useEffect(() => {
-    if (userId) {
-      fetchMessages();
+    fetchMessages();
 
-      const channel = supabase
-        .channel(`messages_${userId}`)
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'messages',
-            filter: `user_id=eq.${userId}`
-          },
-          async (payload) => {
-            console.log('Received real-time update:', payload);
-            await fetchMessages();
-          }
-        )
-        .subscribe();
+    const channel = supabase
+      .channel(`messages_${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'messages',
+          filter: `user_id=eq.${userId}`
+        },
+        async (payload) => {
+          console.log('Received real-time update:', payload);
+          await fetchMessages();
+        }
+      )
+      .subscribe();
 
-      return () => {
-        console.log('Cleaning up subscription');
-        supabase.removeChannel(channel);
-      };
-    }
+    return () => {
+      console.log('Cleaning up subscription');
+      supabase.removeChannel(channel);
+    };
   }, [userId]);
 
   return {
