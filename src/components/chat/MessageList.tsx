@@ -84,7 +84,7 @@ export const MessageList = ({ messages }: MessageListProps) => {
 
   return (
     <>
-      <div className="space-y-4 px-4 w-full">
+      <div className="space-y-6 px-6 w-full">
         {messages.map((message) => {
           const isFromMe = isAdmin ? message.is_from_doctor : !message.is_from_doctor;
           const shouldShowStatus = isFromMe;
@@ -94,26 +94,35 @@ export const MessageList = ({ messages }: MessageListProps) => {
               key={message.id}
               className={`flex ${isFromMe ? 'justify-end' : 'justify-start'} animate-fade-in w-full`}
             >
-              <div
-                className={`relative max-w-[70%] p-3 rounded-2xl ${
-                  isFromMe
-                    ? 'bg-[#0066FF] text-white'
-                    : 'bg-white text-gray-800 shadow-sm'
-                }`}
-              >
-                {message.content && (
-                  <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
-                )}
-                {renderFilePreview(message)}
-                <div className="flex items-center justify-end gap-1 mt-1">
-                  <span className={`text-[11px] ${isFromMe ? 'text-blue-100' : 'text-gray-500'}`}>
-                    {new Date(message.created_at).toLocaleTimeString([], { 
-                      hour: '2-digit', 
-                      minute: '2-digit',
-                      hour12: true 
-                    })}
+              <div className="flex flex-col max-w-[70%] gap-1">
+                {!isFromMe && (
+                  <span className="text-sm text-gray-500 ml-3">
+                    {message.sender_name || 'Unknown User'}
                   </span>
-                  {shouldShowStatus && <MessageStatus message={message} />}
+                )}
+                <div
+                  className={`relative p-4 rounded-2xl ${
+                    isFromMe
+                      ? 'bg-[#0066FF] text-white'
+                      : 'bg-white text-gray-800 shadow-sm'
+                  }`}
+                >
+                  {message.content && (
+                    <p className="text-base whitespace-pre-wrap break-words leading-relaxed">
+                      {message.content}
+                    </p>
+                  )}
+                  {renderFilePreview(message)}
+                  <div className="flex items-center justify-end gap-2 mt-2">
+                    <span className={`text-xs ${isFromMe ? 'text-blue-100' : 'text-gray-500'}`}>
+                      {new Date(message.created_at).toLocaleTimeString([], { 
+                        hour: '2-digit', 
+                        minute: '2-digit',
+                        hour12: true 
+                      })}
+                    </span>
+                    {shouldShowStatus && <MessageStatus message={message} />}
+                  </div>
                 </div>
               </div>
             </div>
