@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import { Chat } from "@/pages/Chat";
+import Chat from "@/pages/Chat";
 import UserChat from "@/pages/UserChat";
 import { CallPage } from "@/components/call/CallPage";
 
