@@ -80,8 +80,10 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
     onOpenChange(false);
   };
 
+  if (!open) return null;
+
   return (
-    <Dialog open={open} onOpenChange={handleClose} modal>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-2xl p-6 bg-white">
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold">Edit Profile</DialogTitle>
