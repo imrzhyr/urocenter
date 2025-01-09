@@ -18,6 +18,11 @@ const Chat = () => {
     return <Navigate to="/signin" replace />;
   }
 
+  // If user is admin and no userId is provided, redirect to admin dashboard
+  if (!userId && profile?.role === 'admin') {
+    return <Navigate to="/admin" replace />;
+  }
+
   // If no userId is provided and user is not admin, show patient chat container
   if (!userId && profile?.role !== 'admin') {
     return <UserChatContainer />;
