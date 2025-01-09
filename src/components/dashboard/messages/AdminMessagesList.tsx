@@ -9,6 +9,7 @@ import { PatientMessage, MessageStatus } from "@/types/messages";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { useProfile } from "@/hooks/useProfile";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export const AdminMessagesList = () => {
   const navigate = useNavigate();
@@ -30,6 +31,7 @@ export const AdminMessagesList = () => {
           created_at,
           status,
           is_read,
+          is_resolved,
           user_id,
           profiles (
             id,
@@ -50,10 +52,8 @@ export const AdminMessagesList = () => {
         return;
       }
 
-      // Filter out admin's own messages and group by patient
       const userMessages = messagesData.reduce((acc: { [key: string]: PatientMessage }, message: any) => {
         const userId = message.user_id;
-        // Skip if this is the admin's own message
         if (userId === profile?.id) {
           return acc;
         }
@@ -71,7 +71,8 @@ export const AdminMessagesList = () => {
             last_message: message.content || "",
             last_message_time: message.created_at,
             status: message.status as MessageStatus || 'not_seen',
-            unread_count: unreadCount
+            unread_count: unreadCount,
+            is_resolved: message.is_resolved || false
           };
         }
         return acc;
@@ -113,7 +114,6 @@ export const AdminMessagesList = () => {
   }, []);
 
   const handlePatientClick = (patientId: string) => {
-    // Prevent clicking on admin's own chat
     if (patientId === profile?.id) {
       toast.error("Cannot chat with yourself");
       return;
@@ -164,16 +164,25 @@ export const AdminMessagesList = () => {
                 onClick={() => handlePatientClick(patient.id)}
               >
                 <div className="flex items-start gap-3 w-full">
-                  <div className="bg-primary/10 p-2 rounded-full">
-                    <User className="w-5 h-5 text-primary" />
-                  </div>
+                  <Avatar className="h-10 w-10">
+                    <AvatarFallback className="bg-primary/10">
+                      {patient.full_name.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
                   <div className="flex-1 text-left">
                     <div className="flex items-center justify-between">
                       <span className="font-medium text-base">{patient.full_name}</span>
-                      <MessageStatusBadge 
-                        status={patient.status} 
-                        unreadCount={patient.unread_count}
-                      />
+                      <div className="flex items-center gap-2">
+                        {patient.is_resolved && (
+                          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                            Resolved
+                          </span>
+                        )}
+                        <MessageStatusBadge 
+                          status={patient.status} 
+                          unreadCount={patient.unread_count}
+                        />
+                      </div>
                     </div>
                     <p className="text-sm text-muted-foreground truncate mt-1">
                       {patient.last_message}

@@ -3,7 +3,7 @@ import { MessageStatus } from "./MessageStatus";
 import { FileText } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { PatientInfoCard } from "./PatientInfoCard";
 import { AudioPlayer } from "./audio/AudioPlayer";
 import { MediaGallery } from "./media/MediaGallery";
@@ -84,7 +84,7 @@ export const MessageList = ({ messages }: MessageListProps) => {
 
   return (
     <>
-      <div className="space-y-6 px-6 w-full">
+      <div className="space-y-4 px-2 w-full pb-4">
         {messages.map((message) => {
           const isFromMe = isAdmin ? message.is_from_doctor : !message.is_from_doctor;
           const shouldShowStatus = isFromMe;
@@ -94,7 +94,7 @@ export const MessageList = ({ messages }: MessageListProps) => {
               key={message.id}
               className={`flex ${isFromMe ? 'justify-end' : 'justify-start'} animate-fade-in w-full`}
             >
-              <div className="flex flex-col max-w-[70%] gap-1">
+              <div className={`flex flex-col max-w-[85%] gap-1 ${isFromMe ? 'items-end' : 'items-start'}`}>
                 <div
                   className={`relative p-4 rounded-2xl ${
                     isFromMe
@@ -154,6 +154,9 @@ export const MessageList = ({ messages }: MessageListProps) => {
 
       <Dialog open={showPatientInfo} onOpenChange={setShowPatientInfo}>
         <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Patient Information</DialogTitle>
+          </DialogHeader>
           <PatientInfoCard 
             complaint={messages[0]?.content || ''}
             reportsCount={0}

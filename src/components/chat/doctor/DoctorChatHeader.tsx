@@ -1,9 +1,11 @@
-import { User, ArrowLeft, FileText } from "lucide-react";
+import { User, ArrowLeft, FileText, Info } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { ViewReportsDialog } from "@/components/medical-reports/ViewReportsDialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { PatientInfoCard } from "../PatientInfoCard";
 
 interface DoctorChatHeaderProps {
   patientId: string;
@@ -12,9 +14,12 @@ interface DoctorChatHeaderProps {
   onRefresh: () => Promise<void>;
 }
 
-export const DoctorChatHeader = ({ patientName, patientPhone, onRefresh }: DoctorChatHeaderProps) => {
+export const DoctorChatHeader = ({ patientId, patientName, patientPhone, onRefresh }: DoctorChatHeaderProps) => {
   const navigate = useNavigate();
   const [showReports, setShowReports] = useState(false);
+  const [showPatientInfo, setShowPatientInfo] = useState(false);
+
+  const firstLetter = patientName ? patientName.charAt(0).toUpperCase() : '?';
 
   return (
     <div className="flex items-center gap-4">
@@ -27,23 +32,48 @@ export const DoctorChatHeader = ({ patientName, patientPhone, onRefresh }: Docto
         <ArrowLeft className="h-5 w-5 text-white" />
       </Button>
       <Avatar className="h-10 w-10">
-        <AvatarFallback>
-          <User className="h-5 w-5" />
+        <AvatarFallback className="bg-primary/20 text-white">
+          {firstLetter}
         </AvatarFallback>
       </Avatar>
       <div>
         <h3 className="font-medium text-white">{patientName || "Unknown Patient"}</h3>
         <p className="text-sm text-white/80">{patientPhone || "No phone number"}</p>
       </div>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => setShowReports(true)}
-        className="ml-auto hover:bg-white/20 text-white rounded-full w-10 h-10"
-      >
-        <FileText className="w-5 h-5" />
-      </Button>
-      <ViewReportsDialog open={showReports} onOpenChange={setShowReports} />
+      <div className="flex items-center gap-2 ml-auto">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setShowPatientInfo(true)}
+          className="hover:bg-white/20 text-white rounded-full w-10 h-10"
+        >
+          <Info className="w-5 h-5" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setShowReports(true)}
+          className="hover:bg-white/20 text-white rounded-full w-10 h-10"
+        >
+          <FileText className="w-5 h-5" />
+        </Button>
+      </div>
+      <ViewReportsDialog open={showReports} onOpenChange={setShowReports} userId={patientId} />
+      <Dialog open={showPatientInfo} onOpenChange={setShowPatientInfo}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Patient Information</DialogTitle>
+          </DialogHeader>
+          <PatientInfoCard 
+            patientId={patientId}
+            complaint=""
+            reportsCount={0}
+            fullName={patientName || ""}
+            age=""
+            gender=""
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -8,4 +8,5 @@ export interface PatientMessage {
   status: MessageStatus;
   unread_count: number;
   duration?: number;
+  is_resolved?: boolean;
 }

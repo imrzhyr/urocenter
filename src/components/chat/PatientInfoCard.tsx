@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, User } from "lucide-react";
 import { ViewReportsDialog } from "../medical-reports/ViewReportsDialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -32,6 +32,27 @@ export const PatientInfoCard = ({
 }: PatientInfoCardProps) => {
   const [showReports, setShowReports] = useState(false);
   const [isResolvedState, setIsResolvedState] = useState(isResolved);
+  const [patientInfo, setPatientInfo] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchPatientInfo = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', patientId)
+          .single();
+
+        if (error) throw error;
+        setPatientInfo(data);
+      } catch (error) {
+        console.error('Error fetching patient info:', error);
+        toast.error("Failed to load patient information");
+      }
+    };
+
+    fetchPatientInfo();
+  }, [patientId]);
 
   const handleResolveToggle = async () => {
     try {
@@ -62,27 +83,27 @@ export const PatientInfoCard = ({
         <div className="space-y-2">
           <div className="flex justify-between items-center">
             <h3 className="font-medium">Full Name</h3>
-            <p>{fullName || "Not provided"}</p>
+            <p>{patientInfo?.full_name || "Not provided"}</p>
           </div>
           <div className="flex justify-between items-center">
             <h3 className="font-medium">Age</h3>
-            <p>{age || "Not provided"}</p>
+            <p>{patientInfo?.age || "Not provided"}</p>
           </div>
           <div className="flex justify-between items-center">
             <h3 className="font-medium">Gender</h3>
-            <p>{gender || "Not provided"}</p>
+            <p>{patientInfo?.gender || "Not provided"}</p>
           </div>
           <div className="flex justify-between items-center">
             <h3 className="font-medium">Phone</h3>
-            <p>{phone || "Not provided"}</p>
+            <p>{patientInfo?.phone || "Not provided"}</p>
           </div>
           <div className="flex justify-between items-center">
             <h3 className="font-medium">Member Since</h3>
-            <p>{createdAt ? format(new Date(createdAt), 'MMM d, yyyy') : "Not available"}</p>
+            <p>{patientInfo?.created_at ? format(new Date(patientInfo.created_at), 'MMM d, yyyy') : "Not available"}</p>
           </div>
           <div className="space-y-1">
             <h3 className="font-medium">Complaint</h3>
-            <p className="text-sm text-muted-foreground">{complaint || "No complaint provided"}</p>
+            <p className="text-sm text-muted-foreground">{patientInfo?.complaint || "No complaint provided"}</p>
           </div>
         </div>
 
