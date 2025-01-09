@@ -6,7 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 export const DoctorProfileCard = () => {
   const navigate = useNavigate();
-  const { currentLanguage } = useLanguage();
+  const { language } = useLanguage();
 
   const clinicInfo = {
     en: "Sulaymaniyah - Ibrahim Pasha Street - Opposite to Sherko Printing & Advertising - Aran Building - Second Floor - Dr. Ali Kamal",
@@ -75,7 +75,7 @@ export const DoctorProfileCard = () => {
                 rel="noopener noreferrer"
                 className="hover:text-primary transition-colors"
               >
-                {clinicInfo[currentLanguage === 'ar' ? 'ar' : 'en']}
+                {clinicInfo[language === 'ar' ? 'ar' : 'en']}
               </a>
             </div>
             <div className="flex items-center text-sm text-gray-600">

@@ -44,24 +44,21 @@ export const MessageList = ({ messages }: MessageListProps) => {
             {message.file_type?.startsWith("audio/") ? (
               <AudioPlayer
                 audioUrl={message.file_url || ""}
+                messageId={message.id}
                 duration={message.duration}
               />
             ) : message.file_type?.startsWith("image/") ||
               message.file_type?.startsWith("video/") ? (
               <MediaGallery
-                fileUrl={message.file_url || ""}
-                fileType={message.file_type}
-                fileName={message.file_name || ""}
+                url={message.file_url || ""}
+                type={message.file_type}
+                name={message.file_name || ""}
               />
             ) : (
               <p className="break-words">{message.content}</p>
             )}
             <div className="mt-1 text-xs opacity-70 flex justify-end">
-              <MessageStatus
-                status={message.status}
-                seen_at={message.seen_at}
-                delivered_at={message.delivered_at}
-              />
+              <MessageStatus message={message} />
             </div>
           </div>
         </motion.div>
