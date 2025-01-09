@@ -64,22 +64,22 @@ export const DoctorProfileCard = () => {
         <div className="space-y-4 pt-4 border-t border-gray-100">
           <div className="space-y-2">
             <div className="flex items-center text-sm text-gray-600">
-              <Clock className="w-4 h-4 mr-2 text-primary" />
+              <Clock className="w-4 h-4 min-w-[16px] text-primary mr-2" />
               <span>2:00 PM - 6:00 PM (Closed on Fridays)</span>
             </div>
-            <div className="flex items-center text-sm text-gray-600">
-              <MapPin className="w-4 h-4 mr-2 text-primary" />
+            <div className="flex items-start text-sm text-gray-600">
+              <MapPin className="w-4 h-4 min-w-[16px] text-primary mr-2 mt-1" />
               <a 
                 href="https://maps.google.com/?q=35.561398,45.450352"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-primary transition-colors"
+                className="hover:text-primary transition-colors text-left"
               >
                 {clinicInfo[language === 'ar' ? 'ar' : 'en']}
               </a>
             </div>
             <div className="flex items-center text-sm text-gray-600">
-              <Phone className="w-4 h-4 mr-2 text-primary" />
+              <Phone className="w-4 h-4 min-w-[16px] text-primary mr-2" />
               <div className="flex flex-col">
                 {phoneNumbers.map((number, index) => (
                   <a 

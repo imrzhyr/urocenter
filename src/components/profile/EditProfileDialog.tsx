@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ProfileForm } from "@/components/ProfileForm";
 import { Button } from "@/components/ui/button";
 import { useProfile } from "@/hooks/useProfile";
@@ -71,6 +71,9 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
       <DialogContent className="max-w-2xl p-6 bg-white">
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold">Edit Profile</DialogTitle>
+          <DialogDescription className="text-muted-foreground">
+            Make changes to your profile information here.
+          </DialogDescription>
         </DialogHeader>
         
         <div className="mt-6">
