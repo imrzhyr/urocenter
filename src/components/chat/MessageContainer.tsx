@@ -33,7 +33,7 @@ export const MessageContainer = ({
   }, [messages]);
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-white">
+    <div className="flex flex-col h-[100vh] w-full bg-white">
       <div className="p-4 bg-primary text-white shadow-md">
         <div className="container mx-auto max-w-4xl flex justify-between items-center gap-4">
           <div className="flex-1 min-w-0">

@@ -26,15 +26,15 @@ export const useCallSubscription = ({
           filter: `receiver_id=eq.${userId}`
         },
         (payload: RealtimePostgresChangesPayload<Call>) => {
-          // Ensure payload.new exists and has the expected shape
-          if (!payload.new || typeof payload.new !== 'object') return;
+          if (!payload.new) return;
           
-          const newStatus = payload.new.status;
-          if (!newStatus) return;
+          // Type assertion to ensure TypeScript knows we're working with a Call
+          const call = payload.new as Call;
+          if (!call.status) return;
           
-          if (newStatus === 'accepted') {
+          if (call.status === 'accepted') {
             onCallAccepted();
-          } else if (newStatus === 'rejected' || newStatus === 'ended') {
+          } else if (call.status === 'rejected' || call.status === 'ended') {
             onCallEnded();
           }
         }
