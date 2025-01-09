@@ -81,14 +81,14 @@ const Welcome = () => {
         <div className="w-full space-y-2 max-w-md mx-auto">
           <Button
             className="w-full py-4 bg-primary hover:bg-primary/90 transition-all duration-300"
-            onClick={() => navigate("/signup")}
+            onClick={() => navigate("/signup", { replace: true })}
           >
             Start Your Journey
           </Button>
           <p className="text-xs text-muted-foreground text-center">
             Already have an account?{" "}
             <button
-              onClick={() => navigate("/signin")}
+              onClick={() => navigate("/signin", { replace: true })}
               className="text-primary hover:underline font-medium transition-colors"
             >
               Sign In
