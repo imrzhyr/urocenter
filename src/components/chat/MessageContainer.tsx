@@ -33,26 +33,20 @@ export const MessageContainer = ({
   }, [messages]);
 
   return (
-    <div className="flex flex-col h-[100vh] w-full bg-gray-50">
-      <div className="p-6 bg-primary text-white shadow-md">
-        <div className="container mx-auto max-w-6xl flex justify-between items-center gap-6">
+    <div className="flex flex-col h-[100vh] w-full">
+      <div className="bg-primary text-white">
+        <div className="flex justify-between items-center">
           <div className="flex-1 min-w-0">
             {header}
           </div>
           <CallButton userId={userId} className="text-white hover:bg-white/10" />
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto smooth-scroll content-visibility bg-gray-50">
-        <div className="container mx-auto max-w-6xl">
-          <div className="py-8">
-            <MessageList messages={messages} />
-          </div>
-        </div>
+      <div className="flex-1 overflow-y-auto">
+        <MessageList messages={messages} />
         <div ref={messagesEndRef} />
       </div>
-      <div className="container mx-auto max-w-6xl bg-white border-t py-4">
-        <MessageInput onSendMessage={onSendMessage} isLoading={isLoading} />
-      </div>
+      <MessageInput onSendMessage={onSendMessage} isLoading={isLoading} />
       <ViewReportsDialog open={showReports} onOpenChange={setShowReports} />
     </div>
   );

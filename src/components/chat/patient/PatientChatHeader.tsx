@@ -12,7 +12,7 @@ export const PatientChatHeader = () => {
   const [showReports, setShowReports] = useState(false);
 
   return (
-    <div className="flex items-center justify-between bg-primary/95 backdrop-blur-sm p-4 rounded-b-2xl shadow-md">
+    <div className="p-4">
       <div className="flex items-center gap-4">
         <Button 
           variant="ghost" 

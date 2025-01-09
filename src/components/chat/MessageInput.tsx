@@ -60,7 +60,7 @@ export const MessageInput = ({ onSendMessage, isLoading }: MessageInputProps) =>
   };
 
   return (
-    <div className="p-4 bg-gray-50 border-t">
+    <div className="border-t">
       {selectedFile && (
         <div className="mb-2 p-2 bg-white rounded-md flex items-center justify-between animate-fade-up shadow-sm">
           <span className="text-sm text-gray-700 truncate">{selectedFile.name}</span>
