@@ -1,10 +1,9 @@
 import { Message } from "@/types/profile";
 import { MessageStatus } from "./MessageStatus";
-import { FileText, Image as ImageIcon, Info } from "lucide-react";
+import { FileText } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { PatientInfoCard } from "./PatientInfoCard";
 import { AudioPlayer } from "./audio/AudioPlayer";
 import { MediaGallery } from "./media/MediaGallery";
@@ -85,31 +84,6 @@ export const MessageList = ({ messages }: MessageListProps) => {
 
   return (
     <>
-      <div className="flex items-center justify-between px-4 py-2 bg-white border-b">
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowMediaGallery(true)}
-            className="gap-2"
-          >
-            <ImageIcon className="w-4 h-4" />
-            Media Gallery
-          </Button>
-          {isAdmin && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowPatientInfo(true)}
-              className="gap-2"
-            >
-              <Info className="w-4 h-4" />
-              Patient Info
-            </Button>
-          )}
-        </div>
-      </div>
-
       <div className="space-y-4 px-4 w-full">
         {messages.map((message) => {
           const isFromMe = isAdmin ? message.is_from_doctor : !message.is_from_doctor;
