@@ -84,7 +84,7 @@ export const MessageList = ({ messages }: MessageListProps) => {
 
   return (
     <>
-      <div className="space-y-4 px-2 w-full pb-4">
+      <div className="space-y-4 px-1 w-full pb-6">
         {messages.map((message) => {
           const isFromMe = isAdmin ? message.is_from_doctor : !message.is_from_doctor;
           const shouldShowStatus = isFromMe;
@@ -94,7 +94,7 @@ export const MessageList = ({ messages }: MessageListProps) => {
               key={message.id}
               className={`flex ${isFromMe ? 'justify-end' : 'justify-start'} animate-fade-in w-full`}
             >
-              <div className={`flex flex-col max-w-[85%] gap-1 ${isFromMe ? 'items-end' : 'items-start'}`}>
+              <div className={`flex flex-col max-w-[90%] gap-1 ${isFromMe ? 'items-end' : 'items-start'}`}>
                 <div
                   className={`relative p-4 rounded-2xl ${
                     isFromMe

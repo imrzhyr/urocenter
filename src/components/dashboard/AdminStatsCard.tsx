@@ -14,19 +14,38 @@ interface AdminStats {
 export const AdminStatsCard = () => {
   const [stats, setStats] = useState<AdminStats | null>(null);
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      const { data, error } = await supabase.rpc('get_admin_stats');
-      if (error) {
-        console.error("Error fetching admin stats:", error);
-        return;
-      }
-      if (data && data.length > 0) {
-        setStats(data[0]);
-      }
-    };
+  const fetchStats = async () => {
+    const { data, error } = await supabase.rpc('get_admin_stats');
+    if (error) {
+      console.error("Error fetching admin stats:", error);
+      return;
+    }
+    if (data && data.length > 0) {
+      setStats(data[0]);
+    }
+  };
 
+  useEffect(() => {
     fetchStats();
+
+    const channel = supabase
+      .channel('messages_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'messages'
+        },
+        () => {
+          fetchStats();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const statItems = [
