@@ -1,4 +1,4 @@
-export type MessageStatus = 'not_seen' | 'in_progress' | 'resolved';
+export type MessageStatus = 'not_seen' | 'seen' | 'in_progress' | 'resolved';
 
 export interface PatientMessage {
   id: string;
