@@ -14,9 +14,11 @@ const fetchWithRetry = async (url: string, options: any, retries = maxRetries): 
       ...options,
       headers: {
         ...options.headers,
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey',
       },
     });
     
@@ -47,6 +49,8 @@ export const supabase = createClient<Database>(
       fetch: fetchWithRetry as any,
       headers: {
         'X-Client-Info': 'supabase-js-web',
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
       },
     },
     db: {
