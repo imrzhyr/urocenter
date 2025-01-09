@@ -75,12 +75,7 @@ export const ProfilePage = () => {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="space-y-6 p-4 md:p-6 max-w-2xl mx-auto"
-    >
+    <div className="space-y-6 p-4 md:p-6">
       <div className="space-y-2">
         <h1 className="text-2xl font-semibold tracking-tight">Complete Your Profile</h1>
         <p className="text-muted-foreground">
@@ -96,11 +91,11 @@ export const ProfilePage = () => {
       <Button
         onClick={handleSubmit}
         disabled={!isFormValid() || isSubmitting}
-        className="w-full"
+        className="w-full bg-primary hover:bg-primary/90"
       >
         {isSubmitting ? "Saving..." : "Continue"}
       </Button>
-    </motion.div>
+    </div>
   );
 };
 

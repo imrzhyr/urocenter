@@ -17,7 +17,7 @@ export const ProfileForm = memo(({
   const hasValidName = profile.full_name?.trim().split(' ').length >= 2;
 
   return (
-    <div className="space-y-6 bg-white">
+    <div className="space-y-6 bg-white rounded-lg">
       <div className="space-y-2">
         <Label htmlFor="fullName">Full Name *</Label>
         <Input
