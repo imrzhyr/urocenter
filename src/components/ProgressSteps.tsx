@@ -10,22 +10,23 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
   return (
     <div className="w-full px-4">
       <div className="relative flex justify-between">
-        {/* Progress bar background - Positioned lower */}
+        {/* Progress bar background */}
         <div 
-          className="absolute top-[1.125rem] left-0 right-0 h-0.5 bg-gray-100" 
+          className="absolute top-[1.125rem] left-[4%] right-[4%] h-0.5 bg-gray-100" 
           style={{ zIndex: 0 }}
         />
         
-        {/* Active progress bar - Positioned lower */}
+        {/* Active progress bar */}
         <div 
-          className="absolute top-[1.125rem] left-0 h-0.5 bg-primary transition-all duration-500 ease-in-out"
+          className="absolute top-[1.125rem] h-0.5 bg-primary transition-all duration-500 ease-in-out"
           style={{ 
-            width: `${(currentStep / (steps.length - 1)) * 100}%`,
+            left: '4%',
+            width: `${(currentStep / (steps.length - 1)) * 92}%`,
             zIndex: 1 
           }}
         />
 
-        {/* Steps - Positioned higher */}
+        {/* Steps */}
         <div className="relative flex justify-between w-full" style={{ zIndex: 2 }}>
           {steps.map((step, index) => (
             <div

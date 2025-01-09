@@ -45,17 +45,17 @@ export const OnboardingLayout = () => {
       </header>
 
       <main className="flex-1 container max-w-4xl mx-auto p-4">
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={location.pathname}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
             transition={{ 
               type: "spring",
-              stiffness: 200,
-              damping: 25,
-              mass: 0.5
+              stiffness: 100,
+              damping: 15,
+              mass: 0.3
             }}
             className="flex-1 h-full bg-white rounded-lg shadow-sm p-6"
           >
