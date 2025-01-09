@@ -19,6 +19,26 @@ export const useCallHandlers = (userId: string | undefined, profile: Profile | n
         );
       }
 
+      // Get the most recent active call
+      const { data: activeCalls, error: fetchError } = await supabase
+        .from('calls')
+        .select('*')
+        .or(`caller_id.eq.${profile.id},receiver_id.eq.${profile.id}`)
+        .eq('status', 'active')
+        .order('started_at', { ascending: false })
+        .limit(1);
+
+      if (fetchError) {
+        console.error('Error fetching active call:', fetchError);
+        toast.error('Could not find active call');
+        return;
+      }
+
+      if (!activeCalls || activeCalls.length === 0) {
+        console.log('No active call found');
+        return;
+      }
+
       const { error } = await supabase
         .from('calls')
         .update({
@@ -26,8 +46,7 @@ export const useCallHandlers = (userId: string | undefined, profile: Profile | n
           ended_at: new Date().toISOString(),
           duration: finalDuration
         })
-        .eq('status', 'active')
-        .or(`caller_id.eq.${profile.id},receiver_id.eq.${profile.id}`);
+        .eq('id', activeCalls[0].id);
 
       if (error) {
         console.error('Error ending call:', error);
@@ -48,13 +67,34 @@ export const useCallHandlers = (userId: string | undefined, profile: Profile | n
     try {
       console.log('Accepting call from:', userId);
 
-      const { error } = await supabase
+      // Get the most recent active call
+      const { data: activeCalls, error: fetchError } = await supabase
         .from('calls')
-        .update({ status: 'accepted' })
+        .select('*')
         .eq('caller_id', userId)
         .eq('receiver_id', profile.id)
         .eq('status', 'active')
-        .single();
+        .order('started_at', { ascending: false })
+        .limit(1);
+
+      if (fetchError) {
+        console.error('Error fetching active call:', fetchError);
+        toast.error('Could not find active call');
+        return;
+      }
+
+      if (!activeCalls || activeCalls.length === 0) {
+        console.log('No active call found');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('calls')
+        .update({ 
+          status: 'accepted',
+          started_at: new Date().toISOString()
+        })
+        .eq('id', activeCalls[0].id);
 
       if (error) {
         console.error('Error accepting call:', error);
@@ -75,13 +115,31 @@ export const useCallHandlers = (userId: string | undefined, profile: Profile | n
     try {
       console.log('Rejecting call from:', userId);
 
-      const { error } = await supabase
+      // Get the most recent active call
+      const { data: activeCalls, error: fetchError } = await supabase
         .from('calls')
-        .update({ status: 'rejected' })
+        .select('*')
         .eq('caller_id', userId)
         .eq('receiver_id', profile.id)
         .eq('status', 'active')
-        .single();
+        .order('started_at', { ascending: false })
+        .limit(1);
+
+      if (fetchError) {
+        console.error('Error fetching active call:', fetchError);
+        toast.error('Could not find active call');
+        return;
+      }
+
+      if (!activeCalls || activeCalls.length === 0) {
+        console.log('No active call found');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('calls')
+        .update({ status: 'rejected' })
+        .eq('id', activeCalls[0].id);
 
       if (error) {
         console.error('Error rejecting call:', error);
