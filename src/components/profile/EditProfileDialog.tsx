@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ProfileForm } from "@/components/ProfileForm";
 import { Button } from "@/components/ui/button";
 import { useProfile } from "@/hooks/useProfile";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import type { Profile } from "@/types/profile";
 import { toast } from "sonner";
 
@@ -14,21 +14,15 @@ interface EditProfileDialogProps {
 export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps) => {
   const { profile: initialProfile, updateProfile } = useProfile();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [profile, setProfile] = useState<Profile>({
+  const [profile, setProfile] = useState<Profile>(initialProfile || {
     id: '',
     full_name: '',
     gender: '',
     age: '',
     complaint: '',
-    phone: localStorage.getItem('userPhone') || '',
+    phone: '',
     role: 'patient'
   });
-
-  useEffect(() => {
-    if (initialProfile && open) {
-      setProfile(initialProfile);
-    }
-  }, [initialProfile, open]);
 
   const handleProfileChange = (field: keyof Profile, value: string) => {
     setProfile(prev => ({
@@ -84,14 +78,12 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
-            type="button"
           >
             Cancel
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={!isFormValid() || isSubmitting}
-            type="button"
           >
             {isSubmitting ? "Saving..." : "Save Changes"}
           </Button>

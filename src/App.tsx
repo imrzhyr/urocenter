@@ -1,30 +1,17 @@
-import { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useProfile } from '@/hooks/useProfile';
-import { AppRoutes } from './AppRoutes';
+import { BrowserRouter } from "react-router-dom";
+import { AppRoutes } from "./AppRoutes";
+import { Toaster } from "./components/ui/toaster";
+import { LanguageProvider } from "./contexts/LanguageContext";
 
-const App = () => {
-  const navigate = useNavigate();
-  const { profile } = useProfile();
-  const location = useLocation();
-
-  useEffect(() => {
-    const userPhone = localStorage.getItem('userPhone');
-    const isAuthRoute = ['/signin', '/signup'].includes(location.pathname);
-    const isWelcomePage = location.pathname === '/';
-
-    if (!userPhone && !isAuthRoute && !isWelcomePage) {
-      navigate('/', { replace: true });
-    } else if (userPhone && profile?.id && isWelcomePage) {
-      if (profile.role === 'admin') {
-        navigate('/admin', { replace: true });
-      } else {
-        navigate('/dashboard', { replace: true });
-      }
-    }
-  }, [profile, navigate, location.pathname]);
-
-  return <AppRoutes />;
-};
+function App() {
+  return (
+    <LanguageProvider>
+      <BrowserRouter>
+        <AppRoutes />
+        <Toaster />
+      </BrowserRouter>
+    </LanguageProvider>
+  );
+}
 
 export default App;
