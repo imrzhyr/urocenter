@@ -1,7 +1,7 @@
 import { useParams, Navigate } from "react-router-dom";
 import { DoctorChatContainer } from "@/components/chat/doctor/DoctorChatContainer";
 import { useProfile } from "@/hooks/useProfile";
-import { PatientChatContainer } from "@/components/chat/patient/PatientChatContainer";
+import { UserChatContainer } from "@/components/chat/UserChatContainer";
 
 const Chat = () => {
   const { userId } = useParams();
@@ -10,7 +10,7 @@ const Chat = () => {
 
   // If no userId is provided and user is not admin, show patient chat container
   if (!userId && !isAdmin) {
-    return <PatientChatContainer />;
+    return <UserChatContainer />;
   }
 
   // If userId is provided and user is admin, show doctor chat container
