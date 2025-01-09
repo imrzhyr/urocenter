@@ -5,7 +5,6 @@ import { UploadSection } from "@/components/medical-information/UploadSection";
 import { useFileUploadHandler } from "@/components/medical-information/FileUploadHandler";
 import { useProfile } from "@/hooks/useProfile";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 
 const MedicalInformation = () => {
   const { isUploading, uploadCount, handleFileUpload } = useFileUploadHandler();
@@ -22,10 +21,11 @@ const MedicalInformation = () => {
     input.type = 'file';
     input.accept = 'image/*';
     input.capture = 'environment';
-    input.onchange = async (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
+    input.onchange = (e: Event) => {
+      const target = e.target as HTMLInputElement;
+      const file = target.files?.[0];
       if (file) {
-        await handleFileUpload(file);
+        handleFileUpload(file);
       }
     };
     input.click();
@@ -41,8 +41,9 @@ const MedicalInformation = () => {
     input.type = 'file';
     input.accept = '.pdf,.doc,.docx,.jpg,.jpeg,.png,.mp4,.mov,.mp3,.wav';
     input.multiple = true;
-    input.onchange = async (e) => {
-      const files = Array.from(e.target.files || []);
+    input.onchange = async (e: Event) => {
+      const target = e.target as HTMLInputElement;
+      const files = Array.from(target.files || []);
       if (files.length > 0) {
         for (const file of files) {
           await handleFileUpload(file);
