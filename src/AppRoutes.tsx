@@ -1,31 +1,37 @@
 import { Routes, Route } from "react-router-dom";
-import Chat from "@/pages/Chat";
-import UserChat from "@/pages/UserChat";
-import { CallPage } from "@/components/call/CallPage";
-import AdminDashboard from "@/pages/AdminDashboard";
-import Dashboard from "@/pages/Dashboard";
-import SignIn from "@/pages/SignIn";
-import SignUp from "@/pages/SignUp";
-import Profile from "@/pages/Profile";
-import Welcome from "@/pages/Welcome";
-import MedicalInformation from "@/pages/MedicalInformation";
-import Payment from "@/pages/Payment";
+import { Index } from "@/pages/Index";
+import { SignIn } from "@/pages/SignIn";
+import { SignUp } from "@/pages/SignUp";
+import { Profile } from "@/pages/Profile";
+import { MedicalInformation } from "@/pages/MedicalInformation";
+import { Payment } from "@/pages/Payment";
+import { Dashboard } from "@/pages/Dashboard";
+import { Settings } from "@/pages/Settings";
+import { OnboardingLayout } from "@/components/layouts/OnboardingLayout";
+import { DashboardLayout } from "@/components/layouts/DashboardLayout";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 export const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<Welcome />} />
+      <Route path="/" element={<Index />} />
       <Route path="/signin" element={<SignIn />} />
-      <Route path="/signup" element={<SignUp />} />
-      <Route path="/profile" element={<Profile />} />
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/admin" element={<AdminDashboard />} />
-      <Route path="/medical-information" element={<MedicalInformation />} />
-      <Route path="/payment" element={<Payment />} />
-      <Route path="/chat" element={<Chat />} />
-      <Route path="/chat/:userId" element={<Chat />} />
-      <Route path="/user-chat" element={<UserChat />} />
-      <Route path="/call/:userId" element={<CallPage />} />
+      
+      {/* Onboarding Flow */}
+      <Route element={<OnboardingLayout />}>
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/medical-information" element={<MedicalInformation />} />
+        <Route path="/payment" element={<Payment />} />
+      </Route>
+
+      {/* Protected Routes */}
+      <Route element={<ProtectedRoute />}>
+        <Route element={<DashboardLayout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/settings" element={<Settings />} />
+        </Route>
+      </Route>
     </Routes>
   );
 };
