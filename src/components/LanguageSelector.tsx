@@ -9,7 +9,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Globe } from "lucide-react";
 
 export const LanguageSelector = () => {
-  const { language, setLanguage, t } = useLanguage();
+  const { language, setLanguage } = useLanguage();
 
   return (
     <DropdownMenu>
