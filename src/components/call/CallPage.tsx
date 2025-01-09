@@ -1,11 +1,17 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { PhoneOff, Mic, MicOff, Volume2, ArrowLeft, Phone, X } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { CallAvatar } from "./CallAvatar";
+import { CallControls } from "./CallControls";
+import { IncomingCallControls } from "./IncomingCallControls";
+import { formatDuration } from "@/utils/callUtils";
+import type { Call, CallStatus, CallingUser } from "@/types/call";
+import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 
 export const CallPage = () => {
   const { userId } = useParams();
@@ -15,8 +21,8 @@ export const CallPage = () => {
   const [isSpeaker, setIsSpeaker] = useState(false);
   const [duration, setDuration] = useState(0);
   const [callStartTime, setCallStartTime] = useState<Date>();
-  const [callingUser, setCallingUser] = useState<{ full_name: string; id: string } | null>(null);
-  const [callStatus, setCallStatus] = useState<'ringing' | 'connected' | 'ended'>('ringing');
+  const [callingUser, setCallingUser] = useState<CallingUser | null>(null);
+  const [callStatus, setCallStatus] = useState<CallStatus>('ringing');
   const [isIncoming, setIsIncoming] = useState(false);
 
   useEffect(() => {
@@ -63,11 +69,12 @@ export const CallPage = () => {
             table: 'calls',
             filter: `receiver_id=eq.${userId}`
           },
-          (payload) => {
-            if (payload.new.status === 'accepted') {
+          (payload: RealtimePostgresChangesPayload<Call>) => {
+            const newStatus = payload.new?.status;
+            if (newStatus === 'accepted') {
               setCallStatus('connected');
               setCallStartTime(new Date());
-            } else if (payload.new.status === 'rejected' || payload.new.status === 'ended') {
+            } else if (newStatus === 'rejected' || newStatus === 'ended') {
               handleEndCall();
             }
           }
@@ -103,7 +110,6 @@ export const CallPage = () => {
     if (!userId || !profile?.id || !callStartTime) return;
 
     try {
-      // Update call record
       const { error: callError } = await supabase
         .from('calls')
         .update({
@@ -119,7 +125,6 @@ export const CallPage = () => {
         console.error('Error updating call record:', callError);
       }
 
-      // Add call duration message
       const { error: messageError } = await supabase
         .from('messages')
         .insert({
@@ -195,12 +200,6 @@ export const CallPage = () => {
     }
   };
 
-  const formatDuration = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
-
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-primary/20 to-primary/5 p-4">
       <motion.div 
@@ -225,20 +224,10 @@ export const CallPage = () => {
         </div>
 
         <div className="text-center mb-12">
-          <motion.div 
-            animate={{ 
-              scale: callStatus === 'ringing' ? [1, 1.1, 1] : 1 
-            }}
-            transition={{ 
-              repeat: callStatus === 'ringing' ? Infinity : 0,
-              duration: 1.5 
-            }}
-            className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4"
-          >
-            <span className="text-3xl font-bold text-primary">
-              {callingUser?.full_name?.[0]?.toUpperCase() || '?'}
-            </span>
-          </motion.div>
+          <CallAvatar 
+            name={callingUser?.full_name || ''} 
+            isRinging={callStatus === 'ringing'} 
+          />
           <h2 className="text-xl font-semibold mb-2">{callingUser?.full_name}</h2>
           <p className="text-gray-500">
             {callStatus === 'ringing' && 'Calling...'}
@@ -248,58 +237,18 @@ export const CallPage = () => {
         </div>
 
         {callStatus === 'ringing' && isIncoming ? (
-          <div className="grid grid-cols-2 gap-4">
-            <Button
-              variant="outline"
-              className="flex flex-col items-center p-4 bg-green-50 hover:bg-green-100"
-              onClick={handleAcceptCall}
-            >
-              <Phone className="h-6 w-6 mb-2 text-green-500" />
-              <span className="text-sm">Accept</span>
-            </Button>
-
-            <Button
-              variant="outline"
-              className="flex flex-col items-center p-4 bg-red-50 hover:bg-red-100"
-              onClick={handleRejectCall}
-            >
-              <X className="h-6 w-6 mb-2 text-red-500" />
-              <span className="text-sm">Reject</span>
-            </Button>
-          </div>
+          <IncomingCallControls
+            onAccept={handleAcceptCall}
+            onReject={handleRejectCall}
+          />
         ) : (
-          <div className="grid grid-cols-3 gap-4">
-            <Button
-              variant="outline"
-              className={`flex flex-col items-center p-4 ${isMuted ? 'bg-red-50 hover:bg-red-100' : ''}`}
-              onClick={() => setIsMuted(!isMuted)}
-            >
-              {isMuted ? (
-                <MicOff className="h-6 w-6 mb-2 text-red-500" />
-              ) : (
-                <Mic className="h-6 w-6 mb-2 text-primary" />
-              )}
-              <span className="text-sm">{isMuted ? 'Unmute' : 'Mute'}</span>
-            </Button>
-
-            <Button
-              variant="outline"
-              className={`flex flex-col items-center p-4 ${isSpeaker ? 'bg-primary/10' : ''}`}
-              onClick={() => setIsSpeaker(!isSpeaker)}
-            >
-              <Volume2 className={`h-6 w-6 mb-2 ${isSpeaker ? 'text-primary' : ''}`} />
-              <span className="text-sm">Speaker</span>
-            </Button>
-
-            <Button
-              variant="destructive"
-              className="flex flex-col items-center p-4"
-              onClick={handleEndCall}
-            >
-              <PhoneOff className="h-6 w-6 mb-2" />
-              <span className="text-sm">End</span>
-            </Button>
-          </div>
+          <CallControls
+            isMuted={isMuted}
+            isSpeaker={isSpeaker}
+            onToggleMute={() => setIsMuted(!isMuted)}
+            onToggleSpeaker={() => setIsSpeaker(!isSpeaker)}
+            onEndCall={handleEndCall}
+          />
         )}
       </motion.div>
     </div>
