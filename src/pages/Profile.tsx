@@ -7,10 +7,12 @@ import type { Profile } from "@/types/profile";
 import { toast } from "sonner";
 import { useProfile } from "@/hooks/useProfile";
 import { LoadingScreen } from "@/components/LoadingScreen";
+import { useOnboarding } from "@/hooks/useOnboarding";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
-  const { profile: initialProfile, isLoading, updateProfile } = useProfile();
+  const { profile: initialProfile, isLoading } = useOnboarding();
+  const { updateProfile } = useProfile();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [profile, setProfile] = useState<Profile>({
     id: '',
@@ -23,11 +25,11 @@ const ProfilePage = () => {
   });
 
   useEffect(() => {
-    if (initialProfile) {
+    if (initialProfile && !isLoading) {
       console.log("Setting initial profile:", initialProfile);
       setProfile(initialProfile);
     }
-  }, [initialProfile]);
+  }, [initialProfile, isLoading]);
 
   const handleProfileChange = (field: keyof Profile, value: string) => {
     console.log("Updating field:", field, "with value:", value);

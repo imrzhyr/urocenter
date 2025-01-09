@@ -2,15 +2,14 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FileImage, Camera, ScanLine, FileText } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { DocumentTypeCard } from "@/components/medical-information/DocumentTypeCard";
 import { UploadButtons } from "@/components/medical-information/UploadButtons";
 import { MedicalInformationHeader } from "@/components/medical-information/MedicalInformationHeader";
 import { useFileUploadHandler } from "@/components/medical-information/FileUploadHandler";
-import { useProfile } from "@/hooks/useProfile";
+import { useOnboarding } from "@/hooks/useOnboarding";
+import { ScanLine, FileText } from "lucide-react";
 
 const documentTypes = [
   {
@@ -27,7 +26,7 @@ const documentTypes = [
   },
   {
     title: "Medical Records",
-    icon: FileImage,
+    icon: FileText,
     description: "Previous medical records or doctor's notes",
     color: "bg-purple-50 text-purple-600",
   },
@@ -43,38 +42,24 @@ const MedicalInformation = () => {
   const navigate = useNavigate();
   const [isPageLoading, setIsPageLoading] = useState(true);
   const { isUploading, uploadCount, handleFileUpload } = useFileUploadHandler();
-  const { profile, isLoading: isProfileLoading } = useProfile();
+  const { profile, isLoading } = useOnboarding();
 
   useEffect(() => {
-    const checkUserProfile = async () => {
-      try {
-        const userPhone = localStorage.getItem('userPhone');
-        if (!userPhone) {
-          toast.error("Please sign in first");
-          navigate("/signin");
-          return;
-        }
-
-        if (!profile?.full_name || !profile?.complaint) {
-          toast.error("Please complete your profile first");
-          navigate("/profile");
-          return;
-        }
-
-        setIsPageLoading(false);
-      } catch (error) {
-        console.error("Error in checkUserProfile:", error);
-        toast.error("Error loading profile");
+    const checkProfile = async () => {
+      if (!profile?.full_name || !profile?.complaint) {
+        toast.error("Please complete your profile first");
         navigate("/profile");
+        return;
       }
+      setIsPageLoading(false);
     };
 
-    if (!isProfileLoading) {
-      checkUserProfile();
+    if (!isLoading) {
+      checkProfile();
     }
-  }, [navigate, profile, isProfileLoading]);
+  }, [navigate, profile, isLoading]);
 
-  if (isPageLoading || isProfileLoading) {
+  if (isPageLoading || isLoading) {
     return <LoadingScreen message="Loading medical information..." />;
   }
 
