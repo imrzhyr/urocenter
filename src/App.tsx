@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProfile } from '@/hooks/useProfile';
+import { AppRoutes } from './AppRoutes';
 
 const App = () => {
   const navigate = useNavigate();
@@ -16,11 +17,7 @@ const App = () => {
     }
   }, [profile, navigate]);
 
-  return (
-    <div>
-      {/* Your existing routes and components go here */}
-    </div>
-  );
+  return <AppRoutes />;
 };
 
 export default App;
