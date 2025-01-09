@@ -39,7 +39,7 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
         />
 
         {/* Steps */}
-        <div className={`relative flex justify-between w-full ${isRTL ? 'flex-row-reverse' : ''}`} style={{ zIndex: 2 }}>
+        <div className="relative flex justify-between w-full" style={{ zIndex: 2 }}>
           {steps.map((step, index) => (
             <div
               key={step}
@@ -67,7 +67,7 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
                   index <= currentStep ? "text-primary" : "text-gray-400"
                 )}
               >
-                {t(step.toLowerCase())}
+                {t(step.toLowerCase().replace(" ", "_"))}
               </span>
             </div>
           ))}
