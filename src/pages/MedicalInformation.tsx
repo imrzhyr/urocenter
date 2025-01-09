@@ -10,6 +10,7 @@ import { DocumentTypeCard } from "@/components/medical-information/DocumentTypeC
 import { UploadButtons } from "@/components/medical-information/UploadButtons";
 import { MedicalInformationHeader } from "@/components/medical-information/MedicalInformationHeader";
 import { useFileUploadHandler } from "@/components/medical-information/FileUploadHandler";
+import { useProfile } from "@/hooks/useProfile";
 
 const documentTypes = [
   {
@@ -40,47 +41,42 @@ const documentTypes = [
 
 const MedicalInformation = () => {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isPageLoading, setIsPageLoading] = useState(true);
   const { isUploading, uploadCount, handleFileUpload } = useFileUploadHandler();
+  const { profile, isLoading: isProfileLoading } = useProfile();
 
   useEffect(() => {
     const checkUserProfile = async () => {
       try {
         const userPhone = localStorage.getItem('userPhone');
         if (!userPhone) {
-          toast.error("No user phone found");
+          toast.error("Please sign in first");
           navigate("/signin");
           return;
         }
 
-        const { data: profileData, error } = await supabase
-          .from('profiles')
-          .select('full_name, complaint')
-          .eq('phone', userPhone)
-          .single();
-
-        if (error) {
-          console.error("Error fetching profile:", error);
-          toast.error("Error loading profile");
-          navigate("/profile");
-          return;
-        }
-
-        if (!profileData?.full_name || !profileData?.complaint) {
+        if (!profile?.full_name || !profile?.complaint) {
           toast.error("Please complete your profile first");
           navigate("/profile");
           return;
         }
+
+        setIsPageLoading(false);
       } catch (error) {
         console.error("Error in checkUserProfile:", error);
+        toast.error("Error loading profile");
         navigate("/profile");
-      } finally {
-        setIsLoading(false);
       }
     };
 
-    checkUserProfile();
-  }, [navigate]);
+    if (!isProfileLoading) {
+      checkUserProfile();
+    }
+  }, [navigate, profile, isProfileLoading]);
+
+  if (isPageLoading || isProfileLoading) {
+    return <LoadingScreen message="Loading medical information..." />;
+  }
 
   const handleCameraCapture = () => {
     const input = document.createElement('input');
@@ -107,10 +103,6 @@ const MedicalInformation = () => {
     };
     input.click();
   };
-
-  if (isLoading) {
-    return <LoadingScreen message="Loading medical information..." />;
-  }
 
   return (
     <motion.div
