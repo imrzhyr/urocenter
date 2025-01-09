@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ProfileForm } from "@/components/ProfileForm";
 import { Button } from "@/components/ui/button";
 import { useProfile } from "@/hooks/useProfile";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Profile } from "@/types/profile";
 import { toast } from "sonner";
 
@@ -23,6 +23,12 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
     phone: '',
     role: 'patient'
   });
+
+  useEffect(() => {
+    if (initialProfile && open) {
+      setProfile(initialProfile);
+    }
+  }, [initialProfile, open]);
 
   const handleProfileChange = (field: keyof Profile, value: string) => {
     setProfile(prev => ({
@@ -60,8 +66,21 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
     }
   };
 
+  const handleClose = () => {
+    setProfile(initialProfile || {
+      id: '',
+      full_name: '',
+      gender: '',
+      age: '',
+      complaint: '',
+      phone: '',
+      role: 'patient'
+    });
+    onOpenChange(false);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-2xl p-6">
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold">Edit Profile</DialogTitle>
@@ -77,13 +96,15 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
         <div className="mt-6 flex justify-end gap-3">
           <Button
             variant="outline"
-            onClick={() => onOpenChange(false)}
+            onClick={handleClose}
+            type="button"
           >
             Cancel
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={!isFormValid() || isSubmitting}
+            type="button"
           >
             {isSubmitting ? "Saving..." : "Save Changes"}
           </Button>

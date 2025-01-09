@@ -8,7 +8,10 @@ const App = () => {
   const { profile } = useProfile();
 
   useEffect(() => {
-    if (profile?.id) {
+    const userPhone = localStorage.getItem('userPhone');
+    if (!userPhone) {
+      navigate('/', { replace: true });
+    } else if (profile?.id) {
       if (profile.role === 'admin') {
         navigate('/admin');
       } else {

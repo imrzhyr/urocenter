@@ -19,7 +19,7 @@ export const UserMenu = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('userPhone');
-    navigate("/");
+    navigate("/", { replace: true });
     toast.success(t('logged_out_successfully'));
   };
 
@@ -33,7 +33,7 @@ export const UserMenu = () => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56 bg-white border shadow-lg">
           <DropdownMenuItem onClick={() => setShowEditProfile(true)} className="cursor-pointer">
-            {t('edit_profile')}
+            Edit Profile
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
             <LogOut className="w-4 h-4 mr-2" />
