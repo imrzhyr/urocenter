@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ProfileForm } from "@/components/ProfileForm";
-import { motion } from "framer-motion";
 import type { Profile } from "@/types/profile";
 import { toast } from "sonner";
 import { useProfile } from "@/hooks/useProfile";
@@ -26,13 +25,11 @@ export const ProfilePage = () => {
 
   useEffect(() => {
     if (initialProfile && !isLoading) {
-      console.log("Setting initial profile:", initialProfile);
       setProfile(initialProfile);
     }
   }, [initialProfile, isLoading]);
 
   const handleProfileChange = useCallback((field: keyof Profile, value: string) => {
-    console.log("Updating field:", field, "with value:", value);
     setProfile(prev => ({
       ...prev,
       [field]: value
@@ -55,7 +52,6 @@ export const ProfilePage = () => {
 
     setIsSubmitting(true);
     try {
-      console.log("Submitting profile:", profile);
       const success = await updateProfile(profile);
       if (success) {
         await refetch();
@@ -75,7 +71,7 @@ export const ProfilePage = () => {
   }
 
   return (
-    <div className="space-y-6 p-4 md:p-6">
+    <div className="space-y-6">
       <div className="space-y-2">
         <h1 className="text-2xl font-semibold tracking-tight">Complete Your Profile</h1>
         <p className="text-muted-foreground">

@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { DocumentTypeCard } from "@/components/medical-information/DocumentTypeCard";
@@ -90,13 +89,7 @@ const MedicalInformation = () => {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.15 }}
-      className="space-y-6 bg-white p-4 rounded-lg shadow-sm"
-    >
+    <div className="space-y-6">
       <MedicalInformationHeader uploadCount={uploadCount} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -122,7 +115,7 @@ const MedicalInformation = () => {
       >
         Continue
       </Button>
-    </motion.div>
+    </div>
   );
 };
 
