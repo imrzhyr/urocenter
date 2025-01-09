@@ -70,7 +70,8 @@ export const CallPage = () => {
             filter: `receiver_id=eq.${userId}`
           },
           (payload: RealtimePostgresChangesPayload<Call>) => {
-            const newStatus = payload.new?.status;
+            if (!payload.new) return;
+            const newStatus = payload.new.status;
             if (newStatus === 'accepted') {
               setCallStatus('connected');
               setCallStartTime(new Date());
