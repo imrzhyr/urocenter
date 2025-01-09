@@ -8,13 +8,40 @@ import { supabase } from "@/integrations/supabase/client";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { DocumentTypeCard } from "@/components/medical-information/DocumentTypeCard";
 import { UploadButtons } from "@/components/medical-information/UploadButtons";
+import { MedicalInformationHeader } from "@/components/medical-information/MedicalInformationHeader";
+import { useFileUploadHandler } from "@/components/medical-information/FileUploadHandler";
+
+const documentTypes = [
+  {
+    title: "Diagnostic Imaging",
+    icon: ScanLine,
+    description: "Upload CT scans, X-rays, or MRI results",
+    color: "bg-blue-50 text-blue-600",
+  },
+  {
+    title: "Lab Reports",
+    icon: FileText,
+    description: "Blood tests, urinalysis, or other lab results",
+    color: "bg-green-50 text-green-600",
+  },
+  {
+    title: "Medical Records",
+    icon: FileImage,
+    description: "Previous medical records or doctor's notes",
+    color: "bg-purple-50 text-purple-600",
+  },
+  {
+    title: "Other Documents",
+    icon: FileText,
+    description: "Any other relevant medical documentation",
+    color: "bg-orange-50 text-orange-600",
+  },
+];
 
 const MedicalInformation = () => {
   const navigate = useNavigate();
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadCount, setUploadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [isInitialized, setIsInitialized] = useState(false);
+  const { isUploading, uploadCount, handleFileUpload } = useFileUploadHandler();
 
   useEffect(() => {
     const checkUserProfile = async () => {
@@ -22,7 +49,7 @@ const MedicalInformation = () => {
         const userPhone = localStorage.getItem('userPhone');
         if (!userPhone) {
           toast.error("No user phone found");
-          navigate("/signin", { replace: true });
+          navigate("/signin");
           return;
         }
 
@@ -35,20 +62,18 @@ const MedicalInformation = () => {
         if (error) {
           console.error("Error fetching profile:", error);
           toast.error("Error loading profile");
-          navigate("/profile", { replace: true });
+          navigate("/profile");
           return;
         }
 
         if (!profileData?.full_name || !profileData?.complaint) {
           toast.error("Please complete your profile first");
-          navigate("/profile", { replace: true });
+          navigate("/profile");
           return;
         }
-
-        setIsInitialized(true);
       } catch (error) {
         console.error("Error in checkUserProfile:", error);
-        navigate("/profile", { replace: true });
+        navigate("/profile");
       } finally {
         setIsLoading(false);
       }
@@ -56,93 +81,6 @@ const MedicalInformation = () => {
 
     checkUserProfile();
   }, [navigate]);
-
-  const documentTypes = [
-    {
-      title: "Diagnostic Imaging",
-      icon: ScanLine,
-      description: "Upload CT scans, X-rays, or MRI results",
-      color: "bg-blue-50 text-blue-600",
-    },
-    {
-      title: "Lab Reports",
-      icon: FileText,
-      description: "Blood tests, urinalysis, or other lab results",
-      color: "bg-green-50 text-green-600",
-    },
-    {
-      title: "Medical Records",
-      icon: FileImage,
-      description: "Previous medical records or doctor's notes",
-      color: "bg-purple-50 text-purple-600",
-    },
-    {
-      title: "Other Documents",
-      icon: FileText,
-      description: "Any other relevant medical documentation",
-      color: "bg-orange-50 text-orange-600",
-    },
-  ];
-
-  const handleFileUpload = async (file: File) => {
-    try {
-      setIsUploading(true);
-      const userPhone = localStorage.getItem('userPhone');
-      if (!userPhone) {
-        toast.error("Please sign in to upload files");
-        navigate("/signin", { replace: true });
-        return;
-      }
-
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('phone', userPhone)
-        .single();
-
-      if (!profileData) {
-        toast.error("Profile not found");
-        navigate("/profile", { replace: true });
-        return;
-      }
-
-      const fileName = `${profileData.id}/${crypto.randomUUID()}-${file.name}`;
-      
-      const { error: uploadError } = await supabase.storage
-        .from('medical_reports')
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
-
-      if (uploadError) {
-        console.error("Storage upload error:", uploadError);
-        throw uploadError;
-      }
-
-      const { error: dbError } = await supabase
-        .from('medical_reports')
-        .insert({
-          user_id: profileData.id,
-          file_name: file.name,
-          file_path: fileName,
-          file_type: file.type,
-        });
-
-      if (dbError) {
-        console.error("Database insert error:", dbError);
-        throw dbError;
-      }
-
-      setUploadCount(prev => prev + 1);
-      toast.success(`File uploaded successfully (${uploadCount + 1} files uploaded)`);
-    } catch (error) {
-      console.error("Upload error:", error);
-      toast.error("Failed to upload file");
-    } finally {
-      setIsUploading(false);
-    }
-  };
 
   const handleCameraCapture = () => {
     const input = document.createElement('input');
@@ -174,10 +112,6 @@ const MedicalInformation = () => {
     return <LoadingScreen message="Loading medical information..." />;
   }
 
-  if (!isInitialized) {
-    return null;
-  }
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -185,17 +119,7 @@ const MedicalInformation = () => {
       exit={{ opacity: 0 }}
       className="space-y-6"
     >
-      <div className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight">Medical Information</h1>
-        <p className="text-muted-foreground">
-          Please upload your medical documents or take pictures
-        </p>
-        {uploadCount > 0 && (
-          <p className="text-sm text-primary font-medium">
-            {uploadCount} file{uploadCount !== 1 ? 's' : ''} uploaded successfully
-          </p>
-        )}
-      </div>
+      <MedicalInformationHeader uploadCount={uploadCount} />
 
       <div className="grid grid-cols-2 gap-4">
         {documentTypes.map((type) => (
@@ -215,7 +139,7 @@ const MedicalInformation = () => {
 
       <Button 
         className="w-full"
-        onClick={() => navigate("/payment", { replace: true })}
+        onClick={() => navigate("/payment")}
         disabled={isUploading}
       >
         Continue

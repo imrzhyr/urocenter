@@ -60,7 +60,7 @@ const ProfilePage = () => {
       const success = await updateProfile(profile);
       if (success) {
         toast.success("Profile updated successfully");
-        navigate("/medical-information", { replace: true });
+        navigate("/medical-information");
       }
     } catch (error) {
       console.error("Error:", error);
