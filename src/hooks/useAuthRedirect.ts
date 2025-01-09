@@ -40,6 +40,33 @@ export const useAuthRedirect = () => {
       }
     };
 
+    // Initial auth check
     checkAuth();
+
+    // Set up auth state change listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT') {
+        localStorage.removeItem('userPhone');
+        navigate("/signin", { replace: true });
+      } else if (event === 'SIGNED_IN') {
+        const userPhone = localStorage.getItem('userPhone');
+        if (userPhone) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('phone', userPhone)
+            .maybeSingle();
+          
+          if (profile) {
+            navigate("/dashboard");
+          }
+        }
+      }
+    });
+
+    // Cleanup subscription on unmount
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 };
