@@ -23,20 +23,31 @@ export const VerificationButton = ({ phone, password, onSuccess }: VerificationB
     setIsLoading(true);
     try {
       const formattedPhone = `+964${phone}`;
+      console.log("Attempting to create account with:", { formattedPhone });
+      
+      // Store the phone number for later use
       localStorage.setItem('userPhone', formattedPhone);
+      localStorage.setItem('userPassword', password);
 
+      // Check if profile already exists
       const { data: existingProfile, error: fetchError } = await supabase
         .from('profiles')
         .select('*')
         .eq('phone', formattedPhone)
-        .single();
+        .maybeSingle();
+
+      if (fetchError) {
+        console.error("Error checking existing profile:", fetchError);
+        throw fetchError;
+      }
 
       if (existingProfile) {
         toast.error("This phone number is already registered");
         return;
       }
 
-      const { data, error } = await supabase
+      // Create new profile
+      const { data: newProfile, error: createError } = await supabase
         .from('profiles')
         .insert([
           {
@@ -48,9 +59,14 @@ export const VerificationButton = ({ phone, password, onSuccess }: VerificationB
         .select()
         .single();
 
-      if (error) throw error;
+      if (createError) {
+        console.error("Error creating profile:", createError);
+        throw createError;
+      }
 
-      toast.success("Sign up successful!");
+      console.log("Successfully created profile:", newProfile);
+      toast.success("Account created successfully!");
+      
       if (onSuccess) {
         onSuccess();
       } else {
@@ -58,7 +74,7 @@ export const VerificationButton = ({ phone, password, onSuccess }: VerificationB
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error("Failed to sign up. Please try again.");
+      toast.error("Failed to create account. Please try again.");
     } finally {
       setIsLoading(false);
     }
