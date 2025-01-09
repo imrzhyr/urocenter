@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Phone } from "lucide-react";
+import { PhoneCall } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
@@ -24,9 +24,9 @@ export const CallButton = ({ userId, className = "" }: CallButtonProps) => {
         variant="ghost"
         size="icon"
         onClick={handleCall}
-        className={`hover:bg-primary/10 rounded-full w-12 h-12 ${className}`}
+        className={`hover:bg-primary/10 rounded-full w-10 h-10 ${className}`}
       >
-        <Phone className="h-6 w-6 text-primary" />
+        <PhoneCall className="h-5 w-5" />
       </Button>
     </motion.div>
   );
