@@ -1,8 +1,8 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { MessageStatusBadge } from "@/components/chat/MessageStatusBadge";
-import { PatientMessage } from "@/types/messages";
+import { MessageStatusBadge } from "../MessageStatusBadge";
 import { motion } from "framer-motion";
+import { PatientMessage } from "@/types/messages";
 
 interface MessageItemProps {
   patient: PatientMessage;
