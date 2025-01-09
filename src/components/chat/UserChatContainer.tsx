@@ -10,13 +10,8 @@ export const UserChatContainer = () => {
   const { messages, isLoading: isChatLoading, sendMessage } = useChat(profile?.id);
   useAuthRedirect();
 
-  if (isProfileLoading) {
-    return <LoadingScreen />;
-  }
-
-  if (!profile?.id) {
-    console.log('No profile ID found, not rendering chat');
-    return <LoadingScreen />;
+  if (isProfileLoading || !profile?.id) {
+    return <LoadingScreen message="Loading chat..." />;
   }
 
   return (

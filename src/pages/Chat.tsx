@@ -9,7 +9,7 @@ const Chat = () => {
   const { profile, isLoading } = useProfile();
 
   if (isLoading) {
-    return <LoadingScreen />;
+    return <LoadingScreen message="Loading profile..." />;
   }
 
   // Check if user is logged in by checking localStorage
