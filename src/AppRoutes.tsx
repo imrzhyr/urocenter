@@ -6,7 +6,7 @@ import AdminDashboard from "@/pages/AdminDashboard";
 import Dashboard from "@/pages/Dashboard";
 import SignIn from "@/pages/SignIn";
 import SignUp from "@/pages/SignUp";
-import Profile from "@/pages/Profile";
+import { ProfilePage } from "@/pages/Profile";
 import Welcome from "@/pages/Welcome";
 import MedicalInformation from "@/pages/MedicalInformation";
 import Payment from "@/pages/Payment";
@@ -21,7 +21,7 @@ export const AppRoutes = () => {
       {/* Onboarding Flow */}
       <Route element={<OnboardingLayout />}>
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route path="/profile" element={<ProfilePage />} />
         <Route path="/medical-information" element={<MedicalInformation />} />
         <Route path="/payment" element={<Payment />} />
       </Route>

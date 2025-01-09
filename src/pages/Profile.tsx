@@ -9,7 +9,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { useOnboarding } from "@/hooks/useOnboarding";
 
-const ProfilePage = () => {
+export const ProfilePage = () => {
   const navigate = useNavigate();
   const { profile: initialProfile, isLoading, refetch } = useOnboarding();
   const { updateProfile } = useProfile();
