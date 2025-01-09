@@ -1,15 +1,12 @@
 import { Routes, Route } from "react-router-dom";
-import { Index } from "@/pages/Index";
-import { SignIn } from "@/pages/SignIn";
-import { SignUp } from "@/pages/SignUp";
-import { Profile } from "@/pages/Profile";
-import { MedicalInformation } from "@/pages/MedicalInformation";
-import { Payment } from "@/pages/Payment";
-import { Dashboard } from "@/pages/Dashboard";
-import { Settings } from "@/pages/Settings";
+import Index from "@/pages/Index";
+import SignIn from "@/pages/SignIn";
+import SignUp from "@/pages/SignUp";
+import Profile from "@/pages/Profile";
+import MedicalInformation from "@/pages/MedicalInformation";
+import Payment from "@/pages/Payment";
+import Dashboard from "@/pages/Dashboard";
 import { OnboardingLayout } from "@/components/layouts/OnboardingLayout";
-import { DashboardLayout } from "@/components/layouts/DashboardLayout";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 export const AppRoutes = () => {
   return (
@@ -25,13 +22,8 @@ export const AppRoutes = () => {
         <Route path="/payment" element={<Payment />} />
       </Route>
 
-      {/* Protected Routes */}
-      <Route element={<ProtectedRoute />}>
-        <Route element={<DashboardLayout />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/settings" element={<Settings />} />
-        </Route>
-      </Route>
+      {/* Dashboard */}
+      <Route path="/dashboard" element={<Dashboard />} />
     </Routes>
   );
 };
