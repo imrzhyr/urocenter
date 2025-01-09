@@ -31,6 +31,7 @@ export const useProfile = () => {
       const userPhone = localStorage.getItem('userPhone');
       if (!userPhone) {
         console.log("No user phone found in localStorage");
+        setIsLoading(false);
         return;
       }
 
@@ -40,7 +41,7 @@ export const useProfile = () => {
         .from('profiles')
         .select('*')
         .eq('phone', userPhone)
-        .single();
+        .maybeSingle();
 
       if (profileError) {
         console.error("Error fetching profile:", profileError);
@@ -62,6 +63,37 @@ export const useProfile = () => {
         listeners.forEach(listener => listener(newProfile));
       } else {
         console.log("No profile found for phone:", userPhone);
+        // Create a new profile if none exists
+        const { data: newProfileData, error: createError } = await supabase
+          .from('profiles')
+          .insert([
+            {
+              phone: userPhone,
+              role: 'patient',
+              password: localStorage.getItem('userPassword') || ''
+            }
+          ])
+          .select()
+          .single();
+
+        if (createError) {
+          console.error("Error creating profile:", createError);
+          throw createError;
+        }
+
+        if (newProfileData) {
+          const newProfile: Profile = {
+            id: newProfileData.id,
+            full_name: "",
+            gender: "",
+            age: "",
+            complaint: "",
+            phone: userPhone,
+            role: "patient",
+          };
+          profileState = newProfile;
+          listeners.forEach(listener => listener(newProfile));
+        }
       }
     } catch (error) {
       console.error("Error in fetchProfile:", error);
@@ -95,7 +127,6 @@ export const useProfile = () => {
 
       profileState = updatedProfile;
       listeners.forEach(listener => listener(updatedProfile));
-      toast.success("Profile updated successfully");
       return true;
     } catch (error) {
       console.error("Error updating profile:", error);
