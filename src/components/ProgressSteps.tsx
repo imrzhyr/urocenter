@@ -10,17 +10,23 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
   return (
     <div className="w-full px-4">
       <div className="relative flex justify-between">
-        {/* Progress bar background */}
-        <div className="absolute top-[1.125rem] left-8 right-8 h-0.5 bg-gray-100" />
-        
-        {/* Progress bar */}
+        {/* Progress bar background - Positioned lower */}
         <div 
-          className="absolute top-[1.125rem] left-8 h-0.5 bg-primary transition-all duration-300"
-          style={{ width: `${(currentStep / (steps.length - 1)) * (100 - (100/steps.length))}%` }}
+          className="absolute top-[1.125rem] left-0 right-0 h-0.5 bg-gray-100" 
+          style={{ zIndex: 0 }}
+        />
+        
+        {/* Active progress bar - Positioned lower */}
+        <div 
+          className="absolute top-[1.125rem] left-0 h-0.5 bg-primary transition-all duration-500 ease-in-out"
+          style={{ 
+            width: `${(currentStep / (steps.length - 1)) * 100}%`,
+            zIndex: 1 
+          }}
         />
 
-        {/* Steps */}
-        <div className="relative flex justify-between w-full">
+        {/* Steps - Positioned higher */}
+        <div className="relative flex justify-between w-full" style={{ zIndex: 2 }}>
           {steps.map((step, index) => (
             <div
               key={step}
@@ -28,7 +34,7 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
             >
               <div
                 className={cn(
-                  "w-9 h-9 rounded-full flex items-center justify-center border-2 transition-all duration-300 z-10 bg-white",
+                  "w-9 h-9 rounded-full flex items-center justify-center border-2 transition-all duration-300 bg-white",
                   index < currentStep
                     ? "border-primary bg-primary text-white"
                     : index === currentStep

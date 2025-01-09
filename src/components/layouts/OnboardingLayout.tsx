@@ -53,8 +53,9 @@ export const OnboardingLayout = () => {
             exit={{ opacity: 0, x: -20 }}
             transition={{ 
               type: "spring",
-              stiffness: 260,
-              damping: 20
+              stiffness: 200,
+              damping: 25,
+              mass: 0.5
             }}
             className="flex-1 h-full bg-white rounded-lg shadow-sm p-6"
           >
