@@ -124,73 +124,69 @@ const MedicalInformation = () => {
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
+      initial={{ opacity: 1 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="flex-1 flex flex-col items-center p-6"
+      exit={{ opacity: 1 }}
+      className="space-y-6"
     >
-      <div className="w-full max-w-2xl space-y-8">
-        <div className="space-y-2">
-          <h1 className="text-2xl font-semibold tracking-tight">Medical Information</h1>
-          <p className="text-muted-foreground">
-            Please upload your medical documents or take pictures
+      <div className="space-y-2">
+        <h1 className="text-2xl font-semibold tracking-tight">Medical Information</h1>
+        <p className="text-muted-foreground">
+          Please upload your medical documents or take pictures
+        </p>
+        {uploadCount > 0 && (
+          <p className="text-sm text-primary font-medium">
+            {uploadCount} file{uploadCount !== 1 ? 's' : ''} uploaded successfully
           </p>
-          {uploadCount > 0 && (
-            <p className="text-sm text-primary font-medium">
-              {uploadCount} file{uploadCount !== 1 ? 's' : ''} uploaded successfully
-            </p>
-          )}
-        </div>
-
-        <div className="bg-card rounded-lg border shadow-sm p-6 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {documentTypes.map((type) => (
-              <motion.div
-                key={type.title}
-                whileHover={{ scale: 1.02 }}
-                className={`p-4 rounded-lg ${type.color} transition-colors cursor-pointer`}
-                onClick={handleFileSelect}
-              >
-                <div className="flex flex-col items-center text-center space-y-2">
-                  {type.icon}
-                  <h3 className="font-semibold">{type.title}</h3>
-                  <p className="text-sm opacity-75">{type.description}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <Button 
-              variant="outline" 
-              className="flex items-center justify-center gap-2 bg-primary/5 hover:bg-primary/10 text-primary border-primary/20"
-              onClick={handleCameraCapture}
-              disabled={isUploading}
-            >
-              <Camera className="w-4 h-4" />
-              <span>Take Picture</span>
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              className="flex items-center justify-center gap-2 bg-secondary/5 hover:bg-secondary/10 text-secondary border-secondary/20"
-              onClick={handleFileSelect}
-              disabled={isUploading}
-            >
-              <FileText className="w-4 h-4" />
-              <span>Upload Files</span>
-            </Button>
-          </div>
-
-          <Button 
-            className="w-full"
-            onClick={() => navigate("/payment")}
-            disabled={isUploading}
-          >
-            Continue
-          </Button>
-        </div>
+        )}
       </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        {documentTypes.map((type) => (
+          <motion.div
+            key={type.title}
+            whileHover={{ scale: 1.02 }}
+            className={`p-4 rounded-lg ${type.color} transition-colors cursor-pointer`}
+            onClick={handleFileSelect}
+          >
+            <div className="flex flex-col items-center text-center space-y-2">
+              {type.icon}
+              <h3 className="font-semibold">{type.title}</h3>
+              <p className="text-sm opacity-75">{type.description}</p>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <Button 
+          variant="outline" 
+          className="flex items-center justify-center gap-2 bg-primary/5 hover:bg-primary/10 text-primary border-primary/20"
+          onClick={handleCameraCapture}
+          disabled={isUploading}
+        >
+          <Camera className="w-4 h-4" />
+          <span>Take Picture</span>
+        </Button>
+        
+        <Button 
+          variant="outline" 
+          className="flex items-center justify-center gap-2 bg-secondary/5 hover:bg-secondary/10 text-secondary border-secondary/20"
+          onClick={handleFileSelect}
+          disabled={isUploading}
+        >
+          <FileText className="w-4 h-4" />
+          <span>Upload Files</span>
+        </Button>
+      </div>
+
+      <Button 
+        className="w-full"
+        onClick={() => navigate("/payment")}
+        disabled={isUploading}
+      >
+        Continue
+      </Button>
     </motion.div>
   );
 };

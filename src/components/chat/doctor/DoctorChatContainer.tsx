@@ -45,7 +45,6 @@ export const DoctorChatContainer = () => {
           return;
         }
 
-        // Verify that the logged-in user is an admin
         if (profile?.role !== 'admin') {
           console.error("Non-admin user attempting to access doctor chat");
           toast.error("Unauthorized access");
@@ -53,7 +52,6 @@ export const DoctorChatContainer = () => {
           return;
         }
 
-        // Verify we're not trying to chat with ourselves
         if (userId === profile?.id) {
           console.error("Cannot chat with self");
           toast.error("Cannot chat with yourself");
@@ -93,18 +91,20 @@ export const DoctorChatContainer = () => {
   }
 
   return (
-    <MessageContainer
-      messages={messages}
-      onSendMessage={handleSendMessage}
-      isLoading={isLoading}
-      header={
-        <DoctorChatHeader
-          patientId={userId || ''}
-          patientName={patientProfile.full_name || "Unknown Patient"}
-          onRefresh={refreshMessages}
-        />
-      }
-      userId={userId || ''}
-    />
+    <div className="flex flex-col h-[100vh] w-full bg-gray-50">
+      <MessageContainer
+        messages={messages}
+        onSendMessage={handleSendMessage}
+        isLoading={isLoading}
+        header={
+          <DoctorChatHeader
+            patientId={userId || ''}
+            patientName={patientProfile.full_name || "Unknown Patient"}
+            onRefresh={refreshMessages}
+          />
+        }
+        userId={userId || ''}
+      />
+    </div>
   );
 };

@@ -53,34 +53,30 @@ const ProfilePage = () => {
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
+      initial={{ opacity: 1 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="flex-1 flex flex-col items-center p-6"
+      exit={{ opacity: 1 }}
+      className="space-y-6"
     >
-      <div className="w-full max-w-md space-y-8">
-        <div className="space-y-2">
-          <h1 className="text-2xl font-semibold tracking-tight">Profile Information</h1>
-          <p className="text-muted-foreground">
-            Please provide your basic information to continue
-          </p>
-        </div>
-
-        <div className="bg-card rounded-lg border shadow-sm p-6">
-          <ProfileForm 
-            profile={profile}
-            onProfileChange={handleProfileChange}
-          />
-
-          <Button
-            onClick={handleSubmit}
-            disabled={!isFormValid() || isSubmitting}
-            className="w-full mt-6"
-          >
-            {isSubmitting ? "Saving..." : "Continue"}
-          </Button>
-        </div>
+      <div className="space-y-2">
+        <h1 className="text-2xl font-semibold tracking-tight">Profile Information</h1>
+        <p className="text-muted-foreground">
+          Please provide your basic information to continue
+        </p>
       </div>
+
+      <ProfileForm 
+        profile={profile}
+        onProfileChange={handleProfileChange}
+      />
+
+      <Button
+        onClick={handleSubmit}
+        disabled={!isFormValid() || isSubmitting}
+        className="w-full"
+      >
+        {isSubmitting ? "Saving..." : "Continue"}
+      </Button>
     </motion.div>
   );
 };

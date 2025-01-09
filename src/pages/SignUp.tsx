@@ -10,12 +10,12 @@ const SignUp = () => {
 
   return (
     <motion.div 
-      initial={{ opacity: 0 }}
+      initial={{ opacity: 1 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="flex-1 flex flex-col justify-center items-center p-6"
+      exit={{ opacity: 1 }}
+      className="flex-1 flex flex-col justify-center items-center"
     >
-      <Card className="w-full max-w-md mx-auto">
+      <Card className="w-full max-w-md mx-auto border-0 shadow-none bg-transparent">
         <CardHeader className="space-y-2 text-center pb-4">
           <div className="mx-auto w-16 h-16 bg-primary rounded-2xl flex items-center justify-center shadow-lg">
             <motion.svg
@@ -23,9 +23,8 @@ const SignUp = () => {
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
-              initial={{ scale: 0.5 }}
+              initial={{ scale: 1 }}
               animate={{ scale: 1 }}
-              transition={{ duration: 0.3 }}
             >
               <path
                 strokeLinecap="round"
@@ -35,15 +34,17 @@ const SignUp = () => {
               />
             </motion.svg>
           </div>
-          <CardTitle className="text-2xl font-semibold tracking-tight">
-            {t('create_account')}
+          <CardTitle className="text-2xl font-semibold text-primary">
+            Create an account
           </CardTitle>
           <p className="text-muted-foreground text-sm">
-            {t('sign_up_description')}
+            Sign up to get started with your medical journey
           </p>
         </CardHeader>
-        <CardContent>
-          <PhoneInput value={phone} onChange={setPhone} isSignUp={true} />
+        <CardContent className="pt-0">
+          <div className="rounded-lg">
+            <PhoneInput value={phone} onChange={setPhone} isSignUp={true} />
+          </div>
         </CardContent>
       </Card>
     </motion.div>
