@@ -10,18 +10,24 @@ import Profile from "@/pages/Profile";
 import Welcome from "@/pages/Welcome";
 import MedicalInformation from "@/pages/MedicalInformation";
 import Payment from "@/pages/Payment";
+import { OnboardingLayout } from "@/components/layouts/OnboardingLayout";
 
 export const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Welcome />} />
       <Route path="/signin" element={<SignIn />} />
-      <Route path="/signup" element={<SignUp />} />
-      <Route path="/profile" element={<Profile />} />
+      
+      {/* Onboarding Flow */}
+      <Route element={<OnboardingLayout />}>
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/medical-information" element={<MedicalInformation />} />
+        <Route path="/payment" element={<Payment />} />
+      </Route>
+
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/admin" element={<AdminDashboard />} />
-      <Route path="/medical-information" element={<MedicalInformation />} />
-      <Route path="/payment" element={<Payment />} />
       <Route path="/chat" element={<Chat />} />
       <Route path="/chat/:userId" element={<Chat />} />
       <Route path="/user-chat" element={<UserChat />} />
