@@ -28,19 +28,18 @@ export const PatientChatHeader = () => {
             <User className="w-5 h-5" />
           </AvatarFallback>
         </Avatar>
-        <div>
+        <div className="whitespace-nowrap">
           <h3 className="font-medium text-white">Dr. Ali Kamal</h3>
-          <p className="text-sm text-white/80">Medical Consultation</p>
+          <p className="text-sm text-white/80">Urologist Consultant</p>
         </div>
       </div>
       <Button
         variant="ghost"
-        size="sm"
+        size="icon"
         onClick={() => setShowReports(true)}
-        className="ml-auto hover:bg-white/20 text-white"
+        className="ml-auto hover:bg-white/20 text-white rounded-full w-10 h-10"
       >
-        <FileText className="w-4 h-4 mr-2" />
-        Reports
+        <FileText className="w-5 h-5" />
       </Button>
       <ViewReportsDialog open={showReports} onOpenChange={setShowReports} />
     </div>

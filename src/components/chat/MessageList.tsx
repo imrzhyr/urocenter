@@ -95,11 +95,6 @@ export const MessageList = ({ messages }: MessageListProps) => {
               className={`flex ${isFromMe ? 'justify-end' : 'justify-start'} animate-fade-in w-full`}
             >
               <div className="flex flex-col max-w-[70%] gap-1">
-                {!isFromMe && (
-                  <span className="text-sm text-gray-500 ml-3">
-                    {message.sender_name || 'Unknown User'}
-                  </span>
-                )}
                 <div
                   className={`relative p-4 rounded-2xl ${
                     isFromMe
