@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ProfileForm } from "@/components/ProfileForm";
 import { motion } from "framer-motion";
 import type { Profile } from "@/types/profile";
 import { toast } from "sonner";
+import { useProfile } from "@/hooks/useProfile";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
+  const { profile: initialProfile, isLoading, updateProfile } = useProfile();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [profile, setProfile] = useState<Profile>({
     id: '',
@@ -18,6 +20,12 @@ const ProfilePage = () => {
     phone: '',
     role: 'patient'
   });
+
+  useEffect(() => {
+    if (initialProfile) {
+      setProfile(initialProfile);
+    }
+  }, [initialProfile]);
 
   const handleProfileChange = (field: keyof Profile, value: string) => {
     setProfile(prev => ({
@@ -42,7 +50,11 @@ const ProfilePage = () => {
 
     setIsSubmitting(true);
     try {
-      navigate("/medical-information");
+      const success = await updateProfile(profile);
+      if (success) {
+        toast.success("Profile updated successfully");
+        navigate("/medical-information");
+      }
     } catch (error) {
       console.error("Error:", error);
       toast.error("An error occurred while saving your profile");
@@ -50,6 +62,14 @@ const ProfilePage = () => {
       setIsSubmitting(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-pulse">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <motion.div
