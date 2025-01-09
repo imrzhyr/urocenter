@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -42,7 +42,7 @@ const MedicalInformation = () => {
   const navigate = useNavigate();
   const [isPageLoading, setIsPageLoading] = useState(true);
   const { isUploading, uploadCount, handleFileUpload } = useFileUploadHandler();
-  const { profile, isLoading } = useOnboarding();
+  const { profile, isLoading, refetch } = useOnboarding();
 
   useEffect(() => {
     const checkProfile = async () => {
@@ -59,11 +59,7 @@ const MedicalInformation = () => {
     }
   }, [navigate, profile, isLoading]);
 
-  if (isPageLoading || isLoading) {
-    return <LoadingScreen message="Loading medical information..." />;
-  }
-
-  const handleCameraCapture = () => {
+  const handleCameraCapture = useCallback(() => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
@@ -73,9 +69,9 @@ const MedicalInformation = () => {
       if (file) handleFileUpload(file);
     };
     input.click();
-  };
+  }, [handleFileUpload]);
 
-  const handleFileSelect = () => {
+  const handleFileSelect = useCallback(() => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.pdf,.jpg,.jpeg,.png';
@@ -87,7 +83,11 @@ const MedicalInformation = () => {
       }
     };
     input.click();
-  };
+  }, [handleFileUpload]);
+
+  if (isPageLoading || isLoading) {
+    return <LoadingScreen message="Loading medical information..." />;
+  }
 
   return (
     <motion.div

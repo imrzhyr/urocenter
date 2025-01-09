@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -9,7 +10,7 @@ interface ProfileFormProps {
   onProfileChange: (field: keyof Profile, value: string) => void;
 }
 
-export const ProfileForm = ({
+export const ProfileForm = memo(({
   profile,
   onProfileChange,
 }: ProfileFormProps) => {
@@ -76,4 +77,6 @@ export const ProfileForm = ({
       />
     </div>
   );
-};
+});
+
+ProfileForm.displayName = "ProfileForm";

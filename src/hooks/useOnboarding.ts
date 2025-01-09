@@ -5,10 +5,10 @@ import { useProfile } from "./useProfile";
 
 export const useOnboarding = () => {
   const navigate = useNavigate();
-  const { profile, isLoading } = useProfile();
+  const { profile, isLoading, refetch } = useProfile();
 
   useEffect(() => {
-    const checkAuth = () => {
+    const checkAuth = async () => {
       const userPhone = localStorage.getItem('userPhone');
       if (!userPhone) {
         toast.error("Please sign in first");
@@ -19,13 +19,13 @@ export const useOnboarding = () => {
     };
 
     if (!isLoading) {
-      const isAuthenticated = checkAuth();
-      if (!isAuthenticated) return;
+      checkAuth();
     }
   }, [navigate, isLoading]);
 
   return {
     profile,
     isLoading,
+    refetch
   };
 };

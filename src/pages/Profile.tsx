@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ProfileForm } from "@/components/ProfileForm";
@@ -11,7 +11,7 @@ import { useOnboarding } from "@/hooks/useOnboarding";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
-  const { profile: initialProfile, isLoading } = useOnboarding();
+  const { profile: initialProfile, isLoading, refetch } = useOnboarding();
   const { updateProfile } = useProfile();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [profile, setProfile] = useState<Profile>({
@@ -31,21 +31,21 @@ const ProfilePage = () => {
     }
   }, [initialProfile, isLoading]);
 
-  const handleProfileChange = (field: keyof Profile, value: string) => {
+  const handleProfileChange = useCallback((field: keyof Profile, value: string) => {
     console.log("Updating field:", field, "with value:", value);
     setProfile(prev => ({
       ...prev,
       [field]: value
     }));
-  };
+  }, []);
 
-  const isFormValid = () => {
+  const isFormValid = useCallback(() => {
     const hasValidName = profile.full_name?.trim().split(' ').length >= 2;
     return hasValidName && 
       profile.gender && 
       profile.age && 
       profile.complaint;
-  };
+  }, [profile.full_name, profile.gender, profile.age, profile.complaint]);
 
   const handleSubmit = async () => {
     if (!isFormValid()) {
@@ -58,6 +58,7 @@ const ProfilePage = () => {
       console.log("Submitting profile:", profile);
       const success = await updateProfile(profile);
       if (success) {
+        await refetch();
         toast.success("Profile updated successfully");
         navigate("/medical-information");
       }
