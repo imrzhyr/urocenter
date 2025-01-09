@@ -100,6 +100,7 @@ export const DoctorChatContainer = () => {
           <DoctorChatHeader
             patientId={userId || ''}
             patientName={patientProfile.full_name || "Unknown Patient"}
+            patientPhone={patientProfile.phone}
             onRefresh={refreshMessages}
           />
         }

@@ -4,11 +4,13 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
 interface DoctorChatHeaderProps {
+  patientId: string;
   patientName?: string;
   patientPhone?: string;
+  onRefresh: () => Promise<void>;
 }
 
-export const DoctorChatHeader = ({ patientName, patientPhone }: DoctorChatHeaderProps) => {
+export const DoctorChatHeader = ({ patientName, patientPhone, onRefresh }: DoctorChatHeaderProps) => {
   const navigate = useNavigate();
 
   return (
