@@ -86,7 +86,7 @@ export const CallPage = () => {
         .eq('receiver_id', profile.id)
         .eq('caller_id', userId)
         .eq('status', 'active')
-        .order('created_at', { ascending: false })
+        .order('started_at', { ascending: false })
         .maybeSingle();
 
       if (error) {
