@@ -30,6 +30,13 @@ export const NewEditProfileDialog = ({ open, onClose }: NewEditProfileDialogProp
     }
   }, [initialProfile, open]);
 
+  // Cleanup effect to remove pointer-events style
+  useEffect(() => {
+    return () => {
+      document.body.style.removeProperty('pointer-events');
+    };
+  }, []);
+
   const handleProfileChange = (field: keyof Profile, value: string) => {
     setProfile(prev => ({
       ...prev,
@@ -45,6 +52,11 @@ export const NewEditProfileDialog = ({ open, onClose }: NewEditProfileDialogProp
       profile.complaint;
   };
 
+  const handleClose = () => {
+    document.body.style.removeProperty('pointer-events');
+    onClose();
+  };
+
   const handleSubmit = async () => {
     if (!isFormValid()) {
       toast.error("Please fill in all required fields correctly");
@@ -56,7 +68,7 @@ export const NewEditProfileDialog = ({ open, onClose }: NewEditProfileDialogProp
       const success = await updateProfile(profile);
       if (success) {
         toast.success("Profile updated successfully");
-        onClose();
+        handleClose();
       }
     } catch (error) {
       console.error("Error:", error);
@@ -66,14 +78,19 @@ export const NewEditProfileDialog = ({ open, onClose }: NewEditProfileDialogProp
     }
   };
 
-  if (!open) return null;
-
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog 
+      open={open} 
+      onOpenChange={(open) => {
+        if (!open) {
+          handleClose();
+        }
+      }}
+    >
       <DialogContent 
         className="max-w-2xl p-6 bg-white"
-        onEscapeKeyDown={onClose}
-        onPointerDownOutside={onClose}
+        onEscapeKeyDown={handleClose}
+        onPointerDownOutside={handleClose}
       >
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold">Edit Profile</DialogTitle>
@@ -89,7 +106,7 @@ export const NewEditProfileDialog = ({ open, onClose }: NewEditProfileDialogProp
         <div className="mt-6 flex justify-end gap-3">
           <Button
             variant="outline"
-            onClick={onClose}
+            onClick={handleClose}
             type="button"
           >
             Cancel
