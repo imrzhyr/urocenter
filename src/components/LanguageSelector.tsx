@@ -9,13 +9,14 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Globe } from "lucide-react";
 
 export const LanguageSelector = () => {
-  const { language, setLanguage } = useLanguage();
+  const { language, setLanguage, t } = useLanguage();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="relative group">
-          <Globe className="w-4 h-4" />
+          <Globe className="w-4 h-4 mr-2" />
+          <span>{language === 'en' ? 'English' : 'العربية'}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-40">

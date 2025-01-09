@@ -5,21 +5,23 @@ import { TestimonialsCarousel } from "@/components/testimonials/TestimonialsCaro
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Welcome = () => {
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
+  const { t } = useLanguage();
 
   const features = [
     {
       icon: <Stethoscope className="w-5 h-5 text-primary" />,
-      title: "Expert Care",
-      description: "Specialized urological treatments",
+      title: t("expert_care"),
+      description: t("specialized_treatment"),
     },
     {
       icon: <MessageCircle className="w-5 h-5 text-primary" />,
-      title: "Direct Communication",
-      description: "Connect with Dr. Ali Kamal",
+      title: t("direct_communication"),
+      description: t("connect_with_doctor"),
     },
   ];
 
@@ -28,15 +30,16 @@ const Welcome = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen flex flex-col bg-gradient-to-br from-primary/5 via-white to-background dark:from-primary/20 dark:via-[#1A1F2C] dark:to-[#1A1F2C]"
+      className="min-h-screen flex flex-col bg-gradient-to-br from-primary/5 via-background to-background dark:from-primary/20 dark:via-[#1A1F2C] dark:to-[#1A1F2C]"
     >
       <div className="p-4 flex justify-between items-center bg-white/80 dark:bg-[#1A1F2C]/80 backdrop-blur-sm border-b border-gray-100 dark:border-gray-800">
-        <h1 className="text-xl font-bold text-primary dark:text-white">UroCenter</h1>
+        <h1 className="text-xl font-bold text-primary dark:text-white">{t("uro_center")}</h1>
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="hover:bg-gray-100 dark:hover:bg-gray-800"
           >
             {theme === "dark" ? (
               <Sun className="h-4 w-4" />
