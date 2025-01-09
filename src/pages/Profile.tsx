@@ -17,17 +17,22 @@ const ProfilePage = () => {
     gender: '',
     age: '',
     complaint: '',
-    phone: '',
+    phone: localStorage.getItem('userPhone') || '',
     role: 'patient'
   });
 
   useEffect(() => {
     if (initialProfile) {
-      setProfile(initialProfile);
+      console.log("Setting initial profile:", initialProfile);
+      setProfile(prev => ({
+        ...initialProfile,
+        phone: localStorage.getItem('userPhone') || initialProfile.phone || ''
+      }));
     }
   }, [initialProfile]);
 
   const handleProfileChange = (field: keyof Profile, value: string) => {
+    console.log("Updating field:", field, "with value:", value);
     setProfile(prev => ({
       ...prev,
       [field]: value
@@ -50,6 +55,7 @@ const ProfilePage = () => {
 
     setIsSubmitting(true);
     try {
+      console.log("Submitting profile:", profile);
       const success = await updateProfile(profile);
       if (success) {
         toast.success("Profile updated successfully");
@@ -70,6 +76,8 @@ const ProfilePage = () => {
       </div>
     );
   }
+
+  console.log("Current profile state:", profile);
 
   return (
     <motion.div
