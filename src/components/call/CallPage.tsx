@@ -12,6 +12,7 @@ import { IncomingCallControls } from "./IncomingCallControls";
 import { formatDuration } from "@/utils/callUtils";
 import type { CallStatus, CallingUser } from "@/types/call";
 import { useCallSubscription } from "@/hooks/useCallSubscription";
+import { useCallHandlers } from "@/hooks/useCallHandlers";
 
 export const CallPage = () => {
   const { userId } = useParams();
@@ -19,11 +20,18 @@ export const CallPage = () => {
   const { profile } = useProfile();
   const [isMuted, setIsMuted] = useState(false);
   const [isSpeaker, setIsSpeaker] = useState(false);
-  const [duration, setDuration] = useState(0);
   const [callStartTime, setCallStartTime] = useState<Date>();
   const [callingUser, setCallingUser] = useState<CallingUser | null>(null);
   const [callStatus, setCallStatus] = useState<CallStatus>('ringing');
   const [isIncoming, setIsIncoming] = useState(false);
+  
+  const {
+    duration,
+    setDuration,
+    handleEndCall,
+    handleAcceptCall,
+    handleRejectCall
+  } = useCallHandlers(userId, profile);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -68,7 +76,7 @@ export const CallPage = () => {
       setCallStatus('connected');
       setCallStartTime(new Date());
     },
-    onCallEnded: handleEndCall
+    onCallEnded: () => handleEndCall(callStartTime)
   });
 
   useEffect(() => {
@@ -86,101 +94,7 @@ export const CallPage = () => {
         clearInterval(interval);
       }
     };
-  }, [callStartTime]);
-
-  const handleEndCall = async () => {
-    if (!userId || !profile?.id || !callStartTime) return;
-
-    try {
-      const { error: callError } = await supabase
-        .from('calls')
-        .update({
-          ended_at: new Date().toISOString(),
-          duration,
-          status: 'ended'
-        })
-        .eq('caller_id', profile.id)
-        .eq('receiver_id', userId)
-        .eq('status', 'active');
-
-      if (callError) {
-        console.error('Error updating call record:', callError);
-      }
-
-      const { error: messageError } = await supabase
-        .from('messages')
-        .insert({
-          user_id: userId,
-          content: `Call ended - Duration: ${formatDuration(duration)}`,
-          is_from_doctor: profile.role === 'admin',
-          call_duration: duration
-        });
-
-      if (messageError) {
-        console.error('Error creating call message:', messageError);
-      }
-
-      navigate(-1);
-    } catch (error) {
-      console.error('Error ending call:', error);
-      toast.error('Error ending call');
-    }
-  };
-
-  const handleAcceptCall = async () => {
-    if (!userId || !profile?.id) return;
-
-    try {
-      const { error } = await supabase
-        .from('calls')
-        .update({
-          status: 'accepted',
-          started_at: new Date().toISOString()
-        })
-        .eq('caller_id', userId)
-        .eq('receiver_id', profile.id)
-        .eq('status', 'active');
-
-      if (error) {
-        console.error('Error accepting call:', error);
-        toast.error('Could not accept call');
-        return;
-      }
-
-      setCallStatus('connected');
-      setCallStartTime(new Date());
-    } catch (error) {
-      console.error('Error accepting call:', error);
-      toast.error('Error accepting call');
-    }
-  };
-
-  const handleRejectCall = async () => {
-    if (!userId || !profile?.id) return;
-
-    try {
-      const { error } = await supabase
-        .from('calls')
-        .update({
-          status: 'rejected',
-          ended_at: new Date().toISOString()
-        })
-        .eq('caller_id', userId)
-        .eq('receiver_id', profile.id)
-        .eq('status', 'active');
-
-      if (error) {
-        console.error('Error rejecting call:', error);
-        toast.error('Could not reject call');
-        return;
-      }
-
-      navigate(-1);
-    } catch (error) {
-      console.error('Error rejecting call:', error);
-      toast.error('Error rejecting call');
-    }
-  };
+  }, [callStartTime, setDuration]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-primary/20 to-primary/5 p-4">
@@ -229,7 +143,7 @@ export const CallPage = () => {
             isSpeaker={isSpeaker}
             onToggleMute={() => setIsMuted(!isMuted)}
             onToggleSpeaker={() => setIsSpeaker(!isSpeaker)}
-            onEndCall={handleEndCall}
+            onEndCall={() => handleEndCall(callStartTime)}
           />
         )}
       </motion.div>
