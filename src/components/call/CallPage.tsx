@@ -35,14 +35,6 @@ export const CallPage = () => {
     const fetchUserDetails = async () => {
       if (!userId || !profile?.id) return;
 
-      if (profile?.role === 'patient') {
-        setCallingUser({
-          full_name: 'Dr. Ali Kamal',
-          id: userId
-        });
-        return;
-      }
-      
       const { data, error } = await supabase
         .from('profiles')
         .select('full_name, id')
@@ -57,18 +49,21 @@ export const CallPage = () => {
 
       setCallingUser(data);
       
-      const { error: callError } = await supabase
-        .from('calls')
-        .insert({
-          caller_id: profile.id,
-          receiver_id: userId,
-          status: 'active'
-        });
+      // Only create call record if we're initiating the call
+      if (!isIncoming) {
+        const { error: callError } = await supabase
+          .from('calls')
+          .insert({
+            caller_id: profile.id,
+            receiver_id: userId,
+            status: 'active'
+          });
 
-      if (callError) {
-        console.error('Error creating call record:', callError);
-        toast.error('Could not initiate call');
-        return;
+        if (callError) {
+          console.error('Error creating call record:', callError);
+          toast.error('Could not initiate call');
+          return;
+        }
       }
     };
 
@@ -97,7 +92,7 @@ export const CallPage = () => {
 
     fetchUserDetails();
     checkIfIncoming();
-  }, [userId, profile?.id, profile?.role]);
+  }, [userId, profile?.id, isIncoming]);
 
   useCallSubscription({
     userId: userId || '',
@@ -108,6 +103,7 @@ export const CallPage = () => {
     },
     onCallEnded: () => {
       handleEndCall(callStartTime);
+      navigate(-1);
       toast.info('Call ended');
     }
   });
@@ -129,39 +125,46 @@ export const CallPage = () => {
     };
   }, [callStartTime, setDuration]);
 
+  const onEndCall = () => {
+    handleEndCall(callStartTime);
+    navigate(-1);
+  };
+
   return (
-    <div className="fixed inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-primary/20 to-primary/5">
+    <div className="fixed inset-0 w-screen h-screen bg-gradient-to-b from-primary/20 to-primary/5">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8"
+        className="w-full h-full flex items-center justify-center p-4"
       >
-        <CallHeader 
-          onBack={() => navigate(-1)}
-          duration={duration}
-          callStatus={callStatus}
-        />
-        
-        <CallInfo 
-          callingUser={callingUser}
-          callStatus={callStatus}
-          isIncoming={isIncoming}
-        />
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
+          <CallHeader 
+            onBack={() => navigate(-1)}
+            duration={duration}
+            callStatus={callStatus}
+          />
+          
+          <CallInfo 
+            callingUser={callingUser}
+            callStatus={callStatus}
+            isIncoming={isIncoming}
+          />
 
-        {callStatus === 'ringing' && isIncoming ? (
-          <IncomingCallControls
-            onAccept={handleAcceptCall}
-            onReject={handleRejectCall}
-          />
-        ) : (
-          <CallControls
-            isMuted={isMuted}
-            isSpeaker={isSpeaker}
-            onToggleMute={() => setIsMuted(!isMuted)}
-            onToggleSpeaker={() => setIsSpeaker(!isSpeaker)}
-            onEndCall={() => handleEndCall(callStartTime)}
-          />
-        )}
+          {callStatus === 'ringing' && isIncoming ? (
+            <IncomingCallControls
+              onAccept={handleAcceptCall}
+              onReject={handleRejectCall}
+            />
+          ) : (
+            <CallControls
+              isMuted={isMuted}
+              isSpeaker={isSpeaker}
+              onToggleMute={() => setIsMuted(!isMuted)}
+              onToggleSpeaker={() => setIsSpeaker(!isSpeaker)}
+              onEndCall={onEndCall}
+            />
+          )}
+        </div>
       </motion.div>
     </div>
   );

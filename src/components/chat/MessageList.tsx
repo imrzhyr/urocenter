@@ -110,18 +110,19 @@ export const MessageList = ({ messages }: MessageListProps) => {
         </div>
       </div>
 
-      <div className="space-y-4 px-4">
+      <div className="space-y-4 px-4 w-full">
         {messages.map((message) => {
-          const shouldAlignRight = isAdmin ? message.is_from_doctor : !message.is_from_doctor;
+          const isFromMe = isAdmin ? message.is_from_doctor : !message.is_from_doctor;
+          const shouldShowStatus = isFromMe;
 
           return (
             <div
               key={message.id}
-              className={`flex ${shouldAlignRight ? 'justify-end' : 'justify-start'} animate-fade-in`}
+              className={`flex ${isFromMe ? 'justify-end' : 'justify-start'} animate-fade-in w-full`}
             >
               <div
                 className={`relative max-w-[70%] p-3 rounded-2xl ${
-                  shouldAlignRight
+                  isFromMe
                     ? 'bg-[#0066FF] text-white'
                     : 'bg-white text-gray-800 shadow-sm'
                 }`}
@@ -131,14 +132,14 @@ export const MessageList = ({ messages }: MessageListProps) => {
                 )}
                 {renderFilePreview(message)}
                 <div className="flex items-center justify-end gap-1 mt-1">
-                  <span className={`text-[11px] ${shouldAlignRight ? 'text-blue-100' : 'text-gray-500'}`}>
+                  <span className={`text-[11px] ${isFromMe ? 'text-blue-100' : 'text-gray-500'}`}>
                     {new Date(message.created_at).toLocaleTimeString([], { 
                       hour: '2-digit', 
                       minute: '2-digit',
                       hour12: true 
                     })}
                   </span>
-                  <MessageStatus message={message} />
+                  {shouldShowStatus && <MessageStatus message={message} />}
                 </div>
               </div>
             </div>
