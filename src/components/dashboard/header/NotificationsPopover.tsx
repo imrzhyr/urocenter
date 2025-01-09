@@ -83,14 +83,17 @@ export const NotificationsPopover = () => {
         </button>
       </PopoverTrigger>
       <PopoverContent className="w-80 p-0" align="end">
-        <div className="p-4 border-b">
-          <h4 className="font-semibold">Notifications</h4>
+        <div className="p-4 border-b bg-white">
+          <h4 className="font-semibold text-gray-900">Notifications</h4>
         </div>
         <ScrollArea className="h-[300px]">
           {notifications.length > 0 ? (
             <div className="divide-y">
               {notifications.map((notification) => (
-                <div key={notification.id} className="p-4 hover:bg-gray-50">
+                <div 
+                  key={notification.id} 
+                  className="p-4 hover:bg-gray-50 bg-white bg-opacity-90"
+                >
                   <p className="text-sm text-gray-800">{notification.message}</p>
                   <span className="text-xs text-gray-500">
                     {new Date(notification.created_at).toLocaleString()}
@@ -99,7 +102,7 @@ export const NotificationsPopover = () => {
               ))}
             </div>
           ) : (
-            <div className="p-4 text-center text-gray-500">
+            <div className="p-4 text-center text-gray-500 bg-white">
               No new notifications
             </div>
           )}

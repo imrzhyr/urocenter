@@ -18,7 +18,7 @@ export const AdminStatsCard = () => {
     // Get all messages grouped by user_id to check for new patients
     const { data: messagesData, error: messagesError } = await supabase
       .from('messages')
-      .select('user_id, is_read, is_from_doctor, is_resolved')
+      .select('user_id, is_read, is_from_doctor, is_resolved, created_at')
       .order('created_at', { ascending: true });
 
     if (messagesError) {
@@ -32,25 +32,38 @@ export const AdminStatsCard = () => {
       .select('*', { count: 'exact', head: true })
       .eq('role', 'patient');
 
-    // Calculate new patients (patients with unread first message)
+    // Calculate new patients (patients who have never had their messages read)
     const newPatientsSet = new Set();
-    const seenPatientsSet = new Set();
+    const everReadPatientsSet = new Set();
     const resolvedChatsSet = new Set();
 
-    messagesData?.forEach(message => {
-      if (!message.is_from_doctor) {
-        if (!message.is_read && !seenPatientsSet.has(message.user_id)) {
-          newPatientsSet.add(message.user_id);
-        }
-        if (message.is_read) {
-          seenPatientsSet.add(message.user_id);
-          newPatientsSet.delete(message.user_id);
-        }
-        if (message.is_resolved) {
-          resolvedChatsSet.add(message.user_id);
-        }
+    // Group messages by user_id to track first message read status
+    const userMessages = messagesData?.reduce((acc: { [key: string]: any }, message) => {
+      if (!acc[message.user_id]) {
+        acc[message.user_id] = [];
+      }
+      acc[message.user_id].push(message);
+      return acc;
+    }, {}) || {};
+
+    // Process each user's messages
+    Object.entries(userMessages).forEach(([userId, messages]: [string, any[]]) => {
+      const hasEverBeenRead = messages.some(m => m.is_read);
+      const hasUnreadMessages = messages.some(m => !m.is_from_doctor && !m.is_read);
+      
+      if (hasEverBeenRead) {
+        everReadPatientsSet.add(userId);
+      } else if (hasUnreadMessages) {
+        newPatientsSet.add(userId);
+      }
+
+      if (messages.some(m => m.is_resolved)) {
+        resolvedChatsSet.add(userId);
       }
     });
+
+    // Remove patients who have ever had messages read from new patients
+    everReadPatientsSet.forEach(id => newPatientsSet.delete(id));
 
     setStats({
       total_patients: totalPatients || 0,
