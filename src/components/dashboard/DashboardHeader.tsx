@@ -46,7 +46,7 @@ export const DashboardHeader = () => {
     };
 
     fetchProfile();
-    // We'll keep the message checking functionality
+    
     const checkUnreadMessages = async () => {
       try {
         const { data: messages, error } = await supabase
@@ -68,7 +68,7 @@ export const DashboardHeader = () => {
 
   const handleLogout = async () => {
     localStorage.removeItem('userPhone');
-    navigate("/signin");
+    navigate("/");
     toast.success("Logged out successfully");
   };
 
@@ -94,11 +94,11 @@ export const DashboardHeader = () => {
             <User className="w-5 h-5" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => navigate("/edit-profile")}>
+        <DropdownMenuContent align="end" className="w-56 bg-white border shadow-lg">
+          <DropdownMenuItem onClick={() => navigate("/profile")} className="cursor-pointer">
             Edit Profile
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleLogout}>
+          <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
             <LogOut className="w-4 h-4 mr-2" />
             Logout
           </DropdownMenuItem>

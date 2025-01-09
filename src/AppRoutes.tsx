@@ -11,6 +11,7 @@ import Welcome from "@/pages/Welcome";
 import MedicalInformation from "@/pages/MedicalInformation";
 import Payment from "@/pages/Payment";
 import { OnboardingLayout } from "@/components/layouts/OnboardingLayout";
+import { EditProfileForm } from "@/components/profile/EditProfileForm";
 
 export const AppRoutes = () => {
   return (
@@ -22,6 +23,7 @@ export const AppRoutes = () => {
       <Route element={<OnboardingLayout />}>
         <Route path="/signup" element={<SignUp />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/edit-profile" element={<EditProfileForm />} />
         <Route path="/medical-information" element={<MedicalInformation />} />
         <Route path="/payment" element={<Payment />} />
       </Route>
