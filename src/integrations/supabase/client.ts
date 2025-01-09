@@ -10,7 +10,16 @@ const retryDelay = 1000; // 1 second
 
 const fetchWithRetry = async (url: string, options: any, retries = maxRetries): Promise<Response> => {
   try {
-    const response = await fetch(url, options);
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        ...options.headers,
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      },
+    });
+    
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -46,10 +55,19 @@ export const supabase = createClient<Database>(
   }
 );
 
-// Add error event listener
+// Add error event listener for unhandled fetch errors
 window.addEventListener('unhandledrejection', (event) => {
   if (event.reason?.message?.includes('Failed to fetch')) {
     console.error('Supabase connection error:', event.reason);
     toast.error('Connection error. Please check your internet connection and try again.');
   }
+});
+
+// Add network status listener
+window.addEventListener('online', () => {
+  toast.success('Connection restored');
+});
+
+window.addEventListener('offline', () => {
+  toast.error('No internet connection');
 });
