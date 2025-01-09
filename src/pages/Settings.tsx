@@ -85,25 +85,6 @@ const Settings = () => {
                 <span>{t('push_notifications')}</span>
                 <Switch defaultChecked />
               </div>
-              <div className="flex items-center justify-between">
-                <span>{t('email_notifications')}</span>
-                <Switch defaultChecked />
-              </div>
-            </div>
-          </div>
-
-          {/* Privacy Section */}
-          <div className="bg-card rounded-lg p-6 shadow-sm">
-            <h2 className="text-lg font-medium mb-4">{t('privacy')}</h2>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span>{t('online_status')}</span>
-                <Switch defaultChecked />
-              </div>
-              <div className="flex items-center justify-between">
-                <span>{t('read_receipts')}</span>
-                <Switch defaultChecked />
-              </div>
             </div>
           </div>
         </motion.div>
