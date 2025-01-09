@@ -66,8 +66,13 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
     }
   };
 
+  const handleClose = () => {
+    setIsSubmitting(false);
+    onOpenChange(false);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-2xl p-6 bg-white">
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold">Edit Profile</DialogTitle>
@@ -86,13 +91,15 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
         <div className="mt-6 flex justify-end gap-3">
           <Button
             variant="outline"
-            onClick={() => onOpenChange(false)}
+            onClick={handleClose}
+            type="button"
           >
             Cancel
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={!isFormValid() || isSubmitting}
+            type="button"
           >
             {isSubmitting ? "Saving..." : "Save Changes"}
           </Button>
