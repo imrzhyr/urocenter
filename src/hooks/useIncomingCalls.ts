@@ -21,7 +21,9 @@ export const useIncomingCalls = () => {
           event: 'INSERT',
           schema: 'public',
           table: 'calls',
-          filter: `receiver_id=eq.${profile.id}`,
+          filter: profile.role === 'admin' 
+            ? `receiver_id=eq.${profile.id}`
+            : `receiver_id=eq.${profile.id}`,
         },
         async (payload) => {
           console.log('Received new call:', payload);
@@ -43,11 +45,13 @@ export const useIncomingCalls = () => {
 
             // Show browser notification if permitted
             if ('Notification' in window && Notification.permission === 'granted') {
-              new Notification('Incoming Call', {
+              const notification = new Notification('Incoming Call', {
                 body: `${callerName} is calling you`,
                 icon: '/favicon.ico',
                 requireInteraction: true
-              }).onclick = () => {
+              });
+              
+              notification.onclick = () => {
                 window.focus();
                 navigate(`/call/${payload.new.caller_id}`);
               };
@@ -75,14 +79,36 @@ export const useIncomingCalls = () => {
       )
       .subscribe();
 
+    // Also listen for call status changes
+    const statusChannel = supabase
+      .channel('call_status')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'calls',
+          filter: `receiver_id=eq.${profile.id}`,
+        },
+        (payload) => {
+          console.log('Call status updated:', payload);
+          
+          if (payload.new.status === 'ended') {
+            toast.error('Call ended');
+          }
+        }
+      )
+      .subscribe();
+
     // Request notification permission if needed
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission();
     }
 
     return () => {
-      console.log('Cleaning up call subscription');
+      console.log('Cleaning up call subscriptions');
       supabase.removeChannel(channel);
+      supabase.removeChannel(statusChannel);
     };
   }, [profile?.id, navigate]);
 };

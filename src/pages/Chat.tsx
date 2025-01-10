@@ -8,7 +8,7 @@ export const Chat = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
   const { profile } = useProfile();
-  useIncomingCalls(); // Add the hook here
+  useIncomingCalls(); // This will now work for both admin and patients
 
   if (!profile) {
     navigate('/signin');
