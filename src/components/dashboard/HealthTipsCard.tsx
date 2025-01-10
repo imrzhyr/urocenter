@@ -6,10 +6,10 @@ export const HealthTipsCard = () => {
   const { t } = useLanguage();
   
   const tips = [
-    t("stay_hydrated"),
-    t("regular_exercise"),
-    t("schedule_checkups"),
-    t("monitor_habits"),
+    t("dashboard.health_tips.hydration"),
+    t("dashboard.health_tips.exercise"),
+    t("dashboard.health_tips.checkups"),
+    t("dashboard.health_tips.monitoring"),
   ];
 
   return (
@@ -24,8 +24,8 @@ export const HealthTipsCard = () => {
           <Lightbulb className="h-6 w-6 text-primary" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">{t("health_tips")}</h2>
-          <p className="text-sm text-gray-600">{t("from_doctor")}</p>
+          <h2 className="text-lg font-semibold text-gray-900">{t("dashboard.health_tips.title")}</h2>
+          <p className="text-sm text-gray-600">{t("dashboard.health_tips.subtitle")}</p>
         </div>
       </div>
 
