@@ -1,5 +1,4 @@
 import { useLanguage } from "@/contexts/LanguageContext";
-import { CallButton } from "../CallButton";
 import { useProfile } from "@/hooks/useProfile";
 import { BackButton } from "@/components/BackButton";
 import { useEffect, useState } from "react";
@@ -48,7 +47,6 @@ export const PatientChatHeader = () => {
           <p className="text-sm text-white/80">{t('doctor_title')}</p>
         </div>
       </div>
-      {adminId && <CallButton userId={adminId} />}
     </div>
   );
 };
