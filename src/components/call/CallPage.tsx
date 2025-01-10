@@ -48,6 +48,7 @@ export const CallPage = () => {
 
   useEffect(() => {
     if (remoteStream && !audioElement) {
+      console.log('Setting up audio element with remote stream');
       const audio = new Audio();
       audio.srcObject = remoteStream;
       audio.play().catch(console.error);
@@ -69,15 +70,18 @@ export const CallPage = () => {
 
   useCallSubscription({
     userId: userId || '',
-    onCallAccepted: () => {
+    onCallAccepted: async () => {
       console.log('Call accepted, updating status to connected');
       setCallStatus('connected');
       setIsIncoming(false);
       setCallStartTime(new Date());
-      startCall().catch(error => {
+      try {
+        await startCall();
+        console.log('WebRTC call started successfully');
+      } catch (error) {
         console.error('Error starting WebRTC call:', error);
         toast.error('Failed to establish call connection');
-      });
+      }
     },
     onCallEnded: async () => {
       console.log('Call ended, cleaning up');
@@ -89,14 +93,17 @@ export const CallPage = () => {
 
   const handleAcceptCall = async () => {
     console.log('Accepting call...');
-    await baseHandleAcceptCall();
-    setCallStatus('connected');
-    setIsIncoming(false);
-    setCallStartTime(new Date());
-    startCall().catch(error => {
-      console.error('Error starting WebRTC call:', error);
+    try {
+      await baseHandleAcceptCall();
+      setCallStatus('connected');
+      setIsIncoming(false);
+      setCallStartTime(new Date());
+      await startCall();
+      console.log('Call accepted and WebRTC connection established');
+    } catch (error) {
+      console.error('Error accepting call:', error);
       toast.error('Failed to establish call connection');
-    });
+    }
   };
 
   const onEndCall = async () => {
