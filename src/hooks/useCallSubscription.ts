@@ -35,9 +35,9 @@ export const useCallSubscription = ({
           console.log('Received call update:', payload);
 
           if (payload.eventType === 'INSERT' && payload.new.receiver_id === profile?.id) {
-            console.log('New call received');
+            console.log('New incoming call detected');
             
-            // Show notification for incoming call
+            // Show notification for incoming call only if we are the receiver
             if ('Notification' in window) {
               if (Notification.permission === 'granted') {
                 const notification = new Notification('Incoming Call', {
@@ -69,15 +69,13 @@ export const useCallSubscription = ({
             }
 
             // Show toast notification only if we're the receiver
-            if (payload.new.receiver_id === profile?.id) {
-              toast.info('Incoming call...', {
-                action: {
-                  label: 'Answer',
-                  onClick: () => navigate(`/call/${payload.new.caller_id}`)
-                },
-                duration: 10000
-              });
-            }
+            toast.info('Incoming call...', {
+              action: {
+                label: 'Answer',
+                onClick: () => navigate(`/call/${payload.new.caller_id}`)
+              },
+              duration: 10000
+            });
           } else if (payload.eventType === 'UPDATE') {
             const newStatus = payload.new.status;
             console.log('Call status updated to:', newStatus);
