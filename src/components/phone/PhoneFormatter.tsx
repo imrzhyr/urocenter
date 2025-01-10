@@ -1,4 +1,5 @@
 import { Input } from "@/components/ui/input";
+import { useState, useEffect } from "react";
 
 interface PhoneFormatterProps {
   value: string;
@@ -7,6 +8,14 @@ interface PhoneFormatterProps {
 }
 
 export const PhoneFormatter = ({ value, onChange, readOnly = false }: PhoneFormatterProps) => {
+  const [isValid, setIsValid] = useState(true);
+  
+  useEffect(() => {
+    // Validate phone number format
+    const isValidFormat = /^7[0-9]{9}$/.test(value);
+    setIsValid(isValidFormat);
+  }, [value]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let val = e.target.value;
     
@@ -49,13 +58,18 @@ export const PhoneFormatter = ({ value, onChange, readOnly = false }: PhoneForma
       <Input
         id="phone"
         type="tel"
-        className="rounded-l-none"
+        className={`rounded-l-none transition-colors duration-200 ${!isValid && value.length > 0 ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
         value={formatPhoneNumber(value)}
         onChange={handleChange}
         placeholder="7XX XXX XXXX"
         readOnly={readOnly}
         autoComplete="tel"
       />
+      {!isValid && value.length > 0 && (
+        <div className="absolute mt-14 text-sm text-red-500">
+          Please enter a valid Iraqi phone number starting with 7
+        </div>
+      )}
     </div>
   );
 };

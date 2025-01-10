@@ -2,10 +2,11 @@ import { Input } from "@/components/ui/input";
 import { PhoneFormatter } from "./phone/PhoneFormatter";
 import { VerificationButton } from "./phone/VerificationButton";
 import { SignInButton } from "./phone/SignInButton";
-import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Eye, EyeOff, Check, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface PhoneInputProps {
   value: string;
@@ -20,12 +21,37 @@ export const PhoneInput = ({ value, onChange, isSignUp = false, onSignUpSuccess 
   const [showPassword, setShowPassword] = useState(false);
   const { t } = useLanguage();
 
+  const passwordStrength = {
+    hasMinLength: password.length >= 8,
+    hasUpperCase: /[A-Z]/.test(password),
+    hasLowerCase: /[a-z]/.test(password),
+    hasNumber: /\d/.test(password),
+    hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+  };
+
+  const isPasswordStrong = Object.values(passwordStrength).every(Boolean);
+
+  const renderPasswordRequirement = (met: boolean, text: string) => (
+    <motion.div
+      initial={{ opacity: 0, x: -10 }}
+      animate={{ opacity: 1, x: 0 }}
+      className="flex items-center gap-2 text-sm"
+    >
+      {met ? (
+        <Check className="w-4 h-4 text-green-500" />
+      ) : (
+        <X className="w-4 h-4 text-red-500" />
+      )}
+      <span className={met ? "text-green-700" : "text-red-700"}>
+        {text}
+      </span>
+    </motion.div>
+  );
+
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <div className="flex gap-2">
-          <PhoneFormatter value={value} onChange={onChange} />
-        </div>
+        <PhoneFormatter value={value} onChange={onChange} />
       </div>
 
       <div className="space-y-2">
@@ -36,7 +62,9 @@ export const PhoneInput = ({ value, onChange, isSignUp = false, onSignUpSuccess 
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder={t('enter_password')}
-            className="pr-10"
+            className={`pr-10 transition-colors duration-200 ${
+              password && (isPasswordStrong ? 'border-green-500 focus-visible:ring-green-500' : 'border-red-500 focus-visible:ring-red-500')
+            }`}
           />
           <button
             type="button"
@@ -46,29 +74,46 @@ export const PhoneInput = ({ value, onChange, isSignUp = false, onSignUpSuccess 
             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </button>
         </div>
+
+        <AnimatePresence>
+          {password && isSignUp && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="space-y-1 mt-2"
+            >
+              {renderPasswordRequirement(passwordStrength.hasMinLength, "At least 8 characters")}
+              {renderPasswordRequirement(passwordStrength.hasUpperCase, "One uppercase letter")}
+              {renderPasswordRequirement(passwordStrength.hasLowerCase, "One lowercase letter")}
+              {renderPasswordRequirement(passwordStrength.hasNumber, "One number")}
+              {renderPasswordRequirement(passwordStrength.hasSpecialChar, "One special character")}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {isSignUp ? (
-        <>
-          <div>
-            <VerificationButton phone={value} password={password} onSuccess={onSignUpSuccess} />
-          </div>
-          <div className="text-center text-sm text-muted-foreground">
-            {t('dont_have_account')}{" "}
+        <motion.div className="space-y-4">
+          <VerificationButton 
+            phone={value} 
+            password={password} 
+            onSuccess={onSignUpSuccess} 
+          />
+          <p className="text-center text-sm text-muted-foreground">
+            {t('already_have_account')}{" "}
             <button
               onClick={() => navigate("/signin")}
               className="text-primary hover:underline font-medium"
             >
               {t('sign_in')}
             </button>
-          </div>
-        </>
+          </p>
+        </motion.div>
       ) : (
-        <>
-          <div>
-            <SignInButton phone={value} password={password} />
-          </div>
-          <div className="text-center text-sm text-muted-foreground">
+        <motion.div className="space-y-4">
+          <SignInButton phone={value} password={password} />
+          <p className="text-center text-sm text-muted-foreground">
             {t('dont_have_account')}{" "}
             <button
               onClick={() => navigate("/signup")}
@@ -76,8 +121,8 @@ export const PhoneInput = ({ value, onChange, isSignUp = false, onSignUpSuccess 
             >
               {t('sign_up')}
             </button>
-          </div>
-        </>
+          </p>
+        </motion.div>
       )}
     </div>
   );

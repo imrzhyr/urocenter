@@ -16,12 +16,13 @@ const SignUp = () => {
 
   return (
     <motion.div 
-      initial={{ opacity: 1 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 1 }}
-      className="flex-1 flex flex-col justify-center items-center"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3 }}
+      className="flex-1 flex flex-col justify-center items-center p-4"
     >
-      <Card className="w-full max-w-md mx-auto border-0 shadow-none bg-transparent">
+      <Card className="w-full max-w-md mx-auto border-0 shadow-lg bg-white dark:bg-gray-800">
         <CardHeader className="space-y-2 text-center pb-4">
           <div className="mx-auto w-16 h-16 bg-primary rounded-2xl flex items-center justify-center shadow-lg">
             <motion.svg
@@ -29,8 +30,9 @@ const SignUp = () => {
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
-              initial={{ scale: 1 }}
-              animate={{ scale: 1 }}
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2 }}
             >
               <path
                 strokeLinecap="round"
@@ -41,21 +43,26 @@ const SignUp = () => {
             </motion.svg>
           </div>
           <CardTitle className="text-2xl font-semibold text-primary">
-            Create an account
+            {t('create_account')}
           </CardTitle>
           <p className="text-muted-foreground text-sm">
-            Sign up to get started with your medical journey
+            {t('sign_up_description')}
           </p>
         </CardHeader>
         <CardContent className="pt-0">
-          <div className="rounded-lg">
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="rounded-lg"
+          >
             <PhoneInput 
               value={phone} 
               onChange={setPhone} 
               isSignUp={true} 
               onSignUpSuccess={handleSignUpSuccess}
             />
-          </div>
+          </motion.div>
         </CardContent>
       </Card>
     </motion.div>
