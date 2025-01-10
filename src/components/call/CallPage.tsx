@@ -92,9 +92,14 @@ export const CallPage = () => {
 
       console.log('Incoming call check result:', data);
 
-      if (data) {
+      // Only set as incoming if we are the receiver of an active call
+      if (data && data.receiver_id === profile.id) {
+        console.log('Setting as incoming call because we are the receiver');
         setIsIncoming(true);
         setCallStatus('ringing');
+      } else {
+        console.log('Not an incoming call for us');
+        setIsIncoming(false);
       }
     };
 
