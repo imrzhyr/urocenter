@@ -1,150 +1,131 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useProfile } from "./useProfile";
-import { Call } from "@/types/call";
 import { toast } from "sonner";
+import { Profile } from "@/types/profile";
+import { CallingUser, CallStatus } from "@/types/call";
 
-export const useCallSetup = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const { profile } = useProfile();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+export const useCallSetup = (userId: string | undefined, profile: Profile | null) => {
+  const [callingUser, setCallingUser] = useState<CallingUser | null>(null);
+  const [callStatus, setCallStatus] = useState<CallStatus>('ringing');
+  const [isIncoming, setIsIncoming] = useState(false);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setIsAuthenticated(!!session);
+    let isMounted = true;
+
+    const fetchUserDetails = async () => {
+      if (!userId || !profile?.id) return;
+
+      try {
+        // Check for existing active calls first
+        const { data: existingCalls, error: checkError } = await supabase
+          .from('calls')
+          .select('*')
+          .or(`caller_id.eq.${profile.id},receiver_id.eq.${profile.id}`)
+          .eq('status', 'active')
+          .single();
+
+        if (checkError && checkError.code !== 'PGRST116') {
+          console.error('Error checking existing calls:', checkError);
+          toast.error('Could not check existing calls');
+          return;
+        }
+
+        if (existingCalls) {
+          console.log('Active call already exists:', existingCalls);
+          toast.error('You already have an active call');
+          return;
+        }
+
+        // Fetch user details
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('full_name, id')
+          .eq('id', userId)
+          .single();
+
+        if (error) {
+          console.error('Error fetching user details:', error);
+          toast.error('Could not fetch user details');
+          return;
+        }
+
+        if (isMounted) {
+          setCallingUser(data);
+          
+          // Only create call record if we're initiating the call and there's no active call
+          if (!isIncoming && !existingCalls) {
+            console.log('Creating outgoing call record:', { caller: profile.id, receiver: userId });
+            const { error: callError } = await supabase
+              .from('calls')
+              .insert({
+                caller_id: profile.id,
+                receiver_id: userId,
+                status: 'active'
+              });
+
+            if (callError) {
+              console.error('Error creating call record:', callError);
+              toast.error('Could not initiate call');
+              return;
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error in call setup:', error);
+        toast.error('Call setup failed');
+      }
     };
 
-    checkAuth();
+    const checkIfIncoming = async () => {
+      if (!profile?.id || !userId) return;
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setIsAuthenticated(!!session);
-    });
+      try {
+        console.log('Checking for incoming calls - Current user:', profile.id, 'Other user:', userId);
+        
+        const { data: activeCalls, error: fetchError } = await supabase
+          .from('calls')
+          .select('*')
+          .or(`and(caller_id.eq.${userId},receiver_id.eq.${profile.id}),and(caller_id.eq.${profile.id},receiver_id.eq.${userId})`)
+          .eq('status', 'active')
+          .order('started_at', { ascending: false })
+          .limit(1);
 
-    return () => subscription.unsubscribe();
-  }, []);
+        if (fetchError) {
+          console.error('Error checking incoming call:', fetchError);
+          return;
+        }
 
-  const initiateCall = async (receiverId: string) => {
-    if (!isAuthenticated) {
-      console.error("User not authenticated");
-      toast.error("Please sign in to make calls");
-      return;
-    }
+        if (activeCalls && activeCalls.length > 0 && isMounted) {
+          const activeCall = activeCalls[0];
+          console.log('Active call found:', activeCall);
 
-    if (!profile?.id) {
-      console.error("No profile ID found");
-      toast.error("You must be logged in to make calls");
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      console.log("Initiating call with:", {
-        caller_id: profile.id,
-        receiver_id: receiverId
-      });
-
-      // Check if there's an active call
-      const { data: existingCalls, error: checkError } = await supabase
-        .from("calls")
-        .select("*")
-        .eq("is_active", true)
-        .or(`caller_id.eq.${profile.id},receiver_id.eq.${profile.id}`);
-
-      if (checkError) {
-        console.error("Error checking existing calls:", checkError);
-        throw checkError;
-      }
-
-      if (existingCalls && existingCalls.length > 0) {
-        toast.error("You already have an active call");
-        return;
-      }
-
-      // Create new call
-      const { data: call, error: createError } = await supabase
-        .from("calls")
-        .insert([{
-          caller_id: profile.id,
-          receiver_id: receiverId,
-          status: "initiated",
-          call_type: "audio",
-          is_active: true
-        }])
-        .select()
-        .single();
-
-      if (createError) {
-        console.error("Error creating call:", createError);
-        throw createError;
-      }
-
-      if (!call) {
-        throw new Error("No call data returned");
-      }
-
-      console.log("Call created successfully:", call);
-
-      // Subscribe to call updates
-      const channel = supabase
-        .channel(`call_${call.id}`)
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'calls',
-            filter: `id=eq.${call.id}`
-          },
-          (payload) => {
-            console.log("Call status update received:", payload);
-            const updatedCall = payload.new as Call;
-            handleCallStatusChange(updatedCall);
+          if (activeCall.receiver_id === profile.id && activeCall.caller_id === userId) {
+            console.log('Setting as incoming call - we are the receiver');
+            setIsIncoming(true);
+            setCallStatus('ringing');
+          } else if (activeCall.caller_id === profile.id && activeCall.receiver_id === userId) {
+            console.log('Setting as outgoing call - we are the caller');
+            setIsIncoming(false);
+            setCallStatus('ringing');
           }
-        )
-        .subscribe();
-
-      return call;
-    } catch (error) {
-      console.error("Error initiating call:", error);
-      toast.error("Failed to initiate call");
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleCallStatusChange = (call: Call) => {
-    if (!profile?.id) return;
-
-    const isReceiver = call.receiver_id === profile.id;
-    const isCaller = call.caller_id === profile.id;
-
-    switch (call.status) {
-      case "ringing":
-        if (isCaller) {
-          toast("Ringing...");
         }
-        break;
-      case "connected":
-        toast.success("Call connected");
-        break;
-      case "ended":
-        toast("Call ended");
-        break;
-      case "missed":
-        if (isCaller) {
-          toast("Call not answered");
-        }
-        break;
-      default:
-        break;
-    }
-  };
+      } catch (error) {
+        console.error('Error checking incoming calls:', error);
+      }
+    };
+
+    fetchUserDetails();
+    checkIfIncoming();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [userId, profile?.id, isIncoming]);
 
   return {
-    initiateCall,
-    isLoading,
-    isAuthenticated
+    callingUser,
+    callStatus,
+    setCallStatus,
+    isIncoming
   };
 };

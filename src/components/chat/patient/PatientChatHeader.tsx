@@ -1,10 +1,10 @@
 import { useLanguage } from "@/contexts/LanguageContext";
+import { CallButton } from "../CallButton";
 import { useProfile } from "@/hooks/useProfile";
 import { BackButton } from "@/components/BackButton";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { CallButton } from "../CallButton";
 
 export const PatientChatHeader = () => {
   const { t } = useLanguage();
@@ -48,7 +48,7 @@ export const PatientChatHeader = () => {
           <p className="text-sm text-white/80">{t('doctor_title')}</p>
         </div>
       </div>
-      {adminId && <CallButton receiverId={adminId} />}
+      {adminId && <CallButton userId={adminId} />}
     </div>
   );
 };

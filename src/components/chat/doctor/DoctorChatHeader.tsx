@@ -1,4 +1,4 @@
-import { User, ArrowLeft, FileText, Info, Phone } from "lucide-react";
+import { User, ArrowLeft, FileText, Info } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -42,7 +42,7 @@ export const DoctorChatHeader = ({ patientId, patientName, patientPhone, onRefre
         <p className="text-sm text-white/80">{patientPhone || "No phone number"}</p>
       </div>
       <div className="flex items-center gap-2 ml-auto">
-        <CallButton receiverId={patientId} />
+        <CallButton userId={patientId} className="text-white" />
         <Button
           variant="ghost"
           size="icon"

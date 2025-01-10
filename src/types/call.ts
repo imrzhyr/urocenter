@@ -1,15 +1,17 @@
-export type CallStatus = 'initiated' | 'ringing' | 'connected' | 'ended' | 'missed';
+export type CallStatus = 'ringing' | 'connected' | 'ended' | 'active' | 'accepted' | 'rejected' | 'initiated';
 
 export interface Call {
   id: string;
   caller_id: string;
   receiver_id: string;
   status: CallStatus;
-  started_at: string;
+  started_at?: string;
   ended_at?: string;
   duration?: number;
-  call_type: 'audio' | 'video';
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
+  created_at?: string; // Added this field
+}
+
+export interface CallingUser {
+  full_name: string;
+  id: string;
 }

@@ -1,34 +1,33 @@
-import { Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useCallSetup } from "@/hooks/useCallSetup";
-import { toast } from "sonner";
+import { PhoneCall } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 interface CallButtonProps {
-  receiverId: string;
-  disabled?: boolean;
+  userId: string;
+  className?: string;
 }
 
-export const CallButton = ({ receiverId, disabled }: CallButtonProps) => {
-  const { initiateCall, isLoading } = useCallSetup();
+export const CallButton = ({ userId, className = "" }: CallButtonProps) => {
+  const navigate = useNavigate();
 
-  const handleCall = async () => {
-    try {
-      await initiateCall(receiverId);
-    } catch (error) {
-      console.error('Error initiating call:', error);
-      toast.error("Failed to initiate call");
-    }
+  const handleCall = () => {
+    navigate(`/call/${userId}`);
   };
 
   return (
-    <Button
-      variant="ghost"
-      size="icon"
-      onClick={handleCall}
-      disabled={disabled || isLoading}
-      className="rounded-full hover:bg-white/20"
+    <motion.div
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
     >
-      <Phone className="h-5 w-5 text-white" />
-    </Button>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={handleCall}
+        className={`hover:bg-primary/10 rounded-full w-10 h-10 ${className}`}
+      >
+        <PhoneCall className="h-5 w-5" />
+      </Button>
+    </motion.div>
   );
 };
