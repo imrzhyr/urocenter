@@ -4,7 +4,6 @@ import { MessageInput } from "./MessageInput";
 import { Message } from "@/types/profile";
 import { ViewReportsDialog } from "../medical-reports/ViewReportsDialog";
 import { useState } from "react";
-import { CallButton } from "./CallButton";
 
 interface MessageContainerProps {
   messages: Message[];
@@ -35,12 +34,7 @@ export const MessageContainer = ({
   return (
     <div className="flex flex-col h-[100vh] w-full">
       <div className="bg-primary text-white sticky top-0 z-50 shadow-md">
-        <div className="flex justify-between items-center px-6 py-4">
-          <div className="flex-1 min-w-0">
-            {header}
-          </div>
-          <CallButton userId={userId} className="text-white hover:bg-white/10" />
-        </div>
+        {header}
       </div>
       <div className="flex-1 overflow-y-auto pt-4">
         <MessageList messages={messages} />
