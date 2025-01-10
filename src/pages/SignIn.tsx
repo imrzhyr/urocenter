@@ -2,23 +2,16 @@ import { useState } from "react";
 import { PhoneInput } from "@/components/PhoneInput";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { BackButton } from "@/components/BackButton";
 
 const SignIn = () => {
   const [phone, setPhone] = useState("");
-  const { t } = useLanguage();
-  const navigate = useNavigate();
+  const { t, language } = useLanguage();
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-primary/5 via-white to-background">
-      <div className="p-4 flex justify-between items-center relative z-10">
-        <button 
-          onClick={() => navigate(-1)}
-          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </button>
+      <div className={`p-4 flex justify-between items-center relative z-10 ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
+        <BackButton />
         <LanguageSelector />
       </div>
       

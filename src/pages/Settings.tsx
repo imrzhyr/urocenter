@@ -1,18 +1,15 @@
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Moon, Sun, Globe } from "lucide-react";
+import { Moon, Sun, Globe } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSelector } from "@/components/LanguageSelector";
-import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { NewEditProfileDialog } from "@/components/profile/NewEditProfileDialog";
+import { BackButton } from "@/components/BackButton";
 
 const Settings = () => {
-  const navigate = useNavigate();
   const { t, language } = useLanguage();
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
 
   useEffect(() => {
     const isDark = document.documentElement.classList.contains('dark');
@@ -29,16 +26,9 @@ const Settings = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="container max-w-4xl mx-auto p-4">
-        <div className="flex items-center mb-6">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate(-1)}
-            className="mr-4"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-2xl font-semibold">{t('settings')}</h1>
+        <div className={`flex items-center mb-6 ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
+          <BackButton />
+          <h1 className="text-2xl font-semibold mx-4">{t('settings')}</h1>
         </div>
 
         <motion.div
@@ -47,23 +37,11 @@ const Settings = () => {
           transition={{ duration: 0.3 }}
           className="space-y-6"
         >
-          {/* Profile Section */}
-          <div className="bg-card rounded-lg p-6 shadow-sm">
-            <h2 className="text-lg font-medium mb-4">{t('profile')}</h2>
-            <Button
-              variant="outline"
-              onClick={() => setIsEditProfileOpen(true)}
-              className="w-full justify-start"
-            >
-              {t('edit_profile')}
-            </Button>
-          </div>
-
           {/* Appearance Section */}
           <div className="bg-card rounded-lg p-6 shadow-sm">
             <h2 className="text-lg font-medium mb-4">{t('appearance')}</h2>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+            <div className={`flex items-center justify-between ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
+              <div className={`flex items-center gap-2 ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
                 {isDarkMode ? (
                   <Moon className="h-5 w-5" />
                 ) : (
@@ -81,8 +59,8 @@ const Settings = () => {
           {/* Language Section */}
           <div className="bg-card rounded-lg p-6 shadow-sm">
             <h2 className="text-lg font-medium mb-4">{t('language')}</h2>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+            <div className={`flex items-center justify-between ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
+              <div className={`flex items-center gap-2 ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
                 <Globe className="h-5 w-5" />
                 <span>{t('select_language')}</span>
               </div>
@@ -93,18 +71,13 @@ const Settings = () => {
           {/* Notifications Section */}
           <div className="bg-card rounded-lg p-6 shadow-sm">
             <h2 className="text-lg font-medium mb-4">{t('notifications')}</h2>
-            <div className="flex items-center justify-between">
+            <div className={`flex items-center justify-between ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
               <span>{t('push_notifications')}</span>
               <Switch defaultChecked />
             </div>
           </div>
         </motion.div>
       </div>
-
-      <NewEditProfileDialog
-        open={isEditProfileOpen}
-        onClose={() => setIsEditProfileOpen(false)}
-      />
     </div>
   );
 };

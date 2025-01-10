@@ -1,17 +1,23 @@
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Button } from "@/components/ui/button";
 
 export const BackButton = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
+  const isRTL = language === 'ar';
 
   return (
-    <button 
-      onClick={() => navigate(-1)} 
-      className={`p-2 hover:bg-gray-100 rounded-full transition-colors ${language === 'ar' ? 'rotate-180' : ''}`}
+    <Button
+      onClick={() => navigate(-1)}
+      variant="ghost"
+      size="icon"
+      className={`rounded-full hover:bg-accent transition-colors ${isRTL ? 'rotate-180' : ''}`}
+      dir={isRTL ? 'rtl' : 'ltr'}
+      aria-label={isRTL ? 'رجوع' : 'Back'}
     >
-      <ArrowLeft className="w-5 h-5" />
-    </button>
+      <ArrowLeft className="h-5 w-5" />
+    </Button>
   );
 };
