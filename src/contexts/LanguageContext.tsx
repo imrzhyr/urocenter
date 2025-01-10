@@ -1,6 +1,12 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { translations } from '@/translations/translations';
-import type { Language, LanguageContextType } from '@/types/language';
+import React, { createContext, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
+import type { Language } from '@/types/language';
+
+interface LanguageContextType {
+  language: Language;
+  setLanguage: (lang: Language) => void;
+  t: (key: string) => string;
+}
 
 const LanguageContext = createContext<LanguageContextType>({
   language: 'en',
@@ -9,26 +15,26 @@ const LanguageContext = createContext<LanguageContextType>({
 });
 
 export const LanguageProvider = ({ children }: { children: React.ReactNode }) => {
-  const [language, setLanguage] = useState<Language>('en');
+  const { i18n, t } = useTranslation();
 
-  useEffect(() => {
-    document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
-    document.documentElement.lang = language;
-    document.documentElement.style.textAlign = language === 'ar' ? 'right' : 'left';
-  }, [language]);
-
-  const t = (key: string): string => {
-    // Special cases for untranslated content
-    if (key === 'uro_center') return 'UroCenter';
-    
-    return translations[language][key as keyof typeof translations.en] || key;
+  const setLanguage = (lang: Language) => {
+    i18n.changeLanguage(lang);
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = lang;
+    document.documentElement.style.textAlign = lang === 'ar' ? 'right' : 'left';
   };
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider 
+      value={{ 
+        language: i18n.language as Language, 
+        setLanguage, 
+        t 
+      }}
+    >
       <div 
-        dir={language === 'ar' ? 'rtl' : 'ltr'} 
-        className={`${language === 'ar' ? 'font-arabic' : ''} transition-all duration-300`}
+        dir={i18n.language === 'ar' ? 'rtl' : 'ltr'} 
+        className={`${i18n.language === 'ar' ? 'font-arabic' : ''} transition-all duration-300`}
       >
         {children}
       </div>
