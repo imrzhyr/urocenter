@@ -34,7 +34,6 @@ export const MessageList = ({ messages }: MessageListProps) => {
         .order('started_at', { ascending: true });
 
       if (callsData) {
-        // Convert the status to CallStatus type and add created_at
         const formattedCalls: Call[] = callsData.map(call => ({
           ...call,
           status: call.status as CallStatus,
@@ -42,7 +41,6 @@ export const MessageList = ({ messages }: MessageListProps) => {
         }));
         setCalls(formattedCalls);
         
-        // Fetch names for all unique user IDs
         const userIds = new Set(callsData.flatMap(call => [call.caller_id, call.receiver_id]));
         const { data: profiles } = await supabase
           .from('profiles')
@@ -117,7 +115,6 @@ export const MessageList = ({ messages }: MessageListProps) => {
         const showDateSeparator = !previousDate || !isSameDay(currentDate, previousDate);
 
         if ('status' in item && 'caller_id' in item) {
-          // This is a call
           return (
             <div key={`call-${item.id}`}>
               {showDateSeparator && renderDateSeparator(currentDate)}
@@ -130,25 +127,24 @@ export const MessageList = ({ messages }: MessageListProps) => {
           );
         }
 
-        // This is a message
         const message = item as Message;
         const isFromDoctor = message.is_from_doctor;
         const shouldReverse = language === 'ar';
         const justifyClass = shouldReverse
-          ? isFromDoctor ? "justify-end" : "justify-start"
-          : isFromDoctor ? "justify-start" : "justify-end";
+          ? isFromDoctor ? "justify-start" : "justify-end"
+          : isFromDoctor ? "justify-end" : "justify-start";
 
         const marginClass = shouldReverse
-          ? isFromDoctor ? "ml-2" : "mr-2"
+          ? isFromDoctor ? "mr-2" : "ml-2"
           : isFromDoctor ? "ml-2" : "mr-2";
 
         const roundedClass = shouldReverse
           ? isFromDoctor
-            ? "rounded-l-lg rounded-br-lg"
-            : "rounded-r-lg rounded-bl-lg"
-          : isFromDoctor
             ? "rounded-r-lg rounded-bl-lg"
-            : "rounded-l-lg rounded-br-lg";
+            : "rounded-l-lg rounded-br-lg"
+          : isFromDoctor
+            ? "rounded-l-lg rounded-br-lg"
+            : "rounded-r-lg rounded-bl-lg";
 
         return (
           <div key={message.id}>
@@ -162,8 +158,8 @@ export const MessageList = ({ messages }: MessageListProps) => {
               <div
                 className={`max-w-[70%] ${
                   message.is_from_doctor
-                    ? "bg-gray-100 dark:bg-gray-800"
-                    : "bg-primary text-white"
+                    ? "bg-primary text-white"
+                    : "bg-gray-100 dark:bg-gray-800"
                 } ${roundedClass} ${marginClass} p-3 shadow-sm`}
                 style={{ minWidth: '60px' }}
               >
@@ -187,7 +183,7 @@ export const MessageList = ({ messages }: MessageListProps) => {
                   <span className="text-xs opacity-60">
                     {format(new Date(message.created_at || ''), 'hh:mm a')}
                   </span>
-                  <MessageStatus message={message} />
+                  {!message.is_from_doctor && <MessageStatus message={message} />}
                 </div>
               </div>
             </motion.div>
