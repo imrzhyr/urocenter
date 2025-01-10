@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 
 interface VerificationButtonProps {
   phone: string;
@@ -32,11 +33,9 @@ export const VerificationButton = ({ phone, password, onSuccess }: VerificationB
       const formattedPhone = `+964${phone}`;
       console.log("Attempting to create account with:", { formattedPhone });
       
-      // Store the phone number for later use
       localStorage.setItem('userPhone', formattedPhone);
       localStorage.setItem('userPassword', password);
 
-      // Check if profile already exists
       const { data: existingProfile, error: fetchError } = await supabase
         .from('profiles')
         .select('*')
@@ -53,7 +52,6 @@ export const VerificationButton = ({ phone, password, onSuccess }: VerificationB
         return;
       }
 
-      // Create new profile
       const { data: newProfile, error: createError } = await supabase
         .from('profiles')
         .insert([
@@ -88,13 +86,43 @@ export const VerificationButton = ({ phone, password, onSuccess }: VerificationB
   };
 
   return (
-    <Button
-      onClick={handleSignUp}
-      disabled={!isValid || isLoading}
-      className="w-full transition-all duration-200"
-      variant={isValid ? "default" : "secondary"}
+    <motion.div
+      whileHover={{ scale: isValid ? 1.02 : 1 }}
+      whileTap={{ scale: isValid ? 0.98 : 1 }}
     >
-      {isLoading ? "Creating account..." : "Create account"}
-    </Button>
+      <Button
+        onClick={handleSignUp}
+        disabled={!isValid || isLoading}
+        className={`w-full transition-all duration-200 ${
+          isValid 
+            ? 'bg-primary hover:bg-primary/90 text-white' 
+            : 'bg-gray-100 text-gray-400'
+        }`}
+      >
+        {isLoading ? (
+          <span className="flex items-center gap-2">
+            <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+                fill="none"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              />
+            </svg>
+            Creating account...
+          </span>
+        ) : (
+          "Create account"
+        )}
+      </Button>
+    </motion.div>
   );
 };
