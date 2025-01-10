@@ -98,7 +98,6 @@ export const translations = {
     "payment_title": "Payment",
     "choose_payment_method": "Choose your preferred payment method",
     "consultation_fee_title": "Consultation Fee",
-    "complete_payment": "Complete Payment"
   },
   ar: {
     "welcome_back": "مرحباً بعودتك",
@@ -198,6 +197,5 @@ export const translations = {
     "payment_title": "الدفع",
     "choose_payment_method": "اختر طريقة الدفع المفضلة لديك",
     "consultation_fee_title": "رسوم الاستشارة",
-    "complete_payment": "إتمام الدفع"
   }
 };
