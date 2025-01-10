@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { translations } from '@/translations/translations';
-import type { Language, LanguageContextType } from '@/types/language';
+import type { Language, LanguageContextType, TranslationValue } from '@/types/language';
 
 const LanguageContext = createContext<LanguageContextType>({
   language: 'en',
@@ -17,7 +17,7 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
     document.documentElement.style.textAlign = language === 'ar' ? 'right' : 'left';
   }, [language]);
 
-  const t = (key: string): string => {
+  const t = (key: string): TranslationValue => {
     // Special cases for untranslated content
     if (key === 'uro_center') return 'UroCenter';
     
