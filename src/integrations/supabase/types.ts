@@ -214,6 +214,75 @@ export type Database = {
         }
         Relationships: []
       }
+      webrtc_signaling: {
+        Row: {
+          call_id: string
+          created_at: string
+          data: Json
+          id: string
+          received_at: string | null
+          receiver_id: string
+          sender_id: string
+          type: string
+        }
+        Insert: {
+          call_id: string
+          created_at?: string
+          data: Json
+          id?: string
+          received_at?: string | null
+          receiver_id: string
+          sender_id: string
+          type: string
+        }
+        Update: {
+          call_id?: string
+          created_at?: string
+          data?: Json
+          id?: string
+          received_at?: string | null
+          receiver_id?: string
+          sender_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webrtc_signaling_call_id_fkey"
+            columns: ["call_id"]
+            isOneToOne: false
+            referencedRelation: "calls"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "webrtc_signaling_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "webrtc_signaling_receiver_id_fkey1"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "webrtc_signaling_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "webrtc_signaling_sender_id_fkey1"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
