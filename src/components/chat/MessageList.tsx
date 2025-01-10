@@ -58,6 +58,26 @@ export const MessageList = ({ messages }: MessageListProps) => {
     };
 
     fetchCalls();
+
+    // Subscribe to call updates
+    const channel = supabase
+      .channel('calls_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'calls'
+        },
+        () => {
+          fetchCalls();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [profile?.id]);
 
   const scrollToBottom = () => {
@@ -65,7 +85,9 @@ export const MessageList = ({ messages }: MessageListProps) => {
   };
 
   useEffect(() => {
-    scrollToBottom();
+    if (messages.length > 0) {
+      scrollToBottom();
+    }
   }, [messages]);
 
   const formatDateSeparator = (date: Date) => {
