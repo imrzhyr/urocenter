@@ -71,7 +71,7 @@ export const CallPage = () => {
     const checkIfIncoming = async () => {
       if (!profile?.id || !userId) return;
 
-      console.log('Checking for incoming calls for user:', profile.id);
+      console.log('Checking for incoming calls from:', userId, 'to:', profile.id);
       
       // Get the most recent active call where current user is the receiver and other user is the caller
       const { data, error } = await supabase
@@ -84,11 +84,9 @@ export const CallPage = () => {
         .limit(1)
         .maybeSingle();
 
-      if (error) {
-        if (error.code !== 'PGRST116') {
-          // Only log real errors, not "no rows found"
-          console.error('Error checking incoming call:', error);
-        }
+      if (error && error.code !== 'PGRST116') {
+        // Only log real errors, not "no rows found"
+        console.error('Error checking incoming call:', error);
         return;
       }
 
