@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Outlet } from "react-router-dom";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { ArrowLeft } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const steps = ["Sign Up", "Profile", "Medical Info", "Payment"];
 
@@ -25,6 +26,7 @@ export const OnboardingLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const currentStep = getStepFromPath(location.pathname);
+  const { language } = useLanguage();
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -34,7 +36,7 @@ export const OnboardingLayout = () => {
             onClick={() => navigate(-1)} 
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className={`w-5 h-5 ${language === 'ar' ? 'rotate-180' : ''}`} />
           </button>
           <LanguageSelector />
         </div>
@@ -50,7 +52,7 @@ export const OnboardingLayout = () => {
       </main>
 
       <footer className="p-4 text-center text-sm text-muted-foreground bg-white">
-        © 2024 All rights reserved
+        {language === 'ar' ? '© 2025 جميع الحقوق محفوظة' : '© 2025 All rights reserved'}
       </footer>
     </div>
   );
