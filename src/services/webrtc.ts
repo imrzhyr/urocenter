@@ -53,6 +53,7 @@ class WebRTCService {
     receiverId: string;
   }) {
     try {
+      console.log('Sending signaling data:', { type, callId, senderId, receiverId });
       await supabase.from('webrtc_signaling').insert({
         call_id: callId,
         sender_id: senderId,
@@ -70,6 +71,8 @@ class WebRTCService {
       this.callId = callId;
       this.userId = userId;
       this.remoteUserId = remoteUserId;
+
+      console.log('Starting call with:', { callId, userId, remoteUserId });
 
       // Get local audio stream
       this.localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -105,6 +108,8 @@ class WebRTCService {
     this.userId = userId;
     this.remoteUserId = remoteUserId;
 
+    console.log('Handling incoming call:', { callId, userId, remoteUserId });
+
     try {
       this.localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
       
@@ -123,6 +128,7 @@ class WebRTCService {
 
   async acceptCall(offer: RTCSessionDescriptionInit) {
     try {
+      console.log('Accepting call with offer:', offer);
       await this.peerConnection?.setRemoteDescription(new RTCSessionDescription(offer));
       const answer = await this.peerConnection?.createAnswer();
       await this.peerConnection?.setLocalDescription(answer);
@@ -144,6 +150,7 @@ class WebRTCService {
 
   async handleAnswer(answer: RTCSessionDescriptionInit) {
     try {
+      console.log('Handling answer:', answer);
       await this.peerConnection?.setRemoteDescription(new RTCSessionDescription(answer));
     } catch (error) {
       console.error('Error handling answer:', error);
@@ -153,6 +160,7 @@ class WebRTCService {
 
   async handleIceCandidate(candidate: RTCIceCandidateInit) {
     try {
+      console.log('Handling ICE candidate:', candidate);
       await this.peerConnection?.addIceCandidate(new RTCIceCandidate(candidate));
     } catch (error) {
       console.error('Error handling ICE candidate:', error);
@@ -160,6 +168,7 @@ class WebRTCService {
   }
 
   async endCall() {
+    console.log('Ending call');
     this.localStream?.getTracks().forEach(track => track.stop());
     this.peerConnection?.close();
     this.localStream = null;
