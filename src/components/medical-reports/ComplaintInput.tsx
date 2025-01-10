@@ -45,6 +45,12 @@ export const ComplaintInput = ({
     return () => clearInterval(interval);
   }, [exampleIndex, language]);
 
+  // Reset example index when language changes
+  useEffect(() => {
+    setExampleIndex(0);
+    setPlaceholderText(complaintExamples[language][0]);
+  }, [language]);
+
   return (
     <div className="space-y-2">
       <Label htmlFor="complaint">{t('medical_complaint')}</Label>

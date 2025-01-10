@@ -95,6 +95,7 @@ export const translations = {
     "age": "Age *",
     "enter_age": "Enter your age",
     "medical_complaint": "Medical Complaint *",
+    "continue": "Continue",
   },
   ar: {
     "welcome_back": "مرحباً بعودتك",
@@ -190,5 +191,6 @@ export const translations = {
     "age": "العمر *",
     "enter_age": "أدخل عمرك",
     "medical_complaint": "الشكوى الطبية *",
+    "continue": "متابعة",
   }
 };

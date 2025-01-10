@@ -15,7 +15,7 @@ export const ProfileForm = memo(({
   profile,
   onProfileChange,
 }: ProfileFormProps) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const hasValidName = profile.full_name?.trim().split(' ').length >= 2;
 
   return (
@@ -45,7 +45,7 @@ export const ProfileForm = memo(({
         <RadioGroup
           value={profile.gender || ""}
           onValueChange={(value) => onProfileChange('gender', value)}
-          className="flex gap-4"
+          className={`flex gap-4 ${language === 'ar' ? 'flex-row-reverse' : ''}`}
         >
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="male" id="male" />
