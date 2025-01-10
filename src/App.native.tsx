@@ -18,7 +18,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="SignIn">
+        <Stack.Navigator id="RootNavigator" initialRouteName="SignIn">
           <Stack.Screen name="SignIn" component={SignIn} />
           <Stack.Screen name="Dashboard" component={Dashboard} />
           <Stack.Screen name="Chat" component={Chat} />
