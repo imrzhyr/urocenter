@@ -49,7 +49,9 @@ export const useCallSubscription = ({
               event: '*',
               schema: 'public',
               table: 'calls',
-              filter: `receiver_id=eq.${profile.id}`,
+              filter: profile.role === 'admin' 
+                ? `receiver_id=eq.${profile.id}` 
+                : `(receiver_id=eq.${profile.id} and caller_id!=eq.${profile.id})`,
             },
             async (payload) => {
               console.log('Received call event:', payload);
