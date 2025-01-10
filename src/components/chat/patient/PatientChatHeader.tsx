@@ -1,8 +1,14 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { CallButton } from "../CallButton";
+import { useProfile } from "@/hooks/useProfile";
 
 export const PatientChatHeader = () => {
   const { t } = useLanguage();
+  const { profile } = useProfile();
+  
+  if (!profile?.id) {
+    return null;
+  }
   
   return (
     <div className="flex items-center justify-between p-4 bg-primary">
@@ -15,7 +21,7 @@ export const PatientChatHeader = () => {
           <p className="text-sm text-white/80">{t('doctor_title')}</p>
         </div>
       </div>
-      <CallButton />
+      <CallButton userId={profile.id} />
     </div>
   );
 };
