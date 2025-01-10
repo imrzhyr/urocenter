@@ -24,6 +24,8 @@ export const IncomingCallDialog = ({
 
   const handleAcceptCall = async () => {
     try {
+      console.log('Accepting call with ID:', callId);
+      
       const { error } = await supabase
         .from('calls')
         .update({ 
@@ -38,8 +40,9 @@ export const IncomingCallDialog = ({
         return;
       }
 
-      navigate(`/call/${callerId}`);
+      console.log('Call accepted successfully, navigating to call page');
       onOpenChange(false);
+      navigate(`/call/${callerId}`);
     } catch (error) {
       console.error('Error in handleAcceptCall:', error);
       toast.error('Failed to accept call');
@@ -48,9 +51,14 @@ export const IncomingCallDialog = ({
 
   const handleRejectCall = async () => {
     try {
+      console.log('Rejecting call with ID:', callId);
+      
       const { error } = await supabase
         .from('calls')
-        .update({ status: 'ended' })
+        .update({ 
+          status: 'ended',
+          ended_at: new Date().toISOString()
+        })
         .eq('id', callId);
 
       if (error) {
@@ -59,6 +67,7 @@ export const IncomingCallDialog = ({
         return;
       }
 
+      console.log('Call rejected successfully');
       onOpenChange(false);
       toast.success('Call rejected');
     } catch (error) {
