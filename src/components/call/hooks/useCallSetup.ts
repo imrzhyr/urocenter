@@ -31,8 +31,8 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
       const { data: existingCalls, error: checkError } = await supabase
         .from('calls')
         .select('*')
-        .or(`and(caller_id.eq.${profile.id},receiver_id.eq.${userId}),and(caller_id.eq.${userId},receiver_id.eq.${profile.id})`)
         .eq('status', 'initiated')
+        .or(`caller_id.eq.${profile.id},receiver_id.eq.${profile.id}`)
         .order('started_at', { ascending: false })
         .limit(1);
 
@@ -41,9 +41,23 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
         return;
       }
 
-      // Only create call record if we're initiating the call and there's no active call
-      if (!isIncoming && (!existingCalls || existingCalls.length === 0)) {
-        console.log('Creating outgoing call record:', { caller: profile.id, receiver: userId });
+      if (existingCalls && existingCalls.length > 0) {
+        const activeCall = existingCalls[0];
+        console.log('Found existing call:', activeCall);
+        
+        if (activeCall.caller_id === profile.id) {
+          console.log('We are the caller in the existing call');
+          setIsIncoming(false);
+        } else if (activeCall.receiver_id === profile.id) {
+          console.log('We are the receiver in the existing call');
+          setIsIncoming(true);
+        }
+        return;
+      }
+
+      // Only create new call if we're on the call page and there's no existing call
+      if (window.location.pathname.includes('/call/')) {
+        console.log('Creating new outgoing call:', { caller: profile.id, receiver: userId });
         const { error: callError } = await supabase
           .from('calls')
           .insert({
@@ -57,46 +71,14 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
           toast.error('Could not initiate call');
           return;
         }
-      }
-    };
-
-    const checkIfIncoming = async () => {
-      if (!profile?.id || !userId) return;
-
-      console.log('Checking for incoming calls - Current user:', profile.id, 'Other user:', userId);
-      
-      const { data: activeCalls, error: fetchError } = await supabase
-        .from('calls')
-        .select('*')
-        .or(`and(caller_id.eq.${userId},receiver_id.eq.${profile.id}),and(caller_id.eq.${profile.id},receiver_id.eq.${userId})`)
-        .eq('status', 'initiated')
-        .order('started_at', { ascending: false })
-        .limit(1);
-
-      if (fetchError) {
-        console.error('Error checking incoming call:', fetchError);
-        return;
-      }
-
-      if (activeCalls && activeCalls.length > 0) {
-        const activeCall = activeCalls[0];
-        console.log('Most recent active call:', activeCall);
-
-        if (activeCall.receiver_id === profile.id && activeCall.caller_id === userId) {
-          console.log('Setting as incoming call - we are the receiver');
-          setIsIncoming(true);
-          setCallStatus('ringing');
-        } else if (activeCall.caller_id === profile.id && activeCall.receiver_id === userId) {
-          console.log('Setting as outgoing call - we are the caller');
-          setIsIncoming(false);
-          setCallStatus('ringing');
-        }
+        
+        setIsIncoming(false);
+        console.log('New outgoing call created successfully');
       }
     };
 
     fetchUserDetails();
-    checkIfIncoming();
-  }, [userId, profile?.id, isIncoming]);
+  }, [userId, profile?.id]);
 
   return {
     callingUser,
