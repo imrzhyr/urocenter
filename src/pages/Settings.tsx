@@ -1,20 +1,19 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Moon, Sun, Globe, User } from "lucide-react";
+import { ArrowLeft, Moon, Sun, Globe } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { NewEditProfileDialog } from "@/components/profile/NewEditProfileDialog";
 
 const Settings = () => {
   const navigate = useNavigate();
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [showEditProfile, setShowEditProfile] = useState(false);
 
   useEffect(() => {
+    // Check if dark mode is enabled on mount
     const isDark = document.documentElement.classList.contains('dark');
     setIsDarkMode(isDark);
   }, []);
@@ -34,7 +33,7 @@ const Settings = () => {
             variant="ghost"
             size="icon"
             onClick={() => navigate(-1)}
-            className={`mr-4 ${language === 'ar' ? 'rotate-180' : ''}`}
+            className="mr-4"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
@@ -47,23 +46,6 @@ const Settings = () => {
           transition={{ duration: 0.3 }}
           className="space-y-6"
         >
-          {/* Profile Section */}
-          <div className="bg-card rounded-lg p-6 shadow-sm">
-            <h2 className="text-lg font-medium mb-4">{t('profile_settings.title')}</h2>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                <span>{t('profile_settings.edit_profile')}</span>
-              </div>
-              <Button
-                variant="outline"
-                onClick={() => setShowEditProfile(true)}
-              >
-                {t('profile_settings.edit_profile')}
-              </Button>
-            </div>
-          </div>
-
           {/* Appearance Section */}
           <div className="bg-card rounded-lg p-6 shadow-sm">
             <h2 className="text-lg font-medium mb-4">{t('appearance')}</h2>
@@ -107,11 +89,6 @@ const Settings = () => {
           </div>
         </motion.div>
       </div>
-
-      <NewEditProfileDialog
-        open={showEditProfile}
-        onClose={() => setShowEditProfile(false)}
-      />
     </div>
   );
 };
