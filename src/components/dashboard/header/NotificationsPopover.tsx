@@ -49,7 +49,7 @@ export const NotificationsPopover = () => {
           ? `${msg.profiles?.full_name || t('someone')} ${t('sent_message')}`
           : msg.is_resolved 
             ? t('doctor_resolved_chat')
-            : `${t('doctor_name')} ${t('sent_message')}`,
+            : t('doctor_sent_message'),
         created_at: msg.created_at,
         type: msg.is_resolved ? 'resolved' as const : 'message' as const
       })) || []),

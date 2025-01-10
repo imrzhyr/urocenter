@@ -110,7 +110,9 @@ export const translations = {
     "contact_numbers": "Contact Numbers",
     "start_consultation": "Start Consultation",
     "doctor_surgery": "Dr. Ali Kamal in Surgery",
-    "urologist_surgeon": "Urologist & General Surgeon"
+    "urologist_surgeon": "Urologist & General Surgeon",
+    "sent_message": "sent a message",
+    "doctor_sent_message": "Dr. Ali Kamal sent a message"
   },
   ar: {
     "welcome_back": "مرحباً بعودتك",
@@ -223,6 +225,8 @@ export const translations = {
     "contact_numbers": "أرقام الاتصال",
     "start_consultation": "ابدأ الاستشارة",
     "doctor_surgery": "الدكتور علي كمال في الجراحة",
-    "urologist_surgeon": "أخصائي المسالك البولية والجراحة العامة"
+    "urologist_surgeon": "أخصائي المسالك البولية والجراحة العامة",
+    "sent_message": "أرسل رسالة",
+    "doctor_sent_message": "د. علي كمال أرسل رسالة"
   }
 };
