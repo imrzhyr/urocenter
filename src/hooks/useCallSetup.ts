@@ -27,9 +27,30 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
 
       setCallingUser(data);
       
-      // Only create call record if we're initiating the call
+      // Only create call record if we're initiating the call and it's not already incoming
       if (!isIncoming) {
         console.log('Creating outgoing call record:', { caller: profile.id, receiver: userId });
+        
+        // First check if there's already an active call
+        const { data: existingCalls, error: checkError } = await supabase
+          .from('calls')
+          .select('*')
+          .eq('status', 'active')
+          .or(`caller_id.eq.${profile.id},receiver_id.eq.${profile.id}`)
+          .single();
+
+        if (checkError && checkError.code !== 'PGRST116') { // PGRST116 means no rows returned
+          console.error('Error checking existing calls:', checkError);
+          toast.error('Could not check existing calls');
+          return;
+        }
+
+        if (existingCalls) {
+          console.log('Active call already exists:', existingCalls);
+          return;
+        }
+
+        // Create new call record
         const { error: callError } = await supabase
           .from('calls')
           .insert({
@@ -43,6 +64,8 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
           toast.error('Could not initiate call');
           return;
         }
+
+        console.log('Call record created successfully');
       }
     };
 
@@ -51,10 +74,10 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
 
       console.log('Checking for incoming calls - Current user:', profile.id, 'Other user:', userId);
       
-      // Get the most recent active call where current user is the receiver and other user is the caller
       const { data: activeCalls, error: fetchError } = await supabase
         .from('calls')
         .select('*')
+        .or(`and(caller_id.eq.${userId},receiver_id.eq.${profile.id}),and(caller_id.eq.${profile.id},receiver_id.eq.${userId})`)
         .eq('status', 'active')
         .order('started_at', { ascending: false })
         .limit(1);
@@ -72,7 +95,6 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
         console.log('Current user is receiver?', activeCall.receiver_id === profile.id);
         console.log('Other user is caller?', activeCall.caller_id === userId);
 
-        // Set as incoming only if we are the receiver and the other user is the caller
         if (activeCall.receiver_id === profile.id && activeCall.caller_id === userId) {
           console.log('Setting as incoming call - we are the receiver');
           setIsIncoming(true);

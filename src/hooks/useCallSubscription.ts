@@ -38,10 +38,17 @@ export const useCallSubscription = ({
 
           // Handle new incoming calls
           if (payload.eventType === 'INSERT' && payload.new.status === 'active') {
-            console.log('New incoming call detected');
+            console.log('New incoming call detected:', {
+              caller: payload.new.caller_id,
+              receiver: payload.new.receiver_id,
+              currentUser: profile.id
+            });
             
-            // Only show notification if we're the receiver and not already on the call page
-            if (payload.new.receiver_id === profile.id && !window.location.pathname.includes('/call/')) {
+            // Only show notification if we're the receiver
+            if (payload.new.receiver_id === profile.id) {
+              console.log('We are the receiver, showing notification');
+              
+              // Show browser notification
               if ('Notification' in window && Notification.permission === 'granted') {
                 const notification = new Notification('Incoming Call', {
                   body: 'Someone is calling you',
@@ -55,6 +62,7 @@ export const useCallSubscription = ({
                 };
               }
 
+              // Show toast notification
               toast.info('Incoming call...', {
                 action: {
                   label: 'Answer',
