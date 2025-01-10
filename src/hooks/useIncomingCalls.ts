@@ -28,7 +28,7 @@ export const useIncomingCalls = () => {
           event: 'INSERT',
           schema: 'public',
           table: 'calls',
-          filter: `receiver_id=eq.${profile.id}`,
+          filter: `or(receiver_id.eq.${profile.id},caller_id.eq.${profile.id})`,
         },
         async (payload) => {
           console.log('Received new call payload:', payload);
