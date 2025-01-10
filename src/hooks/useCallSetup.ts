@@ -10,18 +10,29 @@ export const useCallSetup = () => {
 
   const initiateCall = async (receiverId: string) => {
     if (!profile?.id) {
+      console.error("No profile ID found");
       toast.error("You must be logged in to make calls");
       return;
     }
 
     setIsLoading(true);
     try {
+      console.log("Initiating call with:", {
+        caller_id: profile.id,
+        receiver_id: receiverId
+      });
+
       // Check if there's an active call
-      const { data: existingCalls } = await supabase
+      const { data: existingCalls, error: checkError } = await supabase
         .from("calls")
         .select("*")
         .eq("is_active", true)
         .or(`caller_id.eq.${profile.id},receiver_id.eq.${profile.id}`);
+
+      if (checkError) {
+        console.error("Error checking existing calls:", checkError);
+        throw checkError;
+      }
 
       if (existingCalls && existingCalls.length > 0) {
         toast.error("You already have an active call");
@@ -29,18 +40,28 @@ export const useCallSetup = () => {
       }
 
       // Create new call
-      const { data: call, error } = await supabase
+      const { data: call, error: createError } = await supabase
         .from("calls")
-        .insert({
+        .insert([{
           caller_id: profile.id,
           receiver_id: receiverId,
           status: "initiated",
-          call_type: "audio"
-        })
+          call_type: "audio",
+          is_active: true
+        }])
         .select()
         .single();
 
-      if (error) throw error;
+      if (createError) {
+        console.error("Error creating call:", createError);
+        throw createError;
+      }
+
+      if (!call) {
+        throw new Error("No call data returned");
+      }
+
+      console.log("Call created successfully:", call);
 
       // Subscribe to call updates
       const channel = supabase
@@ -54,6 +75,7 @@ export const useCallSetup = () => {
             filter: `id=eq.${call.id}`
           },
           (payload) => {
+            console.log("Call status update received:", payload);
             const updatedCall = payload.new as Call;
             handleCallStatusChange(updatedCall);
           }
