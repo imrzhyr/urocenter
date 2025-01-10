@@ -1,30 +1,32 @@
-import { useParams, Navigate } from "react-router-dom";
+import { UserChatContainer } from "@/components/chat/UserChatContainer";
 import { DoctorChatContainer } from "@/components/chat/doctor/DoctorChatContainer";
 import { useProfile } from "@/hooks/useProfile";
-import { UserChatContainer } from "@/components/chat/UserChatContainer";
+import { useParams, useNavigate } from "react-router-dom";
+import { useIncomingCalls } from "@/hooks/useIncomingCalls";
 
-const Chat = () => {
+export const Chat = () => {
   const { userId } = useParams();
+  const navigate = useNavigate();
   const { profile } = useProfile();
-  const isAdmin = profile?.role === 'admin';
+  useIncomingCalls(); // Add the hook here
 
-  // If user is not logged in, redirect to signin
   if (!profile) {
-    return <Navigate to="/signin" replace />;
+    navigate('/signin');
+    return null;
   }
 
-  // If no userId is provided and user is not admin, show patient chat container
+  const isAdmin = profile.role === 'admin';
+
   if (!userId && !isAdmin) {
     return <UserChatContainer />;
   }
 
-  // If userId is provided and user is admin, show doctor chat container
   if (userId && isAdmin) {
     return <DoctorChatContainer />;
   }
 
-  // For any other case, redirect to appropriate dashboard
-  return <Navigate to={isAdmin ? "/admin" : "/dashboard"} replace />;
+  navigate(isAdmin ? '/dashboard' : '/dashboard');
+  return null;
 };
 
 export default Chat;
