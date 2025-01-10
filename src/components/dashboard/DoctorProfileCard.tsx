@@ -6,7 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 export const DoctorProfileCard = () => {
   const navigate = useNavigate();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
 
   const clinicInfo = {
     en: "Sulaymaniyah - Ibrahim Pasha Street - Opposite to Sherko Printing & Advertising - Aran Building - Second Floor - Dr. Ali Kamal",
@@ -30,14 +30,14 @@ export const DoctorProfileCard = () => {
         <div className="relative w-32 h-32 mx-auto">
           <img
             src="/lovable-uploads/7ac98ca7-e043-4da5-afac-f986ff382bcf.png"
-            alt="Dr. Ali Kamal in Surgery"
+            alt={t("doctor_surgery")}
             className="rounded-full object-cover w-full h-full border-4 border-primary"
           />
         </div>
         
         <div>
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Dr. Ali Kamal</h2>
-          <p className="text-sm text-primary">Urologist & General Surgeon</p>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t("doctor_name")}</h2>
+          <p className="text-sm text-primary">{t("doctor_title")}</p>
         </div>
 
         <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100 dark:border-gray-700">
@@ -46,14 +46,14 @@ export const DoctorProfileCard = () => {
               <Award className="w-4 h-4 mr-1" />
             </div>
             <p className="text-2xl font-bold text-primary">15+</p>
-            <p className="text-xs text-gray-600 dark:text-gray-300">Years Experience</p>
+            <p className="text-xs text-gray-600 dark:text-gray-300">{t("years_experience")}</p>
           </div>
           <div className="text-center">
             <div className="flex items-center justify-center text-primary mb-1">
               <Star className="w-4 h-4 mr-1" />
             </div>
             <p className="text-2xl font-bold text-primary">4.9</p>
-            <p className="text-xs text-gray-600 dark:text-gray-300">Rating</p>
+            <p className="text-xs text-gray-600 dark:text-gray-300">{t("rating")}</p>
           </div>
         </div>
 
@@ -61,7 +61,7 @@ export const DoctorProfileCard = () => {
           <div className="space-y-2">
             <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
               <Clock className="w-4 h-4 min-w-[16px] text-primary mr-2" />
-              <span>2:00 PM - 6:00 PM (Closed on Fridays)</span>
+              <span>{t("clinic_hours")}</span>
             </div>
             <div className="flex items-start text-sm text-gray-600 dark:text-gray-300">
               <MapPin className="w-4 h-4 min-w-[16px] text-primary mr-2 mt-1" />
@@ -74,17 +74,19 @@ export const DoctorProfileCard = () => {
                 {clinicInfo[language === 'ar' ? 'ar' : 'en']}
               </a>
             </div>
-            <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
-              <Phone className="w-4 h-4 min-w-[16px] text-primary mr-2" />
-              <div className="flex flex-col">
-                {phoneNumbers.map((number, index) => (
+            <div className="flex flex-col space-y-2">
+              <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                <Phone className="w-4 h-4 min-w-[16px] text-primary mr-2" />
+                <span>{t("contact_numbers")}</span>
+              </div>
+              <div className="grid grid-cols-1 gap-2 pl-6">
+                {phoneNumbers.map((number) => (
                   <a 
                     key={number}
                     href={`tel:${number}`}
-                    className="hover:text-primary transition-colors"
+                    className="text-sm hover:text-primary transition-colors flex items-center space-x-2"
                   >
-                    {number}
-                    {index !== phoneNumbers.length - 1 && " / "}
+                    <span>{number}</span>
                   </a>
                 ))}
               </div>
@@ -96,7 +98,7 @@ export const DoctorProfileCard = () => {
           onClick={() => navigate('/chat')}
           className="w-full bg-primary hover:bg-primary/90 text-white"
         >
-          Start Consultation
+          {t("start_consultation")}
         </Button>
       </div>
     </motion.div>

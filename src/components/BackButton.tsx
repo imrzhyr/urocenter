@@ -9,9 +9,9 @@ export const BackButton = () => {
   return (
     <button 
       onClick={() => navigate(-1)} 
-      className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+      className={`p-2 hover:bg-gray-100 rounded-full transition-colors ${language === 'ar' ? 'rotate-180' : ''}`}
     >
-      <ArrowLeft className={`w-5 h-5 ${language === 'ar' ? 'rotate-180' : ''}`} />
+      <ArrowLeft className="w-5 h-5" />
     </button>
   );
 };
