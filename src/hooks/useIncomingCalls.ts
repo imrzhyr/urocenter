@@ -33,7 +33,7 @@ export const useIncomingCalls = () => {
         async (payload) => {
           console.log('Received new call payload:', payload);
 
-          if (payload.new.status === 'initiated') {
+          if (payload.new.status === 'initiated' && payload.new.receiver_id === profile.id) {
             try {
               // Fetch caller details
               const { data: callerData, error: callerError } = await supabase
