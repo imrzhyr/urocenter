@@ -4,12 +4,13 @@ import { useProfile } from "@/hooks/useProfile";
 import { useParams, useNavigate } from "react-router-dom";
 import { useIncomingCalls } from "@/hooks/useIncomingCalls";
 import { TestCallComponent } from "@/components/chat/TestCallComponent";
+import { IncomingCallDialog } from "@/components/call/IncomingCallDialog";
 
 export const Chat = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
   const { profile } = useProfile();
-  useIncomingCalls();
+  const { callDialog, setCallDialog } = useIncomingCalls();
 
   if (!profile) {
     navigate('/signin');
@@ -18,7 +19,6 @@ export const Chat = () => {
 
   const isAdmin = profile.role === 'admin';
 
-  // Only add TestCallComponent for non-admin users
   return (
     <>
       {!isAdmin && <TestCallComponent />}
@@ -27,6 +27,13 @@ export const Chat = () => {
       ) : userId && isAdmin ? (
         <DoctorChatContainer />
       ) : null}
+      <IncomingCallDialog
+        open={callDialog.isOpen}
+        onOpenChange={(open) => setCallDialog(prev => ({ ...prev, isOpen: open }))}
+        callerId={callDialog.callerId}
+        callerName={callDialog.callerName}
+        callId={callDialog.callId}
+      />
     </>
   );
 };

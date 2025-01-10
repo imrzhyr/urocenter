@@ -1,14 +1,27 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { useProfile } from './useProfile';
-import { toast } from 'sonner';
-import { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
-import { Call } from '@/types/call';
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useProfile } from "./useProfile";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { Call } from "@/types/call";
+import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
+
+interface CallDialogState {
+  isOpen: boolean;
+  callerId: string;
+  callerName: string;
+  callId: string;
+}
 
 export const useIncomingCalls = () => {
   const { profile } = useProfile();
   const navigate = useNavigate();
+  const [callDialog, setCallDialog] = useState<CallDialogState>({
+    isOpen: false,
+    callerId: "",
+    callerName: "",
+    callId: ""
+  });
 
   useEffect(() => {
     if (!profile?.id) {
@@ -18,12 +31,8 @@ export const useIncomingCalls = () => {
 
     console.log('Setting up call subscription for user:', profile.id);
 
-    // Create a unique channel name for this user
-    const channelName = `incoming_calls_${profile.id}`;
-    console.log('Creating channel:', channelName);
-
     const channel = supabase
-      .channel(channelName)
+      .channel(`calls_${profile.id}`)
       .on(
         'postgres_changes',
         {
@@ -35,7 +44,6 @@ export const useIncomingCalls = () => {
         async (payload: RealtimePostgresChangesPayload<Call>) => {
           console.log('Received call payload:', payload);
 
-          // Type guard to ensure we have the new record data
           if (!payload.new || typeof payload.new !== 'object') {
             console.error('Invalid payload received:', payload);
             return;
@@ -61,6 +69,14 @@ export const useIncomingCalls = () => {
               const callerName = callerData?.full_name || 'Someone';
               console.log('Incoming call from:', callerName);
 
+              // Open call dialog
+              setCallDialog({
+                isOpen: true,
+                callerId: newCall.caller_id,
+                callerName,
+                callId: newCall.id
+              });
+
               // Show browser notification if permitted
               if ('Notification' in window && Notification.permission === 'granted') {
                 new Notification('Incoming Call', {
@@ -69,37 +85,12 @@ export const useIncomingCalls = () => {
                   requireInteraction: true
                 }).onclick = () => {
                   window.focus();
-                  navigate(`/call/${newCall.caller_id}`);
+                  setCallDialog(prev => ({ ...prev, isOpen: true }));
                 };
               }
-
-              // Show toast notification
-              toast.info(
-                `${callerName} is calling...`,
-                {
-                  action: {
-                    label: 'Answer',
-                    onClick: () => {
-                      console.log('Navigating to call page:', newCall.caller_id);
-                      navigate(`/call/${newCall.caller_id}`);
-                    }
-                  },
-                  duration: Infinity,
-                  onDismiss: async () => {
-                    console.log('Rejecting call:', newCall.id);
-                    const { error } = await supabase
-                      .from('calls')
-                      .update({ status: 'ended' })
-                      .eq('id', newCall.id);
-
-                    if (error) {
-                      console.error('Error rejecting call:', error);
-                    }
-                  }
-                }
-              );
             } catch (error) {
               console.error('Error handling incoming call:', error);
+              toast.error('Error processing call event');
             }
           }
         }
@@ -121,8 +112,13 @@ export const useIncomingCalls = () => {
     }
 
     return () => {
-      console.log('Cleaning up call subscriptions');
+      console.log('Cleaning up call subscription');
       supabase.removeChannel(channel);
     };
   }, [profile?.id, navigate]);
+
+  return {
+    callDialog,
+    setCallDialog
+  };
 };
