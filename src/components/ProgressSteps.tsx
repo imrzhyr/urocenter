@@ -11,6 +11,12 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
   const { language, t } = useLanguage();
   const isRTL = language === 'ar';
 
+  const getTranslationKey = (step: string) => {
+    // Convert "Medical Info" to "medical_information" for translation key
+    if (step === "Medical Info") return "medical_information";
+    return step.toLowerCase().replace(" ", "_");
+  };
+
   return (
     <div className="w-full px-4">
       <div className="relative flex justify-between">
@@ -67,7 +73,7 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
                   index <= currentStep ? "text-primary" : "text-gray-400"
                 )}
               >
-                {t(step.toLowerCase().replace(" ", "_"))}
+                {t(getTranslationKey(step))}
               </span>
             </div>
           ))}
