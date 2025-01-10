@@ -45,7 +45,7 @@ export const useCallSubscription = ({
               event: '*',
               schema: 'public',
               table: 'calls',
-              filter: `or(receiver_id.eq.${profile.id},caller_id.eq.${profile.id})`,
+              filter: `receiver_id=eq.${profile.id}`, // Only listen for calls where we are the receiver
             },
             async (payload) => {
               console.log('Received call event:', payload);
@@ -145,7 +145,7 @@ export const useCallSubscription = ({
     }
 
     return () => {
-      console.log('Cleaning up call subscription');
+      console.log('Cleaning up subscriptions');
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
         channelRef.current = null;
