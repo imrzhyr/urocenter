@@ -35,7 +35,7 @@ const translations = {
     "admin": "Admin",
     "continue": "Continue",
     "sign_up_description": "Start your healthcare journey with us",
-    "already_have_account": "Already have an account?",
+    "already_have_account": "Already have an account? Sign in",
     "create_account": "Create Account",
     "invalid_phone": "Please enter a valid Iraqi phone number",
     "save": "Save",
@@ -88,7 +88,11 @@ const translations = {
     "fee_amount": "25,000 IQD",
     "take_picture": "Take Picture",
     "upload_files": "Upload Files",
-    "complete_payment": "Complete Payment"
+    "complete_payment": "Complete Payment",
+    "creating_account": "Creating your account...",
+    "signup_success": "Account created successfully!",
+    "signup_error": "Error creating account",
+    "phone_already_exists": "This phone number is already registered"
   },
   ar: {
     ...medicalTranslations.ar,
@@ -115,7 +119,7 @@ const translations = {
     "admin": "المشرف",
     "continue": "متابعة",
     "sign_up_description": "ابدأ رحلتك الصحية معنا",
-    "already_have_account": "لديك حساب بالفعل؟",
+    "already_have_account": "لديك حساب؟ تسجيل الدخول",
     "create_account": "إنشاء حساب جديد",
     "invalid_phone": "الرجاء إدخال رقم هاتف عراقي صحيح",
     "save": "حفظ",
@@ -168,7 +172,11 @@ const translations = {
     "fee_amount": "25,000 دينار عراقي",
     "take_picture": "التقاط صورة",
     "upload_files": "تحميل الملفات",
-    "complete_payment": "إتمام الدفع"
+    "complete_payment": "إتمام الدفع",
+    "creating_account": "جاري إنشاء حسابك...",
+    "signup_success": "تم إنشاء الحساب بنجاح!",
+    "signup_error": "حدث خطأ في إنشاء الحساب",
+    "phone_already_exists": "رقم الهاتف مسجل بالفعل"
   }
 };
 
