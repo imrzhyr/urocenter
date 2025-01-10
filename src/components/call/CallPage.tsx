@@ -72,17 +72,21 @@ export const CallPage = () => {
 
       console.log('Checking for incoming calls for user:', profile.id);
       
-      // Check for incoming calls where either:
-      // 1. We're the receiver and the caller is userId
-      // 2. We're the admin and someone is calling us
+      // Get the most recent active call where we're the receiver
       const { data, error } = await supabase
         .from('calls')
         .select('*')
-        .or(`and(receiver_id.eq.${profile.id},caller_id.eq.${userId}),and(receiver_id.eq.${profile.id},status.eq.active)`)
-        .order('started_at', { ascending: false })
-        .maybeSingle();
+        .or(`and(receiver_id.eq.${profile.id},caller_id.eq.${userId},status.eq.active),and(receiver_id.eq.${profile.id},status.eq.active)`)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
 
       if (error) {
+        if (error.code === 'PGRST116') {
+          // No active incoming calls found, this is normal
+          console.log('No active incoming calls found');
+          return;
+        }
         console.error('Error checking incoming call:', error);
         return;
       }
