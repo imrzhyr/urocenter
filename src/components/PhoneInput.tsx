@@ -65,6 +65,7 @@ export const PhoneInput = ({ value, onChange, isSignUp = false, onSignUpSuccess 
             className={`pr-10 transition-colors duration-200 ${
               password && (isPasswordStrong ? 'border-green-500 focus-visible:ring-green-500' : 'border-red-500 focus-visible:ring-red-500')
             }`}
+            dir="ltr"
           />
           <button
             type="button"
@@ -83,11 +84,11 @@ export const PhoneInput = ({ value, onChange, isSignUp = false, onSignUpSuccess 
               exit={{ opacity: 0, height: 0 }}
               className="space-y-1 mt-2"
             >
-              {renderPasswordRequirement(passwordStrength.hasMinLength, "At least 8 characters")}
-              {renderPasswordRequirement(passwordStrength.hasUpperCase, "One uppercase letter")}
-              {renderPasswordRequirement(passwordStrength.hasLowerCase, "One lowercase letter")}
-              {renderPasswordRequirement(passwordStrength.hasNumber, "One number")}
-              {renderPasswordRequirement(passwordStrength.hasSpecialChar, "One special character")}
+              {renderPasswordRequirement(passwordStrength.hasMinLength, t("at_least_chars"))}
+              {renderPasswordRequirement(passwordStrength.hasUpperCase, t("one_uppercase"))}
+              {renderPasswordRequirement(passwordStrength.hasLowerCase, t("one_lowercase"))}
+              {renderPasswordRequirement(passwordStrength.hasNumber, t("one_number"))}
+              {renderPasswordRequirement(passwordStrength.hasSpecialChar, t("one_special"))}
             </motion.div>
           )}
         </AnimatePresence>

@@ -22,33 +22,23 @@ export const PhoneFormatter = ({ value, onChange }: PhoneFormatterProps) => {
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let val = e.target.value;
-    
-    // Remove any non-digit characters and the country code if present
     val = val.replace(/\D/g, "");
     if (val.startsWith("964")) {
       val = val.slice(3);
     }
-    
-    // Remove leading zeros
     while (val.startsWith("0")) {
       val = val.slice(1);
     }
-    
-    // Limit to 10 digits (excluding country code)
     if (val.length <= 10) {
       onChange(val);
     }
-    
     setTouched(true);
   };
 
   const formatPhoneNumber = (phone: string) => {
     if (!phone) return "";
-    
-    // Format the number with spaces
     const match = phone.match(/^(\d{1,3})?(\d{1,3})?(\d{1,4})?$/);
     if (!match) return phone;
-    
     const parts = [match[1], match[2], match[3]].filter(Boolean);
     return parts.join(" ");
   };
@@ -63,14 +53,12 @@ export const PhoneFormatter = ({ value, onChange }: PhoneFormatterProps) => {
 
   return (
     <div className="space-y-2">
-      <div className="flex">
+      <div className="flex" dir="ltr">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button 
               variant="outline" 
-              className={`px-3 rounded-r-none border-r-0 ${
-                language === 'ar' ? 'rounded-l border-l' : 'rounded-l-none border-l-0'
-              }`}
+              className="px-3 rounded-r-none border-r-0"
             >
               <Globe className="w-4 h-4 mr-2" />
               {countryCode}
@@ -87,12 +75,10 @@ export const PhoneFormatter = ({ value, onChange }: PhoneFormatterProps) => {
           value={displayValue}
           onChange={handleChange}
           placeholder={t('enter_phone')}
-          dir={language === 'ar' ? 'rtl' : 'ltr'}
-          className={`transition-colors duration-200 ${
-            language === 'ar' ? 'rounded-r text-right' : 'rounded-l-none text-left'
-          } ${
+          className={`rounded-l-none text-left ${
             showError ? 'border-red-500 focus-visible:ring-red-500' : ''
           }`}
+          dir="ltr"
         />
       </div>
       {showError && (

@@ -162,7 +162,7 @@ export const translations = {
     "signup_subtitle": "سجل للبدء في رحلتك الطبية",
     "complete_profile": "أكمل ملفك الشخصي",
     "profile_subtitle": "يرجى تقديم معلوماتك الأساسية للمتابعة",
-    "upload_medical": "قم بتحميل وثائقك وتقاريرك الطبية",
+    "upload_medical": "قم بتحميل مستنداتك وتقاريرك الطبية",
     "medical_reports": "التقارير الطبية",
     "lab_results": "نتائج المختبر والوصفات الطبية والسجلات الطبية",
     "medical_images": "الصور الطبية",
@@ -195,5 +195,9 @@ export const translations = {
     "enter_age": "أدخل عمرك",
     "medical_complaint": "الشكوى الطبية *",
     "continue": "متابعة",
+    "payment_title": "الدفع",
+    "choose_payment_method": "اختر طريقة الدفع المفضلة لديك",
+    "consultation_fee_title": "رسوم الاستشارة",
+    "complete_payment": "إتمام الدفع"
   }
 };
