@@ -30,68 +30,84 @@ export const useIncomingCalls = () => {
     }
 
     console.log('Setting up call subscription for user:', profile.id);
-
+    
     const channel = supabase
       .channel(`calls_${profile.id}`)
       .on(
         'postgres_changes',
         {
-          event: '*',
+          event: 'INSERT',
           schema: 'public',
           table: 'calls',
-          filter: `receiver_id.eq.${profile.id}`
+          filter: `receiver_id=eq.${profile.id}`
         },
         async (payload: RealtimePostgresChangesPayload<Call>) => {
           console.log('Received call payload:', payload);
 
-          if (!payload.new || typeof payload.new !== 'object') {
-            console.error('Invalid payload received:', payload);
+          if (!payload.new || payload.new.status !== 'initiated') {
             return;
           }
 
-          const newCall = payload.new as Call;
+          // Check if we're already showing a dialog for this call
+          if (callDialog.isOpen && callDialog.callId === payload.new.id) {
+            return;
+          }
 
-          // Only show notification for new initiated calls where user is the receiver
-          if (newCall.status === 'initiated' && newCall.receiver_id === profile.id) {
-            try {
-              // Fetch caller details
-              const { data: callerData, error: callerError } = await supabase
-                .from('profiles')
-                .select('full_name')
-                .eq('id', newCall.caller_id)
-                .single();
-
-              if (callerError) {
-                console.error('Error fetching caller details:', callerError);
-                return;
-              }
-
-              const callerName = callerData?.full_name || 'Someone';
-              console.log('Incoming call from:', callerName);
-
-              // Open call dialog
-              setCallDialog({
-                isOpen: true,
-                callerId: newCall.caller_id,
-                callerName,
-                callId: newCall.id
-              });
-
-              // Show browser notification if permitted
-              if ('Notification' in window && Notification.permission === 'granted') {
-                new Notification('Incoming Call', {
-                  body: `${callerName} is calling you`,
-                  icon: '/favicon.ico',
-                  requireInteraction: true
-                }).onclick = () => {
-                  window.focus();
-                  setCallDialog(prev => ({ ...prev, isOpen: true }));
-                };
-              }
-            } catch (error) {
-              console.error('Error handling incoming call:', error);
-              toast.error('Error processing call event');
+          try {
+            // Get caller details
+            const { data: callerData, error: callerError } = await supabase
+              .from('profiles')
+              .select('full_name')
+              .eq('id', payload.new.caller_id)
+              .single();
+            
+            if (callerError) {
+              console.error('Error fetching caller details:', callerError);
+              return;
             }
+
+            const callerName = callerData?.full_name || 'Unknown Caller';
+            console.log('Incoming call from:', callerName);
+
+            // Show browser notification if permitted
+            if ('Notification' in window && Notification.permission === 'granted') {
+              new Notification('Incoming Call', {
+                body: `${callerName} is calling you`,
+                icon: '/favicon.ico',
+                requireInteraction: true
+              }).onclick = () => {
+                window.focus();
+                setCallDialog({
+                  isOpen: true,
+                  callerId: payload.new.caller_id,
+                  callerName,
+                  callId: payload.new.id
+                });
+              };
+            }
+
+            // Open call dialog
+            setCallDialog({
+              isOpen: true,
+              callerId: payload.new.caller_id,
+              callerName,
+              callId: payload.new.id
+            });
+
+            // Show toast notification
+            toast.info(`${callerName} is calling...`, {
+              duration: Infinity,
+              onDismiss: async () => {
+                await supabase
+                  .from('calls')
+                  .update({ status: 'ended' })
+                  .eq('id', payload.new.id);
+                setCallDialog(prev => ({ ...prev, isOpen: false }));
+              }
+            });
+          } catch (error) {
+            console.error('Error handling incoming call:', error);
+            toast.error('Error processing incoming call');
           }
         }
       )
