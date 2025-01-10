@@ -1,12 +1,12 @@
 export const messageTranslations = {
   en: {
-    "sent_attachment": "Sent an attachment",
-    "today": "Today",
-    "tomorrow": "Tomorrow",
+    "Sent Attachment": "Sent an attachment",
+    "Today": "Today",
+    "Tomorrow": "Tomorrow",
   },
   ar: {
-    "sent_attachment": "أرسل مرفقًا",
-    "today": "اليوم",
-    "tomorrow": "غدًا",
+    "Sent Attachment": "أرسل مرفقًا",
+    "Today": "اليوم",
+    "Tomorrow": "غدًا",
   }
 };
