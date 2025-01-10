@@ -3,7 +3,6 @@ import { DoctorChatContainer } from "@/components/chat/doctor/DoctorChatContaine
 import { useProfile } from "@/hooks/useProfile";
 import { useParams, useNavigate } from "react-router-dom";
 import { useIncomingCalls } from "@/hooks/useIncomingCalls";
-import { TestCallComponent } from "@/components/chat/TestCallComponent";
 import { IncomingCallDialog } from "@/components/call/IncomingCallDialog";
 
 export const Chat = () => {
@@ -21,7 +20,6 @@ export const Chat = () => {
 
   return (
     <>
-      {!isAdmin && <TestCallComponent />}
       {!userId && !isAdmin ? (
         <UserChatContainer />
       ) : userId && isAdmin ? (
