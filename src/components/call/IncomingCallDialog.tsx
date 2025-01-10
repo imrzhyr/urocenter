@@ -1,4 +1,4 @@
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { IncomingCallControls } from "./IncomingCallControls";
 import { Avatar } from "@/components/ui/avatar";
 import { useNavigate } from "react-router-dom";
@@ -79,14 +79,15 @@ export const IncomingCallDialog = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
+        <DialogTitle className="text-center">Incoming Call</DialogTitle>
+        <DialogDescription className="text-center">
+          {callerName} is calling you
+        </DialogDescription>
+        
         <div className="flex flex-col items-center space-y-4 pt-4">
           <Avatar className="h-20 w-20">
             <span className="text-2xl">{callerName[0]}</span>
           </Avatar>
-          <div className="text-center">
-            <h2 className="text-lg font-semibold">{callerName}</h2>
-            <p className="text-sm text-muted-foreground">Incoming call...</p>
-          </div>
           <IncomingCallControls
             onAccept={handleAcceptCall}
             onReject={handleRejectCall}
