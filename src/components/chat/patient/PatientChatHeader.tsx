@@ -6,6 +6,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { ViewReportsDialog } from "@/components/medical-reports/ViewReportsDialog";
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { CallButton } from "@/components/chat/CallButton";
 
 export const PatientChatHeader = () => {
   const navigate = useNavigate();
@@ -37,14 +38,17 @@ export const PatientChatHeader = () => {
           <p className="text-sm text-white/80">Urologist Consultant</p>
         </div>
       </div>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => setShowReports(true)}
-        className="ml-auto hover:bg-white/20 text-white rounded-full w-10 h-10"
-      >
-        <FileText className="w-5 h-5" />
-      </Button>
+      <div className="ml-auto flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setShowReports(true)}
+          className="hover:bg-white/20 text-white rounded-full w-10 h-10"
+        >
+          <FileText className="w-5 h-5" />
+        </Button>
+        <CallButton userId={profile?.id || ''} className="text-white" />
+      </div>
       <ViewReportsDialog open={showReports} onOpenChange={setShowReports} />
     </div>
   );
