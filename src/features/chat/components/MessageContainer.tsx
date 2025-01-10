@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { MessageList } from "./MessageList";
 import { MessageInput } from "./MessageInput";
 import { Message } from "@/types/profile";
-import { ViewReportsDialog } from "../medical-reports/ViewReportsDialog";
+import { ViewReportsDialog } from "@/features/medical/components/ViewReportsDialog";
 import { useState } from "react";
 import { CallButton } from "./CallButton";
 
