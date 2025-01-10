@@ -7,11 +7,13 @@ import { toast } from "sonner";
 import { useProfile } from "@/hooks/useProfile";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { useOnboarding } from "@/hooks/useOnboarding";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const ProfilePage = () => {
   const navigate = useNavigate();
   const { profile: initialProfile, isLoading, refetch } = useOnboarding();
   const { updateProfile } = useProfile();
+  const { t } = useLanguage();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [profile, setProfile] = useState<Profile>({
     id: '',
@@ -73,9 +75,11 @@ export const ProfilePage = () => {
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight">Complete Your Profile</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          {t('complete_profile')}
+        </h1>
         <p className="text-muted-foreground">
-          Please provide your basic information to continue
+          {t('profile_subtitle')}
         </p>
       </div>
 
@@ -89,7 +93,7 @@ export const ProfilePage = () => {
         disabled={!isFormValid() || isSubmitting}
         className="w-full bg-primary hover:bg-primary/90"
       >
-        {isSubmitting ? "Saving..." : "Continue"}
+        {isSubmitting ? t('updating') : t('continue')}
       </Button>
     </div>
   );

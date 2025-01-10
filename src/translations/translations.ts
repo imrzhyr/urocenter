@@ -2,7 +2,6 @@ import { medicalTranslations } from './medicalTranslations';
 
 export const translations = {
   en: {
-    ...medicalTranslations.en,
     "welcome_back": "Welcome Back",
     "sign_in_continue": "Sign in to continue to your account",
     "continue_with_google": "Continue with Google",
@@ -82,10 +81,23 @@ export const translations = {
     "creating_account": "Creating your account...",
     "signup_success": "Account created successfully!",
     "signup_error": "Error creating account",
-    "phone_already_exists": "This phone number is already registered"
+    "phone_already_exists": "This phone number is already registered",
+    "at_least_chars": "At least 8 characters",
+    "one_uppercase": "One uppercase letter",
+    "one_lowercase": "One lowercase letter",
+    "one_number": "One number",
+    "one_special": "One special character",
+    "full_name": "Full Name *",
+    "enter_full_name": "Enter your full name (at least two names)",
+    "gender": "Gender *",
+    "male": "Male",
+    "female": "Female",
+    "age": "Age *",
+    "enter_age": "Enter your age",
+    "medical_complaint": "Medical Complaint *",
+    "continue": "Continue",
   },
   ar: {
-    ...medicalTranslations.ar,
     "welcome_back": "مرحباً بعودتك",
     "sign_in_continue": "سجل دخولك للمتابعة إلى حسابك",
     "continue_with_google": "المتابعة مع جوجل",
@@ -165,6 +177,19 @@ export const translations = {
     "creating_account": "Creating your account...",
     "signup_success": "Account created successfully!",
     "signup_error": "Error creating account",
-    "phone_already_exists": "This phone number is already registered"
+    "phone_already_exists": "This phone number is already registered",
+    "at_least_chars": "٨ أحرف على الأقل",
+    "one_uppercase": "حرف كبير واحد",
+    "one_lowercase": "حرف صغير واحد",
+    "one_number": "رقم واحد",
+    "one_special": "رمز خاص واحد",
+    "full_name": "الاسم الكامل *",
+    "enter_full_name": "أدخل اسمك الكامل (اسمين على الأقل)",
+    "gender": "الجنس *",
+    "male": "ذكر",
+    "female": "أنثى",
+    "age": "العمر *",
+    "enter_age": "أدخل عمرك",
+    "medical_complaint": "الشكوى الطبية *",
   }
 };
