@@ -7,3 +7,5 @@ export * from './PatientInfoCard';
 export * from './PatientInfoContainer';
 export * from './UserChatContainer';
 export * from './VoiceMessageRecorder';
+export * from './audio/AudioPlayer';
+export * from './media/MediaGallery';
