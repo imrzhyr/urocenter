@@ -6,7 +6,13 @@ import { Chat } from './pages/Chat.native';
 import { Dashboard } from './pages/Dashboard.native';
 import { SignIn } from './pages/SignIn.native';
 
-const Stack = createStackNavigator();
+export type RootStackParamList = {
+  SignIn: undefined;
+  Dashboard: undefined;
+  Chat: { userId?: string };
+};
+
+const Stack = createStackNavigator<RootStackParamList>();
 
 export default function App() {
   return (

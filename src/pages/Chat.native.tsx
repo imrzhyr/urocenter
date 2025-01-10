@@ -3,12 +3,17 @@ import { View, StyleSheet } from 'react-native';
 import { UserChatContainer } from '@/components/chat/UserChatContainer.native';
 import { DoctorChatContainer } from '@/components/chat/doctor/DoctorChatContainer.native';
 import { useProfile } from '@/hooks/useProfile';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
+import { RootStackParamList } from '../App.native';
+import { StackNavigationProp } from '@react-navigation/stack';
+
+type ChatScreenRouteProp = RouteProp<RootStackParamList, 'Chat'>;
+type ChatScreenNavigationProp = StackNavigationProp<RootStackParamList>;
 
 export const Chat = () => {
   const { profile } = useProfile();
-  const route = useRoute();
-  const navigation = useNavigation();
+  const route = useRoute<ChatScreenRouteProp>();
+  const navigation = useNavigation<ChatScreenNavigationProp>();
   const userId = route.params?.userId;
   const isAdmin = profile?.role === 'admin';
 
@@ -25,7 +30,7 @@ export const Chat = () => {
     return <DoctorChatContainer />;
   }
 
-  navigation.navigate(isAdmin ? 'Admin' : 'Dashboard');
+  navigation.navigate(isAdmin ? 'Dashboard' : 'Dashboard');
   return null;
 };
 
