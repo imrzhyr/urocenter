@@ -79,7 +79,7 @@ export const CallPage = () => {
     onCallEnded: async () => {
       await endWebRTCCall();
       handleEndCall();
-      navigate(-1);
+      navigate('/chat');
     }
   });
 
@@ -94,12 +94,12 @@ export const CallPage = () => {
   const onEndCall = async () => {
     await endWebRTCCall();
     handleEndCall();
-    navigate(-1);
+    navigate('/chat');
   };
 
   return (
     <CallContainer
-      onBack={() => navigate(-1)}
+      onBack={() => navigate('/chat')}
       duration={duration}
       callStatus={callStatus}
       callingUser={callingUser}
