@@ -49,8 +49,9 @@ export const CallPage = () => {
 
       setCallingUser(data);
       
-      // Only create call record if we're initiating the call
+      // Only create call record if we're initiating the call and it's not incoming
       if (!isIncoming) {
+        console.log('Creating outgoing call record:', { caller: profile.id, receiver: userId });
         const { error: callError } = await supabase
           .from('calls')
           .insert({
@@ -72,11 +73,13 @@ export const CallPage = () => {
 
       console.log('Checking for incoming calls for user:', profile.id);
       
-      // Get the most recent active call where we're the receiver
+      // Get the most recent active call where current user is the receiver and other user is the caller
       const { data, error } = await supabase
         .from('calls')
         .select('*')
-        .or(`and(receiver_id.eq.${profile.id},caller_id.eq.${userId},status.eq.active),and(receiver_id.eq.${profile.id},status.eq.active)`)
+        .eq('receiver_id', profile.id)
+        .eq('caller_id', userId)
+        .eq('status', 'active')
         .order('started_at', { ascending: false })
         .limit(1)
         .single();
