@@ -2,10 +2,12 @@ import { MessageSquare, Sparkles } from "lucide-react";
 import { PatientChatPrompt } from "./messages/PatientChatPrompt";
 import { AdminMessagesList } from "./messages/AdminMessagesList";
 import { useProfile } from "@/hooks/useProfile";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const MessagesCard = () => {
   const { profile } = useProfile();
   const isAdmin = profile?.role === 'admin';
+  const { t } = useLanguage();
 
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6 group hover:shadow-xl transition-all duration-300">
@@ -17,12 +19,12 @@ export const MessagesCard = () => {
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-semibold text-gray-900">
-                {isAdmin ? "Patient Messages" : "Virtual Consultation"}
+                {isAdmin ? t("patient_messages") : t("virtual_consultation")}
               </h2>
               <Sparkles className="h-4 w-4 text-primary animate-pulse" />
             </div>
             <p className="text-sm text-gray-600">
-              {isAdmin ? "Review patient inquiries" : "Connect with Dr. Ali Kamal"}
+              {isAdmin ? t("review_patient_inquiries") : t("connect_with_doctor")}
             </p>
           </div>
         </div>

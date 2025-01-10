@@ -1,8 +1,11 @@
 import { Calendar, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const AppointmentCard = () => {
+  const { t } = useLanguage();
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -15,8 +18,8 @@ export const AppointmentCard = () => {
           <Calendar className="h-6 w-6 text-primary" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">Next Available</h2>
-          <p className="text-sm text-gray-600">Schedule a consultation</p>
+          <h2 className="text-lg font-semibold text-gray-900">{t("next_available")}</h2>
+          <p className="text-sm text-gray-600">{t("schedule_consultation")}</p>
         </div>
       </div>
 
@@ -24,7 +27,7 @@ export const AppointmentCard = () => {
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center">
             <Clock className="w-4 h-4 mr-2 text-primary" />
-            <span>Today</span>
+            <span>{t("today")}</span>
           </div>
           <span className="text-primary font-medium">3:00 PM</span>
         </div>
@@ -32,13 +35,13 @@ export const AppointmentCard = () => {
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center">
             <Clock className="w-4 h-4 mr-2 text-primary" />
-            <span>Tomorrow</span>
+            <span>{t("tomorrow")}</span>
           </div>
           <span className="text-primary font-medium">11:00 AM</span>
         </div>
 
         <Button className="w-full" variant="outline">
-          View All Slots
+          {t("view_all_slots")}
         </Button>
       </div>
     </motion.div>

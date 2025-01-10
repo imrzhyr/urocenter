@@ -8,10 +8,12 @@ import { DoctorProfileCard } from "@/components/dashboard/DoctorProfileCard";
 import { AppointmentCard } from "@/components/dashboard/AppointmentCard";
 import { HealthTipsCard } from "@/components/dashboard/HealthTipsCard";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const checkProfile = async () => {
@@ -54,7 +56,7 @@ const Dashboard = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background dark:bg-[#1A1F2C]">
-        <div className="animate-pulse text-primary">Loading...</div>
+        <div className="animate-pulse text-primary">{t("loading")}</div>
       </div>
     );
   }
@@ -71,7 +73,7 @@ const Dashboard = () => {
             className="text-center mb-6"
           >
             <h1 className="text-2xl md:text-3xl font-bold text-primary dark:text-white">
-              Welcome to Your Virtual Consultation Space
+              {t("virtual_consultation_welcome")}
             </h1>
           </motion.div>
           

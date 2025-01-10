@@ -5,12 +5,14 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
 import { format } from "date-fns";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const PatientChatPrompt = () => {
   const navigate = useNavigate();
   const { profile } = useProfile();
   const [lastMessage, setLastMessage] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const fetchLastMessage = async () => {
@@ -56,17 +58,17 @@ export const PatientChatPrompt = () => {
         </div>
         <div className="max-w-sm mx-auto">
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            Start Your Consultation
+            {t("start_consultation")}
           </h3>
           <p className="text-sm text-gray-600 mb-4">
-            Dr. Ali is ready to help you with any medical concerns
+            {t("doctor_surgery")}
           </p>
           <Button 
             onClick={() => navigate('/chat')}
             className="w-full max-w-[200px] bg-blue-600 hover:bg-blue-700 transition-colors shadow-md"
           >
             <MessageSquare className="mr-2 h-4 w-4" />
-            Chat Now
+            {t("chat")}
           </Button>
         </div>
       </div>
@@ -82,12 +84,12 @@ export const PatientChatPrompt = () => {
         <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
           <img
             src="/lovable-uploads/7ac98ca7-e043-4da5-afac-f986ff382bcf.png"
-            alt="Dr. Ali Kamal"
+            alt={t("doctor_name")}
             className="w-10 h-10 rounded-full object-cover"
           />
         </div>
         <div>
-          <h3 className="font-medium text-gray-900 dark:text-gray-100">Dr. Ali Kamal</h3>
+          <h3 className="font-medium text-gray-900 dark:text-gray-100">{t("doctor_name")}</h3>
           <p className="text-xs text-gray-500 dark:text-gray-400">
             {format(new Date(lastMessage.created_at), 'MMM d, h:mm a')}
           </p>
@@ -95,7 +97,7 @@ export const PatientChatPrompt = () => {
       </div>
       <div className="pl-[60px]">
         <p className="text-sm text-gray-600 dark:text-gray-300 truncate">
-          {lastMessage.content || (lastMessage.file_url ? 'Sent an attachment' : '')}
+          {lastMessage.content || (lastMessage.file_url ? t("sent_attachment") : '')}
         </p>
       </div>
     </div>

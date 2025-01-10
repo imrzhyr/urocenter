@@ -14,11 +14,13 @@ import { ViewReportsDialog } from "@/components/medical-reports/ViewReportsDialo
 import { UploadInformationDialog } from "@/components/medical-reports/UploadInformationDialog";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const MedicalReportsCard = () => {
   const [medicalReportsCount, setMedicalReportsCount] = useState(0);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const { t } = useLanguage();
 
   const fetchMedicalReports = async () => {
     try {
@@ -65,8 +67,8 @@ export const MedicalReportsCard = () => {
       <Card className="overflow-hidden">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <div>
-            <CardTitle className="text-lg">Medical Reports</CardTitle>
-            <CardDescription>Manage your medical documents</CardDescription>
+            <CardTitle className="text-lg">{t("medical_reports")}</CardTitle>
+            <CardDescription>{t("manage_medical_docs")}</CardDescription>
           </div>
           <UploadInformationDialog />
         </CardHeader>
@@ -86,7 +88,7 @@ export const MedicalReportsCard = () => {
                 className="transition-all duration-300 hover:bg-primary hover:text-primary-foreground"
               >
                 <Eye className="w-4 h-4 mr-2" />
-                View
+                {t("view")}
               </Button>
               <Button 
                 variant="default" 
@@ -95,7 +97,7 @@ export const MedicalReportsCard = () => {
                 className="transition-all duration-300"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Add
+                {t("add")}
               </Button>
             </div>
           </motion.div>
