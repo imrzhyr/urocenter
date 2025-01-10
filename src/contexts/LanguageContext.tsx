@@ -18,9 +18,7 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
   }, [language]);
 
   const t = (key: string): string => {
-    // Special cases for untranslated content
     if (key === 'uro_center') return 'UroCenter';
-    
     return translations[language][key as keyof typeof translations.en] || key;
   };
 
