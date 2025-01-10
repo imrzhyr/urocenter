@@ -18,6 +18,15 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
         return;
       }
 
+      // First check if we have an active session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session) {
+        console.error('No active session found:', sessionError);
+        toast.error('Authentication required');
+        return;
+      }
+
       try {
         console.log('Fetching user details for:', userId);
         
