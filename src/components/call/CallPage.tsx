@@ -82,15 +82,13 @@ export const CallPage = () => {
         .eq('status', 'active')
         .order('started_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (error) {
-        if (error.code === 'PGRST116') {
-          // No active incoming calls found, this is normal
-          console.log('No active incoming calls found');
-          return;
+        if (error.code !== 'PGRST116') {
+          // Only log real errors, not "no rows found"
+          console.error('Error checking incoming call:', error);
         }
-        console.error('Error checking incoming call:', error);
         return;
       }
 
