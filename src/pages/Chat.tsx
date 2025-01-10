@@ -3,12 +3,13 @@ import { DoctorChatContainer } from "@/components/chat/doctor/DoctorChatContaine
 import { useProfile } from "@/hooks/useProfile";
 import { useParams, useNavigate } from "react-router-dom";
 import { useIncomingCalls } from "@/hooks/useIncomingCalls";
+import { TestCallComponent } from "@/components/chat/TestCallComponent";
 
 export const Chat = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
   const { profile } = useProfile();
-  useIncomingCalls(); // This will now work for both admin and patients
+  useIncomingCalls();
 
   if (!profile) {
     navigate('/signin');
@@ -17,16 +18,17 @@ export const Chat = () => {
 
   const isAdmin = profile.role === 'admin';
 
-  if (!userId && !isAdmin) {
-    return <UserChatContainer />;
-  }
-
-  if (userId && isAdmin) {
-    return <DoctorChatContainer />;
-  }
-
-  navigate(isAdmin ? '/dashboard' : '/dashboard');
-  return null;
+  // Only add TestCallComponent for non-admin users
+  return (
+    <>
+      {!isAdmin && <TestCallComponent />}
+      {!userId && !isAdmin ? (
+        <UserChatContainer />
+      ) : userId && isAdmin ? (
+        <DoctorChatContainer />
+      ) : null}
+    </>
+  );
 };
 
 export default Chat;
