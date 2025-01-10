@@ -23,6 +23,7 @@ export const useCallSubscription = ({
 
     console.log('Setting up call subscription for user:', profile.id);
 
+    // Create a unique channel for this user
     const channel = supabase
       .channel(`calls_${profile.id}`)
       .on(
@@ -62,13 +63,13 @@ export const useCallSubscription = ({
                 };
               }
 
-              // Show toast notification
+              // Show toast notification that stays until action is taken
               toast.info('Incoming call...', {
                 action: {
                   label: 'Answer',
                   onClick: () => navigate(`/call/${payload.new.caller_id}`)
                 },
-                duration: 10000
+                duration: Infinity, // Toast will stay until user takes action
               });
             }
           } else if (payload.eventType === 'UPDATE') {
@@ -77,8 +78,14 @@ export const useCallSubscription = ({
 
             if (newStatus === 'accepted') {
               onCallAccepted();
-            } else if (newStatus === 'ended') {
+            } else if (newStatus === 'ended' || newStatus === 'rejected') {
               onCallEnded();
+              // Show toast when call ends
+              toast.info(newStatus === 'ended' ? 'Call ended' : 'Call rejected');
+              // Navigate away from call page if we're on it
+              if (window.location.pathname.includes('/call/')) {
+                navigate(-1);
+              }
             }
           }
         }
