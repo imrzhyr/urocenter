@@ -1,6 +1,4 @@
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Message } from "@/types/profile";
-import { Play } from "lucide-react";
+import React from 'react';
 
 interface MediaGalleryProps {
   url: string;
@@ -12,25 +10,23 @@ export const MediaGallery = ({ url, type, name }: MediaGalleryProps) => {
   const isVideo = type?.startsWith('video/');
 
   return (
-    <div className="relative rounded-lg overflow-hidden max-w-[150px]">
+    <div className="relative rounded-lg overflow-hidden max-w-[120px]">
       {isVideo ? (
         <>
           <video 
-            className="w-full h-full object-cover max-h-[150px]"
+            className="w-full h-full object-cover max-h-[120px]"
             controls
             poster={`${url}#t=0.1`}
           >
             <source src={url} type={type} />
+            Your browser does not support the video tag.
           </video>
-          <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors pointer-events-none">
-            <Play className="w-12 h-12 text-white" />
-          </div>
         </>
       ) : (
         <img 
           src={url} 
           alt={name || 'Media'} 
-          className="w-full h-full object-cover max-h-[150px]"
+          className="w-full h-full object-cover max-h-[120px]"
         />
       )}
     </div>
