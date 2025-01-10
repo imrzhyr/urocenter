@@ -77,7 +77,6 @@ export const translations = {
     "fee_amount": "25,000 IQD",
     "take_picture": "Take Picture",
     "upload_files": "Upload Files",
-    "complete_payment": "Complete Payment",
     "creating_account": "Creating your account...",
     "signup_success": "Account created successfully!",
     "signup_error": "Error creating account",
@@ -99,7 +98,7 @@ export const translations = {
     "payment_title": "Payment",
     "choose_payment_method": "Choose your preferred payment method",
     "consultation_fee_title": "Consultation Fee",
-    "complete_payment": "Complete Payment",
+    "complete_payment": "Complete Payment"
   },
   ar: {
     "welcome_back": "مرحباً بعودتك",
