@@ -173,7 +173,7 @@ export const translations = {
     "audio_description": "الملاحظات الصوتية أو الاستشارات الصوتية",
     "payment_subtitle": "اختر طريقة الدفع المفضلة لديك",
     "consultation_fee": "رسوم الاستشارة",
-    "fee_amount": "25,000 دينار عراقي",
+    "fee_amount": "٢٥,٠٠٠ دينار عراقي",
     "take_picture": "التقاط صورة",
     "upload_files": "تحميل الملفات",
     "complete_payment": "إتمام الدفع",
