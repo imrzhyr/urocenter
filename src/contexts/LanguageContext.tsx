@@ -28,7 +28,7 @@ const translations = {
     "welcome": "Welcome",
     "dashboard": "Dashboard",
     "profile": "Profile",
-    "medical_information": "Medical Information",
+    "medical_information": "Medical Info",
     "payment": "Payment",
     "chat": "Chat",
     "call": "Call",
