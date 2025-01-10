@@ -39,9 +39,9 @@ export const useCallSubscription = ({
           channelRef.current = null;
         }
 
-        // Create a new subscription channel
+        // Create a new subscription channel with a unique name for this user
         channelRef.current = supabase
-          .channel(`calls_${profile.id}`)
+          .channel(`calls_${profile.id}_${Date.now()}`)
           .on(
             'postgres_changes',
             {
