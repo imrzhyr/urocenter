@@ -23,7 +23,7 @@ export const PatientChatPrompt = () => {
           .eq('user_id', profile.id)
           .order('created_at', { ascending: false })
           .limit(1)
-          .single();
+          .maybeSingle();
 
         if (error && error.code !== 'PGRST116') {
           console.error('Error fetching last message:', error);
