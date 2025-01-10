@@ -57,7 +57,7 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
         .select('*')
         .or(`and(caller_id.eq.${userId},receiver_id.eq.${profile.id}),and(caller_id.eq.${profile.id},receiver_id.eq.${userId})`)
         .eq('status', 'active')
-        .order('started_at', { ascending: false })  // Changed from created_at to started_at
+        .order('started_at', { ascending: false })
         .limit(1);
 
       if (fetchError) {
@@ -70,13 +70,15 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
       if (activeCalls && activeCalls.length > 0) {
         const activeCall = activeCalls[0];
         console.log('Most recent active call:', activeCall);
+        console.log('Current user is receiver?', activeCall.receiver_id === profile.id);
+        console.log('Other user is caller?', activeCall.caller_id === userId);
 
-        // Set as incoming only if we are the receiver
-        if (activeCall.receiver_id === profile.id) {
+        // Set as incoming only if we are the receiver and the other user is the caller
+        if (activeCall.receiver_id === profile.id && activeCall.caller_id === userId) {
           console.log('Setting as incoming call - we are the receiver');
           setIsIncoming(true);
           setCallStatus('ringing');
-        } else {
+        } else if (activeCall.caller_id === profile.id && activeCall.receiver_id === userId) {
           console.log('Setting as outgoing call - we are the caller');
           setIsIncoming(false);
           setCallStatus('ringing');
@@ -86,7 +88,7 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
 
     fetchUserDetails();
     checkIfIncoming();
-  }, [userId, profile?.id]);
+  }, [userId, profile?.id, isIncoming]);
 
   return {
     callingUser,

@@ -36,30 +36,33 @@ export const useCallSubscription = ({
         async (payload) => {
           console.log('Received call update:', payload);
 
-          // Only handle notifications for incoming calls if we're the receiver
-          if (payload.eventType === 'INSERT' && payload.new.receiver_id === profile.id) {
+          // Handle new incoming calls
+          if (payload.eventType === 'INSERT' && payload.new.status === 'active') {
             console.log('New incoming call detected');
             
-            if ('Notification' in window && Notification.permission === 'granted') {
-              const notification = new Notification('Incoming Call', {
-                body: 'Someone is calling you',
-                icon: '/favicon.ico',
-                requireInteraction: true
+            // Only show notification if we're the receiver and not already on the call page
+            if (payload.new.receiver_id === profile.id && !window.location.pathname.includes('/call/')) {
+              if ('Notification' in window && Notification.permission === 'granted') {
+                const notification = new Notification('Incoming Call', {
+                  body: 'Someone is calling you',
+                  icon: '/favicon.ico',
+                  requireInteraction: true
+                });
+
+                notification.onclick = () => {
+                  window.focus();
+                  navigate(`/call/${payload.new.caller_id}`);
+                };
+              }
+
+              toast.info('Incoming call...', {
+                action: {
+                  label: 'Answer',
+                  onClick: () => navigate(`/call/${payload.new.caller_id}`)
+                },
+                duration: 10000
               });
-
-              notification.onclick = () => {
-                window.focus();
-                navigate(`/call/${payload.new.caller_id}`);
-              };
             }
-
-            toast.info('Incoming call...', {
-              action: {
-                label: 'Answer',
-                onClick: () => navigate(`/call/${payload.new.caller_id}`)
-              },
-              duration: 10000
-            });
           } else if (payload.eventType === 'UPDATE') {
             const newStatus = payload.new.status;
             console.log('Call status updated to:', newStatus);
