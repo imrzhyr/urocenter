@@ -70,12 +70,15 @@ export const CallPage = () => {
     const checkIfIncoming = async () => {
       if (!profile?.id || !userId) return;
 
+      console.log('Checking for incoming calls for user:', profile.id);
+      
+      // Check for incoming calls where either:
+      // 1. We're the receiver and the caller is userId
+      // 2. We're the admin and someone is calling us
       const { data, error } = await supabase
         .from('calls')
         .select('*')
-        .eq('receiver_id', profile.id)
-        .eq('caller_id', userId)
-        .eq('status', 'active')
+        .or(`and(receiver_id.eq.${profile.id},caller_id.eq.${userId}),and(receiver_id.eq.${profile.id},status.eq.active)`)
         .order('started_at', { ascending: false })
         .maybeSingle();
 
@@ -83,6 +86,8 @@ export const CallPage = () => {
         console.error('Error checking incoming call:', error);
         return;
       }
+
+      console.log('Incoming call check result:', data);
 
       if (data) {
         setIsIncoming(true);
