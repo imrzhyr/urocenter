@@ -1,12 +1,33 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Profile } from "@/types/profile";
 
 export const useCallHandlers = (userId: string | undefined, profile: Profile | null) => {
   const [duration, setDuration] = useState(0);
+  const [callStartTime, setCallStartTime] = useState<Date>();
 
-  const handleEndCall = async (callStartTime?: Date) => {
+  // Update duration every second when call is active
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    
+    if (callStartTime) {
+      interval = setInterval(() => {
+        const seconds = Math.floor(
+          (new Date().getTime() - callStartTime.getTime()) / 1000
+        );
+        setDuration(seconds);
+      }, 1000);
+    }
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [callStartTime]);
+
+  const handleEndCall = async () => {
     if (!userId || !profile?.id) return;
 
     try {
@@ -102,6 +123,7 @@ export const useCallHandlers = (userId: string | undefined, profile: Profile | n
         return;
       }
 
+      setCallStartTime(new Date());
       toast.success('Call accepted');
     } catch (error) {
       console.error('Error in handleAcceptCall:', error);
@@ -159,6 +181,7 @@ export const useCallHandlers = (userId: string | undefined, profile: Profile | n
     setDuration,
     handleEndCall,
     handleAcceptCall,
-    handleRejectCall
+    handleRejectCall,
+    setCallStartTime
   };
 };

@@ -12,7 +12,6 @@ export const CallPage = () => {
   const { profile } = useProfile();
   const [isMuted, setIsMuted] = useState(false);
   const [isSpeaker, setIsSpeaker] = useState(false);
-  const [callStartTime, setCallStartTime] = useState<Date>();
   
   const {
     callingUser,
@@ -26,7 +25,8 @@ export const CallPage = () => {
     setDuration,
     handleEndCall,
     handleAcceptCall,
-    handleRejectCall
+    handleRejectCall,
+    setCallStartTime
   } = useCallHandlers(userId, profile);
 
   useCallSubscription({
@@ -36,13 +36,13 @@ export const CallPage = () => {
       setCallStartTime(new Date());
     },
     onCallEnded: () => {
-      handleEndCall(callStartTime);
+      handleEndCall();
       navigate(-1);
     }
   });
 
   const onEndCall = () => {
-    handleEndCall(callStartTime);
+    handleEndCall();
     navigate(-1);
   };
 

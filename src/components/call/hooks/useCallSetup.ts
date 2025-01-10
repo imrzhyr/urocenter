@@ -49,40 +49,44 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
     const checkIfIncoming = async () => {
       if (!profile?.id || !userId) return;
 
-      console.log('Checking for incoming calls from:', userId, 'to:', profile.id);
+      console.log('Checking for incoming calls - Current user:', profile.id, 'Other user:', userId);
       
-      // Get the most recent active call where current user is the receiver and other user is the caller
-      const { data, error } = await supabase
+      // Get the most recent active call between these users
+      const { data: activeCalls, error: fetchError } = await supabase
         .from('calls')
         .select('*')
-        .eq('receiver_id', profile.id)
-        .eq('caller_id', userId)
+        .or(`and(caller_id.eq.${userId},receiver_id.eq.${profile.id}),and(caller_id.eq.${profile.id},receiver_id.eq.${userId})`)
         .eq('status', 'active')
-        .order('started_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+        .order('created_at', { ascending: false })
+        .limit(1);
 
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error checking incoming call:', error);
+      if (fetchError) {
+        console.error('Error checking incoming call:', fetchError);
         return;
       }
 
-      console.log('Incoming call check result:', data);
+      console.log('Active calls found:', activeCalls);
 
-      // Only set as incoming if we are the receiver of an active call
-      if (data && data.receiver_id === profile.id) {
-        console.log('Setting as incoming call because we are the receiver');
-        setIsIncoming(true);
-        setCallStatus('ringing');
-      } else {
-        console.log('Not an incoming call for us');
-        setIsIncoming(false);
+      if (activeCalls && activeCalls.length > 0) {
+        const activeCall = activeCalls[0];
+        console.log('Most recent active call:', activeCall);
+
+        // Set as incoming only if we are the receiver
+        if (activeCall.receiver_id === profile.id) {
+          console.log('Setting as incoming call - we are the receiver');
+          setIsIncoming(true);
+          setCallStatus('ringing');
+        } else {
+          console.log('Setting as outgoing call - we are the caller');
+          setIsIncoming(false);
+          setCallStatus('ringing');
+        }
       }
     };
 
     fetchUserDetails();
     checkIfIncoming();
-  }, [userId, profile?.id, isIncoming]);
+  }, [userId, profile?.id]);
 
   return {
     callingUser,
