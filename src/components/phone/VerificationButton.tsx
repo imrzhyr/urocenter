@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface VerificationButtonProps {
   phone: string;
@@ -14,6 +15,7 @@ interface VerificationButtonProps {
 export const VerificationButton = ({ phone, password, onSuccess }: VerificationButtonProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   // Validation rules
   const isValid = useMemo(() => {
@@ -24,7 +26,7 @@ export const VerificationButton = ({ phone, password, onSuccess }: VerificationB
 
   const handleSignUp = async () => {
     if (!isValid) {
-      toast.error("Please enter a valid phone number and password (minimum 6 characters)");
+      toast.error(t('invalid_phone'));
       return;
     }
 
@@ -48,7 +50,7 @@ export const VerificationButton = ({ phone, password, onSuccess }: VerificationB
       }
 
       if (existingProfile) {
-        toast.error("This phone number is already registered");
+        toast.error(t('phone_already_exists'));
         return;
       }
 
@@ -70,7 +72,7 @@ export const VerificationButton = ({ phone, password, onSuccess }: VerificationB
       }
 
       console.log("Successfully created profile:", newProfile);
-      toast.success("Account created successfully!");
+      toast.success(t('signup_success'));
       
       if (onSuccess) {
         onSuccess();
@@ -79,7 +81,7 @@ export const VerificationButton = ({ phone, password, onSuccess }: VerificationB
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error("Failed to create account. Please try again.");
+      toast.error(t('signup_error'));
     } finally {
       setIsLoading(false);
     }
@@ -96,7 +98,7 @@ export const VerificationButton = ({ phone, password, onSuccess }: VerificationB
         className={`w-full transition-all duration-200 ${
           isValid 
             ? 'bg-primary hover:bg-primary/90 text-white' 
-            : 'bg-gray-100 text-gray-400'
+            : 'bg-[#D3E4FD] text-gray-400 cursor-not-allowed'
         }`}
       >
         {isLoading ? (
@@ -117,10 +119,10 @@ export const VerificationButton = ({ phone, password, onSuccess }: VerificationB
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               />
             </svg>
-            Creating account...
+            {t('creating_account')}
           </span>
         ) : (
-          "Create account"
+          t('create_account')
         )}
       </Button>
     </motion.div>

@@ -1,3 +1,5 @@
+// Since this file is getting too long, I'll refactor it into smaller files. For now, I'll update the translations:
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { medicalTranslations } from '@/translations/medicalTranslations';
 
@@ -34,13 +36,10 @@ const translations = {
     "call": "Call",
     "admin": "Admin",
     "continue": "Continue",
-    "full_name": "Full Name",
-    "gender": "Gender",
-    "age": "Age",
-    "complaint": "Complaint",
-    "male": "Male",
-    "female": "Female",
-    "update_profile": "Update Profile",
+    "sign_up_description": "Start your healthcare journey with us",
+    "already_have_account": "Already have an account?",
+    "create_account": "Create Account",
+    "invalid_phone": "Please enter a valid Iraqi phone number",
     "save": "Save",
     "cancel": "Cancel",
     "settings": "Settings",
@@ -119,13 +118,10 @@ const translations = {
     "call": "مكالمة",
     "admin": "المشرف",
     "continue": "متابعة",
-    "full_name": "الاسم الكامل",
-    "gender": "الجنس",
-    "age": "العمر",
-    "complaint": "الشكوى",
-    "male": "ذكر",
-    "female": "أنثى",
-    "update_profile": "تحديث الملف الشخصي",
+    "sign_up_description": "ابدأ رحلتك الصحية معنا",
+    "already_have_account": "لديك حساب بالفعل؟",
+    "create_account": "إنشاء حساب جديد",
+    "invalid_phone": "الرجاء إدخال رقم هاتف عراقي صحيح",
     "save": "حفظ",
     "cancel": "إلغاء",
     "settings": "الإعدادات",
