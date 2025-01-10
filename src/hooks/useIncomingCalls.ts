@@ -25,13 +25,13 @@ export const useIncomingCalls = () => {
       .on(
         'postgres_changes',
         {
-          event: 'INSERT',
+          event: '*',
           schema: 'public',
           table: 'calls',
-          filter: `or(receiver_id.eq.${profile.id},caller_id.eq.${profile.id})`,
+          filter: `or(receiver_id.eq.${profile.id},caller_id.eq.${profile.id})`
         },
         async (payload) => {
-          console.log('Received new call payload:', payload);
+          console.log('Received call payload:', payload);
 
           if (payload.new.status === 'initiated' && payload.new.receiver_id === profile.id) {
             try {
@@ -52,16 +52,11 @@ export const useIncomingCalls = () => {
 
               // Show browser notification if permitted
               if ('Notification' in window && Notification.permission === 'granted') {
-                const notification = new Notification('Incoming Call', {
+                new Notification('Incoming Call', {
                   body: `${callerName} is calling you`,
                   icon: '/favicon.ico',
                   requireInteraction: true
                 });
-                
-                notification.onclick = () => {
-                  window.focus();
-                  navigate(`/call/${payload.new.caller_id}`);
-                };
               }
 
               // Show toast notification
@@ -103,32 +98,6 @@ export const useIncomingCalls = () => {
         }
       });
 
-    // Also listen for call status changes
-    const statusChannel = supabase
-      .channel(`call_status_${profile.id}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'calls',
-          filter: `receiver_id=eq.${profile.id}`,
-        },
-        (payload) => {
-          console.log('Call status updated:', payload);
-          
-          if (payload.new.status === 'ended') {
-            toast.error('Call ended');
-            if (window.location.pathname.includes('/call/')) {
-              navigate(-1);
-            }
-          }
-        }
-      )
-      .subscribe((status) => {
-        console.log('Call status subscription status:', status);
-      });
-
     // Request notification permission if needed
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission();
@@ -137,7 +106,6 @@ export const useIncomingCalls = () => {
     return () => {
       console.log('Cleaning up call subscriptions');
       supabase.removeChannel(channel);
-      supabase.removeChannel(statusChannel);
     };
   }, [profile?.id, navigate]);
 };
