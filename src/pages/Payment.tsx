@@ -28,7 +28,7 @@ const Payment = () => {
 
         <div className="p-4 bg-white/80 backdrop-blur-sm rounded-lg border border-blue-100">
           <h3 className="font-semibold mb-2 text-blue-900">{t("consultation_fee_title")}</h3>
-          <p className="text-2xl font-bold text-blue-700">25,000 IQD</p>
+          <p className="text-2xl font-bold text-blue-700">{t("consultation_fee")}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
