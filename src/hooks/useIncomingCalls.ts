@@ -30,7 +30,7 @@ export const useIncomingCalls = () => {
           event: '*',
           schema: 'public',
           table: 'calls',
-          filter: `or(receiver_id.eq.${profile.id},caller_id.eq.${profile.id})`
+          filter: `receiver_id.eq.${profile.id}`
         },
         async (payload: RealtimePostgresChangesPayload<Call>) => {
           console.log('Received call payload:', payload);
@@ -43,6 +43,7 @@ export const useIncomingCalls = () => {
 
           const newCall = payload.new as Call;
 
+          // Only show notification for new initiated calls where user is the receiver
           if (newCall.status === 'initiated' && newCall.receiver_id === profile.id) {
             try {
               // Fetch caller details
@@ -58,7 +59,7 @@ export const useIncomingCalls = () => {
               }
 
               const callerName = callerData?.full_name || 'Someone';
-              console.log('Caller details:', callerName);
+              console.log('Incoming call from:', callerName);
 
               // Show browser notification if permitted
               if ('Notification' in window && Notification.permission === 'granted') {
@@ -66,7 +67,10 @@ export const useIncomingCalls = () => {
                   body: `${callerName} is calling you`,
                   icon: '/favicon.ico',
                   requireInteraction: true
-                });
+                }).onclick = () => {
+                  window.focus();
+                  navigate(`/call/${newCall.caller_id}`);
+                };
               }
 
               // Show toast notification
@@ -75,7 +79,10 @@ export const useIncomingCalls = () => {
                 {
                   action: {
                     label: 'Answer',
-                    onClick: () => navigate(`/call/${newCall.caller_id}`)
+                    onClick: () => {
+                      console.log('Navigating to call page:', newCall.caller_id);
+                      navigate(`/call/${newCall.caller_id}`);
+                    }
                   },
                   duration: Infinity,
                   onDismiss: async () => {
