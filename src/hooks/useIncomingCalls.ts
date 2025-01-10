@@ -44,12 +44,13 @@ export const useIncomingCalls = () => {
         async (payload: RealtimePostgresChangesPayload<Call>) => {
           console.log('Received call payload:', payload);
 
-          if (!payload.new || payload.new.status !== 'initiated') {
+          const newCall = payload.new as Call;
+          if (!newCall || newCall.status !== 'initiated') {
             return;
           }
 
           // Check if we're already showing a dialog for this call
-          if (callDialog.isOpen && callDialog.callId === payload.new.id) {
+          if (callDialog.isOpen && callDialog.callId === newCall.id) {
             return;
           }
 
@@ -58,7 +59,7 @@ export const useIncomingCalls = () => {
             const { data: callerData, error: callerError } = await supabase
               .from('profiles')
               .select('full_name')
-              .eq('id', payload.new.caller_id)
+              .eq('id', newCall.caller_id)
               .single();
             
             if (callerError) {
@@ -79,9 +80,9 @@ export const useIncomingCalls = () => {
                 window.focus();
                 setCallDialog({
                   isOpen: true,
-                  callerId: payload.new.caller_id,
+                  callerId: newCall.caller_id,
                   callerName,
-                  callId: payload.new.id
+                  callId: newCall.id
                 });
               };
             }
@@ -89,9 +90,9 @@ export const useIncomingCalls = () => {
             // Open call dialog
             setCallDialog({
               isOpen: true,
-              callerId: payload.new.caller_id,
+              callerId: newCall.caller_id,
               callerName,
-              callId: payload.new.id
+              callId: newCall.id
             });
 
             // Show toast notification
@@ -101,7 +102,7 @@ export const useIncomingCalls = () => {
                 await supabase
                   .from('calls')
                   .update({ status: 'ended' })
-                  .eq('id', payload.new.id);
+                  .eq('id', newCall.id);
                 setCallDialog(prev => ({ ...prev, isOpen: false }));
               }
             });
