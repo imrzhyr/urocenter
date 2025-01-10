@@ -1,0 +1,32 @@
+export const dashboardTranslations = {
+  en: {
+    "virtual_consultation_welcome": "Welcome to Your Virtual Consultation Space",
+    "virtual_consultation": "Virtual Consultation",
+    "connect_with_doctor": "Connect with Dr. Ali Kamal",
+    "doctor_name": "Dr. Ali Kamal",
+    "medical_reports": "Medical Reports",
+    "manage_medical_docs": "Manage your medical documents",
+    "next_available": "Next Available",
+    "schedule_consultation": "Schedule a consultation",
+    "view_all_slots": "View All Slots",
+    "health_tips": "Health Tips",
+    "from_doctor": "From Dr. Ali Kamal",
+    "doctor_surgery": "Dr. Ali Kamal in Surgery",
+    "urologist_surgeon": "Urologist & General Surgeon",
+  },
+  ar: {
+    "virtual_consultation_welcome": "مرحبًا بك في مساحتك للاستشارة الافتراضية",
+    "virtual_consultation": "الاستشارة الافتراضية",
+    "connect_with_doctor": "اتصل مع الدكتور علي كمال",
+    "doctor_name": "الدكتور علي كمال",
+    "medical_reports": "التقارير الطبية",
+    "manage_medical_docs": "إدارة مستنداتك الطبية",
+    "next_available": "الوقت المتاح التالي",
+    "schedule_consultation": "جدولة استشارة",
+    "view_all_slots": "عرض جميع المواعيد",
+    "health_tips": "نصائح صحية",
+    "from_doctor": "من الدكتور علي كمال",
+    "doctor_surgery": "الدكتور علي كمال في الجراحة",
+    "urologist_surgeon": "أخصائي المسالك البولية والجراحة العامة",
+  }
+};
