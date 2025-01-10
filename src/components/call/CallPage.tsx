@@ -71,7 +71,7 @@ export const CallPage = () => {
     userId: userId || '',
     onCallAccepted: () => {
       setCallStatus('connected');
-      setIsIncoming(false);
+      setIsIncoming(false); // Update isIncoming when call is accepted
       setCallStartTime(new Date());
       startCall().catch(error => {
         console.error('Error starting WebRTC call:', error);
@@ -81,14 +81,13 @@ export const CallPage = () => {
     onCallEnded: async () => {
       await endWebRTCCall();
       handleEndCall();
-      const redirectPath = userId ? `/chat/${userId}` : '/chat';
-      navigate(redirectPath, { replace: true });
+      navigate('/chat');
     }
   });
 
   const handleAcceptCall = async () => {
     await baseHandleAcceptCall();
-    setIsIncoming(false);
+    setIsIncoming(false); // Update isIncoming when accepting call
     startCall().catch(error => {
       console.error('Error starting WebRTC call:', error);
       toast.error('Failed to establish call connection');
@@ -96,28 +95,14 @@ export const CallPage = () => {
   };
 
   const onEndCall = async () => {
-    try {
-      await endWebRTCCall();
-      await handleEndCall();
-      const redirectPath = userId ? `/chat/${userId}` : '/chat';
-      navigate(redirectPath, { replace: true });
-    } catch (error) {
-      console.error('Error ending call:', error);
-      toast.error('Failed to end call properly');
-      // Still try to navigate even if there's an error
-      const redirectPath = userId ? `/chat/${userId}` : '/chat';
-      navigate(redirectPath, { replace: true });
-    }
-  };
-
-  const handleBack = () => {
-    const redirectPath = userId ? `/chat/${userId}` : '/chat';
-    navigate(redirectPath);
+    await endWebRTCCall();
+    handleEndCall();
+    navigate('/chat');
   };
 
   return (
     <CallContainer
-      onBack={handleBack}
+      onBack={() => navigate('/chat')}
       duration={duration}
       callStatus={callStatus}
       callingUser={callingUser}

@@ -49,7 +49,7 @@ export const useCallSubscription = ({
               event: '*',
               schema: 'public',
               table: 'calls',
-              filter: `receiver_id=eq.${profile.id} and caller_id!=eq.${profile.id}`,
+              filter: `receiver_id=eq.${profile.id}`,
             },
             async (payload) => {
               console.log('Received call event:', payload);
