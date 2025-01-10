@@ -5,6 +5,7 @@ import { Send, Plus } from "lucide-react";
 import { uploadFile } from "@/utils/fileUpload";
 import { toast } from "sonner";
 import { VoiceMessageRecorder } from "./VoiceMessageRecorder";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface MessageInputProps {
   onSendMessage: (message: string, fileInfo?: { url: string; name: string; type: string; duration?: number }) => void;
@@ -15,6 +16,7 @@ export const MessageInput = ({ onSendMessage, isLoading }: MessageInputProps) =>
   const [newMessage, setNewMessage] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { t } = useLanguage();
 
   const handleSend = async () => {
     if (!newMessage.trim() && !selectedFile) return;
@@ -96,7 +98,7 @@ export const MessageInput = ({ onSendMessage, isLoading }: MessageInputProps) =>
           <Textarea
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Type a message here..."
+            placeholder={t('type_message')}
             className="min-h-[45px] max-h-[120px] resize-none border-0 focus-visible:ring-0 rounded-full px-4"
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {

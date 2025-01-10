@@ -2,6 +2,7 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { translations } from '@/translations/translations';
 import { medicalTranslations } from '@/translations/medicalTranslations';
+import { chatTranslations } from '@/translations/chatTranslations';
 
 // Merge all translations
 const resources = {
@@ -9,12 +10,14 @@ const resources = {
     translation: {
       ...translations.en,
       ...medicalTranslations.en,
+      ...chatTranslations.en,
     },
   },
   ar: {
     translation: {
       ...translations.ar,
       ...medicalTranslations.ar,
+      ...chatTranslations.ar,
     },
   },
 };
