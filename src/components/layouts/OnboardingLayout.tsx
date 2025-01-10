@@ -1,8 +1,8 @@
 import { ProgressSteps } from "@/components/ProgressSteps";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { Outlet } from "react-router-dom";
 import { LanguageSelector } from "@/components/LanguageSelector";
-import { ArrowLeft } from "lucide-react";
+import { BackButton } from "@/components/BackButton";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const steps = ["Sign Up", "Profile", "Medical Info", "Payment"];
@@ -24,7 +24,6 @@ const getStepFromPath = (pathname: string) => {
 
 export const OnboardingLayout = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const currentStep = getStepFromPath(location.pathname);
   const { language } = useLanguage();
 
@@ -32,12 +31,7 @@ export const OnboardingLayout = () => {
     <div className="min-h-screen flex flex-col bg-background">
       <header className="sticky top-0 z-50 w-full bg-white border-b border-gray-100">
         <div className="container max-w-4xl mx-auto p-4 flex justify-between items-center">
-          <button 
-            onClick={() => navigate(-1)} 
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-          >
-            <ArrowLeft className={`w-5 h-5 ${language === 'ar' ? 'rotate-180' : ''}`} />
-          </button>
+          <BackButton />
           <LanguageSelector />
         </div>
         <div className="container max-w-4xl mx-auto px-4 pb-6">
