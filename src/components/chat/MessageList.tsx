@@ -47,12 +47,30 @@ export const MessageList = ({ messages }: MessageListProps) => {
   );
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+    <div className="flex-1 overflow-y-auto p-4 space-y-4" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       {messages.map((message, index) => {
         const currentDate = new Date(message.created_at || '');
         const previousMessage = index > 0 ? messages[index - 1] : null;
         const previousDate = previousMessage ? new Date(previousMessage.created_at || '') : null;
         const showDateSeparator = !previousDate || !isSameDay(currentDate, previousDate);
+
+        const isFromDoctor = message.is_from_doctor;
+        const shouldReverse = language === 'ar';
+        const justifyClass = shouldReverse
+          ? isFromDoctor ? "justify-end" : "justify-start"
+          : isFromDoctor ? "justify-start" : "justify-end";
+
+        const marginClass = shouldReverse
+          ? isFromDoctor ? "ml-2" : "mr-2"
+          : isFromDoctor ? "ml-2" : "mr-2";
+
+        const roundedClass = shouldReverse
+          ? isFromDoctor
+            ? "rounded-l-lg rounded-br-lg"
+            : "rounded-r-lg rounded-bl-lg"
+          : isFromDoctor
+            ? "rounded-r-lg rounded-bl-lg"
+            : "rounded-l-lg rounded-br-lg";
 
         return (
           <div key={message.id}>
@@ -61,14 +79,14 @@ export const MessageList = ({ messages }: MessageListProps) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className={`flex ${message.is_from_doctor ? "justify-start" : "justify-end"}`}
+              className={`flex ${justifyClass}`}
             >
               <div
                 className={`max-w-[70%] ${
                   message.is_from_doctor
-                    ? "bg-gray-100 dark:bg-gray-800 rounded-r-lg rounded-bl-lg ml-2"
-                    : "bg-primary text-white rounded-l-lg rounded-br-lg mr-2"
-                } p-3 shadow-sm`}
+                    ? "bg-gray-100 dark:bg-gray-800"
+                    : "bg-primary text-white"
+                } ${roundedClass} ${marginClass} p-3 shadow-sm`}
                 style={{ minWidth: '60px' }}
               >
                 {message.file_type?.startsWith("audio/") ? (
