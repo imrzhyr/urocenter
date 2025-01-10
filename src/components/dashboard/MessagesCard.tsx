@@ -19,12 +19,12 @@ export const MessagesCard = () => {
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-semibold text-gray-900">
-                {isAdmin ? t("dashboard.consultation.title") : t("dashboard.consultation.title")}
+                {isAdmin ? t("patient_messages") : t("virtual_consultation")}
               </h2>
               <Sparkles className="h-4 w-4 text-primary animate-pulse" />
             </div>
             <p className="text-sm text-gray-600">
-              {isAdmin ? t("dashboard.consultation.subtitle") : t("dashboard.consultation.subtitle")}
+              {isAdmin ? t("review_patient_inquiries") : t("connect_with_doctor")}
             </p>
           </div>
         </div>

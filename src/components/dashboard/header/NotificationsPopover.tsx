@@ -46,16 +46,16 @@ export const NotificationsPopover = () => {
       ...(messages?.map(msg => ({
         id: msg.id,
         message: profile.role === 'admin' 
-          ? t("dashboard.notifications.message_from_patient", { name: msg.profiles?.full_name || t('someone') })
+          ? `${msg.profiles?.full_name || t('someone')} ${t('sent_message')}`
           : msg.is_resolved 
-            ? t("dashboard.notifications.chat_resolved")
-            : t("dashboard.notifications.message_from_doctor"),
+            ? t('doctor_resolved_chat')
+            : t('doctor_sent_message'),
         created_at: msg.created_at,
         type: msg.is_resolved ? 'resolved' as const : 'message' as const
       })) || []),
       ...(reports?.map(report => ({
         id: report.id,
-        message: t("dashboard.notifications.new_report"),
+        message: t('new_medical_report'),
         created_at: report.created_at,
         type: 'report' as const
       })) || [])
@@ -100,7 +100,7 @@ export const NotificationsPopover = () => {
       </PopoverTrigger>
       <PopoverContent className="w-72 p-0 bg-white border shadow-lg" align="end" sideOffset={5}>
         <div className="p-3 border-b">
-          <h4 className="font-semibold text-sm text-gray-900">{t("dashboard.notifications.title")}</h4>
+          <h4 className="font-semibold text-sm text-gray-900">{t('notifications')}</h4>
         </div>
         <ScrollArea className="h-[300px]">
           {notifications.length > 0 ? (
@@ -119,7 +119,7 @@ export const NotificationsPopover = () => {
             </div>
           ) : (
             <div className="p-3 text-center text-sm text-gray-500">
-              {t("dashboard.notifications.no_new")}
+              {t('no_notifications')}
             </div>
           )}
         </ScrollArea>
