@@ -1,7 +1,7 @@
 export const medicalTranslations = {
   en: {
-    doctorName: "Dr. Ali Kamal",
-    doctorTitle: "Urologist Consultant & Surgeon",
+    doctorFullName: "Dr. Ali Kamal",
+    doctorSpecialization: "Urologist Consultant & Surgeon",
     medicalInformation: "Medical Information",
     uploadMedicalDocs: "Upload your medical documents and reports",
     medicalReports: "Medical Reports",
@@ -25,8 +25,8 @@ export const medicalTranslations = {
     monitorHabits: "Monitor your urinary habits and report changes",
   },
   ar: {
-    doctorName: "د. علي كمال",
-    doctorTitle: "استشاري جراحة المسالك البولية",
+    doctorFullName: "د. علي كمال",
+    doctorSpecialization: "استشاري جراحة المسالك البولية",
     medicalInformation: "المعلومات الطبية",
     uploadMedicalDocs: "قم بتحميل مستنداتك وتقاريرك الطبية",
     medicalReports: "التقارير الطبية",
