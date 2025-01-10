@@ -54,6 +54,7 @@ export const CallContainer = ({
             callingUser={callingUser}
             callStatus={callStatus}
             isIncoming={isIncoming}
+            duration={duration}
           />
         </div>
 
