@@ -96,6 +96,10 @@ export const translations = {
     "enter_age": "Enter your age",
     "medical_complaint": "Medical Complaint *",
     "continue": "Continue",
+    "payment_title": "Payment",
+    "choose_payment_method": "Choose your preferred payment method",
+    "consultation_fee_title": "Consultation Fee",
+    "complete_payment": "Complete Payment",
   },
   ar: {
     "welcome_back": "مرحباً بعودتك",
