@@ -88,7 +88,7 @@ const Welcome = () => {
             {t("start_journey")}
           </Button>
           <p className="text-xs text-muted-foreground text-center">
-            {t("already_account")}{" "}
+            {t("already_have_account")}{" "}
             <button
               onClick={() => navigate("/signin")}
               className="text-primary hover:underline font-medium transition-colors"
