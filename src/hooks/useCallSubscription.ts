@@ -36,16 +36,20 @@ export const useCallSubscription = ({
           channelRef.current = null;
         }
 
-        // Create a new subscription channel with a stable name
+        // Create a unique channel name using user ID
+        const channelName = `calls_${profile.id}_${Date.now()}`;
+        console.log('Creating channel:', channelName);
+
+        // Create a new subscription channel
         channelRef.current = supabase
-          .channel(`calls_${profile.id}`)
+          .channel(channelName)
           .on(
             'postgres_changes',
             {
               event: '*',
               schema: 'public',
               table: 'calls',
-              filter: `receiver_id=eq.${profile.id}`, // Only listen for calls where we are the receiver
+              filter: `receiver_id=eq.${profile.id}`,
             },
             async (payload) => {
               console.log('Received call event:', payload);
@@ -68,6 +72,7 @@ export const useCallSubscription = ({
                   }
 
                   const callerName = callerData?.full_name || 'Someone';
+                  console.log('Caller name:', callerName);
 
                   // Show browser notification if permitted
                   if ('Notification' in window && Notification.permission === 'granted') {
@@ -128,7 +133,10 @@ export const useCallSubscription = ({
             console.log('Call subscription status:', status);
             
             if (status === 'SUBSCRIBED') {
-              console.log('Call subscription active');
+              console.log('Call subscription active for channel:', channelName);
+            } else if (status === 'CHANNEL_ERROR') {
+              console.error('Error subscribing to calls on channel:', channelName);
+              toast.error('Could not subscribe to calls');
             }
           });
       } catch (error) {
@@ -144,9 +152,10 @@ export const useCallSubscription = ({
       Notification.requestPermission();
     }
 
+    // Only clean up when component unmounts
     return () => {
-      console.log('Cleaning up subscriptions');
       if (channelRef.current) {
+        console.log('Cleaning up call subscription on unmount');
         supabase.removeChannel(channelRef.current);
         channelRef.current = null;
       }
