@@ -58,7 +58,7 @@ export const NotificationsPopover = () => {
 
       if (reportsError) throw reportsError;
 
-      // Combine and format notifications
+      // Combine and format notifications with explicit type assignments
       const formattedNotifications: Notification[] = [
         ...messages.map(msg => ({
           id: msg.id,
@@ -68,14 +68,14 @@ export const NotificationsPopover = () => {
               ? t('notifications.resolved_chat')
               : `Dr. Ali ${t('notifications.sent_message')}`,
           created_at: msg.created_at,
-          type: msg.is_resolved ? 'resolved' : 'message',
+          type: msg.is_resolved ? 'resolved' as const : 'message' as const,
           sender_name: msg.sender_name
         })),
         ...reports.map(report => ({
           id: report.id,
           message: t('notifications.new_report'),
           created_at: report.created_at,
-          type: 'report'
+          type: 'report' as const
         }))
       ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
