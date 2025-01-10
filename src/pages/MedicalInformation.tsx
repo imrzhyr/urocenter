@@ -74,10 +74,10 @@ const MedicalInformation = () => {
         accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.mp4,.mov,.mp3,.wav"
         multiple
       />
-      <div className="flex justify-end mt-6">
+      <div className="flex justify-center mt-6">
         <Button
           onClick={() => navigate("/payment")}
-          className="w-full md:w-auto"
+          className="w-48 h-12 text-lg font-medium"
         >
           {t("continue")}
         </Button>

@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Camera, FileText } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface UploadButtonsProps {
   onCameraCapture: () => void;
@@ -12,6 +13,8 @@ export const UploadButtons = ({
   onFileSelect,
   isUploading
 }: UploadButtonsProps) => {
+  const { t } = useLanguage();
+  
   return (
     <div className="grid grid-cols-2 gap-4">
       <Button 
@@ -21,7 +24,7 @@ export const UploadButtons = ({
         disabled={isUploading}
       >
         <Camera className="w-4 h-4" />
-        <span>Take Picture</span>
+        <span>{t("take_picture")}</span>
       </Button>
       
       <Button 
@@ -31,7 +34,7 @@ export const UploadButtons = ({
         disabled={isUploading}
       >
         <FileText className="w-4 h-4" />
-        <span>Upload Files</span>
+        <span>{t("upload_files")}</span>
       </Button>
     </div>
   );

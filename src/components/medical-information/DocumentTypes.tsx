@@ -1,29 +1,32 @@
 import { FileText, Image, FileVideo, FileAudio } from "lucide-react";
 import { DocumentTypeCard } from "./DocumentTypeCard";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const DocumentTypes = () => {
+  const { t } = useLanguage();
+  
   const documentTypes = [
     {
-      title: "Medical Reports",
-      description: "Lab results, prescriptions, and medical records",
+      title: t("medical_reports"),
+      description: t("lab_results"),
       icon: FileText,
       color: "bg-blue-100 text-blue-600",
     },
     {
-      title: "Medical Images",
-      description: "X-rays, MRIs, and other medical images",
+      title: t("medical_images"),
+      description: t("xray_description"),
       icon: Image,
       color: "bg-green-100 text-green-600",
     },
     {
-      title: "Video Reports",
-      description: "Medical procedure videos or consultations",
+      title: t("video_reports"),
+      description: t("video_description"),
       icon: FileVideo,
       color: "bg-purple-100 text-purple-600",
     },
     {
-      title: "Audio Records",
-      description: "Voice notes or audio consultations",
+      title: t("audio_records"),
+      description: t("audio_description"),
       icon: FileAudio,
       color: "bg-orange-100 text-orange-600",
     },
