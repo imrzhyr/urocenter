@@ -49,7 +49,7 @@ export const CallPage = () => {
 
       setCallingUser(data);
       
-      // Only create call record if we're initiating the call and it's not incoming
+      // Only create call record if we're initiating the call
       if (!isIncoming) {
         console.log('Creating outgoing call record:', { caller: profile.id, receiver: userId });
         const { error: callError } = await supabase
@@ -85,7 +85,6 @@ export const CallPage = () => {
         .maybeSingle();
 
       if (error && error.code !== 'PGRST116') {
-        // Only log real errors, not "no rows found"
         console.error('Error checking incoming call:', error);
         return;
       }
