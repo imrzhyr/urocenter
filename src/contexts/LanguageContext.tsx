@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { medicalTranslations } from '@/translations/medicalTranslations';
 
 type Language = 'en' | 'ar';
 
@@ -10,6 +11,7 @@ interface LanguageContextType {
 
 const translations = {
   en: {
+    ...medicalTranslations.en,
     "welcome_back": "Welcome Back",
     "sign_in_continue": "Sign in to continue to your account",
     "continue_with_google": "Continue with Google",
@@ -94,6 +96,7 @@ const translations = {
     "complete_payment": "Complete Payment"
   },
   ar: {
+    ...medicalTranslations.ar,
     "welcome_back": "مرحباً بعودتك",
     "sign_in_continue": "سجل دخولك للمتابعة إلى حسابك",
     "continue_with_google": "المتابعة مع جوجل",
@@ -191,6 +194,7 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
   useEffect(() => {
     document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = language;
+    document.documentElement.style.textAlign = language === 'ar' ? 'right' : 'left';
   }, [language]);
 
   const t = (key: string): string => {
@@ -199,8 +203,10 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t }}>
-      <div dir={language === 'ar' ? 'rtl' : 'ltr'} 
-           className={`${language === 'ar' ? 'font-arabic' : ''} transition-all duration-300`}>
+      <div 
+        dir={language === 'ar' ? 'rtl' : 'ltr'} 
+        className={`${language === 'ar' ? 'font-arabic' : ''} transition-all duration-300`}
+      >
         {children}
       </div>
     </LanguageContext.Provider>
