@@ -21,7 +21,7 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
           .from('calls')
           .select('*')
           .or(`caller_id.eq.${profile.id},receiver_id.eq.${profile.id}`)
-          .eq('status', 'active')
+          .eq('status', 'initiated')
           .single();
 
         if (checkError && checkError.code !== 'PGRST116') {
@@ -60,7 +60,7 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
               .insert({
                 caller_id: profile.id,
                 receiver_id: userId,
-                status: 'active'
+                status: 'initiated'
               });
 
             if (callError) {
@@ -86,7 +86,7 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
           .from('calls')
           .select('*')
           .or(`and(caller_id.eq.${userId},receiver_id.eq.${profile.id}),and(caller_id.eq.${profile.id},receiver_id.eq.${userId})`)
-          .eq('status', 'active')
+          .eq('status', 'initiated')
           .order('started_at', { ascending: false })
           .limit(1);
 
