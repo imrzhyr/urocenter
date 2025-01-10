@@ -46,7 +46,7 @@ export const NotificationsPopover = () => {
       ...(messages?.map(msg => ({
         id: msg.id,
         message: profile.role === 'admin' 
-          ? `${msg.profiles?.full_name || t('someone')} ${t('sent_message')}`
+          ? t('patient_sent_message', { name: msg.profiles?.full_name || t('someone') })
           : msg.is_resolved 
             ? t('doctor_resolved_chat')
             : t('doctor_sent_message'),
