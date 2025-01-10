@@ -96,7 +96,7 @@ export const useCallSubscription = ({
                       onDismiss: async () => {
                         await supabase
                           .from('calls')
-                          .update({ status: 'rejected' })
+                          .update({ status: 'ended' })
                           .eq('id', payload.new.id);
                       }
                     }
@@ -108,20 +108,13 @@ export const useCallSubscription = ({
                   console.log('Call status updated:', payload.new.status);
                   
                   switch (payload.new.status) {
-                    case 'accepted':
+                    case 'connected':
                       onCallAccepted();
                       toast.success('Call connected');
                       break;
                     case 'ended':
                       onCallEnded();
                       toast.info('Call ended');
-                      if (window.location.pathname.includes('/call/')) {
-                        navigate(-1);
-                      }
-                      break;
-                    case 'rejected':
-                      onCallEnded();
-                      toast.info('Call rejected');
                       if (window.location.pathname.includes('/call/')) {
                         navigate(-1);
                       }

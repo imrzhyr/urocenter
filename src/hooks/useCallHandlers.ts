@@ -7,7 +7,6 @@ export const useCallHandlers = (userId: string | undefined, profile: Profile | n
   const [duration, setDuration] = useState(0);
   const [callStartTime, setCallStartTime] = useState<Date>();
 
-  // Update duration every second when call is active
   useEffect(() => {
     let interval: NodeJS.Timeout;
     
@@ -40,12 +39,12 @@ export const useCallHandlers = (userId: string | undefined, profile: Profile | n
         );
       }
 
-      // Get the most recent active call
+      // Get the most recent initiated call
       const { data: activeCalls, error: fetchError } = await supabase
         .from('calls')
         .select('*')
         .or(`caller_id.eq.${profile.id},receiver_id.eq.${profile.id}`)
-        .eq('status', 'active')
+        .eq('status', 'initiated')
         .order('started_at', { ascending: false })
         .limit(1);
 
@@ -88,13 +87,13 @@ export const useCallHandlers = (userId: string | undefined, profile: Profile | n
     try {
       console.log('Accepting call from:', userId);
 
-      // Get the most recent active call
+      // Get the most recent initiated call
       const { data: activeCalls, error: fetchError } = await supabase
         .from('calls')
         .select('*')
         .eq('caller_id', userId)
         .eq('receiver_id', profile.id)
-        .eq('status', 'active')
+        .eq('status', 'initiated')
         .order('started_at', { ascending: false })
         .limit(1);
 
@@ -112,7 +111,7 @@ export const useCallHandlers = (userId: string | undefined, profile: Profile | n
       const { error } = await supabase
         .from('calls')
         .update({ 
-          status: 'accepted',
+          status: 'connected',
           started_at: new Date().toISOString()
         })
         .eq('id', activeCalls[0].id);
@@ -137,13 +136,13 @@ export const useCallHandlers = (userId: string | undefined, profile: Profile | n
     try {
       console.log('Rejecting call from:', userId);
 
-      // Get the most recent active call
+      // Get the most recent initiated call
       const { data: activeCalls, error: fetchError } = await supabase
         .from('calls')
         .select('*')
         .eq('caller_id', userId)
         .eq('receiver_id', profile.id)
-        .eq('status', 'active')
+        .eq('status', 'initiated')
         .order('started_at', { ascending: false })
         .limit(1);
 
@@ -160,7 +159,7 @@ export const useCallHandlers = (userId: string | undefined, profile: Profile | n
 
       const { error } = await supabase
         .from('calls')
-        .update({ status: 'rejected' })
+        .update({ status: 'ended' })
         .eq('id', activeCalls[0].id);
 
       if (error) {

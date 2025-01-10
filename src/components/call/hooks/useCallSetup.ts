@@ -35,7 +35,7 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
           .insert({
             caller_id: profile.id,
             receiver_id: userId,
-            status: 'active'
+            status: 'initiated'
           });
 
         if (callError) {
@@ -51,12 +51,12 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
 
       console.log('Checking for incoming calls - Current user:', profile.id, 'Other user:', userId);
       
-      // Get the most recent active call between these users
+      // Get the most recent initiated call between these users
       const { data: activeCalls, error: fetchError } = await supabase
         .from('calls')
         .select('*')
         .or(`and(caller_id.eq.${userId},receiver_id.eq.${profile.id}),and(caller_id.eq.${profile.id},receiver_id.eq.${userId})`)
-        .eq('status', 'active')
+        .eq('status', 'initiated')
         .order('started_at', { ascending: false })
         .limit(1);
 

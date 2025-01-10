@@ -1,4 +1,4 @@
-export type CallStatus = 'ringing' | 'connected' | 'ended' | 'active' | 'accepted' | 'rejected' | 'initiated';
+export type CallStatus = 'ringing' | 'connected' | 'ended' | 'initiated' | 'missed';
 
 export interface Call {
   id: string;
@@ -8,7 +8,7 @@ export interface Call {
   started_at?: string;
   ended_at?: string;
   duration?: number;
-  created_at?: string; // Added this field
+  created_at?: string;
 }
 
 export interface CallingUser {
