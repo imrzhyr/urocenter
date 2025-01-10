@@ -12,11 +12,11 @@ export const MediaGallery = ({ url, type, name }: MediaGalleryProps) => {
   const isVideo = type?.startsWith('video/');
 
   return (
-    <div className="relative rounded-lg overflow-hidden max-w-[200px]">
+    <div className="relative rounded-lg overflow-hidden max-w-[150px]">
       {isVideo ? (
         <>
           <video 
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover max-h-[150px]"
             controls
             poster={`${url}#t=0.1`}
           >
@@ -30,7 +30,7 @@ export const MediaGallery = ({ url, type, name }: MediaGalleryProps) => {
         <img 
           src={url} 
           alt={name || 'Media'} 
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover max-h-[150px]"
         />
       )}
     </div>

@@ -6,6 +6,7 @@ import { MediaGallery } from "./media/MediaGallery";
 import { useProfile } from "@/hooks/useProfile";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface MessageListProps {
   messages: Message[];
@@ -13,6 +14,7 @@ interface MessageListProps {
 
 export const MessageList = ({ messages }: MessageListProps) => {
   const { profile } = useProfile();
+  const { language } = useLanguage();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -60,7 +62,7 @@ export const MessageList = ({ messages }: MessageListProps) => {
             )}
             <div className="mt-1 text-xs opacity-70 flex justify-between items-center">
               <span className="text-xs opacity-60">
-                {format(new Date(message.created_at || ''), 'HH:mm')}
+                {format(new Date(message.created_at || ''), 'hh:mm a')}
               </span>
               <MessageStatus message={message} />
             </div>
