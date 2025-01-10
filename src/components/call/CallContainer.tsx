@@ -58,20 +58,13 @@ export const CallContainer = ({
         </div>
 
         <div className="w-full max-w-md mx-auto mb-8">
-          {isIncoming ? (
-            <IncomingCallControls
-              onAccept={onAcceptCall}
-              onReject={onRejectCall}
-            />
-          ) : (
-            <CallControls
-              isMuted={isMuted}
-              isSpeaker={isSpeaker}
-              onToggleMute={onToggleMute}
-              onToggleSpeaker={onToggleSpeaker}
-              onEndCall={onEndCall}
-            />
-          )}
+          <CallControls
+            isMuted={isMuted}
+            isSpeaker={isSpeaker}
+            onToggleMute={onToggleMute}
+            onToggleSpeaker={onToggleSpeaker}
+            onEndCall={onEndCall}
+          />
         </div>
       </motion.div>
     </div>

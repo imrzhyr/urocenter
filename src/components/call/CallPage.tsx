@@ -90,7 +90,7 @@ export const CallPage = () => {
   const handleAcceptCall = async () => {
     console.log('Accepting call...');
     await baseHandleAcceptCall();
-    setCallStatus('connected'); // Immediately set status to connected
+    setCallStatus('connected');
     setIsIncoming(false);
     setCallStartTime(new Date());
     startCall().catch(error => {
@@ -115,13 +115,16 @@ export const CallPage = () => {
     navigate('/chat', { replace: true });
   };
 
+  // Only show incoming controls on the IncomingCallDialog, not on the CallPage
+  const showIncomingControls = false;
+
   return (
     <CallContainer
       onBack={onBack}
       duration={duration}
       callStatus={callStatus}
       callingUser={callingUser}
-      isIncoming={isIncoming && callStatus === 'ringing'} // Only show incoming UI if status is ringing
+      isIncoming={showIncomingControls}
       isMuted={isMuted}
       isSpeaker={isSpeaker}
       onToggleMute={() => setIsMuted(!isMuted)}
