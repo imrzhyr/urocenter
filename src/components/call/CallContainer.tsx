@@ -34,6 +34,8 @@ export const CallContainer = ({
   onAcceptCall,
   onRejectCall
 }: CallContainerProps) => {
+  console.log('CallContainer render:', { callStatus, isIncoming });
+  
   return (
     <div className="fixed inset-0 w-screen h-screen bg-gradient-to-b from-primary/20 to-primary/5">
       <motion.div 
@@ -56,7 +58,7 @@ export const CallContainer = ({
         </div>
 
         <div className="w-full max-w-md mx-auto mb-8">
-          {callStatus === 'ringing' && isIncoming ? (
+          {isIncoming ? (
             <IncomingCallControls
               onAccept={onAcceptCall}
               onReject={onRejectCall}

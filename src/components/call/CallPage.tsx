@@ -70,6 +70,7 @@ export const CallPage = () => {
   useCallSubscription({
     userId: userId || '',
     onCallAccepted: () => {
+      console.log('Call accepted, updating status to connected');
       setCallStatus('connected');
       setIsIncoming(false);
       setCallStartTime(new Date());
@@ -79,6 +80,7 @@ export const CallPage = () => {
       });
     },
     onCallEnded: async () => {
+      console.log('Call ended, cleaning up');
       await endWebRTCCall();
       handleEndCall();
       navigate('/chat', { replace: true });
@@ -86,8 +88,11 @@ export const CallPage = () => {
   });
 
   const handleAcceptCall = async () => {
+    console.log('Accepting call...');
     await baseHandleAcceptCall();
+    setCallStatus('connected'); // Immediately set status to connected
     setIsIncoming(false);
+    setCallStartTime(new Date());
     startCall().catch(error => {
       console.error('Error starting WebRTC call:', error);
       toast.error('Failed to establish call connection');
@@ -116,7 +121,7 @@ export const CallPage = () => {
       duration={duration}
       callStatus={callStatus}
       callingUser={callingUser}
-      isIncoming={isIncoming}
+      isIncoming={isIncoming && callStatus === 'ringing'} // Only show incoming UI if status is ringing
       isMuted={isMuted}
       isSpeaker={isSpeaker}
       onToggleMute={() => setIsMuted(!isMuted)}
