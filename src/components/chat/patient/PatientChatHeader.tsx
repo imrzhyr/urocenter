@@ -5,11 +5,14 @@ import { useNavigate } from "react-router-dom";
 import { useProfile } from "@/hooks/useProfile";
 import { ViewReportsDialog } from "@/components/medical-reports/ViewReportsDialog";
 import { useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const PatientChatHeader = () => {
   const navigate = useNavigate();
   const { profile } = useProfile();
   const [showReports, setShowReports] = useState(false);
+  const { language } = useLanguage();
+  const isRTL = language === 'ar';
 
   return (
     <div className="flex items-center gap-4">
@@ -18,7 +21,8 @@ export const PatientChatHeader = () => {
           variant="ghost" 
           size="icon"
           onClick={() => navigate(-1)}
-          className="rounded-full hover:bg-white/20"
+          className={`rounded-full hover:bg-white/20 ${isRTL ? 'rotate-180' : ''}`}
+          dir={isRTL ? 'rtl' : 'ltr'}
         >
           <ArrowLeft className="h-5 w-5 text-white" />
         </Button>
