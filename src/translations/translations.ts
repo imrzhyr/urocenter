@@ -98,6 +98,9 @@ export const translations = {
     "payment_title": "Payment",
     "choose_payment_method": "Choose your preferred payment method",
     "consultation_fee_title": "Consultation Fee",
+    "medical_information_title": "Medical Information",
+    "upload_medical_docs": "Upload your medical documents and reports",
+    "files_uploaded": "files uploaded",
   },
   ar: {
     "welcome_back": "مرحباً بعودتك",
@@ -197,5 +200,8 @@ export const translations = {
     "payment_title": "الدفع",
     "choose_payment_method": "اختر طريقة الدفع المفضلة لديك",
     "consultation_fee_title": "رسوم الاستشارة",
+    "medical_information_title": "المعلومات الطبية",
+    "upload_medical_docs": "قم بتحميل مستنداتك وتقاريرك الطبية",
+    "files_uploaded": "ملفات تم تحميلها",
   }
 };

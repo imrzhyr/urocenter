@@ -5,6 +5,7 @@ import { AudioPlayer } from "./audio/AudioPlayer";
 import { MediaGallery } from "./media/MediaGallery";
 import { useProfile } from "@/hooks/useProfile";
 import { motion } from "framer-motion";
+import { format } from "date-fns";
 
 interface MessageListProps {
   messages: Message[];
@@ -57,7 +58,10 @@ export const MessageList = ({ messages }: MessageListProps) => {
             ) : (
               <p className="break-words">{message.content}</p>
             )}
-            <div className="mt-1 text-xs opacity-70 flex justify-end">
+            <div className="mt-1 text-xs opacity-70 flex justify-between items-center">
+              <span className="text-xs opacity-60">
+                {format(new Date(message.created_at || ''), 'HH:mm')}
+              </span>
               <MessageStatus message={message} />
             </div>
           </div>

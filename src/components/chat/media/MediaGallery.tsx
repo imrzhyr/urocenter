@@ -12,7 +12,7 @@ export const MediaGallery = ({ url, type, name }: MediaGalleryProps) => {
   const isVideo = type?.startsWith('video/');
 
   return (
-    <div className="relative rounded-lg overflow-hidden">
+    <div className="relative rounded-lg overflow-hidden max-w-[200px]">
       {isVideo ? (
         <>
           <video 
