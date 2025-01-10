@@ -16,7 +16,7 @@ interface Notification {
   id: string;
   message: string;
   created_at: string;
-  type: 'message' | 'report' | 'resolved';
+  type: "message" | "report" | "resolved";
   sender_name?: string;
 }
 
@@ -63,17 +63,17 @@ export const NotificationsPopover = () => {
         ...messages.map(msg => ({
           id: msg.id,
           message: profile.role === 'admin'
-            ? `${msg.sender_name || 'Someone'} ${t('notifications.sent_message')}`
+            ? `${msg.sender_name || t('dashboard.notifications.message_from')} ${t('dashboard.notifications.sent_message')}`
             : msg.is_resolved
-              ? t('notifications.resolved_chat')
-              : `Dr. Ali ${t('notifications.sent_message')}`,
+              ? t('dashboard.notifications.resolved_chat')
+              : `Dr. Ali ${t('dashboard.notifications.sent_message')}`,
           created_at: msg.created_at,
-          type: msg.is_resolved ? 'resolved' as const : 'message' as const,
+          type: msg.is_resolved ? ('resolved' as const) : ('message' as const),
           sender_name: msg.sender_name
         })),
         ...reports.map(report => ({
           id: report.id,
-          message: t('notifications.new_report'),
+          message: t('dashboard.notifications.new_report'),
           created_at: report.created_at,
           type: 'report' as const
         }))
@@ -122,7 +122,7 @@ export const NotificationsPopover = () => {
       <PopoverContent className="w-72 p-0 bg-white border shadow-lg" align="end" sideOffset={5}>
         <div className="p-3 border-b">
           <h4 className="font-semibold text-sm text-gray-900">
-            {t('notifications.title')}
+            {t('dashboard.notifications.title')}
           </h4>
         </div>
         <ScrollArea className="h-[300px]">
@@ -144,7 +144,7 @@ export const NotificationsPopover = () => {
             </div>
           ) : (
             <div className="p-3 text-center text-sm text-gray-500">
-              {t('notifications.no_notifications')}
+              {t('dashboard.notifications.no_notifications')}
             </div>
           )}
         </ScrollArea>

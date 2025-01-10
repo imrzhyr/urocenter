@@ -15,6 +15,7 @@ function App() {
       document.documentElement.dir = savedLanguage === 'ar' ? 'rtl' : 'ltr';
       document.documentElement.lang = savedLanguage;
       document.documentElement.style.textAlign = savedLanguage === 'ar' ? 'right' : 'left';
+      document.documentElement.classList.toggle('font-arabic', savedLanguage === 'ar');
     }
   }, []);
 
