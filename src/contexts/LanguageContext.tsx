@@ -1,5 +1,3 @@
-// Since this file is getting too long, I'll refactor it into smaller files. For now, I'll update the translations:
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { medicalTranslations } from '@/translations/medicalTranslations';
 
@@ -71,10 +69,8 @@ const translations = {
     "schedule_checkups": "Schedule regular check-ups for prostate health",
     "monitor_habits": "Monitor your urinary habits and report changes",
     "start_journey": "Start Your Journey",
-    "already_account": "Already have an account?",
     "doctor_name": "Dr. Ali Kamal",
     "doctor_title": "Urologist Consultant & Surgeon",
-    "create_account": "Create an account",
     "signup_subtitle": "Sign up to get started with your medical journey",
     "complete_profile": "Complete Your Profile",
     "profile_subtitle": "Please provide your basic information to continue",
@@ -153,10 +149,8 @@ const translations = {
     "schedule_checkups": "جدولة فحوصات منتظمة لصحة البروستاتا",
     "monitor_habits": "راقب عاداتك البولية وأبلغ عن التغييرات",
     "start_journey": "ابدأ رحلتك",
-    "already_account": "هل لديك حساب بالفعل؟",
     "doctor_name": "د. علي كمال",
     "doctor_title": "استشاري جراحة المسالك البولية",
-    "create_account": "إنشاء حساب جديد",
     "signup_subtitle": "سجل للبدء في رحلتك الطبية",
     "complete_profile": "أكمل ملفك الشخصي",
     "profile_subtitle": "يرجى تقديم معلوماتك الأساسية للمتابعة",
