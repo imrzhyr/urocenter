@@ -18,6 +18,8 @@ export const CallMessage = ({ call, callerName, receiverName }: CallMessageProps
         return 'Call was rejected';
       case 'initiated':
         return 'Call was cancelled';
+      case 'missed':
+        return 'Call was missed';
       default:
         return 'Call attempt';
     }

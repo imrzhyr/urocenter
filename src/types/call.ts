@@ -1,4 +1,4 @@
-export type CallStatus = 'ringing' | 'connected' | 'ended' | 'initiated' | 'missed';
+export type CallStatus = 'ringing' | 'connected' | 'ended' | 'initiated' | 'missed' | 'rejected';
 
 export interface Call {
   id: string;
