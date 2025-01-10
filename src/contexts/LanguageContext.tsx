@@ -22,6 +22,7 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = lang;
     document.documentElement.style.textAlign = lang === 'ar' ? 'right' : 'left';
+    localStorage.setItem('preferredLanguage', lang);
   };
 
   return (
