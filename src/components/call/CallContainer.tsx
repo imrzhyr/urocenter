@@ -39,9 +39,9 @@ export const CallContainer = ({
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full h-full flex items-center justify-center p-4"
+        className="w-full h-full flex flex-col justify-between p-4"
       >
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
+        <div className="w-full max-w-md mx-auto">
           <CallHeader 
             onBack={onBack}
             duration={duration}
@@ -53,7 +53,9 @@ export const CallContainer = ({
             callStatus={callStatus}
             isIncoming={isIncoming}
           />
+        </div>
 
+        <div className="w-full max-w-md mx-auto mb-8">
           {callStatus === 'ringing' && isIncoming ? (
             <IncomingCallControls
               onAccept={onAcceptCall}

@@ -17,7 +17,7 @@ export const CallInfo = ({ callingUser, callStatus, isIncoming }: CallInfoProps)
       <h2 className="text-xl font-semibold mb-2">{callingUser?.full_name}</h2>
       <p className="text-gray-500">
         {callStatus === 'ringing' && (isIncoming ? 'Incoming call...' : 'Calling...')}
-        {callStatus === 'connected' && 'In call'}
+        {callStatus === 'connected' && 'On call'}
         {callStatus === 'ended' && 'Call ended'}
       </p>
     </div>

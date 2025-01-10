@@ -21,7 +21,7 @@ export const CallControls = ({
       <Button
         variant="outline"
         size="lg"
-        className={`flex flex-col items-center justify-center h-20 ${
+        className={`flex flex-col items-center justify-center h-20 rounded-full ${
           isMuted ? 'bg-red-50 hover:bg-red-100 border-red-200' : ''
         }`}
         onClick={onToggleMute}
@@ -39,7 +39,7 @@ export const CallControls = ({
       <Button
         variant="outline"
         size="lg"
-        className={`flex flex-col items-center justify-center h-20 ${
+        className={`flex flex-col items-center justify-center h-20 rounded-full ${
           isSpeaker ? 'bg-primary/10 border-primary/20' : ''
         }`}
         onClick={onToggleSpeaker}
@@ -53,7 +53,7 @@ export const CallControls = ({
       <Button
         variant="destructive"
         size="lg"
-        className="flex flex-col items-center justify-center h-20"
+        className="flex flex-col items-center justify-center h-20 rounded-full"
         onClick={onEndCall}
       >
         <div className="flex flex-col items-center">
