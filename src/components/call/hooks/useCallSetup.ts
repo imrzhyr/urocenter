@@ -57,7 +57,7 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
         .select('*')
         .or(`and(caller_id.eq.${userId},receiver_id.eq.${profile.id}),and(caller_id.eq.${profile.id},receiver_id.eq.${userId})`)
         .eq('status', 'active')
-        .order('created_at', { ascending: false })
+        .order('started_at', { ascending: false })  // Changed from created_at to started_at
         .limit(1);
 
       if (fetchError) {
