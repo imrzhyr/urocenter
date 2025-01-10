@@ -23,7 +23,7 @@ export const useCallSubscription = ({
 
     console.log('Setting up call subscription for user:', profile.id);
 
-    // Create a unique channel for this user
+    // Create a unique channel for this user's calls
     const channel = supabase
       .channel(`calls_${profile.id}`)
       .on(
@@ -37,22 +37,26 @@ export const useCallSubscription = ({
         async (payload) => {
           console.log('Received call update:', payload);
 
-          // Handle new incoming calls
-          if (payload.eventType === 'INSERT' && payload.new.status === 'active') {
-            console.log('New incoming call detected:', {
-              caller: payload.new.caller_id,
-              receiver: payload.new.receiver_id,
-              currentUser: profile.id
-            });
+          if (payload.eventType === 'INSERT') {
+            console.log('New call detected:', payload.new);
             
-            // Only show notification if we're the receiver
-            if (payload.new.receiver_id === profile.id) {
-              console.log('We are the receiver, showing notification');
+            // Only show notification for active calls where we're the receiver
+            if (payload.new.status === 'active' && payload.new.receiver_id === profile.id) {
+              console.log('Incoming call detected, showing notifications');
               
+              // Get caller details
+              const { data: callerData } = await supabase
+                .from('profiles')
+                .select('full_name')
+                .eq('id', payload.new.caller_id)
+                .single();
+              
+              const callerName = callerData?.full_name || 'Someone';
+
               // Show browser notification
               if ('Notification' in window && Notification.permission === 'granted') {
                 const notification = new Notification('Incoming Call', {
-                  body: 'Someone is calling you',
+                  body: `${callerName} is calling you`,
                   icon: '/favicon.ico',
                   requireInteraction: true
                 });
@@ -63,14 +67,24 @@ export const useCallSubscription = ({
                 };
               }
 
-              // Show toast notification that stays until action is taken
-              toast.info('Incoming call...', {
-                action: {
-                  label: 'Answer',
-                  onClick: () => navigate(`/call/${payload.new.caller_id}`)
-                },
-                duration: Infinity, // Toast will stay until user takes action
-              });
+              // Show persistent toast notification
+              toast.info(
+                `${callerName} is calling...`,
+                {
+                  action: {
+                    label: 'Answer',
+                    onClick: () => navigate(`/call/${payload.new.caller_id}`)
+                  },
+                  duration: Infinity, // Toast will stay until user takes action
+                  onDismiss: () => {
+                    // Update call status to rejected if dismissed
+                    supabase
+                      .from('calls')
+                      .update({ status: 'rejected' })
+                      .eq('id', payload.new.id);
+                  }
+                }
+              );
             }
           } else if (payload.eventType === 'UPDATE') {
             const newStatus = payload.new.status;
@@ -78,10 +92,11 @@ export const useCallSubscription = ({
 
             if (newStatus === 'accepted') {
               onCallAccepted();
+              toast.success('Call connected');
             } else if (newStatus === 'ended' || newStatus === 'rejected') {
               onCallEnded();
-              // Show toast when call ends
               toast.info(newStatus === 'ended' ? 'Call ended' : 'Call rejected');
+              
               // Navigate away from call page if we're on it
               if (window.location.pathname.includes('/call/')) {
                 navigate(-1);
@@ -94,7 +109,7 @@ export const useCallSubscription = ({
         console.log('Call subscription status:', status);
       });
 
-    // Request notification permission on component mount
+    // Request notification permission if not already granted
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission();
     }
@@ -103,5 +118,5 @@ export const useCallSubscription = ({
       console.log('Cleaning up call subscription');
       supabase.removeChannel(channel);
     };
-  }, [userId, profile?.id, navigate, onCallAccepted, onCallEnded]);
+  }, [profile?.id, navigate, onCallAccepted, onCallEnded]);
 };
