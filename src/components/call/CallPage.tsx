@@ -21,6 +21,7 @@ export const CallPage = () => {
     callStatus,
     setCallStatus,
     isIncoming,
+    setIsIncoming,
     activeCallId
   } = useCallSetup(userId, profile);
 
@@ -70,6 +71,7 @@ export const CallPage = () => {
     userId: userId || '',
     onCallAccepted: () => {
       setCallStatus('connected');
+      setIsIncoming(false); // Update isIncoming when call is accepted
       setCallStartTime(new Date());
       startCall().catch(error => {
         console.error('Error starting WebRTC call:', error);
@@ -85,6 +87,7 @@ export const CallPage = () => {
 
   const handleAcceptCall = async () => {
     await baseHandleAcceptCall();
+    setIsIncoming(false); // Update isIncoming when accepting call
     startCall().catch(error => {
       console.error('Error starting WebRTC call:', error);
       toast.error('Failed to establish call connection');

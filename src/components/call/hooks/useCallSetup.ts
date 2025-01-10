@@ -28,7 +28,7 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
 
       setCallingUser(data);
       
-      // Check for existing active calls before creating a new one
+      // Check for existing active calls
       const { data: existingCalls, error: checkError } = await supabase
         .from('calls')
         .select('*')
@@ -90,6 +90,7 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
     callStatus,
     setCallStatus,
     isIncoming,
+    setIsIncoming,
     activeCallId
   };
 };
