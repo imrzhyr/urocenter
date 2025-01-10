@@ -21,9 +21,7 @@ export const useIncomingCalls = () => {
           event: 'INSERT',
           schema: 'public',
           table: 'calls',
-          filter: profile.role === 'admin' 
-            ? `receiver_id=eq.${profile.id}`
-            : `receiver_id=eq.${profile.id}`,
+          filter: `receiver_id=eq.${profile.id}`,
         },
         async (payload) => {
           console.log('Received new call:', payload);
@@ -77,7 +75,13 @@ export const useIncomingCalls = () => {
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Call subscription status:', status);
+        
+        if (status === 'SUBSCRIBED') {
+          console.log('Call subscription active');
+        }
+      });
 
     // Also listen for call status changes
     const statusChannel = supabase
@@ -95,6 +99,9 @@ export const useIncomingCalls = () => {
           
           if (payload.new.status === 'ended') {
             toast.error('Call ended');
+            if (window.location.pathname.includes('/call/')) {
+              navigate(-1);
+            }
           }
         }
       )
