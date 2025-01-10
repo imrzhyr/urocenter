@@ -19,118 +19,110 @@ export const useCallSubscription = ({
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!profile?.id) return;
+    if (!profile?.id) {
+      console.log('No profile ID available for call subscription');
+      return;
+    }
 
-    console.log('Setting up call subscription for user:', profile.id);
+    console.log('Setting up call subscriptions for user:', profile.id);
 
-    // Create a channel specifically for incoming calls
-    const incomingChannel = supabase
-      .channel(`incoming_calls_${profile.id}`)
+    // Create a single channel for all call-related events
+    const callChannel = supabase
+      .channel(`calls_${profile.id}`)
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
           table: 'calls',
-          filter: `receiver_id=eq.${profile.id}`,
+          filter: `or(receiver_id.eq.${profile.id},caller_id.eq.${profile.id})`,
         },
         async (payload) => {
-          console.log('Received call update for receiver:', payload);
+          console.log('Received call event:', payload);
 
-          if (payload.eventType === 'INSERT') {
-            // Only handle active calls where we're the receiver
-            if (payload.new.status === 'active' && payload.new.receiver_id === profile.id) {
-              console.log('New incoming call detected:', payload.new);
-              
-              // Get caller details
-              const { data: callerData } = await supabase
-                .from('profiles')
-                .select('full_name')
-                .eq('id', payload.new.caller_id)
-                .single();
-              
-              const callerName = callerData?.full_name || 'Someone';
-
-              // Show browser notification
-              if ('Notification' in window && Notification.permission === 'granted') {
-                const notification = new Notification('Incoming Call', {
-                  body: `${callerName} is calling you`,
-                  icon: '/favicon.ico',
-                  requireInteraction: true
-                });
-
-                notification.onclick = () => {
-                  window.focus();
-                  navigate(`/call/${payload.new.caller_id}`);
-                };
-              }
-
-              // Show persistent toast notification
-              toast.info(
-                `${callerName} is calling...`,
-                {
-                  action: {
-                    label: 'Answer',
-                    onClick: () => navigate(`/call/${payload.new.caller_id}`)
-                  },
-                  duration: Infinity,
-                  onDismiss: () => {
-                    supabase
-                      .from('calls')
-                      .update({ status: 'rejected' })
-                      .eq('id', payload.new.id);
-                  }
-                }
-              );
-            }
-          }
-        }
-      )
-      .subscribe((status) => {
-        console.log('Incoming calls subscription status:', status);
-      });
-
-    // Create a separate channel for call status updates
-    const statusChannel = supabase
-      .channel(`call_status_${profile.id}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'calls',
-          filter: `or(caller_id=eq.${profile.id},receiver_id=eq.${profile.id})`,
-        },
-        (payload) => {
-          console.log('Call status update:', payload);
-          
-          const newStatus = payload.new.status;
-          if (newStatus === 'accepted') {
-            onCallAccepted();
-            toast.success('Call connected');
-          } else if (newStatus === 'ended' || newStatus === 'rejected') {
-            onCallEnded();
-            toast.info(newStatus === 'ended' ? 'Call ended' : 'Call rejected');
+          // Handle new incoming calls
+          if (payload.eventType === 'INSERT' && payload.new.receiver_id === profile.id) {
+            console.log('New incoming call detected:', payload.new);
             
-            if (window.location.pathname.includes('/call/')) {
-              navigate(-1);
+            // Get caller details
+            const { data: callerData } = await supabase
+              .from('profiles')
+              .select('full_name')
+              .eq('id', payload.new.caller_id)
+              .single();
+            
+            const callerName = callerData?.full_name || 'Someone';
+
+            // Show browser notification if permitted
+            if ('Notification' in window && Notification.permission === 'granted') {
+              new Notification('Incoming Call', {
+                body: `${callerName} is calling you`,
+                icon: '/favicon.ico',
+                requireInteraction: true
+              }).onclick = () => {
+                window.focus();
+                navigate(`/call/${payload.new.caller_id}`);
+              };
+            }
+
+            // Show toast notification
+            toast.info(
+              `${callerName} is calling...`,
+              {
+                action: {
+                  label: 'Answer',
+                  onClick: () => navigate(`/call/${payload.new.caller_id}`)
+                },
+                duration: Infinity,
+                onDismiss: async () => {
+                  await supabase
+                    .from('calls')
+                    .update({ status: 'rejected' })
+                    .eq('id', payload.new.id);
+                }
+              }
+            );
+          }
+
+          // Handle call status updates
+          if (payload.eventType === 'UPDATE') {
+            console.log('Call status updated:', payload.new.status);
+            
+            switch (payload.new.status) {
+              case 'accepted':
+                onCallAccepted();
+                toast.success('Call connected');
+                break;
+              case 'ended':
+                onCallEnded();
+                toast.info('Call ended');
+                if (window.location.pathname.includes('/call/')) {
+                  navigate(-1);
+                }
+                break;
+              case 'rejected':
+                onCallEnded();
+                toast.info('Call rejected');
+                if (window.location.pathname.includes('/call/')) {
+                  navigate(-1);
+                }
+                break;
             }
           }
         }
       )
       .subscribe((status) => {
-        console.log('Call status subscription status:', status);
+        console.log('Call subscription status:', status);
       });
 
-    // Request notification permission if not already granted
+    // Request notification permission if needed
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission();
     }
 
     return () => {
-      console.log('Cleaning up call subscriptions');
-      supabase.removeChannel(incomingChannel);
-      supabase.removeChannel(statusChannel);
+      console.log('Cleaning up call subscription');
+      supabase.removeChannel(callChannel);
     };
   }, [profile?.id, navigate, onCallAccepted, onCallEnded]);
 };
