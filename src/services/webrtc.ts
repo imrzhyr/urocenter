@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 class WebRTCService {
   private peerConnection: RTCPeerConnection | null = null;
@@ -54,15 +55,30 @@ class WebRTCService {
   }) {
     try {
       console.log('Sending signaling data:', { type, callId, senderId, receiverId });
-      await supabase.from('webrtc_signaling').insert({
+      
+      // First check if we're authenticated
+      const { data: session } = await supabase.auth.getSession();
+      if (!session.session) {
+        throw new Error('Not authenticated');
+      }
+
+      const { error } = await supabase.from('webrtc_signaling').insert({
         call_id: callId,
         sender_id: senderId,
         receiver_id: receiverId,
         type,
         data
       });
+
+      if (error) {
+        console.error('Error sending signaling data:', error);
+        toast.error('Failed to establish connection');
+        throw error;
+      }
     } catch (error) {
       console.error('Error sending signaling data:', error);
+      toast.error('Failed to establish connection');
+      throw error;
     }
   }
 
@@ -73,6 +89,12 @@ class WebRTCService {
       this.remoteUserId = remoteUserId;
 
       console.log('Starting call with:', { callId, userId, remoteUserId });
+
+      // Check authentication before starting
+      const { data: session } = await supabase.auth.getSession();
+      if (!session.session) {
+        throw new Error('Not authenticated');
+      }
 
       // Get local audio stream
       this.localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -99,6 +121,7 @@ class WebRTCService {
       return this.localStream;
     } catch (error) {
       console.error('Error starting call:', error);
+      toast.error('Could not start call. Please check your microphone permissions.');
       throw error;
     }
   }
@@ -111,6 +134,12 @@ class WebRTCService {
     console.log('Handling incoming call:', { callId, userId, remoteUserId });
 
     try {
+      // Check authentication before proceeding
+      const { data: session } = await supabase.auth.getSession();
+      if (!session.session) {
+        throw new Error('Not authenticated');
+      }
+
       this.localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
       
       this.localStream.getTracks().forEach(track => {
@@ -122,6 +151,7 @@ class WebRTCService {
       return this.localStream;
     } catch (error) {
       console.error('Error handling incoming call:', error);
+      toast.error('Could not handle incoming call');
       throw error;
     }
   }
@@ -129,6 +159,13 @@ class WebRTCService {
   async acceptCall(offer: RTCSessionDescriptionInit) {
     try {
       console.log('Accepting call with offer:', offer);
+      
+      // Check authentication before accepting
+      const { data: session } = await supabase.auth.getSession();
+      if (!session.session) {
+        throw new Error('Not authenticated');
+      }
+
       await this.peerConnection?.setRemoteDescription(new RTCSessionDescription(offer));
       const answer = await this.peerConnection?.createAnswer();
       await this.peerConnection?.setLocalDescription(answer);
@@ -144,6 +181,7 @@ class WebRTCService {
       }
     } catch (error) {
       console.error('Error accepting call:', error);
+      toast.error('Could not accept call');
       throw error;
     }
   }
@@ -154,6 +192,7 @@ class WebRTCService {
       await this.peerConnection?.setRemoteDescription(new RTCSessionDescription(answer));
     } catch (error) {
       console.error('Error handling answer:', error);
+      toast.error('Error establishing connection');
       throw error;
     }
   }
@@ -164,6 +203,7 @@ class WebRTCService {
       await this.peerConnection?.addIceCandidate(new RTCIceCandidate(candidate));
     } catch (error) {
       console.error('Error handling ICE candidate:', error);
+      toast.error('Error establishing connection');
     }
   }
 
