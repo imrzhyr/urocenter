@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useProfile } from './useProfile';
 import { toast } from 'sonner';
+import { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
+import { Call } from '@/types/call';
 
 export const useIncomingCalls = () => {
   const { profile } = useProfile();
@@ -30,16 +32,24 @@ export const useIncomingCalls = () => {
           table: 'calls',
           filter: `or(receiver_id.eq.${profile.id},caller_id.eq.${profile.id})`
         },
-        async (payload) => {
+        async (payload: RealtimePostgresChangesPayload<Call>) => {
           console.log('Received call payload:', payload);
 
-          if (payload.new.status === 'initiated' && payload.new.receiver_id === profile.id) {
+          // Type guard to ensure we have the new record data
+          if (!payload.new || typeof payload.new !== 'object') {
+            console.error('Invalid payload received:', payload);
+            return;
+          }
+
+          const newCall = payload.new as Call;
+
+          if (newCall.status === 'initiated' && newCall.receiver_id === profile.id) {
             try {
               // Fetch caller details
               const { data: callerData, error: callerError } = await supabase
                 .from('profiles')
                 .select('full_name')
-                .eq('id', payload.new.caller_id)
+                .eq('id', newCall.caller_id)
                 .single();
 
               if (callerError) {
@@ -65,15 +75,15 @@ export const useIncomingCalls = () => {
                 {
                   action: {
                     label: 'Answer',
-                    onClick: () => navigate(`/call/${payload.new.caller_id}`)
+                    onClick: () => navigate(`/call/${newCall.caller_id}`)
                   },
                   duration: Infinity,
                   onDismiss: async () => {
-                    console.log('Rejecting call:', payload.new.id);
+                    console.log('Rejecting call:', newCall.id);
                     const { error } = await supabase
                       .from('calls')
                       .update({ status: 'ended' })
-                      .eq('id', payload.new.id);
+                      .eq('id', newCall.id);
 
                     if (error) {
                       console.error('Error rejecting call:', error);
