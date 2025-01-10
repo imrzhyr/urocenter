@@ -5,7 +5,7 @@ import type { Language } from '@/types/language';
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (key: string) => string;
+  t: (key: string, options?: Record<string, any>) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType>({
