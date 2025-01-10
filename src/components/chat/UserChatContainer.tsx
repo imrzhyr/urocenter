@@ -3,11 +3,17 @@ import { MessageContainer } from "./MessageContainer";
 import { PatientChatHeader } from "./patient/PatientChatHeader";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useChat } from "@/hooks/useChat";
+import { useEffect } from "react";
 
 export const UserChatContainer = () => {
   const { profile } = useProfile();
-  const { messages, isLoading, sendMessage } = useChat(profile?.id);
+  const { messages, isLoading, sendMessage, refreshMessages } = useChat(profile?.id);
   useAuthRedirect();
+
+  // Refresh messages when component mounts or after returning from a call
+  useEffect(() => {
+    refreshMessages();
+  }, [refreshMessages]);
 
   const handleSendMessage = async (content: string, fileInfo?: { url: string; name: string; type: string }) => {
     if (!profile?.id) {
