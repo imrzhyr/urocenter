@@ -24,8 +24,8 @@ export const PhoneInput = ({ value, onChange, isSignUp = false, onSignUpSuccess 
     // Remove any non-digit characters
     const cleanPhone = phone.replace(/\D/g, '');
     
-    // For testing purposes, allow any number starting with 770
-    if (cleanPhone.startsWith('770')) {
+    // For testing purposes, only allow 7700000000
+    if (cleanPhone === '7700000000') {
       return true;
     }
 

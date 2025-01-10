@@ -96,6 +96,7 @@ export const translations = {
     "enter_age": "Enter your age",
     "medical_complaint": "Medical Complaint *",
     "continue": "Continue",
+    "choose_payment_method": "Choose Payment Method",
   },
   ar: {
     "welcome_back": "مرحباً بعودتك",
@@ -192,5 +193,6 @@ export const translations = {
     "enter_age": "أدخل عمرك",
     "medical_complaint": "الشكوى الطبية *",
     "continue": "متابعة",
+    "choose_payment_method": "اختر طريقة الدفع",
   }
 };
