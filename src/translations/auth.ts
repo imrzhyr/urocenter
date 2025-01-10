@@ -1,0 +1,50 @@
+export const authTranslations = {
+  en: {
+    welcomeBack: "Welcome Back",
+    signInContinue: "Sign in to continue to your account",
+    continueWithGoogle: "Continue with Google",
+    enterPhone: "Enter your phone number",
+    enterPassword: "Enter your password",
+    signIn: "Sign in",
+    noAccount: "Don't have an account?",
+    signUp: "Sign up",
+    hasAccount: "Already have an account?",
+    createAccount: "Create Account",
+    invalidPhone: "Please enter a valid Iraqi phone number",
+    signupSuccess: "Account created successfully!",
+    signupError: "Error creating account",
+    phoneExists: "This phone number is already registered",
+    passwordRequirements: {
+      minChars: "At least 8 characters",
+      upperCase: "One uppercase letter",
+      lowerCase: "One lowercase letter",
+      number: "One number",
+      special: "One special character"
+    },
+    creatingAccount: "Creating your account...",
+  },
+  ar: {
+    welcomeBack: "مرحباً بعودتك",
+    signInContinue: "سجل دخولك للمتابعة إلى حسابك",
+    continueWithGoogle: "المتابعة مع جوجل",
+    enterPhone: "أدخل رقم هاتفك",
+    enterPassword: "أدخل كلمة المرور",
+    signIn: "تسجيل الدخول",
+    noAccount: "ليس لديك حساب؟",
+    signUp: "إنشاء حساب",
+    hasAccount: "لديك حساب بالفعل؟",
+    createAccount: "إنشاء حساب جديد",
+    invalidPhone: "الرجاء إدخال رقم هاتف عراقي صحيح",
+    signupSuccess: "تم إنشاء الحساب بنجاح!",
+    signupError: "خطأ في إنشاء الحساب",
+    phoneExists: "رقم الهاتف مسجل بالفعل",
+    passwordRequirements: {
+      minChars: "على الأقل 8 أحرف",
+      upperCase: "حرف كبير واحد",
+      lowerCase: "حرف صغير واحد",
+      number: "رقم واحد",
+      special: "حرف خاص واحد"
+    },
+    creatingAccount: "جاري إنشاء حسابك...",
+  }
+};
