@@ -83,6 +83,7 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
               toast.error('Could not initiate call');
               return;
             }
+            console.log('Call record created successfully');
           }
         }
       } catch (error) {
@@ -91,49 +92,7 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
       }
     };
 
-    const checkIfIncoming = async () => {
-      if (!profile?.id || !userId) {
-        console.log('Missing profile.id or userId for incoming check');
-        return;
-      }
-
-      try {
-        console.log('Checking for incoming calls - Current user:', profile.id, 'Other user:', userId);
-        
-        const { data: activeCalls, error: fetchError } = await supabase
-          .from('calls')
-          .select('*')
-          .or(`and(caller_id.eq.${userId},receiver_id.eq.${profile.id}),and(caller_id.eq.${profile.id},receiver_id.eq.${userId})`)
-          .eq('status', 'initiated')
-          .order('started_at', { ascending: false })
-          .limit(1);
-
-        if (fetchError) {
-          console.error('Error checking incoming call:', fetchError);
-          return;
-        }
-
-        if (activeCalls && activeCalls.length > 0 && isMounted) {
-          const activeCall = activeCalls[0];
-          console.log('Active call found:', activeCall);
-
-          if (activeCall.receiver_id === profile.id && activeCall.caller_id === userId) {
-            console.log('Setting as incoming call - we are the receiver');
-            setIsIncoming(true);
-            setCallStatus('ringing');
-          } else if (activeCall.caller_id === profile.id && activeCall.receiver_id === userId) {
-            console.log('Setting as outgoing call - we are the caller');
-            setIsIncoming(false);
-            setCallStatus('ringing');
-          }
-        }
-      } catch (error) {
-        console.error('Error checking incoming calls:', error);
-      }
-    };
-
     fetchUserDetails();
-    checkIfIncoming();
 
     return () => {
       isMounted = false;
