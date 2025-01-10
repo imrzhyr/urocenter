@@ -106,6 +106,8 @@ export const MessageList = ({ messages }: MessageListProps) => {
 
   const items = getAllItems();
 
+  const isAdmin = profile?.role === 'admin';
+
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-4" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       {items.map((item, index) => {
@@ -128,23 +130,24 @@ export const MessageList = ({ messages }: MessageListProps) => {
         }
 
         const message = item as Message;
-        const isFromDoctor = message.is_from_doctor;
+        const isFromCurrentUser = isAdmin ? message.is_from_doctor : !message.is_from_doctor;
         const shouldReverse = language === 'ar';
+        
         const justifyClass = shouldReverse
-          ? isFromDoctor ? "justify-start" : "justify-end"
-          : isFromDoctor ? "justify-end" : "justify-start";
+          ? isFromCurrentUser ? "justify-end" : "justify-start"
+          : isFromCurrentUser ? "justify-end" : "justify-start";
 
         const marginClass = shouldReverse
-          ? isFromDoctor ? "mr-2" : "ml-2"
-          : isFromDoctor ? "ml-2" : "mr-2";
+          ? isFromCurrentUser ? "ml-2" : "mr-2"
+          : isFromCurrentUser ? "ml-2" : "mr-2";
 
         const roundedClass = shouldReverse
-          ? isFromDoctor
-            ? "rounded-r-lg rounded-bl-lg"
-            : "rounded-l-lg rounded-br-lg"
-          : isFromDoctor
+          ? isFromCurrentUser
             ? "rounded-l-lg rounded-br-lg"
-            : "rounded-r-lg rounded-bl-lg";
+            : "rounded-r-lg rounded-bl-lg"
+          : isFromCurrentUser
+            ? "rounded-r-lg rounded-bl-lg"
+            : "rounded-l-lg rounded-br-lg";
 
         return (
           <div key={message.id}>
@@ -157,7 +160,7 @@ export const MessageList = ({ messages }: MessageListProps) => {
             >
               <div
                 className={`max-w-[70%] ${
-                  message.is_from_doctor
+                  isFromCurrentUser
                     ? "bg-primary text-white"
                     : "bg-gray-100 dark:bg-gray-800"
                 } ${roundedClass} ${marginClass} p-3 shadow-sm`}
@@ -183,7 +186,7 @@ export const MessageList = ({ messages }: MessageListProps) => {
                   <span className="text-xs opacity-60">
                     {format(new Date(message.created_at || ''), 'hh:mm a')}
                   </span>
-                  {!message.is_from_doctor && <MessageStatus message={message} />}
+                  {isFromCurrentUser && <MessageStatus message={message} />}
                 </div>
               </div>
             </motion.div>

@@ -44,7 +44,8 @@ export const useChat = (userId?: string) => {
           .from('messages')
           .update({ 
             seen_at: new Date().toISOString(),
-            status: 'seen'
+            status: 'seen',
+            delivered_at: new Date().toISOString()
           })
           .in('id', unseenMessages.map(m => m.id));
 
@@ -109,6 +110,7 @@ export const useChat = (userId?: string) => {
   useEffect(() => {
     fetchMessages();
 
+    // Subscribe to message updates
     const channel = supabase
       .channel(`messages_${userId}`)
       .on(
@@ -126,11 +128,44 @@ export const useChat = (userId?: string) => {
       )
       .subscribe();
 
+    // Subscribe to call notifications
+    const callChannel = supabase
+      .channel(`calls_${profile?.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'calls',
+          filter: `receiver_id=eq.${profile?.id}`
+        },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            // Show notification for incoming call
+            if ('Notification' in window && Notification.permission === 'granted') {
+              new Notification('Incoming Call', {
+                body: 'Someone is calling you',
+                icon: '/favicon.ico'
+              });
+            }
+            // Navigate to call page
+            window.location.href = `/call/${payload.new.caller_id}`;
+          }
+        }
+      )
+      .subscribe();
+
+    // Request notification permission
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+
     return () => {
-      console.log('Cleaning up subscription');
+      console.log('Cleaning up subscriptions');
       supabase.removeChannel(channel);
+      supabase.removeChannel(callChannel);
     };
-  }, [userId]);
+  }, [userId, profile?.id]);
 
   return {
     messages,
