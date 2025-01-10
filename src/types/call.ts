@@ -8,6 +8,7 @@ export interface Call {
   started_at?: string;
   ended_at?: string;
   duration?: number;
+  created_at?: string; // Added this field
 }
 
 export interface CallingUser {

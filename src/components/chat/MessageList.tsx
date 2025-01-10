@@ -9,7 +9,7 @@ import { format, isToday, isYesterday, isSameDay } from "date-fns";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ar } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
-import { Call } from "@/types/call";
+import { Call, CallStatus } from "@/types/call";
 import { CallMessage } from "./CallMessage";
 
 interface MessageListProps {
@@ -34,7 +34,13 @@ export const MessageList = ({ messages }: MessageListProps) => {
         .order('started_at', { ascending: true });
 
       if (callsData) {
-        setCalls(callsData);
+        // Convert the status to CallStatus type and add created_at
+        const formattedCalls: Call[] = callsData.map(call => ({
+          ...call,
+          status: call.status as CallStatus,
+          created_at: call.started_at || call.ended_at || ''
+        }));
+        setCalls(formattedCalls);
         
         // Fetch names for all unique user IDs
         const userIds = new Set(callsData.flatMap(call => [call.caller_id, call.receiver_id]));
@@ -89,7 +95,7 @@ export const MessageList = ({ messages }: MessageListProps) => {
     calls.forEach(call => {
       items.push({
         ...call,
-        created_at: call.started_at || call.ended_at || '',
+        created_at: call.started_at || call.ended_at || ''
       });
     });
 
