@@ -9,6 +9,8 @@ export const useWebRTC = (callId: string, userId: string, remoteUserId: string) 
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
+    console.log('Setting up WebRTC with:', { callId, userId, remoteUserId });
+    
     const channel = supabase.channel(`webrtc_${callId}`)
       .on(
         'postgres_changes',
@@ -25,6 +27,7 @@ export const useWebRTC = (callId: string, userId: string, remoteUserId: string) 
             switch (type) {
               case 'offer':
                 if (payload.new.receiver_id === userId) {
+                  console.log('Handling incoming call offer');
                   const stream = await webRTCService.handleIncomingCall(callId, userId, remoteUserId);
                   setLocalStream(stream);
                   await webRTCService.acceptCall(data);
@@ -32,12 +35,14 @@ export const useWebRTC = (callId: string, userId: string, remoteUserId: string) 
                 break;
               case 'answer':
                 if (payload.new.receiver_id === userId) {
+                  console.log('Handling call answer');
                   await webRTCService.handleAnswer(data);
                   setIsConnected(true);
                 }
                 break;
               case 'ice-candidate':
                 if (payload.new.receiver_id === userId) {
+                  console.log('Handling ICE candidate');
                   await webRTCService.handleIceCandidate(data);
                 }
                 break;
@@ -58,6 +63,7 @@ export const useWebRTC = (callId: string, userId: string, remoteUserId: string) 
       .subscribe();
 
     return () => {
+      console.log('Cleaning up WebRTC connection');
       supabase.removeChannel(channel);
       webRTCService.endCall();
     };
@@ -65,6 +71,7 @@ export const useWebRTC = (callId: string, userId: string, remoteUserId: string) 
 
   const startCall = async () => {
     try {
+      console.log('Starting WebRTC call:', { callId, userId, remoteUserId });
       const stream = await webRTCService.startCall(callId, userId, remoteUserId);
       setLocalStream(stream);
     } catch (error) {
@@ -74,6 +81,7 @@ export const useWebRTC = (callId: string, userId: string, remoteUserId: string) 
   };
 
   const endCall = async () => {
+    console.log('Ending WebRTC call');
     await webRTCService.endCall();
     setLocalStream(null);
     setRemoteStream(null);

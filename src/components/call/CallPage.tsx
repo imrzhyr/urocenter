@@ -20,7 +20,8 @@ export const CallPage = () => {
     callingUser,
     callStatus,
     setCallStatus,
-    isIncoming
+    isIncoming,
+    activeCallId
   } = useCallSetup(userId, profile);
 
   const {
@@ -39,7 +40,7 @@ export const CallPage = () => {
     startCall,
     endCall: endWebRTCCall
   } = useWebRTC(
-    `${profile?.id}-${userId}`, 
+    activeCallId || '', 
     profile?.id || '', 
     userId || ''
   );

@@ -8,6 +8,7 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
   const [callingUser, setCallingUser] = useState<CallingUser | null>(null);
   const [callStatus, setCallStatus] = useState<CallStatus>('ringing');
   const [isIncoming, setIsIncoming] = useState(false);
+  const [activeCallId, setActiveCallId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -44,6 +45,7 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
       if (existingCalls && existingCalls.length > 0) {
         const activeCall = existingCalls[0];
         console.log('Found existing call:', activeCall);
+        setActiveCallId(activeCall.id);
         
         if (activeCall.caller_id === profile.id) {
           console.log('We are the caller in the existing call');
@@ -58,13 +60,15 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
       // Only create new call if we're on the call page and there's no existing call
       if (window.location.pathname.includes('/call/')) {
         console.log('Creating new outgoing call:', { caller: profile.id, receiver: userId });
-        const { error: callError } = await supabase
+        const { data: newCall, error: callError } = await supabase
           .from('calls')
           .insert({
             caller_id: profile.id,
             receiver_id: userId,
             status: 'initiated'
-          });
+          })
+          .select()
+          .single();
 
         if (callError) {
           console.error('Error creating call record:', callError);
@@ -73,7 +77,8 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
         }
         
         setIsIncoming(false);
-        console.log('New outgoing call created successfully');
+        setActiveCallId(newCall.id);
+        console.log('New outgoing call created successfully:', newCall);
       }
     };
 
@@ -84,6 +89,7 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
     callingUser,
     callStatus,
     setCallStatus,
-    isIncoming
+    isIncoming,
+    activeCallId
   };
 };
