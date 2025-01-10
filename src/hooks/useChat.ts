@@ -3,11 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Message } from "@/types/profile";
 import { toast } from "sonner";
 import { useProfile } from "./useProfile";
+import { useNavigate } from "react-router-dom";
 
 export const useChat = (userId?: string) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { profile } = useProfile();
+  const navigate = useNavigate();
 
   const fetchMessages = async () => {
     if (!userId) {
@@ -111,7 +113,7 @@ export const useChat = (userId?: string) => {
     fetchMessages();
 
     // Subscribe to message updates
-    const channel = supabase
+    const messageChannel = supabase
       .channel(`messages_${userId}`)
       .on(
         'postgres_changes',
@@ -128,7 +130,7 @@ export const useChat = (userId?: string) => {
       )
       .subscribe();
 
-    // Subscribe to call notifications
+    // Subscribe to call notifications for both caller and receiver
     const callChannel = supabase
       .channel(`calls_${profile?.id}`)
       .on(
@@ -137,35 +139,70 @@ export const useChat = (userId?: string) => {
           event: '*',
           schema: 'public',
           table: 'calls',
-          filter: `receiver_id=eq.${profile?.id}`
+          filter: `or(caller_id.eq.${profile?.id},receiver_id.eq.${profile?.id})`
         },
         (payload) => {
-          if (payload.eventType === 'INSERT') {
+          console.log('Call notification received:', payload);
+          
+          if (payload.eventType === 'INSERT' && payload.new.receiver_id === profile?.id) {
             // Show notification for incoming call
-            if ('Notification' in window && Notification.permission === 'granted') {
-              new Notification('Incoming Call', {
-                body: 'Someone is calling you',
-                icon: '/favicon.ico'
-              });
+            if ('Notification' in window) {
+              if (Notification.permission === 'granted') {
+                const notification = new Notification('Incoming Call', {
+                  body: 'Someone is calling you',
+                  icon: '/favicon.ico',
+                  requireInteraction: true
+                });
+
+                notification.onclick = () => {
+                  window.focus();
+                  navigate(`/call/${payload.new.caller_id}`);
+                };
+              } else if (Notification.permission !== 'denied') {
+                Notification.requestPermission().then(permission => {
+                  if (permission === 'granted') {
+                    const notification = new Notification('Incoming Call', {
+                      body: 'Someone is calling you',
+                      icon: '/favicon.ico',
+                      requireInteraction: true
+                    });
+
+                    notification.onclick = () => {
+                      window.focus();
+                      navigate(`/call/${payload.new.caller_id}`);
+                    };
+                  }
+                });
+              }
             }
-            // Navigate to call page
-            window.location.href = `/call/${payload.new.caller_id}`;
+
+            // Show toast notification
+            toast.info('Incoming call...', {
+              action: {
+                label: 'Answer',
+                onClick: () => navigate(`/call/${payload.new.caller_id}`)
+              },
+              duration: 10000
+            });
+
+            // Automatically navigate to call page
+            navigate(`/call/${payload.new.caller_id}`);
           }
         }
       )
       .subscribe();
 
-    // Request notification permission
+    // Request notification permission on component mount
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission();
     }
 
     return () => {
       console.log('Cleaning up subscriptions');
-      supabase.removeChannel(channel);
+      supabase.removeChannel(messageChannel);
       supabase.removeChannel(callChannel);
     };
-  }, [userId, profile?.id]);
+  }, [userId, profile?.id, navigate]);
 
   return {
     messages,
