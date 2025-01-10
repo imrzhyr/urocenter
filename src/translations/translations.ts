@@ -65,7 +65,7 @@ export const translations = {
     "profile_subtitle": "Please provide your basic information to continue",
     "upload_medical": "Upload your medical documents and reports",
     "medical_reports": "Medical Reports",
-    "lab_results": "Medical results, prescriptions, and medical records",
+    "lab_results": "Lab results, prescriptions, and medical records",
     "medical_images": "Medical Images",
     "xray_description": "X-rays, MRIs, and other medical images",
     "video_reports": "Video Reports",
@@ -96,7 +96,6 @@ export const translations = {
     "enter_age": "Enter your age",
     "medical_complaint": "Medical Complaint *",
     "continue": "Continue",
-    "choose_payment_method": "Choose Payment Method",
   },
   ar: {
     "welcome_back": "مرحباً بعودتك",
@@ -171,7 +170,7 @@ export const translations = {
     "audio_description": "الملاحظات الصوتية أو الاستشارات الصوتية",
     "payment_subtitle": "اختر طريقة الدفع المفضلة لديك",
     "consultation_fee": "رسوم الاستشارة",
-    "fee_amount": "٢٥,٠٠٠ دينار عراقي",
+    "fee_amount": "25,000 دينار عراقي",
     "take_picture": "التقاط صورة",
     "upload_files": "تحميل الملفات",
     "complete_payment": "إتمام الدفع",
@@ -193,6 +192,5 @@ export const translations = {
     "enter_age": "أدخل عمرك",
     "medical_complaint": "الشكوى الطبية *",
     "continue": "متابعة",
-    "choose_payment_method": "اختر طريقة الدفع",
   }
 };
