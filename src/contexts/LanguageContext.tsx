@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Language } from '@/types/language';
 
@@ -17,11 +17,19 @@ const LanguageContext = createContext<LanguageContextType>({
 export const LanguageProvider = ({ children }: { children: React.ReactNode }) => {
   const { i18n, t } = useTranslation();
 
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem('preferredLanguage') as Language;
+    if (savedLanguage) {
+      setLanguage(savedLanguage);
+    }
+  }, []);
+
   const setLanguage = (lang: Language) => {
     i18n.changeLanguage(lang);
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = lang;
     document.documentElement.style.textAlign = lang === 'ar' ? 'right' : 'left';
+    localStorage.setItem('preferredLanguage', lang);
   };
 
   return (

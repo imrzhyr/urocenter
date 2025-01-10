@@ -6,14 +6,15 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { NewEditProfileDialog } from "@/components/profile/NewEditProfileDialog";
 
 const Settings = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
 
   useEffect(() => {
-    // Check if dark mode is enabled on mount
     const isDark = document.documentElement.classList.contains('dark');
     setIsDarkMode(isDark);
   }, []);
@@ -46,6 +47,18 @@ const Settings = () => {
           transition={{ duration: 0.3 }}
           className="space-y-6"
         >
+          {/* Profile Section */}
+          <div className="bg-card rounded-lg p-6 shadow-sm">
+            <h2 className="text-lg font-medium mb-4">{t('profile')}</h2>
+            <Button
+              variant="outline"
+              onClick={() => setIsEditProfileOpen(true)}
+              className="w-full justify-start"
+            >
+              {t('edit_profile')}
+            </Button>
+          </div>
+
           {/* Appearance Section */}
           <div className="bg-card rounded-lg p-6 shadow-sm">
             <h2 className="text-lg font-medium mb-4">{t('appearance')}</h2>
@@ -89,6 +102,11 @@ const Settings = () => {
           </div>
         </motion.div>
       </div>
+
+      <NewEditProfileDialog
+        open={isEditProfileOpen}
+        onClose={() => setIsEditProfileOpen(false)}
+      />
     </div>
   );
 };

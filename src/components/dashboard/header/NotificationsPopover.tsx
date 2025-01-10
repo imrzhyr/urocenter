@@ -8,45 +8,61 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+type NotificationType = "message" | "report" | "resolved";
 
 interface Notification {
   id: string;
   message: string;
   created_at: string;
+  type: NotificationType;
 }
 
 export const NotificationsPopover = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [hasUnread, setHasUnread] = useState(false);
   const { profile } = useProfile();
+  const { t } = useLanguage();
 
   const fetchNotifications = async () => {
     if (!profile) return;
 
-    const { data: messages, error } = await supabase
+    // Fetch messages
+    const { data: messages } = await supabase
       .from('messages')
       .select('*, profiles(full_name)')
-      .eq(profile.role === 'admin' ? 'is_from_doctor' : 'is_from_doctor', false)
+      .order('created_at', { ascending: false })
+      .limit(5);
+
+    // Fetch medical reports
+    const { data: reports } = await supabase
+      .from('medical_reports')
+      .select('*')
       .order('created_at', { ascending: false })
       .limit(3);
 
-    if (error) {
-      console.error('Error fetching notifications:', error);
-      return;
-    }
-
-    const formattedNotifications = messages.map(msg => ({
-      id: msg.id,
-      message: profile.role === 'admin' 
-        ? `${msg.profiles.full_name} sent you a message`
-        : msg.is_resolved 
-          ? 'Dr. Ali marked your chat as resolved'
-          : 'Dr. Ali sent you a message',
-      created_at: msg.created_at
-    }));
+    const formattedNotifications: Notification[] = [
+      ...(messages?.map(msg => ({
+        id: msg.id,
+        message: profile.role === 'admin' 
+          ? `${msg.profiles?.full_name || t('someone')} ${t('sent_message')}`
+          : msg.is_resolved 
+            ? t('doctor_resolved_chat')
+            : `${t('doctor_name')} ${t('sent_message')}`,
+        created_at: msg.created_at,
+        type: msg.is_resolved ? 'resolved' as const : 'message' as const
+      })) || []),
+      ...(reports?.map(report => ({
+        id: report.id,
+        message: t('new_medical_report'),
+        created_at: report.created_at,
+        type: 'report' as const
+      })) || [])
+    ];
 
     setNotifications(formattedNotifications);
-    setHasUnread(messages.some(msg => !msg.is_read));
+    setHasUnread(messages?.some(msg => !msg.is_read) || false);
   };
 
   useEffect(() => {
@@ -84,7 +100,7 @@ export const NotificationsPopover = () => {
       </PopoverTrigger>
       <PopoverContent className="w-72 p-0 bg-white border shadow-lg" align="end" sideOffset={5}>
         <div className="p-3 border-b">
-          <h4 className="font-semibold text-sm text-gray-900">Notifications</h4>
+          <h4 className="font-semibold text-sm text-gray-900">{t('notifications')}</h4>
         </div>
         <ScrollArea className="h-[300px]">
           {notifications.length > 0 ? (
@@ -103,7 +119,7 @@ export const NotificationsPopover = () => {
             </div>
           ) : (
             <div className="p-3 text-center text-sm text-gray-500">
-              No new notifications
+              {t('no_notifications')}
             </div>
           )}
         </ScrollArea>
