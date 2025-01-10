@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "./useProfile";
 import { Call } from "@/types/call";
@@ -7,8 +7,30 @@ import { toast } from "sonner";
 export const useCallSetup = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { profile } = useProfile();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+    };
+
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsAuthenticated(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const initiateCall = async (receiverId: string) => {
+    if (!isAuthenticated) {
+      console.error("User not authenticated");
+      toast.error("Please sign in to make calls");
+      return;
+    }
+
     if (!profile?.id) {
       console.error("No profile ID found");
       toast.error("You must be logged in to make calls");
@@ -122,6 +144,7 @@ export const useCallSetup = () => {
 
   return {
     initiateCall,
-    isLoading
+    isLoading,
+    isAuthenticated
   };
 };
