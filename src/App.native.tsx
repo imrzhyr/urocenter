@@ -23,6 +23,7 @@ export default function App() {
             headerShown: false 
           }} 
           initialRouteName="SignIn"
+          id={undefined}
         >
           <Stack.Screen name="SignIn" component={SignIn} />
           <Stack.Screen name="Dashboard" component={Dashboard} />
