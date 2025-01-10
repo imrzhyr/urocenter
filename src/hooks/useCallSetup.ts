@@ -27,11 +27,10 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
 
       setCallingUser(data);
       
-      // Only create call record if we're initiating the call and it's not already incoming
       if (!isIncoming) {
         console.log('Creating outgoing call record:', { caller: profile.id, receiver: userId });
         
-        // First check if there's already an active call
+        // Check for existing active calls first
         const { data: existingCalls, error: checkError } = await supabase
           .from('calls')
           .select('*')
@@ -39,7 +38,7 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
           .or(`caller_id.eq.${profile.id},receiver_id.eq.${profile.id}`)
           .single();
 
-        if (checkError && checkError.code !== 'PGRST116') { // PGRST116 means no rows returned
+        if (checkError && checkError.code !== 'PGRST116') {
           console.error('Error checking existing calls:', checkError);
           toast.error('Could not check existing calls');
           return;
@@ -47,6 +46,7 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
 
         if (existingCalls) {
           console.log('Active call already exists:', existingCalls);
+          toast.error('You already have an active call');
           return;
         }
 
@@ -92,8 +92,6 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
       if (activeCalls && activeCalls.length > 0) {
         const activeCall = activeCalls[0];
         console.log('Most recent active call:', activeCall);
-        console.log('Current user is receiver?', activeCall.receiver_id === profile.id);
-        console.log('Other user is caller?', activeCall.caller_id === userId);
 
         if (activeCall.receiver_id === profile.id && activeCall.caller_id === userId) {
           console.log('Setting as incoming call - we are the receiver');

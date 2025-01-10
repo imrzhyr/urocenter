@@ -23,9 +23,9 @@ export const useCallSubscription = ({
 
     console.log('Setting up call subscription for user:', profile.id);
 
-    // Create a unique channel for this user's calls
-    const channel = supabase
-      .channel(`calls_${profile.id}`)
+    // Create a channel specifically for incoming calls
+    const incomingChannel = supabase
+      .channel(`incoming_calls_${profile.id}`)
       .on(
         'postgres_changes',
         {
@@ -35,14 +35,12 @@ export const useCallSubscription = ({
           filter: `receiver_id=eq.${profile.id}`,
         },
         async (payload) => {
-          console.log('Received call update:', payload);
+          console.log('Received call update for receiver:', payload);
 
           if (payload.eventType === 'INSERT') {
-            console.log('New call detected:', payload.new);
-            
-            // Only show notification for active calls where we're the receiver
+            // Only handle active calls where we're the receiver
             if (payload.new.status === 'active' && payload.new.receiver_id === profile.id) {
-              console.log('Incoming call detected, showing notifications');
+              console.log('New incoming call detected:', payload.new);
               
               // Get caller details
               const { data: callerData } = await supabase
@@ -75,9 +73,8 @@ export const useCallSubscription = ({
                     label: 'Answer',
                     onClick: () => navigate(`/call/${payload.new.caller_id}`)
                   },
-                  duration: Infinity, // Toast will stay until user takes action
+                  duration: Infinity,
                   onDismiss: () => {
-                    // Update call status to rejected if dismissed
                     supabase
                       .from('calls')
                       .update({ status: 'rejected' })
@@ -86,27 +83,43 @@ export const useCallSubscription = ({
                 }
               );
             }
-          } else if (payload.eventType === 'UPDATE') {
-            const newStatus = payload.new.status;
-            console.log('Call status updated to:', newStatus);
+          }
+        }
+      )
+      .subscribe((status) => {
+        console.log('Incoming calls subscription status:', status);
+      });
 
-            if (newStatus === 'accepted') {
-              onCallAccepted();
-              toast.success('Call connected');
-            } else if (newStatus === 'ended' || newStatus === 'rejected') {
-              onCallEnded();
-              toast.info(newStatus === 'ended' ? 'Call ended' : 'Call rejected');
-              
-              // Navigate away from call page if we're on it
-              if (window.location.pathname.includes('/call/')) {
-                navigate(-1);
-              }
+    // Create a separate channel for call status updates
+    const statusChannel = supabase
+      .channel(`call_status_${profile.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'calls',
+          filter: `or(caller_id=eq.${profile.id},receiver_id=eq.${profile.id})`,
+        },
+        (payload) => {
+          console.log('Call status update:', payload);
+          
+          const newStatus = payload.new.status;
+          if (newStatus === 'accepted') {
+            onCallAccepted();
+            toast.success('Call connected');
+          } else if (newStatus === 'ended' || newStatus === 'rejected') {
+            onCallEnded();
+            toast.info(newStatus === 'ended' ? 'Call ended' : 'Call rejected');
+            
+            if (window.location.pathname.includes('/call/')) {
+              navigate(-1);
             }
           }
         }
       )
       .subscribe((status) => {
-        console.log('Call subscription status:', status);
+        console.log('Call status subscription status:', status);
       });
 
     // Request notification permission if not already granted
@@ -115,8 +128,9 @@ export const useCallSubscription = ({
     }
 
     return () => {
-      console.log('Cleaning up call subscription');
-      supabase.removeChannel(channel);
+      console.log('Cleaning up call subscriptions');
+      supabase.removeChannel(incomingChannel);
+      supabase.removeChannel(statusChannel);
     };
   }, [profile?.id, navigate, onCallAccepted, onCallEnded]);
 };
