@@ -13,9 +13,14 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
     let isMounted = true;
 
     const fetchUserDetails = async () => {
-      if (!userId || !profile?.id) return;
+      if (!userId || !profile?.id) {
+        console.log('Missing userId or profile.id:', { userId, profileId: profile?.id });
+        return;
+      }
 
       try {
+        console.log('Fetching user details for:', userId);
+        
         // Check for existing active calls first
         const { data: existingCalls, error: checkError } = await supabase
           .from('calls')
@@ -60,7 +65,8 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
               .insert({
                 caller_id: profile.id,
                 receiver_id: userId,
-                status: 'initiated'
+                status: 'initiated',
+                is_active: true
               });
 
             if (callError) {
@@ -77,7 +83,10 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
     };
 
     const checkIfIncoming = async () => {
-      if (!profile?.id || !userId) return;
+      if (!profile?.id || !userId) {
+        console.log('Missing profile.id or userId for incoming check');
+        return;
+      }
 
       try {
         console.log('Checking for incoming calls - Current user:', profile.id, 'Other user:', userId);
