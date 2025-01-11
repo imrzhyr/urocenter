@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext } from 'react';
 
 interface CallContextType {
   activeCallId: string | null;
@@ -17,21 +17,13 @@ const CallContext = createContext<CallContextType>({
 export const useCall = () => useContext(CallContext);
 
 export const CallProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [activeCallId] = useState<string | null>(null);
-  const [callDuration] = useState(0);
-  const [userId] = useState<string | null>(null);
-
-  const clearActiveCall = () => {
-    // Empty function since we're removing call functionality
-  };
-
   return (
     <CallContext.Provider
       value={{
-        activeCallId,
-        callDuration,
-        userId,
-        clearActiveCall,
+        activeCallId: null,
+        callDuration: 0,
+        userId: null,
+        clearActiveCall: () => {},
       }}
     >
       {children}
