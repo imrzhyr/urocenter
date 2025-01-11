@@ -37,7 +37,7 @@ export const PersistentCallBar = ({
           <div className="flex items-center space-x-2">
             <Phone className="h-4 w-4 text-primary-foreground" />
             <span className="text-sm font-medium text-primary-foreground">
-              {callingUser?.name || "Unknown"}
+              {callingUser?.full_name || "Unknown"}
             </span>
           </div>
           <span className="text-sm text-primary-foreground/80">
