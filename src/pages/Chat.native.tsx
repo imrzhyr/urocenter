@@ -4,7 +4,7 @@ import { UserChatContainer } from '@/components/chat/UserChatContainer.native';
 import { DoctorChatContainer } from '@/components/chat/doctor/DoctorChatContainer.native';
 import { useProfile } from '@/hooks/useProfile';
 import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
-import { RootStackParamList } from '../App.native';
+import { RootStackParamList } from '../App.react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 
 type ChatScreenRouteProp = RouteProp<RootStackParamList, 'Chat'>;
