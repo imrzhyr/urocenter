@@ -45,7 +45,10 @@ export const Chat = () => {
       </div>
       <IncomingCallDialog
         open={callDialog.isOpen}
-        onOpenChange={(open) => setCallDialog(prev => ({ ...prev, isOpen: open }))}
+        onOpenChange={(open) => setCallDialog({
+          ...callDialog,
+          isOpen: open
+        })}
         callerId={callDialog.callerId}
         callerName={callDialog.callerName}
         callId={callDialog.callId}
