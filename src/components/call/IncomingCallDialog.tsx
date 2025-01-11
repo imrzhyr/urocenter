@@ -89,8 +89,8 @@ export const IncomingCallDialog = ({
             <span className="text-2xl">{callerName[0]}</span>
           </Avatar>
           <IncomingCallControls
-            onAccept={handleAcceptCall}
-            onReject={handleRejectCall}
+            onAcceptCall={handleAcceptCall}
+            onRejectCall={handleRejectCall}
           />
         </div>
       </DialogContent>
