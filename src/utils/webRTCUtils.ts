@@ -24,8 +24,13 @@ export class WebRTCConnection {
   }
 
   private initializePeerConnection() {
+    if (this.peerConnection?.connectionState !== 'closed') {
+      this.peerConnection?.close();
+    }
+    
     this.peerConnection = new RTCPeerConnection(configuration);
     this.setupPeerConnectionListeners();
+    console.log('PeerConnection initialized, state:', this.peerConnection.connectionState);
   }
 
   private setupPeerConnectionListeners() {
@@ -44,6 +49,9 @@ export class WebRTCConnection {
 
     this.peerConnection.onconnectionstatechange = () => {
       console.log('Connection state changed:', this.peerConnection.connectionState);
+      if (this.peerConnection.connectionState === 'failed') {
+        this.initializePeerConnection();
+      }
     };
   }
 
@@ -51,9 +59,8 @@ export class WebRTCConnection {
     try {
       console.log('Starting call with params:', { isVideo, userId: this.userId, remoteUserId: this.remoteUserId });
       
-      if (this.peerConnection.connectionState === 'closed') {
-        this.initializePeerConnection();
-      }
+      // Always reinitialize for a new call
+      this.initializePeerConnection();
 
       const constraints = {
         audio: true,
@@ -62,11 +69,19 @@ export class WebRTCConnection {
       
       this.localStream = await navigator.mediaDevices.getUserMedia(constraints);
       
-      this.localStream.getTracks().forEach(track => {
-        if (this.localStream) {
-          this.peerConnection.addTrack(track, this.localStream);
+      if (this.localStream) {
+        const tracks = this.localStream.getTracks();
+        console.log('Adding tracks to peer connection:', tracks.length);
+        
+        for (const track of tracks) {
+          if (this.peerConnection.connectionState !== 'closed') {
+            this.peerConnection.addTrack(track, this.localStream);
+          } else {
+            console.error('Cannot add track: PeerConnection is closed');
+            throw new Error('PeerConnection is closed');
+          }
         }
-      });
+      }
 
       const offer = await this.peerConnection.createOffer();
       await this.peerConnection.setLocalDescription(offer);
@@ -83,9 +98,8 @@ export class WebRTCConnection {
 
   async handleIncomingCall(isVideo: boolean = false) {
     try {
-      if (this.peerConnection.connectionState === 'closed') {
-        this.initializePeerConnection();
-      }
+      // Always reinitialize for incoming call
+      this.initializePeerConnection();
 
       const constraints = {
         audio: true,
@@ -94,11 +108,14 @@ export class WebRTCConnection {
       
       this.localStream = await navigator.mediaDevices.getUserMedia(constraints);
       
-      this.localStream.getTracks().forEach(track => {
-        if (this.localStream) {
-          this.peerConnection.addTrack(track, this.localStream);
+      if (this.localStream) {
+        const tracks = this.localStream.getTracks();
+        for (const track of tracks) {
+          if (this.peerConnection.connectionState !== 'closed') {
+            this.peerConnection.addTrack(track, this.localStream);
+          }
         }
-      });
+      }
 
       return this.localStream;
     } catch (error) {
