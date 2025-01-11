@@ -24,15 +24,18 @@ export const useWebRTC = (callId: string, userId: string, remoteUserId: string) 
 
   const initializeWebRTC = useCallback(async () => {
     if (!validateIds()) {
+      console.error('Invalid IDs provided for WebRTC initialization');
       toast.error('Invalid call configuration');
-      return;
+      return null;
     }
 
     try {
-      console.log('Initializing WebRTC connection...');
+      console.log('Requesting user media...');
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      console.log('Got local stream:', stream);
       setLocalStream(stream);
 
+      console.log('Creating new RTCPeerConnection...');
       const pc = new RTCPeerConnection({
         iceServers: [
           { urls: 'stun:stun.l.google.com:19302' },
@@ -41,10 +44,8 @@ export const useWebRTC = (callId: string, userId: string, remoteUserId: string) 
       });
 
       stream.getTracks().forEach(track => {
-        if (pc) {
-          console.log('Adding local track to peer connection:', track);
-          pc.addTrack(track, stream);
-        }
+        console.log('Adding track to peer connection:', track.kind);
+        pc.addTrack(track, stream);
       });
 
       pc.ontrack = (event) => {
@@ -55,6 +56,7 @@ export const useWebRTC = (callId: string, userId: string, remoteUserId: string) 
 
       pc.onicecandidate = async (event) => {
         if (event.candidate) {
+          console.log('New ICE candidate:', event.candidate);
           try {
             const candidateJson = {
               candidate: event.candidate.candidate,
@@ -76,6 +78,22 @@ export const useWebRTC = (callId: string, userId: string, remoteUserId: string) 
         }
       };
 
+      pc.oniceconnectionstatechange = () => {
+        console.log('ICE connection state changed:', pc.iceConnectionState);
+      };
+
+      pc.onsignalingstatechange = () => {
+        console.log('Signaling state changed:', pc.signalingState);
+      };
+
+      pc.onconnectionstatechange = () => {
+        console.log('Connection state changed:', pc.connectionState);
+        if (pc.connectionState === 'connected') {
+          console.log('WebRTC connection established!');
+          setIsConnected(true);
+        }
+      };
+
       setPeerConnection(pc);
       return pc;
     } catch (error) {
@@ -87,13 +105,14 @@ export const useWebRTC = (callId: string, userId: string, remoteUserId: string) 
 
   const startCall = async () => {
     if (!peerConnection || !validateIds()) {
-      console.error('Peer connection not initialized');
+      console.error('Cannot start call: peer connection not initialized');
       return;
     }
 
     try {
-      console.log('Creating and sending offer...');
+      console.log('Creating offer...');
       const offer = await peerConnection.createOffer();
+      console.log('Setting local description:', offer);
       await peerConnection.setLocalDescription(offer);
 
       const offerJson = {
@@ -101,6 +120,7 @@ export const useWebRTC = (callId: string, userId: string, remoteUserId: string) 
         sdp: offer.sdp
       } as Json;
 
+      console.log('Sending offer via signaling server...');
       await supabase.from('webrtc_signaling').insert({
         call_id: callId,
         sender_id: userId,
@@ -116,15 +136,23 @@ export const useWebRTC = (callId: string, userId: string, remoteUserId: string) 
   };
 
   const endCall = async () => {
+    console.log('Ending WebRTC call...');
     if (localStream) {
-      localStream.getTracks().forEach(track => track.stop());
+      localStream.getTracks().forEach(track => {
+        console.log('Stopping track:', track.kind);
+        track.stop();
+      });
       setLocalStream(null);
     }
     if (remoteStream) {
-      remoteStream.getTracks().forEach(track => track.stop());
+      remoteStream.getTracks().forEach(track => {
+        console.log('Stopping remote track:', track.kind);
+        track.stop();
+      });
       setRemoteStream(null);
     }
     if (peerConnection) {
+      console.log('Closing peer connection');
       peerConnection.close();
       setPeerConnection(null);
     }
@@ -135,6 +163,7 @@ export const useWebRTC = (callId: string, userId: string, remoteUserId: string) 
   useEffect(() => {
     if (!validateIds()) return;
 
+    console.log('Setting up WebRTC signaling subscription for call:', callId);
     const channel = supabase.channel(`webrtc_${callId}`)
       .on(
         'postgres_changes',
@@ -153,6 +182,7 @@ export const useWebRTC = (callId: string, userId: string, remoteUserId: string) 
           try {
             switch (type) {
               case 'offer':
+                console.log('Processing received offer');
                 await peerConnection.setRemoteDescription(new RTCSessionDescription(data as RTCSessionDescriptionInit));
                 const answer = await peerConnection.createAnswer();
                 await peerConnection.setLocalDescription(answer);
@@ -162,6 +192,7 @@ export const useWebRTC = (callId: string, userId: string, remoteUserId: string) 
                   sdp: answer.sdp
                 } as Json;
 
+                console.log('Sending answer');
                 await supabase.from('webrtc_signaling').insert({
                   call_id: callId,
                   sender_id: userId,
@@ -172,11 +203,13 @@ export const useWebRTC = (callId: string, userId: string, remoteUserId: string) 
                 break;
 
               case 'answer':
+                console.log('Processing received answer');
                 await peerConnection.setRemoteDescription(new RTCSessionDescription(data as RTCSessionDescriptionInit));
                 setIsConnected(true);
                 break;
 
               case 'ice-candidate':
+                console.log('Processing received ICE candidate');
                 const candidate = new RTCIceCandidate({
                   candidate: data.candidate,
                   sdpMid: data.sdpMid,
@@ -192,9 +225,12 @@ export const useWebRTC = (callId: string, userId: string, remoteUserId: string) 
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('WebRTC signaling subscription status:', status);
+      });
 
     return () => {
+      console.log('Cleaning up WebRTC signaling subscription');
       supabase.removeChannel(channel);
     };
   }, [peerConnection, callId, userId, remoteUserId]);

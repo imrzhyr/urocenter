@@ -54,21 +54,31 @@ export const CallPage = () => {
       return;
     }
 
-    console.log('Call accepted, initializing WebRTC');
+    console.log('Call accepted, initializing WebRTC with:', {
+      activeCallId,
+      userId: profile?.id,
+      remoteUserId: userId
+    });
+
     try {
-      await initializeWebRTC();
+      const webrtcConnection = await initializeWebRTC();
+      console.log('WebRTC initialized successfully:', webrtcConnection);
+      
       setCallStatus('connected');
       setIsIncoming(false);
       setCallStartTime(new Date());
+      
+      console.log('Starting WebRTC call...');
       await startCall();
+      console.log('WebRTC call started successfully');
     } catch (error) {
       console.error('Error starting WebRTC call:', error);
       toast.error('Failed to establish call connection');
     }
-  }, [activeCallId, setCallStatus, setIsIncoming, setCallStartTime, startCall, initializeWebRTC]);
+  }, [activeCallId, setCallStatus, setIsIncoming, setCallStartTime, startCall, initializeWebRTC, profile?.id, userId]);
 
   const handleCallEnded = useCallback(async () => {
-    console.log('Call ended, cleaning up');
+    console.log('Call ended, cleaning up WebRTC...');
     await endWebRTCCall();
     handleEndCall();
     navigate('/chat', { replace: true });
@@ -87,12 +97,16 @@ export const CallPage = () => {
       const audio = new Audio();
       audio.srcObject = remoteStream;
       audio.autoplay = true;
-      audio.play().catch(console.error);
+      audio.play().catch(error => {
+        console.error('Error playing audio:', error);
+        toast.error('Could not play audio stream');
+      });
       audioRef.current = audio;
     }
 
     return () => {
       if (audioRef.current) {
+        console.log('Cleaning up audio element');
         audioRef.current.pause();
         audioRef.current.srcObject = null;
         audioRef.current = null;
@@ -103,6 +117,7 @@ export const CallPage = () => {
   // Handle mute/speaker settings
   useEffect(() => {
     if (audioRef.current) {
+      console.log('Updating audio settings:', { isMuted, isSpeaker });
       audioRef.current.muted = !isSpeaker;
     }
     
@@ -141,6 +156,7 @@ export const CallPage = () => {
 
   const onEndCall = useCallback(async () => {
     try {
+      console.log('Ending call...');
       await endWebRTCCall();
       await handleEndCall();
       navigate('/chat', { replace: true });
