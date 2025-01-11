@@ -1,91 +1,28 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { CallContainer } from "./CallContainer";
 import { useProfile } from "@/hooks/useProfile";
-import { useWebRTC } from "@/hooks/useWebRTC";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useAuthRedirect } from "@/hooks/useAuthRedirect";
-import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
-import { Database } from "@/integrations/supabase/types";
-
-type Call = Database['public']['Tables']['calls']['Row'];
+import { useCallConnection } from "@/hooks/useCallConnection";
 
 export const CallPage = () => {
   const { userId } = useParams();
-  const navigate = useNavigate();
   const { profile } = useProfile();
-  const [callId, setCallId] = useState<string | null>(null);
-  const [duration, setDuration] = useState(0);
-  const [callStatus, setCallStatus] = useState<string>("ringing");
-  const [isMuted, setIsMuted] = useState(false);
-  const [isSpeaker, setIsSpeaker] = useState(true);
-
-  useAuthRedirect();
-
-  const { localStream, remoteStream, startCall, answerCall, endCall } = useWebRTC(
-    callId || '',
-    profile?.id || '',
-    userId || ''
-  );
-
-  useEffect(() => {
-    if (!callId) return;
-
-    const channel = supabase
-      .channel(`call_${callId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'calls',
-          filter: `id=eq.${callId}`
-        },
-        async (payload: RealtimePostgresChangesPayload<Call>) => {
-          const newCall = payload.new as Call | null;
-          if (!newCall) return;
-
-          if (newCall.status === 'connected') {
-            setCallStatus('connected');
-          } else if (newCall.status === 'ended') {
-            setCallStatus('ended');
-            endCall();
-            onBack();
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [callId]);
-
-  useEffect(() => {
-    if (remoteStream && isSpeaker) {
-      const audioElement = new Audio();
-      audioElement.srcObject = remoteStream;
-      audioElement.play().catch(console.error);
-
-      return () => {
-        audioElement.pause();
-        audioElement.srcObject = null;
-      };
-    }
-  }, [remoteStream, isSpeaker]);
-
-  useEffect(() => {
-    let intervalId: NodeJS.Timeout;
-    if (callStatus === 'connected') {
-      intervalId = setInterval(() => {
-        setDuration(prev => prev + 1);
-      }, 1000);
-    }
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, [callStatus]);
+  const {
+    callId,
+    setCallId,
+    duration,
+    callStatus,
+    setCallStatus,
+    isMuted,
+    isSpeaker,
+    startCall,
+    answerCall,
+    handleEndCall,
+    handleToggleMute,
+    handleToggleSpeaker
+  } = useCallConnection(userId, profile);
 
   useEffect(() => {
     if (!profile?.id || !userId) return;
@@ -119,9 +56,13 @@ export const CallPage = () => {
           
           if (isReceiver) {
             await answerCall();
+            // Update call status to connected when receiver answers
             await supabase
               .from('calls')
-              .update({ status: 'connected' })
+              .update({ 
+                status: 'connected',
+                started_at: new Date().toISOString()
+              })
               .eq('id', existingCall.id);
           } else {
             await startCall();
@@ -156,52 +97,10 @@ export const CallPage = () => {
 
     return () => {
       if (callId) {
-        endCall();
+        handleEndCall();
       }
     };
   }, [profile?.id, userId]);
-
-  const onBack = () => {
-    if (!userId) {
-      navigate('/dashboard');
-      return;
-    }
-    navigate(`/chat/${userId}`);
-  };
-
-  const handleEndCall = async () => {
-    if (!callId) return;
-
-    try {
-      await supabase
-        .from('calls')
-        .update({ 
-          status: 'ended',
-          ended_at: new Date().toISOString(),
-          duration
-        })
-        .eq('id', callId);
-
-      endCall();
-      onBack();
-    } catch (error) {
-      console.error('Error ending call:', error);
-      toast.error('Could not end call properly');
-    }
-  };
-
-  const handleToggleMute = () => {
-    if (localStream) {
-      localStream.getAudioTracks().forEach(track => {
-        track.enabled = !track.enabled;
-      });
-      setIsMuted(!isMuted);
-    }
-  };
-
-  const handleToggleSpeaker = () => {
-    setIsSpeaker(!isSpeaker);
-  };
 
   const mockUser = {
     full_name: "User",
@@ -210,7 +109,7 @@ export const CallPage = () => {
 
   return (
     <CallContainer
-      onBack={onBack}
+      onBack={handleEndCall}
       duration={duration}
       callStatus={callStatus}
       callingUser={mockUser}
