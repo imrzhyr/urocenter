@@ -43,7 +43,7 @@ export const CallPage = () => {
           filter: `id=eq.${callId}`
         },
         async (payload: RealtimePostgresChangesPayload<Call>) => {
-          const newCall = payload.new;
+          const newCall = payload.new as Call | null;
           if (!newCall) return;
 
           if (newCall.status === 'connected') {
