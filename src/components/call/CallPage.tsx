@@ -93,9 +93,9 @@ export const CallPage = () => {
     await endWebRTCCall();
     handleEndCall();
     clearActiveCall();
-    const redirectPath = profile?.role === 'admin' ? '/chat' : '/dashboard';
+    const redirectPath = profile?.role === 'admin' ? `/chat/${userId}` : '/dashboard';
     navigate(redirectPath, { replace: true });
-  }, [endWebRTCCall, handleEndCall, navigate, clearActiveCall, profile?.role]);
+  }, [endWebRTCCall, handleEndCall, navigate, clearActiveCall, profile?.role, userId]);
 
   useCallSubscription({
     userId: userId || '',
@@ -173,18 +173,18 @@ export const CallPage = () => {
       await endWebRTCCall();
       await handleEndCall();
       clearActiveCall();
-      const redirectPath = profile?.role === 'admin' ? '/chat' : '/dashboard';
+      const redirectPath = profile?.role === 'admin' ? `/chat/${userId}` : '/dashboard';
       navigate(redirectPath, { replace: true });
     } catch (error) {
       console.error('Error ending call:', error);
       toast.error('Failed to end call properly');
-      navigate('/chat', { replace: true });
+      navigate(`/chat/${userId}`, { replace: true });
     }
-  }, [endWebRTCCall, handleEndCall, navigate, clearActiveCall, profile?.role]);
+  }, [endWebRTCCall, handleEndCall, navigate, clearActiveCall, profile?.role, userId]);
 
   const onBack = useCallback(() => {
-    navigate('/chat');
-  }, [navigate]);
+    navigate(`/chat/${userId}`);
+  }, [navigate, userId]);
 
   return (
     <CallContainer
