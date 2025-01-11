@@ -11,7 +11,6 @@ import { ar } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
 import { Call, CallStatus } from "@/types/call";
 import { CallMessage } from "./CallMessage";
-import { MessageSoundPlayer } from "@/utils/audioPlayer";
 
 interface MessageListProps {
   messages: Message[];
@@ -67,16 +66,7 @@ export const MessageList = ({ messages }: MessageListProps) => {
 
   useEffect(() => {
     scrollToBottom();
-    // Play sound for new messages that are not from the current user
-    const lastMessage = messages[messages.length - 1];
-    if (lastMessage && !isFromCurrentUser(lastMessage)) {
-      MessageSoundPlayer.play();
-    }
   }, [messages]);
-
-  const isFromCurrentUser = (message: Message) => {
-    return profile?.role === 'admin' ? message.is_from_doctor : !message.is_from_doctor;
-  };
 
   const formatDateSeparator = (date: Date) => {
     if (isToday(date)) {

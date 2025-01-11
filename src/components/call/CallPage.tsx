@@ -1,79 +1,190 @@
-import { useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { useProfile } from "@/hooks/useProfile";
-import { useCallSetup } from "@/hooks/useCallSetup";
+import { useCallSetup } from "./hooks/useCallSetup";
+import { useCallSubscription } from "@/hooks/useCallSubscription";
 import { useCallHandlers } from "@/hooks/useCallHandlers";
-import { CallControls } from "./CallControls";
-import { CallingTonePlayer } from "@/utils/audioPlayer";
-import { useCall } from "@/contexts/CallContext";
+import { useWebRTC } from "@/hooks/useWebRTC";
+import { CallContainer } from "./CallContainer";
+import { toast } from "sonner";
 
 export const CallPage = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
   const { profile } = useProfile();
-  const { callingUser, callStatus, setCallStatus } = useCallSetup(userId, profile);
-  const { duration, handleEndCall, handleAcceptCall, handleRejectCall } = useCallHandlers(userId, profile);
-  const { setActiveCall } = useCall();
+  const [isMuted, setIsMuted] = useState(false);
+  const [isSpeaker, setIsSpeaker] = useState(true);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  
+  const {
+    callingUser,
+    callStatus,
+    setCallStatus,
+    isIncoming,
+    setIsIncoming,
+    activeCallId
+  } = useCallSetup(userId, profile);
 
-  useEffect(() => {
-    if (!profile || !userId) {
-      navigate('/');
+  const {
+    localStream,
+    remoteStream,
+    isConnected,
+    startCall,
+    endCall: endWebRTCCall,
+    initializeWebRTC
+  } = useWebRTC(
+    activeCallId || '', 
+    profile?.id || '', 
+    userId || ''
+  );
+
+  const {
+    duration,
+    handleEndCall,
+    handleAcceptCall: baseHandleAcceptCall,
+    handleRejectCall,
+    setCallStartTime
+  } = useCallHandlers(userId, profile);
+
+  // Initialize WebRTC when accepting a call
+  const handleCallAccepted = useCallback(async () => {
+    if (!activeCallId) {
+      console.error('No active call ID available');
+      toast.error('Call setup incomplete');
       return;
     }
-  }, [profile, userId, navigate]);
 
+    console.log('Call accepted, initializing WebRTC with:', {
+      activeCallId,
+      userId: profile?.id,
+      remoteUserId: userId
+    });
+
+    try {
+      const webrtcConnection = await initializeWebRTC();
+      console.log('WebRTC initialized successfully:', webrtcConnection);
+      
+      setCallStatus('connected');
+      setIsIncoming(false);
+      setCallStartTime(new Date());
+      
+      console.log('Starting WebRTC call...');
+      await startCall();
+      console.log('WebRTC call started successfully');
+    } catch (error) {
+      console.error('Error starting WebRTC call:', error);
+      toast.error('Failed to establish call connection');
+    }
+  }, [activeCallId, setCallStatus, setIsIncoming, setCallStartTime, startCall, initializeWebRTC, profile?.id, userId]);
+
+  const handleCallEnded = useCallback(async () => {
+    console.log('Call ended, cleaning up WebRTC...');
+    await endWebRTCCall();
+    handleEndCall();
+    navigate('/chat', { replace: true });
+  }, [endWebRTCCall, handleEndCall, navigate]);
+
+  useCallSubscription({
+    userId: userId || '',
+    onCallAccepted: handleCallAccepted,
+    onCallEnded: handleCallEnded
+  });
+
+  // Handle remote stream
   useEffect(() => {
-    if (callStatus === 'initiated') {
-      CallingTonePlayer.play();
-    } else {
-      CallingTonePlayer.stop();
+    if (remoteStream && !audioRef.current) {
+      console.log('Setting up audio element with remote stream');
+      const audio = new Audio();
+      audio.srcObject = remoteStream;
+      audio.autoplay = true;
+      audio.play().catch(error => {
+        console.error('Error playing audio:', error);
+        toast.error('Could not play audio stream');
+      });
+      audioRef.current = audio;
     }
 
     return () => {
-      CallingTonePlayer.stop();
+      if (audioRef.current) {
+        console.log('Cleaning up audio element');
+        audioRef.current.pause();
+        audioRef.current.srcObject = null;
+        audioRef.current = null;
+      }
     };
-  }, [callStatus]);
+  }, [remoteStream]);
 
+  // Handle mute/speaker settings
   useEffect(() => {
-    if (callingUser) {
-      setActiveCall({
-        isActive: true,
-        duration,
-        callingUser,
-        callStatus
+    if (audioRef.current) {
+      console.log('Updating audio settings:', { isMuted, isSpeaker });
+      audioRef.current.muted = !isSpeaker;
+    }
+    
+    if (localStream) {
+      localStream.getAudioTracks().forEach(track => {
+        track.enabled = !isMuted;
       });
     }
+  }, [isMuted, isSpeaker, localStream]);
 
-    return () => {
-      setActiveCall({
-        isActive: false,
-        duration: 0,
-        callingUser: null,
-        callStatus: 'ended'
-      });
-    };
-  }, [callingUser, duration, callStatus, setActiveCall]);
+  // Update call status when WebRTC connection is established
+  useEffect(() => {
+    if (isConnected && callStatus === 'ringing') {
+      console.log('WebRTC connection established, updating call status');
+      setCallStatus('connected');
+      setCallStartTime(new Date());
+    }
+  }, [isConnected, callStatus, setCallStatus, setCallStartTime]);
 
-  if (!callingUser || !profile) {
-    return null;
-  }
+  const handleAcceptCall = useCallback(async () => {
+    if (!activeCallId) {
+      console.error('No active call ID available');
+      toast.error('Call setup incomplete');
+      return;
+    }
+
+    console.log('Accepting call...', { activeCallId });
+    try {
+      await baseHandleAcceptCall();
+      await handleCallAccepted();
+    } catch (error) {
+      console.error('Error accepting call:', error);
+      toast.error('Failed to establish call connection');
+    }
+  }, [activeCallId, baseHandleAcceptCall, handleCallAccepted]);
+
+  const onEndCall = useCallback(async () => {
+    try {
+      console.log('Ending call...');
+      await endWebRTCCall();
+      await handleEndCall();
+      navigate('/chat', { replace: true });
+    } catch (error) {
+      console.error('Error ending call:', error);
+      toast.error('Failed to end call properly');
+      navigate('/chat', { replace: true });
+    }
+  }, [endWebRTCCall, handleEndCall, navigate]);
+
+  const onBack = useCallback(() => {
+    navigate('/chat', { replace: true });
+  }, [navigate]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-lg text-center">
-        <h2 className="text-2xl font-semibold mb-4">{callingUser.full_name}</h2>
-        <p className="text-gray-600 mb-6">
-          {callStatus === 'initiated' ? 'Calling...' : 
-           callStatus === 'connected' ? `${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}` :
-           'Call ended'}
-        </p>
-        <CallControls
-          onEndCall={handleEndCall}
-          onAcceptCall={handleAcceptCall}
-          onRejectCall={handleRejectCall}
-          status={callStatus}
-        />
-      </div>
-    </div>
+    <CallContainer
+      onBack={onBack}
+      duration={duration}
+      callStatus={callStatus}
+      callingUser={callingUser}
+      isIncoming={isIncoming}
+      isMuted={isMuted}
+      isSpeaker={isSpeaker}
+      onToggleMute={() => setIsMuted(!isMuted)}
+      onToggleSpeaker={() => setIsSpeaker(!isSpeaker)}
+      onEndCall={onEndCall}
+      onAcceptCall={handleAcceptCall}
+      onRejectCall={handleRejectCall}
+    />
   );
 };

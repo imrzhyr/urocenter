@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Call } from "@/types/call";
 import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
-import { RingtonePlayer } from "@/utils/audioPlayer";
 
 interface CallDialogState {
   isOpen: boolean;
@@ -78,9 +77,6 @@ export const useIncomingCalls = () => {
               const callerName = callerData?.full_name || 'Unknown Caller';
               console.log('Incoming call from:', callerName);
 
-              // Play ringtone
-              RingtonePlayer.play();
-
               // Show browser notification if permitted
               if ('Notification' in window && Notification.permission === 'granted') {
                 new Notification('Incoming Call', {
@@ -110,7 +106,6 @@ export const useIncomingCalls = () => {
               toast.info(`${callerName} is calling...`, {
                 duration: Infinity,
                 onDismiss: async () => {
-                  RingtonePlayer.stop();
                   await supabase
                     .from('calls')
                     .update({ status: 'ended' })
@@ -143,18 +138,12 @@ export const useIncomingCalls = () => {
 
     return () => {
       console.log('Cleaning up call subscription');
-      RingtonePlayer.stop();
       supabase.removeChannel(channel);
     };
   }, [profile?.id, navigate]);
 
   return {
     callDialog,
-    setCallDialog: (newState: CallDialogState) => {
-      if (!newState.isOpen) {
-        RingtonePlayer.stop();
-      }
-      setCallDialog(newState);
-    }
+    setCallDialog
   };
 };

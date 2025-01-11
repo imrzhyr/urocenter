@@ -14,5 +14,4 @@ export interface Call {
 export interface CallingUser {
   full_name: string;
   id: string;
-  name?: string; // Adding this for backward compatibility
 }
