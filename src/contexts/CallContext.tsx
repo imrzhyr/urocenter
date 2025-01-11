@@ -1,15 +1,21 @@
 import { createContext, useContext, useState, useCallback, ReactNode } from "react";
-import { CallingUser } from "@/types/call";
+import { CallingUser, CallStatus } from "@/types/call";
 
 interface CallContextType {
   isCallActive: boolean;
   duration: number;
   callingUser: CallingUser | null;
-  activeCallId: string | null;
+  callStatus: CallStatus;
   setCallActive: (active: boolean) => void;
   setDuration: (duration: number) => void;
   setCallingUser: (user: CallingUser | null) => void;
-  setActiveCallId: (id: string | null) => void;
+  setCallStatus: (status: CallStatus) => void;
+  setActiveCall: (call: {
+    isActive: boolean;
+    duration: number;
+    callingUser: CallingUser | null;
+    callStatus: CallStatus;
+  }) => void;
 }
 
 const CallContext = createContext<CallContextType | undefined>(undefined);
@@ -18,10 +24,17 @@ export const CallProvider = ({ children }: { children: ReactNode }) => {
   const [isCallActive, setIsCallActive] = useState(false);
   const [duration, setDuration] = useState(0);
   const [callingUser, setCallingUser] = useState<CallingUser | null>(null);
-  const [activeCallId, setActiveCallId] = useState<string | null>(null);
+  const [callStatus, setCallStatus] = useState<CallStatus>('ended');
 
   const setCallActive = useCallback((active: boolean) => {
     setIsCallActive(active);
+  }, []);
+
+  const setActiveCall = useCallback(({ isActive, duration, callingUser, callStatus }) => {
+    setIsCallActive(isActive);
+    setDuration(duration);
+    setCallingUser(callingUser);
+    setCallStatus(callStatus);
   }, []);
 
   return (
@@ -30,11 +43,12 @@ export const CallProvider = ({ children }: { children: ReactNode }) => {
         isCallActive,
         duration,
         callingUser,
-        activeCallId,
+        callStatus,
         setCallActive,
         setDuration,
         setCallingUser,
-        setActiveCallId,
+        setCallStatus,
+        setActiveCall,
       }}
     >
       {children}

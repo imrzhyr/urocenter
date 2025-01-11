@@ -68,10 +68,10 @@ export const CallPage = () => {
            'Call ended'}
         </p>
         <CallControls
-          status={callStatus}
           onEndCall={handleEndCall}
           onAcceptCall={handleAcceptCall}
           onRejectCall={handleRejectCall}
+          status={callStatus}
         />
       </div>
     </div>
