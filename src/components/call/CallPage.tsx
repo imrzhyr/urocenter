@@ -8,6 +8,7 @@ import { useCallConnection } from "@/hooks/useCallConnection";
 
 export const CallPage = () => {
   const { userId } = useParams();
+  const navigate = useNavigate();
   const { profile } = useProfile();
   const {
     callId,
