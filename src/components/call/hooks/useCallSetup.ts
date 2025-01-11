@@ -93,6 +93,10 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
     };
 
     fetchUserDetails();
+
+    return () => {
+      setupCompleted.current = false;
+    };
   }, [userId, profile?.id]);
 
   return {

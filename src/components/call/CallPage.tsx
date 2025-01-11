@@ -18,6 +18,7 @@ export const CallPage = () => {
   const [isSpeaker, setIsSpeaker] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { setActiveCall, clearActiveCall } = useCall();
+  const callInitializedRef = useRef(false);
   
   const {
     callingUser,
@@ -49,18 +50,21 @@ export const CallPage = () => {
     setCallStartTime
   } = useCallHandlers(userId, profile);
 
+  // Handle outgoing call sound
   useEffect(() => {
     if (callStatus === 'ringing' && !isIncoming) {
       outgoingCallPlayer.play();
     } else {
       outgoingCallPlayer.stop();
     }
+    return () => {
+      outgoingCallPlayer.stop();
+    };
   }, [callStatus, isIncoming]);
 
   const handleCallAccepted = useCallback(async () => {
-    if (!activeCallId || !userId) {
-      console.error('No active call ID available');
-      toast.error('Call setup incomplete');
+    if (!activeCallId || !userId || callInitializedRef.current) {
+      console.error('No active call ID available or call already initialized');
       return;
     }
 
@@ -71,6 +75,7 @@ export const CallPage = () => {
     });
 
     try {
+      callInitializedRef.current = true;
       const webrtcConnection = await initializeWebRTC();
       console.log('WebRTC initialized successfully:', webrtcConnection);
       
@@ -85,6 +90,7 @@ export const CallPage = () => {
     } catch (error) {
       console.error('Error starting WebRTC call:', error);
       toast.error('Failed to establish call connection');
+      callInitializedRef.current = false;
     }
   }, [activeCallId, setCallStatus, setIsIncoming, setCallStartTime, startCall, initializeWebRTC, profile?.id, userId, setActiveCall]);
 
@@ -94,6 +100,7 @@ export const CallPage = () => {
       await endWebRTCCall();
       await handleEndCall();
       clearActiveCall();
+      callInitializedRef.current = false;
       
       if (!userId) {
         console.error('No userId available for navigation');
@@ -124,6 +131,7 @@ export const CallPage = () => {
     onCallEnded: handleCallEnded
   });
 
+  // Handle remote stream
   useEffect(() => {
     if (remoteStream && !audioRef.current) {
       console.log('Setting up audio element with remote stream');
@@ -147,6 +155,7 @@ export const CallPage = () => {
     };
   }, [remoteStream]);
 
+  // Handle audio settings
   useEffect(() => {
     if (audioRef.current) {
       console.log('Updating audio settings:', { isMuted, isSpeaker });
@@ -160,6 +169,7 @@ export const CallPage = () => {
     }
   }, [isMuted, isSpeaker, localStream]);
 
+  // Update call status when WebRTC connects
   useEffect(() => {
     if (isConnected && callStatus === 'ringing') {
       console.log('WebRTC connection established, updating call status');
@@ -169,8 +179,8 @@ export const CallPage = () => {
   }, [isConnected, callStatus, setCallStatus, setCallStartTime]);
 
   const handleAcceptCall = useCallback(async () => {
-    if (!activeCallId) {
-      console.error('No active call ID available');
+    if (!activeCallId || callInitializedRef.current) {
+      console.error('No active call ID available or call already initialized');
       toast.error('Call setup incomplete');
       return;
     }
@@ -182,28 +192,14 @@ export const CallPage = () => {
     } catch (error) {
       console.error('Error accepting call:', error);
       toast.error('Failed to establish call connection');
+      callInitializedRef.current = false;
     }
   }, [activeCallId, baseHandleAcceptCall, handleCallAccepted]);
 
   const onEndCall = useCallback(async () => {
     try {
       console.log('Ending call...');
-      await endWebRTCCall();
-      await handleEndCall();
-      clearActiveCall();
-      
-      if (!userId) {
-        console.error('No userId available for navigation');
-        navigate('/dashboard', { replace: true });
-        return;
-      }
-
-      if (profile?.role === 'admin') {
-        console.log('Admin ending call, navigating to chat with user:', userId);
-        navigate(`/chat/${userId}`, { replace: true });
-      } else {
-        navigate('/dashboard', { replace: true });
-      }
+      await handleCallEnded();
     } catch (error) {
       console.error('Error ending call:', error);
       toast.error('Failed to end call properly');
@@ -213,7 +209,7 @@ export const CallPage = () => {
         navigate('/dashboard', { replace: true });
       }
     }
-  }, [endWebRTCCall, handleEndCall, navigate, clearActiveCall, profile?.role, userId]);
+  }, [handleCallEnded, navigate, profile?.role, userId]);
 
   const onBack = useCallback(() => {
     if (!userId) {
@@ -223,6 +219,20 @@ export const CallPage = () => {
     }
     navigate(`/chat/${userId}`);
   }, [navigate, userId]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      console.log('Cleaning up CallPage...');
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.srcObject = null;
+        audioRef.current = null;
+      }
+      outgoingCallPlayer.stop();
+      callInitializedRef.current = false;
+    };
+  }, []);
 
   return (
     <CallContainer

@@ -18,6 +18,7 @@ export const useCallSubscription = ({
 }: UseCallSubscriptionProps) => {
   const { profile } = useProfile();
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const hasAcceptedRef = useRef(false);
 
   useEffect(() => {
     if (!profile?.id || channelRef.current) {
@@ -32,7 +33,7 @@ export const useCallSubscription = ({
       .on(
         'postgres_changes',
         {
-          event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
+          event: '*',
           schema: 'public',
           table: 'calls',
           filter: `receiver_id=eq.${profile.id}`,
@@ -46,16 +47,14 @@ export const useCallSubscription = ({
 
           const newCall = payload.new as Call;
 
-          // Handle different events
-          if (payload.eventType === 'INSERT') {
-            console.log('New incoming call detected:', newCall);
-            // The incoming call dialog will be handled by useIncomingCalls
-          } else if (payload.eventType === 'UPDATE') {
-            if (newCall.status === 'connected') {
+          if (payload.eventType === 'UPDATE') {
+            if (newCall.status === 'connected' && !hasAcceptedRef.current) {
               console.log('Call was accepted:', newCall);
+              hasAcceptedRef.current = true;
               onCallAccepted();
             } else if (newCall.status === 'ended') {
               console.log('Call was ended:', newCall);
+              hasAcceptedRef.current = false;
               onCallEnded();
             }
           }
@@ -78,6 +77,7 @@ export const useCallSubscription = ({
         supabase.removeChannel(channelRef.current);
         channelRef.current = null;
       }
+      hasAcceptedRef.current = false;
     };
   }, [profile?.id, onCallAccepted, onCallEnded]);
 };
