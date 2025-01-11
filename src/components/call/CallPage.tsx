@@ -17,6 +17,7 @@ export const CallPage = () => {
     callId,
     setCallId,
     duration,
+    setDuration,
     callStatus,
     setCallStatus,
     isMuted,
