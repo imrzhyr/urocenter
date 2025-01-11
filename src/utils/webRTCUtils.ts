@@ -16,12 +16,16 @@ export class WebRTCConnection {
   private remoteUserId: string;
 
   constructor(callId: string, userId: string, remoteUserId: string) {
-    this.peerConnection = new RTCPeerConnection(configuration);
     this.callId = callId;
     this.userId = userId;
     this.remoteUserId = remoteUserId;
-    this.setupPeerConnectionListeners();
+    this.initializePeerConnection();
     console.log('WebRTCConnection initialized with:', { callId, userId, remoteUserId });
+  }
+
+  private initializePeerConnection() {
+    this.peerConnection = new RTCPeerConnection(configuration);
+    this.setupPeerConnectionListeners();
   }
 
   private setupPeerConnectionListeners() {
@@ -37,11 +41,20 @@ export class WebRTCConnection {
         detail: { stream: this.remoteStream } 
       }));
     };
+
+    this.peerConnection.onconnectionstatechange = () => {
+      console.log('Connection state changed:', this.peerConnection.connectionState);
+    };
   }
 
   async startCall(isVideo: boolean = false) {
     try {
       console.log('Starting call with params:', { isVideo, userId: this.userId, remoteUserId: this.remoteUserId });
+      
+      if (this.peerConnection.connectionState === 'closed') {
+        this.initializePeerConnection();
+      }
+
       const constraints = {
         audio: true,
         video: isVideo
@@ -70,6 +83,10 @@ export class WebRTCConnection {
 
   async handleIncomingCall(isVideo: boolean = false) {
     try {
+      if (this.peerConnection.connectionState === 'closed') {
+        this.initializePeerConnection();
+      }
+
       const constraints = {
         audio: true,
         video: isVideo
@@ -92,6 +109,9 @@ export class WebRTCConnection {
 
   async handleOffer(offer: RTCSessionDescriptionInit) {
     try {
+      if (this.peerConnection.connectionState === 'closed') {
+        this.initializePeerConnection();
+      }
       await this.peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
       const answer = await this.peerConnection.createAnswer();
       await this.peerConnection.setLocalDescription(answer);
@@ -104,6 +124,9 @@ export class WebRTCConnection {
 
   async handleAnswer(answer: RTCSessionDescriptionInit) {
     try {
+      if (this.peerConnection.connectionState === 'closed') {
+        this.initializePeerConnection();
+      }
       await this.peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
     } catch (error) {
       console.error('Error handling answer:', error);
@@ -113,6 +136,9 @@ export class WebRTCConnection {
 
   async handleIceCandidate(candidate: RTCIceCandidateInit) {
     try {
+      if (this.peerConnection.connectionState === 'closed') {
+        this.initializePeerConnection();
+      }
       await this.peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
     } catch (error) {
       console.error('Error handling ICE candidate:', error);

@@ -11,6 +11,7 @@ export const useWebRTC = (callId: string, userId: string, remoteUserId: string) 
   useEffect(() => {
     if (!callId || !userId || !remoteUserId) return;
 
+    // Create new connection instance
     webRTCConnection.current = new WebRTCConnection(callId, userId, remoteUserId);
 
     const handleRemoteStream = (event: CustomEvent<{ stream: MediaStream }>) => {
@@ -57,7 +58,9 @@ export const useWebRTC = (callId: string, userId: string, remoteUserId: string) 
 
     return () => {
       window.removeEventListener('remoteStreamUpdated', handleRemoteStream as EventListener);
-      webRTCConnection.current?.endCall();
+      if (webRTCConnection.current) {
+        webRTCConnection.current.endCall();
+      }
       supabase.removeChannel(channel);
     };
   }, [callId, userId, remoteUserId]);
@@ -89,9 +92,11 @@ export const useWebRTC = (callId: string, userId: string, remoteUserId: string) 
   };
 
   const endCall = () => {
-    webRTCConnection.current?.endCall();
-    setLocalStream(null);
-    setRemoteStream(null);
+    if (webRTCConnection.current) {
+      webRTCConnection.current.endCall();
+      setLocalStream(null);
+      setRemoteStream(null);
+    }
   };
 
   return {
