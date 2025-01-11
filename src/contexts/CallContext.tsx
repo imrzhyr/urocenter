@@ -1,5 +1,4 @@
 import { createContext, useContext, useState, ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
 
 interface CallContextType {
   activeCallId: string | null;
@@ -16,7 +15,6 @@ export const CallProvider = ({ children }: { children: ReactNode }) => {
   const [activeCallId, setActiveCallId] = useState<string | null>(null);
   const [callDuration, setCallDuration] = useState(0);
   const [userId, setUserId] = useState<string | null>(null);
-  const navigate = useNavigate();
 
   const setActiveCall = (callId: string, newUserId: string) => {
     setActiveCallId(callId);
