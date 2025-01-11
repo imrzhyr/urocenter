@@ -25,13 +25,22 @@ export class WebRTCConnection {
   }
 
   private initializePeerConnection() {
-    if (this.peerConnection?.connectionState !== 'closed') {
-      this.peerConnection?.close();
+    try {
+      if (this.peerConnection) {
+        // Clean up existing connection
+        this.peerConnection.close();
+        this.peerConnection.onicecandidate = null;
+        this.peerConnection.ontrack = null;
+        this.peerConnection.onconnectionstatechange = null;
+      }
+      
+      this.peerConnection = new RTCPeerConnection(configuration);
+      this.setupPeerConnectionListeners();
+      console.log('PeerConnection initialized, state:', this.peerConnection.connectionState);
+    } catch (error) {
+      console.error('Error initializing PeerConnection:', error);
+      throw error;
     }
-    
-    this.peerConnection = new RTCPeerConnection(configuration);
-    this.setupPeerConnectionListeners();
-    console.log('PeerConnection initialized, state:', this.peerConnection.connectionState);
   }
 
   private setupPeerConnectionListeners() {
@@ -60,7 +69,11 @@ export class WebRTCConnection {
     try {
       console.log('Starting call with params:', { isVideo, userId: this.userId, remoteUserId: this.remoteUserId });
       
-      this.initializePeerConnection();
+      // Ensure PeerConnection is in a valid state
+      if (!this.peerConnection || this.peerConnection.connectionState === 'closed') {
+        console.log('PeerConnection not ready, reinitializing...');
+        this.initializePeerConnection();
+      }
 
       const constraints = {
         audio: true,
