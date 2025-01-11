@@ -57,7 +57,6 @@ export const CallPage = () => {
     }
   }, [callStatus, isIncoming]);
 
-  // Initialize WebRTC when accepting a call
   const handleCallAccepted = useCallback(async () => {
     if (!activeCallId || !userId) {
       console.error('No active call ID available');
@@ -94,8 +93,9 @@ export const CallPage = () => {
     await endWebRTCCall();
     handleEndCall();
     clearActiveCall();
-    navigate('/chat', { replace: true });
-  }, [endWebRTCCall, handleEndCall, navigate, clearActiveCall]);
+    const redirectPath = profile?.role === 'admin' ? '/chat' : '/dashboard';
+    navigate(redirectPath, { replace: true });
+  }, [endWebRTCCall, handleEndCall, navigate, clearActiveCall, profile?.role]);
 
   useCallSubscription({
     userId: userId || '',
@@ -173,13 +173,14 @@ export const CallPage = () => {
       await endWebRTCCall();
       await handleEndCall();
       clearActiveCall();
-      navigate('/chat', { replace: true });
+      const redirectPath = profile?.role === 'admin' ? '/chat' : '/dashboard';
+      navigate(redirectPath, { replace: true });
     } catch (error) {
       console.error('Error ending call:', error);
       toast.error('Failed to end call properly');
       navigate('/chat', { replace: true });
     }
-  }, [endWebRTCCall, handleEndCall, navigate, clearActiveCall]);
+  }, [endWebRTCCall, handleEndCall, navigate, clearActiveCall, profile?.role]);
 
   const onBack = useCallback(() => {
     navigate('/chat');
