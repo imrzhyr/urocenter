@@ -53,13 +53,11 @@ export const useCallSetup = (userId: string | undefined, profile: Profile | null
           console.log('Found existing call:', activeCall);
           setActiveCallId(activeCall.id);
           
-          if (activeCall.caller_id === profile.id) {
-            console.log('We are the caller in the existing call');
-            setIsIncoming(false);
-          } else {
-            console.log('We are the receiver in the existing call');
-            setIsIncoming(true);
-          }
+          // Set isIncoming based on whether we're the receiver
+          const isReceiver = activeCall.receiver_id === profile.id;
+          setIsIncoming(isReceiver);
+          console.log(`Call direction: ${isReceiver ? 'incoming' : 'outgoing'}`);
+          
           setupCompleted.current = true;
           return;
         }
