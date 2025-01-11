@@ -21,6 +21,7 @@ export class WebRTCConnection {
     this.userId = userId;
     this.remoteUserId = remoteUserId;
     this.setupPeerConnectionListeners();
+    console.log('WebRTCConnection initialized with:', { callId, userId, remoteUserId });
   }
 
   private setupPeerConnectionListeners() {
@@ -40,6 +41,7 @@ export class WebRTCConnection {
 
   async startCall(isVideo: boolean = false) {
     try {
+      console.log('Starting call with params:', { isVideo, userId: this.userId, remoteUserId: this.remoteUserId });
       const constraints = {
         audio: true,
         video: isVideo
@@ -55,6 +57,8 @@ export class WebRTCConnection {
 
       const offer = await this.peerConnection.createOffer();
       await this.peerConnection.setLocalDescription(offer);
+      
+      console.log('Sending offer signal');
       await this.sendSignalingMessage('offer', offer);
 
       return this.localStream;
@@ -118,6 +122,18 @@ export class WebRTCConnection {
 
   private async sendSignalingMessage(type: string, data: any) {
     try {
+      const session = await supabase.auth.getSession();
+      if (!session.data.session) {
+        throw new Error('No authenticated session found');
+      }
+
+      console.log('Sending signaling message:', {
+        type,
+        callId: this.callId,
+        senderId: this.userId,
+        receiverId: this.remoteUserId
+      });
+
       const { error } = await supabase.from('webrtc_signaling').insert({
         call_id: this.callId,
         sender_id: this.userId,
@@ -136,7 +152,7 @@ export class WebRTCConnection {
     }
   }
 
-  async endCall() {
+  endCall() {
     this.localStream?.getTracks().forEach(track => track.stop());
     this.peerConnection.close();
   }
