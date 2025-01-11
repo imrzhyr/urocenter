@@ -6,6 +6,10 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
+import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
+import { Database } from "@/integrations/supabase/types";
+
+type Call = Database['public']['Tables']['calls']['Row'];
 
 export const CallPage = () => {
   const { userId } = useParams();
@@ -39,10 +43,10 @@ export const CallPage = () => {
           table: 'calls',
           filter: `id=eq.${callId}`
         },
-        async (payload) => {
-          if (payload.new.status === 'connected') {
+        async (payload: RealtimePostgresChangesPayload<Call>) => {
+          if (payload.new && payload.new.status === 'connected') {
             setCallStatus('connected');
-          } else if (payload.new.status === 'ended') {
+          } else if (payload.new && payload.new.status === 'ended') {
             setCallStatus('ended');
             endCall();
             onBack();
@@ -56,7 +60,6 @@ export const CallPage = () => {
     };
   }, [callId]);
 
-  // Handle audio output
   useEffect(() => {
     if (remoteStream && isSpeaker) {
       const audioElement = new Audio();
@@ -70,7 +73,6 @@ export const CallPage = () => {
     }
   }, [remoteStream, isSpeaker]);
 
-  // Update duration timer
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
     if (callStatus === 'connected') {
