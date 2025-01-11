@@ -27,14 +27,23 @@ export const CallPage = () => {
 
     const setupCall = async () => {
       try {
-        const { data: existingCall } = await supabase
+        // Modified query to handle multiple results
+        const { data: existingCalls, error: queryError } = await supabase
           .from('calls')
           .select('*')
           .eq('status', 'initiated')
           .or(`caller_id.eq.${profile.id},receiver_id.eq.${profile.id}`)
-          .single();
+          .order('created_at', { ascending: false })
+          .limit(1);
 
-        if (existingCall) {
+        if (queryError) {
+          console.error('Error querying calls:', queryError);
+          toast.error('Could not check existing calls');
+          return;
+        }
+
+        if (existingCalls && existingCalls.length > 0) {
+          const existingCall = existingCalls[0];
           setCallId(existingCall.id);
           const isReceiver = existingCall.receiver_id === profile.id;
           
@@ -55,6 +64,7 @@ export const CallPage = () => {
             .single();
 
           if (error) {
+            console.error('Error creating call record:', error);
             toast.error('Could not initiate call');
             return;
           }
@@ -123,7 +133,6 @@ export const CallPage = () => {
   };
 
   const handleToggleSpeaker = () => {
-    // In a real implementation, this would handle audio output device selection
     setIsSpeaker(!isSpeaker);
   };
 
