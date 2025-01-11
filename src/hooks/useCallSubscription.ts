@@ -39,6 +39,10 @@ export const useCallSubscription = ({
         },
         (payload: RealtimePostgresChangesPayload<Call>) => {
           console.log('Received call update:', payload);
+          
+          if (!payload.new) {
+            return;
+          }
 
           if (payload.new.status === 'connected') {
             onCallAccepted();
