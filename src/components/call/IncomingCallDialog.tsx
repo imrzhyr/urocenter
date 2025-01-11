@@ -4,6 +4,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { RingtonePlayer } from "@/utils/audioPlayer";
 
 interface IncomingCallDialogProps {
   open: boolean;
@@ -25,6 +26,7 @@ export const IncomingCallDialog = ({
   const handleAcceptCall = async () => {
     try {
       console.log('Accepting call with ID:', callId);
+      RingtonePlayer.stop();
       
       const { error } = await supabase
         .from('calls')
@@ -52,6 +54,7 @@ export const IncomingCallDialog = ({
   const handleRejectCall = async () => {
     try {
       console.log('Rejecting call with ID:', callId);
+      RingtonePlayer.stop();
       
       const { error } = await supabase
         .from('calls')
