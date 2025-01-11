@@ -24,17 +24,14 @@ export class WebRTCConnection {
   }
 
   private setupPeerConnectionListeners() {
-    // Handle ICE candidates
     this.peerConnection.onicecandidate = async (event) => {
       if (event.candidate) {
         await this.sendSignalingMessage('ice-candidate', event.candidate);
       }
     };
 
-    // Handle remote stream
     this.peerConnection.ontrack = (event) => {
       this.remoteStream = event.streams[0];
-      // Notify any listeners about the new remote stream
       window.dispatchEvent(new CustomEvent('remoteStreamUpdated', { 
         detail: { stream: this.remoteStream } 
       }));
@@ -50,14 +47,12 @@ export class WebRTCConnection {
       
       this.localStream = await navigator.mediaDevices.getUserMedia(constraints);
       
-      // Add tracks to peer connection
       this.localStream.getTracks().forEach(track => {
         if (this.localStream) {
           this.peerConnection.addTrack(track, this.localStream);
         }
       });
 
-      // Create and send offer
       const offer = await this.peerConnection.createOffer();
       await this.peerConnection.setLocalDescription(offer);
       await this.sendSignalingMessage('offer', offer);
@@ -123,13 +118,18 @@ export class WebRTCConnection {
 
   private async sendSignalingMessage(type: string, data: any) {
     try {
-      await supabase.from('webrtc_signaling').insert({
+      const { error } = await supabase.from('webrtc_signaling').insert({
         call_id: this.callId,
         sender_id: this.userId,
         receiver_id: this.remoteUserId,
         type,
         data
       });
+
+      if (error) {
+        console.error('Error sending signaling message:', error);
+        throw error;
+      }
     } catch (error) {
       console.error('Error sending signaling message:', error);
       throw error;
