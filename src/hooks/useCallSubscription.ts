@@ -32,13 +32,13 @@ export const useCallSubscription = ({
       .on(
         'postgres_changes',
         {
-          event: 'UPDATE',
+          event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
           schema: 'public',
           table: 'calls',
           filter: `receiver_id=eq.${profile.id}`,
         },
         (payload: RealtimePostgresChangesPayload<Call>) => {
-          console.log('Received call update:', payload);
+          console.log('Received call payload:', payload);
           
           if (!payload.new) {
             return;
@@ -46,10 +46,18 @@ export const useCallSubscription = ({
 
           const newCall = payload.new as Call;
 
-          if (newCall.status === 'connected') {
-            onCallAccepted();
-          } else if (newCall.status === 'ended') {
-            onCallEnded();
+          // Handle different events
+          if (payload.eventType === 'INSERT') {
+            console.log('New incoming call detected:', newCall);
+            // The incoming call dialog will be handled by useIncomingCalls
+          } else if (payload.eventType === 'UPDATE') {
+            if (newCall.status === 'connected') {
+              console.log('Call was accepted:', newCall);
+              onCallAccepted();
+            } else if (newCall.status === 'ended') {
+              console.log('Call was ended:', newCall);
+              onCallEnded();
+            }
           }
         }
       )
