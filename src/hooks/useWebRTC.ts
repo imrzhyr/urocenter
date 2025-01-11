@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { Json } from '@/integrations/supabase/types';
 
 export const useWebRTC = (callId: string, userId: string, remoteUserId: string) => {
   const [peerConnection, setPeerConnection] = useState<RTCPeerConnection | null>(null);
@@ -25,12 +26,20 @@ export const useWebRTC = (callId: string, userId: string, remoteUserId: string) 
     pc.onicecandidate = async (event) => {
       if (event.candidate) {
         try {
+          // Convert ICE candidate to a JSON-compatible format
+          const candidateJson = {
+            candidate: event.candidate.candidate,
+            sdpMid: event.candidate.sdpMid,
+            sdpMLineIndex: event.candidate.sdpMLineIndex,
+            usernameFragment: event.candidate.usernameFragment
+          } as Json;
+
           await supabase.from('webrtc_signaling').insert({
             call_id: callId,
             sender_id: userId,
             receiver_id: remoteUserId,
             type: 'ice-candidate',
-            data: event.candidate
+            data: candidateJson
           });
         } catch (error) {
           console.error('Error sending ICE candidate:', error);
@@ -68,28 +77,40 @@ export const useWebRTC = (callId: string, userId: string, remoteUserId: string) 
             switch (type) {
               case 'offer':
                 console.log('Received offer:', data);
-                await peerConnection.setRemoteDescription(new RTCSessionDescription(data));
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(data as RTCSessionDescriptionInit));
                 const answer = await peerConnection.createAnswer();
                 await peerConnection.setLocalDescription(answer);
                 
+                // Convert answer to a JSON-compatible format
+                const answerJson = {
+                  type: answer.type,
+                  sdp: answer.sdp
+                } as Json;
+
                 await supabase.from('webrtc_signaling').insert({
                   call_id: callId,
                   sender_id: userId,
                   receiver_id: remoteUserId,
                   type: 'answer',
-                  data: answer
+                  data: answerJson
                 });
                 break;
 
               case 'answer':
                 console.log('Received answer:', data);
-                await peerConnection.setRemoteDescription(new RTCSessionDescription(data));
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(data as RTCSessionDescriptionInit));
                 setIsConnected(true);
                 break;
 
               case 'ice-candidate':
                 console.log('Received ICE candidate:', data);
-                await peerConnection.addIceCandidate(new RTCIceCandidate(data));
+                const candidate = new RTCIceCandidate({
+                  candidate: data.candidate,
+                  sdpMid: data.sdpMid,
+                  sdpMLineIndex: data.sdpMLineIndex,
+                  usernameFragment: data.usernameFragment
+                });
+                await peerConnection.addIceCandidate(candidate);
                 break;
             }
           } catch (error) {
@@ -122,12 +143,18 @@ export const useWebRTC = (callId: string, userId: string, remoteUserId: string) 
         const offer = await peerConnection.createOffer();
         await peerConnection.setLocalDescription(offer);
 
+        // Convert offer to a JSON-compatible format
+        const offerJson = {
+          type: offer.type,
+          sdp: offer.sdp
+        } as Json;
+
         await supabase.from('webrtc_signaling').insert({
           call_id: callId,
           sender_id: userId,
           receiver_id: remoteUserId,
           type: 'offer',
-          data: offer
+          data: offerJson
         });
       }
     } catch (error) {
