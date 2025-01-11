@@ -13,7 +13,7 @@ export const CallPage = () => {
   const navigate = useNavigate();
   const { profile } = useProfile();
   const [isMuted, setIsMuted] = useState(false);
-  const [isSpeaker, setIsSpeaker] = useState(true); // Default to true for better UX
+  const [isSpeaker, setIsSpeaker] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
   const {
@@ -25,14 +25,7 @@ export const CallPage = () => {
     activeCallId
   } = useCallSetup(userId, profile);
 
-  const {
-    duration,
-    handleEndCall,
-    handleAcceptCall: baseHandleAcceptCall,
-    handleRejectCall,
-    setCallStartTime
-  } = useCallHandlers(userId, profile);
-
+  // Initialize WebRTC only when we have a valid activeCallId
   const {
     localStream,
     remoteStream,
@@ -45,7 +38,22 @@ export const CallPage = () => {
     userId || ''
   );
 
+  const {
+    duration,
+    handleEndCall,
+    handleAcceptCall: baseHandleAcceptCall,
+    handleRejectCall,
+    setCallStartTime
+  } = useCallHandlers(userId, profile);
+
+  // Wait for activeCallId before proceeding with call acceptance
   const handleCallAccepted = useCallback(async () => {
+    if (!activeCallId) {
+      console.error('No active call ID available');
+      toast.error('Call setup incomplete');
+      return;
+    }
+
     console.log('Call accepted, updating status to connected');
     setCallStatus('connected');
     setIsIncoming(false);
@@ -56,7 +64,7 @@ export const CallPage = () => {
       console.error('Error starting WebRTC call:', error);
       toast.error('Failed to establish call connection');
     }
-  }, [setCallStatus, setIsIncoming, setCallStartTime, startCall]);
+  }, [activeCallId, setCallStatus, setIsIncoming, setCallStartTime, startCall]);
 
   const handleCallEnded = useCallback(async () => {
     console.log('Call ended, cleaning up');
@@ -105,7 +113,13 @@ export const CallPage = () => {
   }, [isMuted, isSpeaker, localStream]);
 
   const handleAcceptCall = useCallback(async () => {
-    console.log('Accepting call...');
+    if (!activeCallId) {
+      console.error('No active call ID available');
+      toast.error('Call setup incomplete');
+      return;
+    }
+
+    console.log('Accepting call...', { activeCallId });
     try {
       await baseHandleAcceptCall();
       await handleCallAccepted();
@@ -113,7 +127,7 @@ export const CallPage = () => {
       console.error('Error accepting call:', error);
       toast.error('Failed to establish call connection');
     }
-  }, [baseHandleAcceptCall, handleCallAccepted]);
+  }, [activeCallId, baseHandleAcceptCall, handleCallAccepted]);
 
   const onEndCall = useCallback(async () => {
     try {
