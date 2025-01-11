@@ -1,4 +1,4 @@
-package com.lovable.app.pages
+package com.lovable.app.ui.signin
 
 import android.os.Bundle
 import android.view.LayoutInflater
