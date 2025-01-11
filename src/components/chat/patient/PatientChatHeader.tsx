@@ -5,11 +5,13 @@ import { BackButton } from "@/components/BackButton";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 export const PatientChatHeader = () => {
   const { t } = useLanguage();
   const { profile } = useProfile();
   const [adminId, setAdminId] = useState<string>();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAdminId = async () => {
@@ -37,10 +39,14 @@ export const PatientChatHeader = () => {
     return null;
   }
 
+  const handleBack = () => {
+    navigate("/dashboard");
+  };
+
   return (
     <div className="flex items-center justify-between p-4 bg-primary">
       <div className="flex items-center gap-4">
-        <BackButton />
+        <BackButton onClick={handleBack} />
         <div>
           <h3 className="font-medium text-white">
             {t('doctor_name')}

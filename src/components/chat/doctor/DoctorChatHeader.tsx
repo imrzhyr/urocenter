@@ -22,12 +22,16 @@ export const DoctorChatHeader = ({ patientId, patientName, patientPhone, onRefre
 
   const firstLetter = patientName ? patientName.charAt(0).toUpperCase() : '?';
 
+  const handleBack = () => {
+    navigate("/admin");
+  };
+
   return (
     <div className="flex items-center gap-4 p-2">
       <Button 
         variant="ghost" 
         size="icon"
-        onClick={() => navigate("/admin")}
+        onClick={handleBack}
         className="rounded-full hover:bg-white/20"
       >
         <ArrowLeft className="h-5 w-5 text-white" />
