@@ -9,8 +9,28 @@ export const useWebRTC = (callId: string, userId: string, remoteUserId: string) 
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
   const [isConnected, setIsConnected] = useState(false);
 
+  // Validate UUIDs before proceeding
+  const validateIds = () => {
+    if (!callId || !userId || !remoteUserId) {
+      console.error('Missing required IDs:', { callId, userId, remoteUserId });
+      return false;
+    }
+    // UUID regex pattern
+    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidPattern.test(callId) || !uuidPattern.test(userId) || !uuidPattern.test(remoteUserId)) {
+      console.error('Invalid UUID format:', { callId, userId, remoteUserId });
+      return false;
+    }
+    return true;
+  };
+
   // Initialize WebRTC
   useEffect(() => {
+    if (!validateIds()) {
+      toast.error('Invalid call configuration');
+      return;
+    }
+
     const pc = new RTCPeerConnection({
       iceServers: [
         { urls: 'stun:stun.l.google.com:19302' },
@@ -24,7 +44,7 @@ export const useWebRTC = (callId: string, userId: string, remoteUserId: string) 
     };
 
     pc.onicecandidate = async (event) => {
-      if (event.candidate) {
+      if (event.candidate && validateIds()) {
         try {
           // Convert ICE candidate to a JSON-compatible format
           const candidateJson = {
@@ -57,7 +77,7 @@ export const useWebRTC = (callId: string, userId: string, remoteUserId: string) 
 
   // Listen for signaling messages
   useEffect(() => {
-    if (!peerConnection) return;
+    if (!peerConnection || !validateIds()) return;
 
     const channel = supabase.channel(`webrtc_${callId}`)
       .on(
@@ -127,6 +147,11 @@ export const useWebRTC = (callId: string, userId: string, remoteUserId: string) 
   }, [peerConnection, callId, userId, remoteUserId]);
 
   const startCall = async () => {
+    if (!validateIds()) {
+      toast.error('Invalid call configuration');
+      return;
+    }
+
     try {
       console.log('Starting call, requesting microphone access...');
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
