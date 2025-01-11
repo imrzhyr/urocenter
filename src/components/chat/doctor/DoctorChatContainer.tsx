@@ -1,13 +1,14 @@
 import { MessageContainer } from "../MessageContainer";
 import { DoctorChatHeader } from "./DoctorChatHeader";
 import { useChat } from "@/hooks/useChat";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useDoctorChat } from "./hooks/useDoctorChat";
 import { useProfile } from "@/hooks/useProfile";
 
 export const DoctorChatContainer = () => {
   const { userId } = useParams();
+  const navigate = useNavigate();
   const { messages, sendMessage, isLoading, refreshMessages } = useChat(userId);
   const { patientProfile } = useDoctorChat(userId);
   const { profile } = useProfile();
@@ -27,6 +28,10 @@ export const DoctorChatContainer = () => {
     }
   };
 
+  const handleBack = () => {
+    navigate('/admin');
+  };
+
   if (!patientProfile) {
     return null;
   }
@@ -43,6 +48,7 @@ export const DoctorChatContainer = () => {
             patientName={patientProfile.full_name || "Unknown Patient"}
             patientPhone={patientProfile.phone}
             onRefresh={refreshMessages}
+            onBack={handleBack}
           />
         }
         userId={userId || ''}
