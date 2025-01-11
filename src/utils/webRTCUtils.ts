@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const configuration = {
   iceServers: [
@@ -59,7 +60,6 @@ export class WebRTCConnection {
     try {
       console.log('Starting call with params:', { isVideo, userId: this.userId, remoteUserId: this.remoteUserId });
       
-      // Always reinitialize for a new call
       this.initializePeerConnection();
 
       const constraints = {
@@ -98,7 +98,6 @@ export class WebRTCConnection {
 
   async handleIncomingCall(isVideo: boolean = false) {
     try {
-      // Always reinitialize for incoming call
       this.initializePeerConnection();
 
       const constraints = {
@@ -165,8 +164,11 @@ export class WebRTCConnection {
 
   private async sendSignalingMessage(type: string, data: any) {
     try {
-      const session = await supabase.auth.getSession();
-      if (!session.data.session) {
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session) {
+        console.error('No authenticated session found:', sessionError);
+        toast.error('Authentication required for call');
         throw new Error('No authenticated session found');
       }
 
