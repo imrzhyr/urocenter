@@ -17,7 +17,6 @@ export const CallPage = () => {
   const [isMuted, setIsMuted] = useState(false);
   const [isSpeaker, setIsSpeaker] = useState(true);
 
-  // Add authentication check
   useAuthRedirect();
 
   const { localStream, remoteStream, startCall, answerCall, endCall } = useWebRTC(
@@ -25,6 +24,64 @@ export const CallPage = () => {
     profile?.id || '',
     userId || ''
   );
+
+  // Subscribe to call status changes
+  useEffect(() => {
+    if (!callId) return;
+
+    const channel = supabase
+      .channel(`call_${callId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'calls',
+          filter: `id=eq.${callId}`
+        },
+        async (payload) => {
+          if (payload.new.status === 'connected') {
+            setCallStatus('connected');
+          } else if (payload.new.status === 'ended') {
+            setCallStatus('ended');
+            endCall();
+            onBack();
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [callId]);
+
+  // Handle audio output
+  useEffect(() => {
+    if (remoteStream && isSpeaker) {
+      const audioElement = new Audio();
+      audioElement.srcObject = remoteStream;
+      audioElement.play().catch(console.error);
+
+      return () => {
+        audioElement.pause();
+        audioElement.srcObject = null;
+      };
+    }
+  }, [remoteStream, isSpeaker]);
+
+  // Update duration timer
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+    if (callStatus === 'connected') {
+      intervalId = setInterval(() => {
+        setDuration(prev => prev + 1);
+      }, 1000);
+    }
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [callStatus]);
 
   useEffect(() => {
     if (!profile?.id || !userId) return;
@@ -58,6 +115,10 @@ export const CallPage = () => {
           
           if (isReceiver) {
             await answerCall();
+            await supabase
+              .from('calls')
+              .update({ status: 'connected' })
+              .eq('id', existingCall.id);
           } else {
             await startCall();
           }
@@ -89,18 +150,12 @@ export const CallPage = () => {
 
     setupCall();
 
-    let intervalId: NodeJS.Timeout;
-    if (callStatus === 'connected') {
-      intervalId = setInterval(() => {
-        setDuration(prev => prev + 1);
-      }, 1000);
-    }
-
     return () => {
-      if (intervalId) clearInterval(intervalId);
-      endCall();
+      if (callId) {
+        endCall();
+      }
     };
-  }, [profile?.id, userId, callStatus]);
+  }, [profile?.id, userId]);
 
   const onBack = () => {
     if (!userId) {
