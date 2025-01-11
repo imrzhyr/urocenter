@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useProfile } from "@/hooks/useProfile";
 import { useCallSetup } from "./hooks/useCallSetup";
@@ -46,6 +46,33 @@ export const CallPage = () => {
     userId || ''
   );
 
+  const handleCallAccepted = useCallback(async () => {
+    console.log('Call accepted, updating status to connected');
+    setCallStatus('connected');
+    setIsIncoming(false);
+    setCallStartTime(new Date());
+    try {
+      await startCall();
+      console.log('WebRTC call started successfully');
+    } catch (error) {
+      console.error('Error starting WebRTC call:', error);
+      toast.error('Failed to establish call connection');
+    }
+  }, [setCallStatus, setIsIncoming, setCallStartTime, startCall]);
+
+  const handleCallEnded = useCallback(async () => {
+    console.log('Call ended, cleaning up');
+    await endWebRTCCall();
+    handleEndCall();
+    navigate('/chat', { replace: true });
+  }, [endWebRTCCall, handleEndCall, navigate]);
+
+  useCallSubscription({
+    userId: userId || '',
+    onCallAccepted: handleCallAccepted,
+    onCallEnded: handleCallEnded
+  });
+
   useEffect(() => {
     if (remoteStream && !audioElement) {
       console.log('Setting up audio element with remote stream');
@@ -68,38 +95,11 @@ export const CallPage = () => {
     }
   }, [isMuted, localStream, audioElement]);
 
-  useCallSubscription({
-    userId: userId || '',
-    onCallAccepted: async () => {
-      console.log('Call accepted, updating status to connected');
-      setCallStatus('connected');
-      setIsIncoming(false);
-      setCallStartTime(new Date());
-      try {
-        await startCall();
-        console.log('WebRTC call started successfully');
-      } catch (error) {
-        console.error('Error starting WebRTC call:', error);
-        toast.error('Failed to establish call connection');
-      }
-    },
-    onCallEnded: async () => {
-      console.log('Call ended, cleaning up');
-      await endWebRTCCall();
-      handleEndCall();
-      navigate('/chat', { replace: true });
-    }
-  });
-
   const handleAcceptCall = async () => {
     console.log('Accepting call...');
     try {
       await baseHandleAcceptCall();
-      setCallStatus('connected');
-      setIsIncoming(false);
-      setCallStartTime(new Date());
-      await startCall();
-      console.log('Call accepted and WebRTC connection established');
+      await handleCallAccepted();
     } catch (error) {
       console.error('Error accepting call:', error);
       toast.error('Failed to establish call connection');
@@ -122,16 +122,13 @@ export const CallPage = () => {
     navigate('/chat', { replace: true });
   };
 
-  // Only show incoming controls on the IncomingCallDialog, not on the CallPage
-  const showIncomingControls = false;
-
   return (
     <CallContainer
       onBack={onBack}
       duration={duration}
       callStatus={callStatus}
       callingUser={callingUser}
-      isIncoming={showIncomingControls}
+      isIncoming={isIncoming}
       isMuted={isMuted}
       isSpeaker={isSpeaker}
       onToggleMute={() => setIsMuted(!isMuted)}
