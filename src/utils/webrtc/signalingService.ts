@@ -11,12 +11,21 @@ export class SignalingService {
 
   async sendSignalingMessage(type: string, data: any) {
     try {
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError || !session) {
-        console.error('No authenticated session found:', sessionError);
-        toast.error('Authentication required for call');
-        throw new Error('No authenticated session found');
+      // First check if we have a valid user phone in localStorage
+      const userPhone = localStorage.getItem('userPhone');
+      if (!userPhone) {
+        throw new Error('No user phone found');
+      }
+
+      // Verify the user exists in profiles
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('phone', userPhone)
+        .single();
+
+      if (profileError || !profile) {
+        throw new Error('User profile not found');
       }
 
       console.log('Sending signaling message:', {
@@ -39,7 +48,8 @@ export class SignalingService {
         throw error;
       }
     } catch (error) {
-      console.error('Error sending signaling message:', error);
+      console.error('Error in signaling service:', error);
+      toast.error('Connection error. Please try again.');
       throw error;
     }
   }

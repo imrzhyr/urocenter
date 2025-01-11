@@ -5,6 +5,7 @@ import { useWebRTC } from "@/hooks/useWebRTC";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 export const CallPage = () => {
   const { userId } = useParams();
@@ -15,6 +16,9 @@ export const CallPage = () => {
   const [callStatus, setCallStatus] = useState<string>("ringing");
   const [isMuted, setIsMuted] = useState(false);
   const [isSpeaker, setIsSpeaker] = useState(true);
+
+  // Add authentication check
+  useAuthRedirect();
 
   const { localStream, remoteStream, startCall, answerCall, endCall } = useWebRTC(
     callId || '',
@@ -27,7 +31,12 @@ export const CallPage = () => {
 
     const setupCall = async () => {
       try {
-        // Modified query to handle multiple results
+        if (!localStorage.getItem('userPhone')) {
+          toast.error('Please sign in to make calls');
+          navigate('/signin');
+          return;
+        }
+
         const { data: existingCalls, error: queryError } = await supabase
           .from('calls')
           .select('*')
@@ -80,7 +89,6 @@ export const CallPage = () => {
 
     setupCall();
 
-    // Start duration timer when call is connected
     let intervalId: NodeJS.Timeout;
     if (callStatus === 'connected') {
       intervalId = setInterval(() => {
