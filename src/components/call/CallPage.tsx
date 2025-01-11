@@ -1,16 +1,11 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useProfile } from "@/hooks/useProfile";
 import { CallContainer } from "./CallContainer";
-import { useState } from "react";
-import { CallStatus } from "@/types/call";
 
 export const CallPage = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
   const { profile } = useProfile();
-  const [callStatus] = useState<CallStatus>("ringing");
-  const [isMuted, setIsMuted] = useState(false);
-  const [isSpeaker, setIsSpeaker] = useState(true);
 
   const onBack = () => {
     if (!userId) {
@@ -29,13 +24,13 @@ export const CallPage = () => {
     <CallContainer
       onBack={onBack}
       duration={0}
-      callStatus={callStatus}
+      callStatus="ringing"
       callingUser={mockCallingUser}
       isIncoming={false}
-      isMuted={isMuted}
-      isSpeaker={isSpeaker}
-      onToggleMute={() => setIsMuted(!isMuted)}
-      onToggleSpeaker={() => setIsSpeaker(!isSpeaker)}
+      isMuted={false}
+      isSpeaker={true}
+      onToggleMute={() => {}}
+      onToggleSpeaker={() => {}}
       onEndCall={onBack}
       onAcceptCall={() => {}}
       onRejectCall={() => {}}
