@@ -1,0 +1,10 @@
+platform :ios, '14.0'
+
+target 'LovableApp' do
+  use_frameworks!
+
+  # Pods for LovableApp
+  pod 'Supabase', '~> 0.3.0'
+  pod 'SDWebImage', '~> 5.0'
+  pod 'WebRTC', '~> 104.0'
+end
