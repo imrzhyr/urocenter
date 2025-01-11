@@ -112,6 +112,15 @@ export const CallPage = () => {
     }
   }, [isMuted, isSpeaker, localStream]);
 
+  // Update call status when WebRTC connection is established
+  useEffect(() => {
+    if (isConnected && callStatus === 'ringing') {
+      console.log('WebRTC connection established, updating call status');
+      setCallStatus('connected');
+      setCallStartTime(new Date());
+    }
+  }, [isConnected, callStatus, setCallStatus, setCallStartTime]);
+
   const handleAcceptCall = useCallback(async () => {
     if (!activeCallId) {
       console.error('No active call ID available');
