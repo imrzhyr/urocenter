@@ -103,12 +103,37 @@ export const CallPage = () => {
 
     setupCall();
 
+    // Subscribe to call status changes
+    const channel = supabase
+      .channel(`call_${callId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'calls',
+          filter: `id=eq.${callId}`
+        },
+        (payload) => {
+          const call = payload.new;
+          if (call.status === 'connected') {
+            console.log('Call status updated to connected');
+            setCallStatus('connected');
+          } else if (call.status === 'ended') {
+            setCallStatus('ended');
+            handleEndCall();
+          }
+        }
+      )
+      .subscribe();
+
     return () => {
       if (callId) {
         handleEndCall();
       }
+      supabase.removeChannel(channel);
     };
-  }, [profile?.id, userId]);
+  }, [profile?.id, userId, callId]);
 
   const mockUser = {
     full_name: "User",
