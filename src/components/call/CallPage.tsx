@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useProfile } from "@/hooks/useProfile";
 import { useCallSetup } from "./hooks/useCallSetup";
@@ -14,7 +14,7 @@ export const CallPage = () => {
   const { profile } = useProfile();
   const [isMuted, setIsMuted] = useState(false);
   const [isSpeaker, setIsSpeaker] = useState(false);
-  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   
   const {
     callingUser,
@@ -27,7 +27,6 @@ export const CallPage = () => {
 
   const {
     duration,
-    setDuration,
     handleEndCall,
     handleAcceptCall: baseHandleAcceptCall,
     handleRejectCall,
@@ -53,7 +52,6 @@ export const CallPage = () => {
     setCallStartTime(new Date());
     try {
       await startCall();
-      console.log('WebRTC call started successfully');
     } catch (error) {
       console.error('Error starting WebRTC call:', error);
       toast.error('Failed to establish call connection');
@@ -74,18 +72,26 @@ export const CallPage = () => {
   });
 
   useEffect(() => {
-    if (remoteStream && !audioElement) {
+    if (remoteStream && !audioRef.current) {
       console.log('Setting up audio element with remote stream');
       const audio = new Audio();
       audio.srcObject = remoteStream;
       audio.play().catch(console.error);
-      setAudioElement(audio);
+      audioRef.current = audio;
     }
-  }, [remoteStream, audioElement]);
+
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.srcObject = null;
+        audioRef.current = null;
+      }
+    };
+  }, [remoteStream]);
 
   useEffect(() => {
-    if (audioElement) {
-      audioElement.muted = isMuted;
+    if (audioRef.current) {
+      audioRef.current.muted = isMuted;
     }
     
     if (localStream) {
@@ -93,9 +99,9 @@ export const CallPage = () => {
         track.enabled = !isMuted;
       });
     }
-  }, [isMuted, localStream, audioElement]);
+  }, [isMuted, localStream]);
 
-  const handleAcceptCall = async () => {
+  const handleAcceptCall = useCallback(async () => {
     console.log('Accepting call...');
     try {
       await baseHandleAcceptCall();
@@ -104,9 +110,9 @@ export const CallPage = () => {
       console.error('Error accepting call:', error);
       toast.error('Failed to establish call connection');
     }
-  };
+  }, [baseHandleAcceptCall, handleCallAccepted]);
 
-  const onEndCall = async () => {
+  const onEndCall = useCallback(async () => {
     try {
       await endWebRTCCall();
       await handleEndCall();
@@ -116,11 +122,11 @@ export const CallPage = () => {
       toast.error('Failed to end call properly');
       navigate('/chat', { replace: true });
     }
-  };
+  }, [endWebRTCCall, handleEndCall, navigate]);
 
-  const onBack = () => {
+  const onBack = useCallback(() => {
     navigate('/chat', { replace: true });
-  };
+  }, [navigate]);
 
   return (
     <CallContainer
