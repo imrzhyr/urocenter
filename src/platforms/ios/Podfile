@@ -1,10 +1,17 @@
-platform :ios, '14.0'
+platform :ios, '15.0'
+use_frameworks!
 
 target 'LovableApp' do
-  use_frameworks!
+  pod 'Supabase', '~> 2.3.1'
+  pod 'SDWebImage', '~> 5.18.10'
+  pod 'SnapKit', '~> 5.7.0'
+  pod 'lottie-ios', '~> 4.4.0'
+end
 
-  # Pods for LovableApp
-  pod 'Supabase', '~> 0.3.0'
-  pod 'SDWebImage', '~> 5.0'
-  pod 'WebRTC', '~> 104.0'
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
+    end
+  end
 end
