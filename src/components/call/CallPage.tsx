@@ -90,11 +90,35 @@ export const CallPage = () => {
 
   const handleCallEnded = useCallback(async () => {
     console.log('Call ended, cleaning up WebRTC...');
-    await endWebRTCCall();
-    handleEndCall();
-    clearActiveCall();
-    const redirectPath = profile?.role === 'admin' ? `/chat/${userId}` : '/dashboard';
-    navigate(redirectPath, { replace: true });
+    try {
+      await endWebRTCCall();
+      await handleEndCall();
+      clearActiveCall();
+      
+      // Ensure we have the userId for navigation
+      if (!userId) {
+        console.error('No userId available for navigation');
+        navigate('/dashboard', { replace: true });
+        return;
+      }
+
+      // Navigate based on role, ensuring we include userId for admin
+      if (profile?.role === 'admin') {
+        console.log('Admin ending call, navigating to chat with user:', userId);
+        navigate(`/chat/${userId}`, { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
+    } catch (error) {
+      console.error('Error ending call:', error);
+      toast.error('Failed to end call properly');
+      // Even on error, ensure proper navigation
+      if (userId && profile?.role === 'admin') {
+        navigate(`/chat/${userId}`, { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
+    }
   }, [endWebRTCCall, handleEndCall, navigate, clearActiveCall, profile?.role, userId]);
 
   useCallSubscription({
@@ -173,16 +197,37 @@ export const CallPage = () => {
       await endWebRTCCall();
       await handleEndCall();
       clearActiveCall();
-      const redirectPath = profile?.role === 'admin' ? `/chat/${userId}` : '/dashboard';
-      navigate(redirectPath, { replace: true });
+      
+      if (!userId) {
+        console.error('No userId available for navigation');
+        navigate('/dashboard', { replace: true });
+        return;
+      }
+
+      if (profile?.role === 'admin') {
+        console.log('Admin ending call, navigating to chat with user:', userId);
+        navigate(`/chat/${userId}`, { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
     } catch (error) {
       console.error('Error ending call:', error);
       toast.error('Failed to end call properly');
-      navigate(`/chat/${userId}`, { replace: true });
+      // Even on error, ensure proper navigation
+      if (userId && profile?.role === 'admin') {
+        navigate(`/chat/${userId}`, { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
     }
   }, [endWebRTCCall, handleEndCall, navigate, clearActiveCall, profile?.role, userId]);
 
   const onBack = useCallback(() => {
+    if (!userId) {
+      console.error('No userId available for navigation');
+      navigate('/dashboard');
+      return;
+    }
     navigate(`/chat/${userId}`);
   }, [navigate, userId]);
 
