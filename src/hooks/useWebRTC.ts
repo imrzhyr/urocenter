@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { WebRTCConnection } from '@/utils/webRTCUtils';
+import { WebRTCConnection } from '@/utils/webrtc/WebRTCConnection';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
