@@ -25,11 +25,8 @@ export const useIncomingCalls = () => {
 
   useEffect(() => {
     if (!profile?.id) {
-      console.log('No profile ID available for call subscription');
       return;
     }
-
-    console.log('Setting up call subscription for user:', profile.id);
     
     const channel = supabase
       .channel(`calls_${profile.id}`)
@@ -42,27 +39,21 @@ export const useIncomingCalls = () => {
           filter: `receiver_id=eq.${profile.id}`
         },
         async (payload: RealtimePostgresChangesPayload<Call>) => {
-          console.log('Received call payload:', payload);
-
           const newCall = payload.new as Call;
           if (!newCall || newCall.status !== 'initiated') {
             return;
           }
 
-          // Check if this is a recent call (within last 2 seconds)
           const callTime = new Date(newCall.created_at).getTime();
           const now = new Date().getTime();
           const timeDiff = now - callTime;
 
           if (timeDiff > 2000) {
-            console.log('Ignoring old call');
             return;
           }
 
-          // Add a 2-second delay before showing the call dialog
           setTimeout(async () => {
             try {
-              // Get caller details
               const { data: callerData, error: callerError } = await supabase
                 .from('profiles')
                 .select('full_name')
@@ -70,14 +61,11 @@ export const useIncomingCalls = () => {
                 .single();
               
               if (callerError) {
-                console.error('Error fetching caller details:', callerError);
                 return;
               }
 
               const callerName = callerData?.full_name || 'Unknown Caller';
-              console.log('Incoming call from:', callerName);
 
-              // Show browser notification if permitted
               if ('Notification' in window && Notification.permission === 'granted') {
                 new Notification('Incoming Call', {
                   body: `${callerName} is calling you`,
@@ -94,7 +82,6 @@ export const useIncomingCalls = () => {
                 };
               }
 
-              // Open call dialog
               setCallDialog({
                 isOpen: true,
                 callerId: newCall.caller_id,
@@ -102,7 +89,6 @@ export const useIncomingCalls = () => {
                 callId: newCall.id
               });
 
-              // Show toast notification
               toast.info(`${callerName} is calling...`, {
                 duration: Infinity,
                 onDismiss: async () => {
@@ -114,30 +100,18 @@ export const useIncomingCalls = () => {
                 }
               });
             } catch (error) {
-              console.error('Error handling incoming call:', error);
               toast.error('Error processing incoming call');
             }
-          }, 2000); // 2-second delay
+          }, 2000);
         }
       )
-      .subscribe((status) => {
-        console.log('Call subscription status:', status);
-        
-        if (status === 'SUBSCRIBED') {
-          console.log('Call subscription active');
-        } else if (status === 'CHANNEL_ERROR') {
-          console.error('Error subscribing to calls');
-          toast.error('Could not subscribe to calls');
-        }
-      });
+      .subscribe();
 
-    // Request notification permission if needed
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission();
     }
 
     return () => {
-      console.log('Cleaning up call subscription');
       supabase.removeChannel(channel);
     };
   }, [profile?.id, navigate]);
