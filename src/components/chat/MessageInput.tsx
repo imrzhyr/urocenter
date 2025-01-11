@@ -6,6 +6,7 @@ import { uploadFile } from "@/utils/fileUpload";
 import { toast } from "sonner";
 import { VoiceMessageRecorder } from "./VoiceMessageRecorder";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { MessageSoundPlayer } from "@/utils/audioPlayer";
 
 interface MessageInputProps {
   onSendMessage: (message: string, fileInfo?: { url: string; name: string; type: string; duration?: number }) => void;
@@ -33,6 +34,7 @@ export const MessageInput = ({ onSendMessage, isLoading }: MessageInputProps) =>
       }
 
       await onSendMessage(newMessage, fileInfo);
+      MessageSoundPlayer.play();
       setNewMessage("");
       setSelectedFile(null);
     } catch (error) {
