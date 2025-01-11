@@ -11,6 +11,7 @@ import { ar } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
 import { Call, CallStatus } from "@/types/call";
 import { CallMessage } from "./CallMessage";
+import { messageSound } from "@/utils/audioUtils";
 
 interface MessageListProps {
   messages: Message[];
@@ -107,6 +108,17 @@ export const MessageList = ({ messages }: MessageListProps) => {
   const items = getAllItems();
 
   const isAdmin = profile?.role === 'admin';
+
+  useEffect(() => {
+    if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      const isFromCurrentUser = isAdmin ? lastMessage.is_from_doctor : !lastMessage.is_from_doctor;
+      
+      if (!isFromCurrentUser) {
+        messageSound.play();
+      }
+    }
+  }, [messages, isAdmin]);
 
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-4" dir={language === 'ar' ? 'rtl' : 'ltr'}>

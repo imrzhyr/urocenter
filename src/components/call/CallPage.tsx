@@ -7,6 +7,8 @@ import { useCallHandlers } from "@/hooks/useCallHandlers";
 import { useWebRTC } from "@/hooks/useWebRTC";
 import { CallContainer } from "./CallContainer";
 import { toast } from "sonner";
+import { useCall } from "@/contexts/CallContext";
+import { outgoingCallPlayer } from "@/utils/audioUtils";
 
 export const CallPage = () => {
   const { userId } = useParams();
@@ -15,6 +17,7 @@ export const CallPage = () => {
   const [isMuted, setIsMuted] = useState(false);
   const [isSpeaker, setIsSpeaker] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const { setActiveCall, clearActiveCall } = useCall();
   
   const {
     callingUser,
@@ -46,9 +49,17 @@ export const CallPage = () => {
     setCallStartTime
   } = useCallHandlers(userId, profile);
 
+  useEffect(() => {
+    if (callStatus === 'ringing' && !isIncoming) {
+      outgoingCallPlayer.play();
+    } else {
+      outgoingCallPlayer.stop();
+    }
+  }, [callStatus, isIncoming]);
+
   // Initialize WebRTC when accepting a call
   const handleCallAccepted = useCallback(async () => {
-    if (!activeCallId) {
+    if (!activeCallId || !userId) {
       console.error('No active call ID available');
       toast.error('Call setup incomplete');
       return;
@@ -67,6 +78,7 @@ export const CallPage = () => {
       setCallStatus('connected');
       setIsIncoming(false);
       setCallStartTime(new Date());
+      setActiveCall(activeCallId, userId);
       
       console.log('Starting WebRTC call...');
       await startCall();
@@ -75,14 +87,15 @@ export const CallPage = () => {
       console.error('Error starting WebRTC call:', error);
       toast.error('Failed to establish call connection');
     }
-  }, [activeCallId, setCallStatus, setIsIncoming, setCallStartTime, startCall, initializeWebRTC, profile?.id, userId]);
+  }, [activeCallId, setCallStatus, setIsIncoming, setCallStartTime, startCall, initializeWebRTC, profile?.id, userId, setActiveCall]);
 
   const handleCallEnded = useCallback(async () => {
     console.log('Call ended, cleaning up WebRTC...');
     await endWebRTCCall();
     handleEndCall();
+    clearActiveCall();
     navigate('/chat', { replace: true });
-  }, [endWebRTCCall, handleEndCall, navigate]);
+  }, [endWebRTCCall, handleEndCall, navigate, clearActiveCall]);
 
   useCallSubscription({
     userId: userId || '',
@@ -159,16 +172,17 @@ export const CallPage = () => {
       console.log('Ending call...');
       await endWebRTCCall();
       await handleEndCall();
+      clearActiveCall();
       navigate('/chat', { replace: true });
     } catch (error) {
       console.error('Error ending call:', error);
       toast.error('Failed to end call properly');
       navigate('/chat', { replace: true });
     }
-  }, [endWebRTCCall, handleEndCall, navigate]);
+  }, [endWebRTCCall, handleEndCall, navigate, clearActiveCall]);
 
   const onBack = useCallback(() => {
-    navigate('/chat', { replace: true });
+    navigate('/chat');
   }, [navigate]);
 
   return (
