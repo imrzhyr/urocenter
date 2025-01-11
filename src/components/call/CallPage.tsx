@@ -25,13 +25,13 @@ export const CallPage = () => {
     activeCallId
   } = useCallSetup(userId, profile);
 
-  // Initialize WebRTC only when we have a valid activeCallId
   const {
     localStream,
     remoteStream,
     isConnected,
     startCall,
-    endCall: endWebRTCCall
+    endCall: endWebRTCCall,
+    initializeWebRTC
   } = useWebRTC(
     activeCallId || '', 
     profile?.id || '', 
@@ -46,7 +46,7 @@ export const CallPage = () => {
     setCallStartTime
   } = useCallHandlers(userId, profile);
 
-  // Wait for activeCallId before proceeding with call acceptance
+  // Initialize WebRTC when accepting a call
   const handleCallAccepted = useCallback(async () => {
     if (!activeCallId) {
       console.error('No active call ID available');
@@ -54,17 +54,18 @@ export const CallPage = () => {
       return;
     }
 
-    console.log('Call accepted, updating status to connected');
-    setCallStatus('connected');
-    setIsIncoming(false);
-    setCallStartTime(new Date());
+    console.log('Call accepted, initializing WebRTC');
     try {
+      await initializeWebRTC();
+      setCallStatus('connected');
+      setIsIncoming(false);
+      setCallStartTime(new Date());
       await startCall();
     } catch (error) {
       console.error('Error starting WebRTC call:', error);
       toast.error('Failed to establish call connection');
     }
-  }, [activeCallId, setCallStatus, setIsIncoming, setCallStartTime, startCall]);
+  }, [activeCallId, setCallStatus, setIsIncoming, setCallStartTime, startCall, initializeWebRTC]);
 
   const handleCallEnded = useCallback(async () => {
     console.log('Call ended, cleaning up');
