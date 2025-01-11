@@ -120,6 +120,7 @@ export const useCallConnection = (
     callId,
     setCallId,
     duration,
+    setDuration,
     callStatus,
     setCallStatus,
     isMuted,
