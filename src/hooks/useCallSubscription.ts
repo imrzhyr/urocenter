@@ -44,9 +44,11 @@ export const useCallSubscription = ({
             return;
           }
 
-          if (payload.new.status === 'connected') {
+          const newCall = payload.new as Call;
+
+          if (newCall.status === 'connected') {
             onCallAccepted();
-          } else if (payload.new.status === 'ended') {
+          } else if (newCall.status === 'ended') {
             onCallEnded();
           }
         }
