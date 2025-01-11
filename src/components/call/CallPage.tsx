@@ -5,6 +5,9 @@ import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useCallConnection } from "@/hooks/useCallConnection";
+import { Database } from "@/integrations/supabase/types";
+
+type Call = Database['public']['Tables']['calls']['Row'];
 
 export const CallPage = () => {
   const { userId } = useParams();
@@ -115,10 +118,17 @@ export const CallPage = () => {
           filter: `id=eq.${callId}`
         },
         (payload) => {
-          const call = payload.new;
+          const call = payload.new as Call;
+          if (!call) return;
+
+          console.log('Call status updated:', call.status);
+          
           if (call.status === 'connected') {
-            console.log('Call status updated to connected');
             setCallStatus('connected');
+            // Start duration counter when call is connected
+            const startTime = new Date(call.started_at).getTime();
+            const currentTime = new Date().getTime();
+            setDuration(Math.floor((currentTime - startTime) / 1000));
           } else if (call.status === 'ended') {
             setCallStatus('ended');
             handleEndCall();
