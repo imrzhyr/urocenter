@@ -1,69 +1,79 @@
-# Welcome to your Lovable project
+# MyApp Monorepo
 
-## Project info
+This is a monorepo containing the UroCenter application for multiple platforms: Web, iOS, Android, and Desktop.
 
-**URL**: https://lovable.dev/projects/f9e14191-323f-4870-924f-05c92bd189bb
+## Project Structure
 
-## How can I edit this code?
-
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/f9e14191-323f-4870-924f-05c92bd189bb) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+MyApp-Monorepo/
+├─ web/                 # React web application (current)
+├─ android/            # Android native application
+├─ ios/               # iOS native application
+├─ desktop/           # Desktop application
+└─ shared/            # Shared resources and documentation
 ```
 
-**Edit a file directly in GitHub**
+## Platform-Specific Instructions
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with .
-
+### Web Application (Current)
+The web application is built with:
 - Vite
 - TypeScript
 - React
 - shadcn-ui
 - Tailwind CSS
 
-## How can I deploy this project?
+To run the web application:
+```sh
+# Install dependencies
+npm install
 
-Simply open [Lovable](https://lovable.dev/projects/f9e14191-323f-4870-924f-05c92bd189bb) and click on Share -> Publish.
+# Start development server
+npm run dev
+```
 
-## I want to use a custom domain - is that possible?
+### Native Applications
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+The native applications (iOS, Android, Desktop) are located in their respective platform branches:
+- `platform/ios`
+- `platform/android`
+- `platform/desktop`
+
+To work on a specific platform, checkout the corresponding branch:
+```sh
+git checkout platform/ios     # For iOS development
+git checkout platform/android # For Android development
+git checkout platform/desktop # For Desktop development
+```
+
+## Development Guidelines
+
+1. **Branch Strategy**
+   - `main`: Web application (current)
+   - `platform/ios`: iOS native app
+   - `platform/android`: Android native app
+   - `platform/desktop`: Desktop native app
+
+2. **Shared Resources**
+   - Common assets and resources are stored in the `shared` directory
+   - Each platform implements the same features while following platform-specific best practices
+
+3. **Code Style**
+   - Follow platform-specific conventions
+   - Maintain consistent naming across platforms
+   - Document platform-specific implementation details
+
+## Building and Running
+
+Each platform has its own build process and requirements. See the platform-specific README files in each branch for detailed instructions.
+
+## Contributing
+
+1. Create a feature branch from the appropriate platform branch
+2. Implement changes following platform guidelines
+3. Submit a PR to the corresponding platform branch
+4. Ensure CI passes and review requirements are met
+
+## License
+
+This project is private and confidential. All rights reserved.
