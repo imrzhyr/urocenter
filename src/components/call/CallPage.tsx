@@ -29,7 +29,6 @@ export const CallPage = () => {
     userId || ''
   );
 
-  // Subscribe to call status changes
   useEffect(() => {
     if (!callId) return;
 
@@ -44,9 +43,12 @@ export const CallPage = () => {
           filter: `id=eq.${callId}`
         },
         async (payload: RealtimePostgresChangesPayload<Call>) => {
-          if (payload.new && payload.new.status === 'connected') {
+          const newCall = payload.new;
+          if (!newCall) return;
+
+          if (newCall.status === 'connected') {
             setCallStatus('connected');
-          } else if (payload.new && payload.new.status === 'ended') {
+          } else if (newCall.status === 'ended') {
             setCallStatus('ended');
             endCall();
             onBack();
