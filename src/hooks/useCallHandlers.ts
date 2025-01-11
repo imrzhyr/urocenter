@@ -5,7 +5,7 @@ import { Profile } from "@/types/profile";
 
 export const useCallHandlers = (userId: string | undefined, profile: Profile | null) => {
   const [duration, setDuration] = useState(0);
-  const [callStartTime, setCallStartTime] = useState<Date>();
+  const [callStartTime, setCallStartTime] = useState<Date | null>(null);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -32,14 +32,10 @@ export const useCallHandlers = (userId: string | undefined, profile: Profile | n
     try {
       console.log('Ending call between:', profile.id, 'and', userId);
 
-      let finalDuration = 0;
-      if (callStartTime) {
-        finalDuration = Math.floor(
-          (new Date().getTime() - callStartTime.getTime()) / 1000
-        );
-      }
+      const finalDuration = callStartTime 
+        ? Math.floor((new Date().getTime() - callStartTime.getTime()) / 1000)
+        : 0;
 
-      // Get the most recent initiated call
       const { data: activeCalls, error: fetchError } = await supabase
         .from('calls')
         .select('*')
@@ -74,6 +70,8 @@ export const useCallHandlers = (userId: string | undefined, profile: Profile | n
         return;
       }
 
+      setCallStartTime(null);
+      setDuration(0);
       toast.success('Call ended');
     } catch (error) {
       console.error('Error in handleEndCall:', error);
@@ -87,7 +85,6 @@ export const useCallHandlers = (userId: string | undefined, profile: Profile | n
     try {
       console.log('Accepting call from:', userId);
 
-      // Get the most recent initiated call
       const { data: activeCalls, error: fetchError } = await supabase
         .from('calls')
         .select('*')
@@ -122,8 +119,9 @@ export const useCallHandlers = (userId: string | undefined, profile: Profile | n
         return;
       }
 
-      setCallStartTime(new Date());
-      toast.success('Call accepted');
+      const now = new Date();
+      setCallStartTime(now);
+      toast.success('Call connected');
     } catch (error) {
       console.error('Error in handleAcceptCall:', error);
       toast.error('Failed to accept call');
@@ -136,7 +134,6 @@ export const useCallHandlers = (userId: string | undefined, profile: Profile | n
     try {
       console.log('Rejecting call from:', userId);
 
-      // Get the most recent initiated call
       const { data: activeCalls, error: fetchError } = await supabase
         .from('calls')
         .select('*')
@@ -159,7 +156,10 @@ export const useCallHandlers = (userId: string | undefined, profile: Profile | n
 
       const { error } = await supabase
         .from('calls')
-        .update({ status: 'ended' })
+        .update({ 
+          status: 'ended',
+          ended_at: new Date().toISOString()
+        })
         .eq('id', activeCalls[0].id);
 
       if (error) {
@@ -177,7 +177,6 @@ export const useCallHandlers = (userId: string | undefined, profile: Profile | n
 
   return {
     duration,
-    setDuration,
     handleEndCall,
     handleAcceptCall,
     handleRejectCall,

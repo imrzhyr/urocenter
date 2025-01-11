@@ -13,7 +13,7 @@ export const CallPage = () => {
   const navigate = useNavigate();
   const { profile } = useProfile();
   const [isMuted, setIsMuted] = useState(false);
-  const [isSpeaker, setIsSpeaker] = useState(false);
+  const [isSpeaker, setIsSpeaker] = useState(true); // Default to true for better UX
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
   const {
@@ -71,11 +71,13 @@ export const CallPage = () => {
     onCallEnded: handleCallEnded
   });
 
+  // Handle remote stream
   useEffect(() => {
     if (remoteStream && !audioRef.current) {
       console.log('Setting up audio element with remote stream');
       const audio = new Audio();
       audio.srcObject = remoteStream;
+      audio.autoplay = true;
       audio.play().catch(console.error);
       audioRef.current = audio;
     }
@@ -89,9 +91,10 @@ export const CallPage = () => {
     };
   }, [remoteStream]);
 
+  // Handle mute/speaker settings
   useEffect(() => {
     if (audioRef.current) {
-      audioRef.current.muted = isMuted;
+      audioRef.current.muted = !isSpeaker;
     }
     
     if (localStream) {
@@ -99,7 +102,7 @@ export const CallPage = () => {
         track.enabled = !isMuted;
       });
     }
-  }, [isMuted, localStream]);
+  }, [isMuted, isSpeaker, localStream]);
 
   const handleAcceptCall = useCallback(async () => {
     console.log('Accepting call...');
