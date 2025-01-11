@@ -58,13 +58,20 @@ export const CallPage = () => {
           if (isReceiver) {
             await answerCall();
             // Update call status to connected when receiver answers
-            await supabase
+            const { error: updateError } = await supabase
               .from('calls')
               .update({ 
                 status: 'connected',
                 started_at: new Date().toISOString()
               })
               .eq('id', existingCall.id);
+
+            if (updateError) {
+              console.error('Error updating call status:', updateError);
+              return;
+            }
+
+            setCallStatus('connected');
           } else {
             await startCall();
           }
