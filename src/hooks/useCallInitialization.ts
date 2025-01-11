@@ -1,13 +1,14 @@
 import { useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 import { useCall } from '@/contexts/CallContext';
+import { CallStatus } from '@/types/call';
 
 export const useCallInitialization = (
   activeCallId: string | null,
   userId: string | undefined,
   initializeWebRTC: () => Promise<RTCPeerConnection | null>,
   startCall: () => Promise<void>,
-  setCallStatus: (status: string) => void,
+  setCallStatus: (status: CallStatus) => void,
   setIsIncoming: (isIncoming: boolean) => void,
   setCallStartTime: (date: Date) => void
 ) => {
