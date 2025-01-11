@@ -33,7 +33,9 @@ export const MessageContainer = ({
 
   return (
     <div className="flex flex-col h-[100vh] w-full">
-      {header}
+      <div className="bg-primary text-white sticky top-0 z-50 shadow-md">
+        {header}
+      </div>
       <div className="flex-1 overflow-y-auto pt-4">
         <MessageList messages={messages} />
         <div ref={messagesEndRef} />

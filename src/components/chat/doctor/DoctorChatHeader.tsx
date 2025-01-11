@@ -1,66 +1,81 @@
-import { ArrowLeft, Phone, RefreshCw } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { User, ArrowLeft, FileText, Info } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { ViewReportsDialog } from "@/components/medical-reports/ViewReportsDialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { PatientInfoCard } from "../PatientInfoCard";
+import { CallButton } from "../CallButton";
 
 interface DoctorChatHeaderProps {
   patientId: string;
-  patientName: string;
-  patientPhone?: string | null;
-  onRefresh: () => void;
-  onBack?: () => void;
+  patientName?: string;
+  patientPhone?: string;
+  onRefresh: () => Promise<void>;
 }
 
-export const DoctorChatHeader = ({
-  patientId,
-  patientName,
-  patientPhone,
-  onRefresh,
-  onBack
-}: DoctorChatHeaderProps) => {
+export const DoctorChatHeader = ({ patientId, patientName, patientPhone, onRefresh }: DoctorChatHeaderProps) => {
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const [showReports, setShowReports] = useState(false);
+  const [showPatientInfo, setShowPatientInfo] = useState(false);
 
-  const handleCall = () => {
-    navigate(`/call/${patientId}`);
-  };
+  const firstLetter = patientName ? patientName.charAt(0).toUpperCase() : '?';
 
   return (
-    <div className="sticky top-0 z-50 bg-primary text-white shadow-md">
-      <div className="flex items-center justify-between p-4">
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={onBack}
-            className="p-2 hover:bg-primary-foreground/10 rounded-full transition-colors"
-          >
-            <ArrowLeft className="h-6 w-6" />
-          </button>
-          <div>
-            <h2 className="text-lg font-semibold">{patientName}</h2>
-            {patientPhone && (
-              <p className="text-sm opacity-90">{patientPhone}</p>
-            )}
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onRefresh}
-            className="text-white hover:bg-primary-foreground/10"
-          >
-            <RefreshCw className="h-5 w-5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleCall}
-            className="text-white hover:bg-primary-foreground/10"
-          >
-            <Phone className="h-5 w-5" />
-          </Button>
-        </div>
+    <div className="flex items-center gap-4 p-2">
+      <Button 
+        variant="ghost" 
+        size="icon"
+        onClick={() => navigate("/admin")}
+        className="rounded-full hover:bg-white/20"
+      >
+        <ArrowLeft className="h-5 w-5 text-white" />
+      </Button>
+      <Avatar className="h-10 w-10">
+        <AvatarFallback className="bg-primary/20 text-white">
+          {firstLetter}
+        </AvatarFallback>
+      </Avatar>
+      <div>
+        <h3 className="font-medium text-white">{patientName || "Unknown Patient"}</h3>
+        <p className="text-sm text-white/80">{patientPhone || "No phone number"}</p>
       </div>
+      <div className="flex items-center gap-2 ml-auto">
+        <CallButton userId={patientId} className="text-white" />
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setShowPatientInfo(true)}
+          className="hover:bg-white/20 text-white rounded-full w-10 h-10"
+        >
+          <Info className="w-5 h-5" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setShowReports(true)}
+          className="hover:bg-white/20 text-white rounded-full w-10 h-10"
+        >
+          <FileText className="w-5 h-5" />
+        </Button>
+      </div>
+      <ViewReportsDialog open={showReports} onOpenChange={setShowReports} userId={patientId} />
+      <Dialog open={showPatientInfo} onOpenChange={setShowPatientInfo}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Patient Information</DialogTitle>
+          </DialogHeader>
+          <PatientInfoCard 
+            patientId={patientId}
+            complaint=""
+            reportsCount={0}
+            fullName={patientName || ""}
+            age=""
+            gender=""
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

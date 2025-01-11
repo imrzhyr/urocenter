@@ -3,12 +3,10 @@ import { MessageContainer } from "./MessageContainer";
 import { PatientChatHeader } from "./patient/PatientChatHeader";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useChat } from "@/hooks/useChat";
-import { useNavigate } from "react-router-dom";
 
 export const UserChatContainer = () => {
   const { profile } = useProfile();
   const { messages, isLoading, sendMessage } = useChat(profile?.id);
-  const navigate = useNavigate();
   useAuthRedirect();
 
   const handleSendMessage = async (content: string, fileInfo?: { url: string; name: string; type: string }) => {
@@ -17,10 +15,6 @@ export const UserChatContainer = () => {
       return;
     }
     await sendMessage(content, fileInfo);
-  };
-
-  const handleBack = () => {
-    navigate('/dashboard');
   };
 
   if (!profile?.id) {
@@ -33,7 +27,7 @@ export const UserChatContainer = () => {
       messages={messages}
       onSendMessage={handleSendMessage}
       isLoading={isLoading}
-      header={<PatientChatHeader onBack={handleBack} />}
+      header={<PatientChatHeader />}
       userId={profile.id}
     />
   );
