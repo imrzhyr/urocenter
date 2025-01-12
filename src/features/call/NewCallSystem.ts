@@ -28,7 +28,7 @@ let state: CallState = {
 // Using a free Socket.IO demo server for development
 // In production, you should use your own signaling server
 const socket: Socket = io('https://lovable-signaling.onrender.com', {
-  transports: ['websocket', 'polling'], // Allow fallback to polling if WebSocket fails
+  transports: ['websocket', 'polling'] as ('websocket' | 'polling')[],
   reconnection: true,
   reconnectionAttempts: 5,
   reconnectionDelay: 1000,
@@ -218,7 +218,7 @@ socket.on('connect_error', (error) => {
   // Attempt to reconnect with polling if WebSocket fails
   if (socket.io.opts.transports.includes('websocket')) {
     console.log('Falling back to polling transport');
-    socket.io.opts.transports = ['polling'];
+    socket.io.opts.transports = ['polling'] as ('websocket' | 'polling')[];
   }
 });
 
