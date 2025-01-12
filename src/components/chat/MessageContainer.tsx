@@ -26,12 +26,12 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-white">
-      <div className="bg-primary text-white shadow-md">
+    <div className="flex flex-col h-screen bg-white">
+      <div className="fixed top-0 left-0 right-0 z-10 bg-primary text-white shadow-md">
         {header}
       </div>
       
-      <div className="flex-1 overflow-hidden flex flex-col">
+      <div className="flex-1 overflow-hidden flex flex-col mt-[72px] mb-[80px]">
         {isCallActive ? (
           <VideoCall recipientId={userId} />
         ) : (
@@ -43,14 +43,15 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
                 userId={userId}
               />
             </div>
-            <div className="p-4 border-t bg-white">
-              <MessageInput 
-                onSendMessage={onSendMessage} 
-                isLoading={isLoading}
-              />
-            </div>
           </>
         )}
+      </div>
+
+      <div className="fixed bottom-0 left-0 right-0 p-4 border-t bg-white shadow-lg">
+        <MessageInput 
+          onSendMessage={onSendMessage} 
+          isLoading={isLoading}
+        />
       </div>
     </div>
   );
