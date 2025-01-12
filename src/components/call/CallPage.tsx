@@ -5,6 +5,7 @@ import { toggleMute, endCall } from '@/features/call/NewCallSystem';
 import { useProfile } from '@/hooks/useProfile';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { formatDuration } from 'date-fns';
+import { supabase } from '@/integrations/supabase/client';
 
 interface CallPageProps {
   remoteUserId: string;

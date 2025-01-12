@@ -5,6 +5,7 @@ import { Phone, PhoneOff } from 'lucide-react';
 import { acceptCall, rejectCall } from '@/features/call/NewCallSystem';
 import { useProfile } from '@/hooks/useProfile';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { supabase } from '@/integrations/supabase/client';
 
 interface IncomingCallDialogProps {
   callerId: string;
