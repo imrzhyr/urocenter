@@ -2,6 +2,8 @@ import { BackButton } from "@/components/BackButton";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useProfile } from "@/hooks/useProfile";
 import { useNavigate } from "react-router-dom";
+import { PhoneCall } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface DoctorChatHeaderProps {
   patientName: string;
@@ -33,12 +35,14 @@ export const DoctorChatHeader = ({
         </div>
       </div>
       <div className="flex items-center gap-2">
-        <button
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-white hover:bg-primary-foreground/10"
           onClick={onRefresh}
-          className="text-white hover:text-white/80 transition-colors"
         >
-          Refresh
-        </button>
+          <PhoneCall className="h-5 w-5" />
+        </Button>
       </div>
     </div>
   );
