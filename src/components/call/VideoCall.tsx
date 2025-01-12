@@ -22,11 +22,16 @@ export const VideoCall: React.FC<VideoCallProps> = ({ recipientId }) => {
   useEffect(() => {
     const startCall = async () => {
       if (profile?.id) {
-        callSignaling.initialize(recipientId);
-        await webRTCCall.startCall(recipientId);
-        const localStream = webRTCCall.getLocalStream();
-        if (localVideoRef.current && localStream) {
-          localVideoRef.current.srcObject = localStream;
+        try {
+          await webRTCCall.startCall(recipientId);
+          const localStream = webRTCCall.getLocalStream();
+          if (localVideoRef.current && localStream) {
+            localVideoRef.current.srcObject = localStream;
+          }
+        } catch (error) {
+          console.error('Error starting call:', error);
+          toast.error('Failed to start video call');
+          callState.setStatus('ended');
         }
       }
     };
@@ -56,6 +61,12 @@ export const VideoCall: React.FC<VideoCallProps> = ({ recipientId }) => {
       webRTCCall.endCall();
     };
 
+    const handleRemoteStream = (event: CustomEvent) => {
+      if (remoteVideoRef.current && event.detail.stream) {
+        remoteVideoRef.current.srcObject = event.detail.stream;
+      }
+    };
+
     startCall();
 
     window.addEventListener('incomingCall', handleIncomingCall as EventListener);
@@ -73,15 +84,10 @@ export const VideoCall: React.FC<VideoCallProps> = ({ recipientId }) => {
     };
   }, [recipientId, profile?.id]);
 
-  const handleRemoteStream = (event: CustomEvent) => {
-    if (remoteVideoRef.current && event.detail.stream) {
-      remoteVideoRef.current.srcObject = event.detail.stream;
-    }
-  };
-
   const handleEndCall = () => {
     callSignaling.sendCallEnded();
     webRTCCall.endCall();
+    callState.setStatus('ended');
   };
 
   const handleAcceptCall = async () => {

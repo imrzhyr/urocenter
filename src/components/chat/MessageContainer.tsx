@@ -6,6 +6,7 @@ import { Message } from '@/types/profile';
 import { callSignaling } from '@/features/call/CallSignaling';
 import { useProfile } from '@/hooks/useProfile';
 import { toast } from 'sonner';
+import { callState } from '@/features/call/CallState';
 
 interface MessageContainerProps {
   messages: Message[];
@@ -26,12 +27,23 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
   const { profile } = useProfile();
   
   const startCall = async () => {
-    if (!profile?.id) return;
+    if (!profile?.id) {
+      toast.error("Cannot start call - profile not found");
+      return;
+    }
     
-    setIsCallActive(true);
-    callSignaling.initialize(userId);
-    await callSignaling.sendCallRequest(userId, profile.id);
-    toast.info('Calling...');
+    try {
+      setIsCallActive(true);
+      callState.setStatus('ringing', userId);
+      callSignaling.initialize(userId);
+      await callSignaling.sendCallRequest(userId, profile.id);
+      toast.info('Calling...');
+    } catch (error) {
+      console.error('Error starting call:', error);
+      toast.error('Failed to start call');
+      setIsCallActive(false);
+      callState.setStatus('idle');
+    }
   };
 
   return (
