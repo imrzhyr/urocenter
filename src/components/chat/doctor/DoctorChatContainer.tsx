@@ -1,52 +1,66 @@
+import { useEffect, useState } from "react";
 import { MessageContainer } from "../MessageContainer";
 import { DoctorChatHeader } from "./DoctorChatHeader";
-import { useChat } from "@/hooks/useChat";
 import { useParams } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useDoctorChat } from "./hooks/useDoctorChat";
-import { useProfile } from "@/hooks/useProfile";
+import { startTransition } from "react";
 
 export const DoctorChatContainer = () => {
-  const { userId } = useParams();
-  const { messages, sendMessage, isLoading, refreshMessages } = useChat(userId);
-  const { patientProfile } = useDoctorChat(userId);
-  const { profile } = useProfile();
+  const { patientId } = useParams();
+  const [patientInfo, setPatientInfo] = useState<{
+    name: string;
+    phone: string;
+  } | null>(null);
 
-  const handleSendMessage = async (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }) => {
-    if (!userId || !profile?.id) {
-      toast.error("Unable to send message");
-      return;
-    }
+  const { messages, isLoading, sendMessage, refreshMessages } = useDoctorChat(patientId);
 
-    try {
-      await sendMessage(content, fileInfo);
-      refreshMessages();
-    } catch (error) {
-      console.error("Error sending message:", error);
-      toast.error("Failed to send message");
-    }
-  };
+  useEffect(() => {
+    const fetchPatientInfo = async () => {
+      if (!patientId) return;
 
-  if (!patientProfile) {
-    return null;
+      const { data: patient, error } = await supabase
+        .from("profiles")
+        .select("full_name, phone")
+        .eq("id", patientId)
+        .single();
+
+      if (error) {
+        console.error("Error fetching patient info:", error);
+        toast.error("Failed to load patient information");
+        return;
+      }
+
+      setPatientInfo({
+        name: patient.full_name || "Unknown Patient",
+        phone: patient.phone || "",
+      });
+    };
+
+    startTransition(() => {
+      fetchPatientInfo();
+    });
+  }, [patientId]);
+
+  if (!patientId || !patientInfo) {
+    return <div>Loading...</div>;
   }
 
   return (
-    <div className="flex flex-col h-[100vh] w-full bg-gray-50">
-      <MessageContainer
-        messages={messages}
-        onSendMessage={handleSendMessage}
-        isLoading={isLoading}
-        header={
-          <DoctorChatHeader
-            patientId={userId || ''}
-            patientName={patientProfile.full_name || "Unknown Patient"}
-            patientPhone={patientProfile.phone}
-            onRefresh={refreshMessages}
-          />
-        }
-        userId={userId || ''}
-      />
-    </div>
+    <MessageContainer
+      messages={messages}
+      onSendMessage={sendMessage}
+      isLoading={isLoading}
+      header={
+        <DoctorChatHeader
+          patientName={patientInfo.name}
+          patientId={patientId}
+          patientPhone={patientInfo.phone}
+          onRefresh={refreshMessages}
+        />
+      }
+      userId={patientId}
+    />
   );
 };

@@ -1,28 +1,55 @@
-import { Button } from "@/components/ui/button";
+import { ArrowLeft, RefreshCcw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
-import { useProfile } from "@/hooks/useProfile";
+import { Button } from "@/components/ui/button";
 import { PatientInfoContainer } from "../PatientInfoContainer";
+import { startTransition } from "react";
 
-export const DoctorChatHeader = ({ userId }: { userId: string }) => {
+interface DoctorChatHeaderProps {
+  patientName: string;
+  patientId: string;
+  patientPhone: string;
+  onRefresh: () => Promise<void>;
+}
+
+export const DoctorChatHeader = ({
+  patientName,
+  patientId,
+  patientPhone,
+  onRefresh
+}: DoctorChatHeaderProps) => {
   const navigate = useNavigate();
-  const { profile } = useProfile();
 
-  if (!profile) return null;
+  const handleRefresh = () => {
+    startTransition(() => {
+      onRefresh();
+    });
+  };
 
   return (
-    <div className="flex items-center justify-between p-4 border-b">
-      <div className="flex items-center gap-4">
+    <div className="p-4 flex items-center justify-between gap-4">
+      <div className="flex items-center gap-3">
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => navigate("/admin")}
+          onClick={() => navigate("/dashboard")}
           className="rounded-full"
         >
-          <ArrowLeft className="h-6 w-6" />
+          <ArrowLeft className="h-5 w-5" />
         </Button>
-        <PatientInfoContainer userId={userId} />
+        <PatientInfoContainer
+          patientName={patientName}
+          patientId={patientId}
+          patientPhone={patientPhone}
+        />
       </div>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={handleRefresh}
+        className="rounded-full"
+      >
+        <RefreshCcw className="h-5 w-5" />
+      </Button>
     </div>
   );
 };

@@ -1,17 +1,22 @@
 import { BrowserRouter } from "react-router-dom";
-import { AppRoutes } from "./AppRoutes";
+import AppRoutes from "./AppRoutes";
 import { Toaster } from "@/components/ui/sonner";
 import { LanguageProvider } from "./contexts/LanguageContext";
+import { startTransition, Suspense } from "react";
 
-function App() {
+const App = () => {
   return (
-    <BrowserRouter>
-      <LanguageProvider>
-        <AppRoutes />
-        <Toaster />
-      </LanguageProvider>
-    </BrowserRouter>
+    <Suspense>
+      <BrowserRouter>
+        <LanguageProvider>
+          {startTransition(() => (
+            <AppRoutes />
+          ))}
+          <Toaster />
+        </LanguageProvider>
+      </BrowserRouter>
+    </Suspense>
   );
-}
+};
 
 export default App;
