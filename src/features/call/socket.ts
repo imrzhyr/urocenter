@@ -1,9 +1,9 @@
-import { io, Socket } from 'socket.io-client';
+import { io, Socket, Transport } from 'socket.io-client';
 import { handleIncomingOffer, handleIncomingAnswer, handleIncomingCandidate } from './handlers';
 import { endCall } from './actions';
 
 const socket: Socket = io('https://lovable-signaling.onrender.com', {
-  transports: ['websocket', 'polling'],
+  transports: ['websocket', 'polling'] as Transport[],
   reconnection: true,
   reconnectionAttempts: 5,
   reconnectionDelay: 1000,
@@ -28,7 +28,7 @@ socket.on('connect_error', (error) => {
   // Attempt to reconnect with polling if websocket fails
   if (socket.io.opts.transports?.includes('websocket')) {
     console.log('Falling back to polling transport');
-    socket.io.opts.transports = ['polling'];
+    socket.io.opts.transports = ['polling'] as Transport[];
   }
 });
 
