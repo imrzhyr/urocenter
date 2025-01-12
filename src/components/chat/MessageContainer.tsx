@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { MessageList } from './MessageList';
 import { MessageInput } from './MessageInput';
 import { VideoCall } from '../call/VideoCall';
+import { Message } from '@/types/profile';
 
 interface MessageContainerProps {
-  messages: Array<{ id: string; content: string; senderId: string }>;
+  messages: Message[];
   onSendMessage: (content: string) => void;
   isLoading: boolean;
   header: React.ReactNode;
@@ -37,7 +38,10 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
             isLoading={isLoading}
             userId={userId}
           />
-          <MessageInput onSendMessage={onSendMessage} />
+          <MessageInput 
+            onSendMessage={onSendMessage} 
+            isLoading={isLoading}
+          />
         </>
       )}
     </div>
