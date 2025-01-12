@@ -9,63 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      calls: {
-        Row: {
-          call_type: string
-          caller_id: string
-          created_at: string
-          duration: number | null
-          ended_at: string | null
-          id: string
-          is_active: boolean
-          receiver_id: string
-          started_at: string
-          status: Database["public"]["Enums"]["call_status"]
-          updated_at: string
-        }
-        Insert: {
-          call_type?: string
-          caller_id: string
-          created_at?: string
-          duration?: number | null
-          ended_at?: string | null
-          id?: string
-          is_active?: boolean
-          receiver_id: string
-          started_at?: string
-          status?: Database["public"]["Enums"]["call_status"]
-          updated_at?: string
-        }
-        Update: {
-          call_type?: string
-          caller_id?: string
-          created_at?: string
-          duration?: number | null
-          ended_at?: string | null
-          id?: string
-          is_active?: boolean
-          receiver_id?: string
-          started_at?: string
-          status?: Database["public"]["Enums"]["call_status"]
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "calls_caller_id_fkey"
-            columns: ["caller_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "calls_receiver_id_fkey"
-            columns: ["receiver_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       medical_reports: {
         Row: {
           created_at: string
@@ -98,16 +41,14 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
-          },
+          }
         ]
       }
       messages: {
         Row: {
-          call_duration: number | null
           content: string
           created_at: string | null
           delivered_at: string | null
-          duration: number | null
           file_name: string | null
           file_type: string | null
           file_url: string | null
@@ -122,11 +63,9 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          call_duration?: number | null
           content: string
           created_at?: string | null
           delivered_at?: string | null
-          duration?: number | null
           file_name?: string | null
           file_type?: string | null
           file_url?: string | null
@@ -141,11 +80,9 @@ export type Database = {
           user_id: string
         }
         Update: {
-          call_duration?: number | null
           content?: string
           created_at?: string | null
           delivered_at?: string | null
-          duration?: number | null
           file_name?: string | null
           file_type?: string | null
           file_url?: string | null
@@ -166,7 +103,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
-          },
+          }
         ]
       }
       profiles: {
@@ -214,75 +151,6 @@ export type Database = {
         }
         Relationships: []
       }
-      webrtc_signaling: {
-        Row: {
-          call_id: string
-          created_at: string
-          data: Json
-          id: string
-          received_at: string | null
-          receiver_id: string
-          sender_id: string
-          type: string
-        }
-        Insert: {
-          call_id: string
-          created_at?: string
-          data: Json
-          id?: string
-          received_at?: string | null
-          receiver_id: string
-          sender_id: string
-          type: string
-        }
-        Update: {
-          call_id?: string
-          created_at?: string
-          data?: Json
-          id?: string
-          received_at?: string | null
-          receiver_id?: string
-          sender_id?: string
-          type?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "webrtc_signaling_call_id_fkey"
-            columns: ["call_id"]
-            isOneToOne: false
-            referencedRelation: "calls"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "webrtc_signaling_receiver_id_fkey"
-            columns: ["receiver_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "webrtc_signaling_receiver_id_fkey1"
-            columns: ["receiver_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "webrtc_signaling_sender_id_fkey"
-            columns: ["sender_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "webrtc_signaling_sender_id_fkey1"
-            columns: ["sender_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
     Views: {
       [_ in never]: never
@@ -311,7 +179,6 @@ export type Database = {
       }
     }
     Enums: {
-      call_status: "initiated" | "ringing" | "connected" | "ended" | "missed"
       user_role: "admin" | "patient"
     }
     CompositeTypes: {
@@ -400,19 +267,4 @@ export type Enums<
   ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
     ? PublicSchema["Enums"][PublicEnumNameOrOptions]
-    : never
-
-export type CompositeTypes<
-  PublicCompositeTypeNameOrOptions extends
-    | keyof PublicSchema["CompositeTypes"]
-    | { schema: keyof Database },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database
-  }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
-    ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
