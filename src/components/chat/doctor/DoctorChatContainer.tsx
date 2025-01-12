@@ -8,14 +8,21 @@ import { useDoctorChat } from "./hooks/useDoctorChat";
 import { startTransition } from "react";
 import { Profile } from "@/types/profile";
 
+interface PatientInfo {
+  name: string;
+  phone: string;
+}
+
 export const DoctorChatContainer = () => {
   const { patientId } = useParams();
-  const [patientInfo, setPatientInfo] = useState<{
-    name: string;
-    phone: string;
-  } | null>(null);
+  const [patientInfo, setPatientInfo] = useState<PatientInfo | null>(null);
 
-  const { messages = [], isLoading = false, sendMessage = () => {}, refreshMessages = async () => {}, patientProfile } = useDoctorChat(patientId) || {};
+  const chatData = useDoctorChat(patientId);
+  const messages = chatData?.messages || [];
+  const isLoading = chatData?.isLoading || false;
+  const sendMessage = chatData?.sendMessage || (() => Promise.resolve());
+  const refreshMessages = chatData?.refreshMessages || (() => Promise.resolve());
+  const patientProfile = chatData?.patientProfile;
 
   useEffect(() => {
     const fetchPatientInfo = async () => {
