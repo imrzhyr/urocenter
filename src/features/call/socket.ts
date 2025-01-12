@@ -3,7 +3,7 @@ import { handleIncomingOffer, handleIncomingAnswer, handleIncomingCandidate } fr
 import { endCall } from './actions';
 
 const socket: Socket = io('https://lovable-signaling.onrender.com', {
-  transports: ['websocket', 'polling'] as readonly ('websocket' | 'polling')[],
+  transports: ['websocket', 'polling'],
   reconnection: true,
   reconnectionAttempts: 5,
   reconnectionDelay: 1000,
