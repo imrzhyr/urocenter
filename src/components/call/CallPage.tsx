@@ -26,7 +26,8 @@ export const CallPage = () => {
     answerCall,
     handleEndCall,
     handleToggleMute,
-    handleToggleSpeaker
+    handleToggleSpeaker,
+    onBack
   } = useCallConnection(userId, profile);
 
   useEffect(() => {
@@ -61,7 +62,6 @@ export const CallPage = () => {
           
           if (isReceiver) {
             await answerCall();
-            // Update call status to connected when receiver answers
             const { error: updateError } = await supabase
               .from('calls')
               .update({ 
@@ -107,7 +107,6 @@ export const CallPage = () => {
 
     setupCall();
 
-    // Subscribe to call status changes
     const channel = supabase
       .channel(`call_${callId}`)
       .on(
@@ -126,7 +125,6 @@ export const CallPage = () => {
           
           if (call.status === 'connected') {
             setCallStatus('connected');
-            // Start duration counter when call is connected
             const startTime = new Date(call.started_at).getTime();
             const currentTime = new Date().getTime();
             setDuration(Math.floor((currentTime - startTime) / 1000));
@@ -153,7 +151,7 @@ export const CallPage = () => {
 
   return (
     <CallContainer
-      onBack={handleEndCall}
+      onBack={onBack}
       duration={duration}
       callStatus={callStatus}
       callingUser={mockUser}
