@@ -8,12 +8,20 @@ export const PatientChatContainer = () => {
   const { profile } = useProfile();
   const { messages, isLoading, sendMessage } = usePatientChat(profile?.phone);
 
+  if (!profile?.id) {
+    return null;
+  }
+
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)]">
       <div className="p-4 border-b">
         <PatientChatHeader />
       </div>
-      <MessageList messages={messages} />
+      <MessageList 
+        messages={messages} 
+        isLoading={isLoading} 
+        userId={profile.id}
+      />
       <MessageInput onSendMessage={sendMessage} isLoading={isLoading} />
     </div>
   );
