@@ -1,6 +1,5 @@
 import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
-import { LoadingScreen } from "@/components/LoadingScreen";
 
 const Index = lazy(() => import("@/pages/Index"));
 const SignIn = lazy(() => import("@/pages/SignIn"));
