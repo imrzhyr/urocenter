@@ -12,7 +12,7 @@ class CallStateManager {
     status: 'idle',
     duration: 0
   };
-  private timer?: NodeJS.Timer;
+  private timer?: NodeJS.Timeout;
 
   getState() {
     return { ...this.state };

@@ -11,9 +11,10 @@ import { messageSound } from "@/utils/audioUtils";
 interface MessageInputProps {
   onSendMessage: (message: string, fileInfo?: { url: string; name: string; type: string; duration?: number }) => void;
   isLoading: boolean;
+  onStartCall?: () => Promise<void>;
 }
 
-export const MessageInput = ({ onSendMessage, isLoading }: MessageInputProps) => {
+export const MessageInput = ({ onSendMessage, isLoading, onStartCall }: MessageInputProps) => {
   const [newMessage, setNewMessage] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
