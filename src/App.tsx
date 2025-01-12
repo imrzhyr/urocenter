@@ -1,22 +1,17 @@
 import { BrowserRouter } from "react-router-dom";
-import AppRoutes from "./AppRoutes";
+import { AppRoutes } from "./AppRoutes";
 import { Toaster } from "@/components/ui/sonner";
 import { LanguageProvider } from "./contexts/LanguageContext";
-import { useTransition, Suspense } from "react";
 
-const App = () => {
-  const [isPending, startTransition] = useTransition();
-
+function App() {
   return (
-    <Suspense>
-      <BrowserRouter>
-        <LanguageProvider>
-          <AppRoutes />
-          <Toaster />
-        </LanguageProvider>
-      </BrowserRouter>
-    </Suspense>
+    <BrowserRouter>
+      <LanguageProvider>
+        <AppRoutes />
+        <Toaster />
+      </LanguageProvider>
+    </BrowserRouter>
   );
-};
+}
 
 export default App;

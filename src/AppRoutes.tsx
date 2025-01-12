@@ -1,36 +1,51 @@
 import { Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import SignIn from "./pages/SignIn";
-import SignUp from "./pages/SignUp";
-import Dashboard from "./pages/Dashboard";
-import Chat from "./pages/Chat";
-import Profile from "./pages/Profile";
-import Settings from "./pages/Settings";
-import { useAuthRedirect } from "./hooks/useAuthRedirect";
-import { LoadingScreen } from "./components/LoadingScreen";
-import { Suspense } from "react";
+import { OnboardingLayout } from "@/components/layouts/OnboardingLayout";
 
-const AppRoutes = () => {
-  const { isLoading } = useAuthRedirect() || { isLoading: true };
+// Auth Pages
+import SignIn from "@/pages/SignIn";
+import SignUp from "@/pages/SignUp";
 
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
+// Main Pages
+import Welcome from "@/pages/Welcome";
+import Dashboard from "@/pages/Dashboard";
+import AdminDashboard from "@/pages/AdminDashboard";
+import Settings from "@/pages/Settings";
 
+// Profile Pages
+import { ProfilePage } from "@/pages/Profile";
+import { EditProfileForm } from "@/components/profile/EditProfileForm";
+import MedicalInformation from "@/pages/MedicalInformation";
+import Payment from "@/pages/Payment";
+
+// Chat Pages
+import Chat from "@/pages/Chat";
+import UserChat from "@/pages/UserChat";
+
+export const AppRoutes = () => {
   return (
-    <Suspense fallback={<LoadingScreen />}>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/signin" element={<SignIn />} />
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/" element={<Welcome />} />
+      <Route path="/signin" element={<SignIn />} />
+      
+      {/* Onboarding Flow */}
+      <Route element={<OnboardingLayout />}>
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/chat" element={<Chat />} />
-        <Route path="/chat/:patientId" element={<Chat />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/settings" element={<Settings />} />
-      </Routes>
-    </Suspense>
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/edit-profile" element={<EditProfileForm />} />
+        <Route path="/medical-information" element={<MedicalInformation />} />
+        <Route path="/payment" element={<Payment />} />
+      </Route>
+
+      {/* Protected Routes */}
+      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/admin" element={<AdminDashboard />} />
+      <Route path="/settings" element={<Settings />} />
+      
+      {/* Chat Routes */}
+      <Route path="/chat" element={<Chat />} />
+      <Route path="/chat/:userId" element={<Chat />} />
+      <Route path="/user-chat" element={<UserChat />} />
+    </Routes>
   );
 };
-
-export default AppRoutes;

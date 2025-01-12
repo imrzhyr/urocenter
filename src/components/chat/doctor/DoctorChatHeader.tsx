@@ -1,55 +1,83 @@
-import { ArrowLeft, RefreshCcw } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { User, ArrowLeft, FileText, Info } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { PatientInfoContainer } from "../PatientInfoContainer";
-import { startTransition } from "react";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { ViewReportsDialog } from "@/components/medical-reports/ViewReportsDialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { PatientInfoCard } from "../PatientInfoCard";
 
 interface DoctorChatHeaderProps {
-  patientName: string;
   patientId: string;
-  patientPhone: string;
+  patientName?: string;
+  patientPhone?: string;
   onRefresh: () => Promise<void>;
 }
 
-export const DoctorChatHeader = ({
-  patientName,
-  patientId,
-  patientPhone,
-  onRefresh
-}: DoctorChatHeaderProps) => {
+export const DoctorChatHeader = ({ patientId, patientName, patientPhone, onRefresh }: DoctorChatHeaderProps) => {
   const navigate = useNavigate();
+  const [showReports, setShowReports] = useState(false);
+  const [showPatientInfo, setShowPatientInfo] = useState(false);
 
-  const handleRefresh = () => {
-    startTransition(() => {
-      onRefresh();
-    });
+  const firstLetter = patientName ? patientName.charAt(0).toUpperCase() : '?';
+
+  const handleBack = () => {
+    navigate("/admin");
   };
 
   return (
-    <div className="p-4 flex items-center justify-between gap-4">
-      <div className="flex items-center gap-3">
+    <div className="flex items-center gap-4 p-2">
+      <Button 
+        variant="ghost" 
+        size="icon"
+        onClick={handleBack}
+        className="rounded-full hover:bg-white/20"
+      >
+        <ArrowLeft className="h-5 w-5 text-white" />
+      </Button>
+      <Avatar className="h-10 w-10">
+        <AvatarFallback className="bg-primary/20 text-white">
+          {firstLetter}
+        </AvatarFallback>
+      </Avatar>
+      <div>
+        <h3 className="font-medium text-white">{patientName || "Unknown Patient"}</h3>
+        <p className="text-sm text-white/80">{patientPhone || "No phone number"}</p>
+      </div>
+      <div className="flex items-center gap-2 ml-auto">
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => navigate("/dashboard")}
-          className="rounded-full"
+          onClick={() => setShowPatientInfo(true)}
+          className="hover:bg-white/20 text-white rounded-full w-10 h-10"
         >
-          <ArrowLeft className="h-5 w-5" />
+          <Info className="w-5 h-5" />
         </Button>
-        <PatientInfoContainer
-          patientName={patientName}
-          patientId={patientId}
-          patientPhone={patientPhone}
-        />
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setShowReports(true)}
+          className="hover:bg-white/20 text-white rounded-full w-10 h-10"
+        >
+          <FileText className="w-5 h-5" />
+        </Button>
       </div>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={handleRefresh}
-        className="rounded-full"
-      >
-        <RefreshCcw className="h-5 w-5" />
-      </Button>
+      <ViewReportsDialog open={showReports} onOpenChange={setShowReports} userId={patientId} />
+      <Dialog open={showPatientInfo} onOpenChange={setShowPatientInfo}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Patient Information</DialogTitle>
+          </DialogHeader>
+          <PatientInfoCard 
+            patientId={patientId}
+            complaint=""
+            reportsCount={0}
+            fullName={patientName || ""}
+            age=""
+            gender=""
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

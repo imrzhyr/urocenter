@@ -1,83 +1,52 @@
-import { useEffect, useState } from "react";
 import { MessageContainer } from "../MessageContainer";
 import { DoctorChatHeader } from "./DoctorChatHeader";
+import { useChat } from "@/hooks/useChat";
 import { useParams } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useDoctorChat } from "./hooks/useDoctorChat";
-import { startTransition } from "react";
-import { Profile } from "@/types/profile";
-import { Message } from "@/types/profile";
-
-interface PatientInfo {
-  name: string;
-  phone: string;
-}
-
-interface DoctorChatData {
-  messages: Message[];
-  isLoading: boolean;
-  sendMessage: (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }) => Promise<Message>;
-  refreshMessages: () => Promise<void>;
-  patientProfile?: Profile;
-}
+import { useProfile } from "@/hooks/useProfile";
 
 export const DoctorChatContainer = () => {
-  const { patientId } = useParams();
-  const [patientInfo, setPatientInfo] = useState<PatientInfo | null>(null);
+  const { userId } = useParams();
+  const { messages, sendMessage, isLoading, refreshMessages } = useChat(userId);
+  const { patientProfile } = useDoctorChat(userId);
+  const { profile } = useProfile();
 
-  const chatData = useDoctorChat(patientId) as DoctorChatData;
-  const messages = chatData?.messages || [];
-  const isLoading = chatData?.isLoading || false;
-  const sendMessage = chatData?.sendMessage || (() => Promise.resolve({} as Message));
-  const refreshMessages = chatData?.refreshMessages || (() => Promise.resolve());
-  const patientProfile = chatData?.patientProfile;
+  const handleSendMessage = async (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }) => {
+    if (!userId || !profile?.id) {
+      toast.error("Unable to send message");
+      return;
+    }
 
-  useEffect(() => {
-    const fetchPatientInfo = async () => {
-      if (!patientId) return;
+    try {
+      await sendMessage(content, fileInfo);
+      refreshMessages();
+    } catch (error) {
+      console.error("Error sending message:", error);
+      toast.error("Failed to send message");
+    }
+  };
 
-      const { data: patient, error } = await supabase
-        .from("profiles")
-        .select("full_name, phone")
-        .eq("id", patientId)
-        .single();
-
-      if (error) {
-        console.error("Error fetching patient info:", error);
-        toast.error("Failed to load patient information");
-        return;
-      }
-
-      setPatientInfo({
-        name: patient.full_name || "Unknown Patient",
-        phone: patient.phone || "",
-      });
-    };
-
-    startTransition(() => {
-      fetchPatientInfo();
-    });
-  }, [patientId]);
-
-  if (!patientId || !patientInfo) {
-    return <div>Loading...</div>;
+  if (!patientProfile) {
+    return null;
   }
 
   return (
-    <MessageContainer
-      messages={messages}
-      onSendMessage={sendMessage}
-      isLoading={isLoading}
-      header={
-        <DoctorChatHeader
-          patientName={patientInfo.name}
-          patientId={patientId}
-          patientPhone={patientInfo.phone}
-          onRefresh={refreshMessages}
-        />
-      }
-      userId={patientId}
-    />
+    <div className="flex flex-col h-[100vh] w-full bg-gray-50">
+      <MessageContainer
+        messages={messages}
+        onSendMessage={handleSendMessage}
+        isLoading={isLoading}
+        header={
+          <DoctorChatHeader
+            patientId={userId || ''}
+            patientName={patientProfile.full_name || "Unknown Patient"}
+            patientPhone={patientProfile.phone}
+            onRefresh={refreshMessages}
+          />
+        }
+        userId={userId || ''}
+      />
+    </div>
   );
 };
