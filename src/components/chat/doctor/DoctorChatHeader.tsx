@@ -6,7 +6,6 @@ import { useState } from "react";
 import { ViewReportsDialog } from "@/components/medical-reports/ViewReportsDialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { PatientInfoCard } from "../PatientInfoCard";
-import { CallButton } from "../CallButton";
 
 interface DoctorChatHeaderProps {
   patientId: string;
@@ -46,7 +45,6 @@ export const DoctorChatHeader = ({ patientId, patientName, patientPhone, onRefre
         <p className="text-sm text-white/80">{patientPhone || "No phone number"}</p>
       </div>
       <div className="flex items-center gap-2 ml-auto">
-        <CallButton userId={patientId} className="text-white" />
         <Button
           variant="ghost"
           size="icon"
