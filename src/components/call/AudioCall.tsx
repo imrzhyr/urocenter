@@ -20,7 +20,7 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
     const startCall = async () => {
       if (profile?.id) {
         try {
-          await webRTCCall.startAudioCall(recipientId);
+          await webRTCCall.startCall(recipientId);
         } catch (error) {
           console.error('Error starting call:', error);
           toast.error('Failed to start audio call');
