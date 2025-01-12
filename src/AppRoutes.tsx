@@ -1,5 +1,5 @@
-import { lazy } from "react";
-import { createBrowserRouter } from "react-router-dom";
+import { lazy, Suspense } from "react";
+import { Routes, Route, useRoutes } from "react-router-dom";
 
 const Index = lazy(() => import("@/pages/Index"));
 const SignIn = lazy(() => import("@/pages/SignIn"));
@@ -11,7 +11,7 @@ const MedicalInformation = lazy(() => import("@/pages/MedicalInformation"));
 const Payment = lazy(() => import("@/pages/Payment"));
 const Settings = lazy(() => import("@/pages/Settings"));
 
-export const router = createBrowserRouter([
+const routes = [
   {
     path: "/",
     element: <Index />,
@@ -52,4 +52,22 @@ export const router = createBrowserRouter([
     path: "/settings",
     element: <Settings />,
   },
-]);
+];
+
+export const AppRoutes = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Routes>
+        {routes.map((route) => (
+          <Route
+            key={route.path}
+            path={route.path}
+            element={route.element}
+          />
+        ))}
+      </Routes>
+    </Suspense>
+  );
+};
+
+export { routes };
