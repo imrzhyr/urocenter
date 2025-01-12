@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useDoctorChat } from "./hooks/useDoctorChat";
 import { startTransition } from "react";
+import { Profile } from "@/types/profile";
 
 export const DoctorChatContainer = () => {
   const { patientId } = useParams();
@@ -14,7 +15,7 @@ export const DoctorChatContainer = () => {
     phone: string;
   } | null>(null);
 
-  const { messages, isLoading, sendMessage, refreshMessages } = useDoctorChat(patientId);
+  const { messages = [], isLoading = false, sendMessage = () => {}, refreshMessages = async () => {}, patientProfile } = useDoctorChat(patientId) || {};
 
   useEffect(() => {
     const fetchPatientInfo = async () => {

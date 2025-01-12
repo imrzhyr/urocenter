@@ -11,7 +11,7 @@ import { LoadingScreen } from "./components/LoadingScreen";
 import { Suspense } from "react";
 
 const AppRoutes = () => {
-  const { isLoading } = useAuthRedirect();
+  const { isLoading } = useAuthRedirect() || { isLoading: true };
 
   if (isLoading) {
     return <LoadingScreen />;

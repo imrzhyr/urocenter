@@ -1,10 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const useAuthRedirect = () => {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -14,6 +15,7 @@ export const useAuthRedirect = () => {
         if (!userPhone) {
           toast.error("Please sign in to access the chat");
           navigate("/signin", { replace: true });
+          setIsLoading(false);
           return;
         }
 
@@ -29,6 +31,7 @@ export const useAuthRedirect = () => {
           navigate("/signin", { replace: true });
         }
       }
+      setIsLoading(false);
     };
 
     checkAuth();
@@ -44,4 +47,6 @@ export const useAuthRedirect = () => {
       subscription.unsubscribe();
     };
   }, [navigate]);
+
+  return { isLoading };
 };
