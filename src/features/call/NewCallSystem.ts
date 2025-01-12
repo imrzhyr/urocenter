@@ -239,11 +239,3 @@ socket.on('callEnded', () => {
   console.log('Call ended by remote peer');
   endCall();
 });
-
-export {
-  startCall,
-  endCall,
-  acceptCall,
-  rejectCall,
-  toggleMute,
-};
