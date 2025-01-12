@@ -1,55 +1,68 @@
-export type CallStatus = 'idle' | 'ringing' | 'connected' | 'ended';
+import { toast } from "sonner";
 
-export interface CallState {
-  status: CallStatus;
-  startTime?: Date;
-  duration: number;
-  peerId?: string;
-}
+export class CallState {
+  private static instance: CallState;
+  private isInCall: boolean = false;
+  private callStartTime: number | null = null;
+  private durationTimer: NodeJS.Timeout | null = null;
+  private currentDuration: number = 0;
+  private onDurationChange: ((duration: number) => void) | null = null;
 
-class CallStateManager {
-  private state: CallState = {
-    status: 'idle',
-    duration: 0
-  };
-  private timer?: NodeJS.Timeout;
+  private constructor() {}
 
-  getState() {
-    return { ...this.state };
-  }
-
-  setStatus(status: CallStatus, peerId?: string) {
-    this.state.status = status;
-    if (peerId) this.state.peerId = peerId;
-    
-    if (status === 'connected' && !this.state.startTime) {
-      this.state.startTime = new Date();
-      this.startTimer();
-    } else if (status === 'ended') {
-      this.stopTimer();
-      this.state = {
-        status: 'idle',
-        duration: 0
-      };
+  public static getInstance(): CallState {
+    if (!CallState.instance) {
+      CallState.instance = new CallState();
     }
+    return CallState.instance;
   }
 
-  private startTimer() {
-    this.timer = setInterval(() => {
-      if (this.state.startTime) {
-        this.state.duration = Math.floor(
-          (new Date().getTime() - this.state.startTime.getTime()) / 1000
-        );
+  public startCall(onDurationUpdate: (duration: number) => void) {
+    if (this.isInCall) {
+      toast.error("Already in a call");
+      return;
+    }
+
+    this.isInCall = true;
+    this.callStartTime = Date.now();
+    this.onDurationChange = onDurationUpdate;
+    this.currentDuration = 0;
+
+    this.durationTimer = setInterval(() => {
+      this.currentDuration += 1;
+      if (this.onDurationChange) {
+        this.onDurationChange(this.currentDuration);
       }
     }, 1000);
+
+    toast.success("Call started");
   }
 
-  private stopTimer() {
-    if (this.timer) {
-      clearInterval(this.timer);
-      this.timer = undefined;
+  public endCall() {
+    if (!this.isInCall) {
+      return;
     }
+
+    this.isInCall = false;
+    this.callStartTime = null;
+    if (this.durationTimer) {
+      clearInterval(this.durationTimer);
+      this.durationTimer = null;
+    }
+    this.currentDuration = 0;
+    if (this.onDurationChange) {
+      this.onDurationChange(0);
+    }
+    this.onDurationChange = null;
+
+    toast.info("Call ended");
+  }
+
+  public getCallDuration(): number {
+    return this.currentDuration;
+  }
+
+  public isCallActive(): boolean {
+    return this.isInCall;
   }
 }
-
-export const callState = new CallStateManager();
