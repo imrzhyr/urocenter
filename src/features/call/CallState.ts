@@ -1,3 +1,5 @@
+import { toast } from "sonner";
+
 export class CallState {
   private static instance: CallState;
   private isInCall: boolean = false;
@@ -5,6 +7,8 @@ export class CallState {
   private durationTimer: NodeJS.Timeout | null = null;
   private currentDuration: number = 0;
   private onDurationChange: ((duration: number) => void) | null = null;
+  private currentStatus: 'idle' | 'ringing' | 'connected' | 'ended' = 'idle';
+  private currentPeerId: string | null = null;
 
   private constructor() {}
 
@@ -52,8 +56,17 @@ export class CallState {
       this.onDurationChange(0);
     }
     this.onDurationChange = null;
+    this.currentStatus = 'ended';
+    this.currentPeerId = null;
 
     toast.info("Call ended");
+  }
+
+  public setStatus(status: 'idle' | 'ringing' | 'connected' | 'ended', peerId?: string) {
+    this.currentStatus = status;
+    if (peerId) {
+      this.currentPeerId = peerId;
+    }
   }
 
   public getCallDuration(): number {
@@ -62,6 +75,14 @@ export class CallState {
 
   public isCallActive(): boolean {
     return this.isInCall;
+  }
+
+  public getStatus(): string {
+    return this.currentStatus;
+  }
+
+  public getPeerId(): string | null {
+    return this.currentPeerId;
   }
 }
 

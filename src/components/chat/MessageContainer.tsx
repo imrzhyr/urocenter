@@ -48,8 +48,8 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
             <div className="flex-1 overflow-y-auto">
               <MessageList
                 messages={messages}
+                currentUserId={userId}
                 isLoading={isLoading}
-                userId={userId}
               />
             </div>
           </>
