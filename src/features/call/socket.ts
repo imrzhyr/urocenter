@@ -3,12 +3,14 @@ import { handleIncomingOffer, handleIncomingAnswer, handleIncomingCandidate } fr
 import { endCall } from './actions';
 
 const socket: Socket = io('https://lovable-signaling.onrender.com', {
-  transports: ['websocket', 'polling'],
+  transports: ['polling', 'websocket'],
   reconnection: true,
   reconnectionAttempts: 5,
   reconnectionDelay: 1000,
   timeout: 10000,
   forceNew: true,
+  autoConnect: true,
+  path: '/socket.io',
 });
 
 socket.on('connect', () => {
@@ -17,6 +19,7 @@ socket.on('connect', () => {
 
 socket.on('connect_error', (error) => {
   console.error('Signaling server connection error:', error);
+  // Attempt to reconnect with polling if websocket fails
   if (socket.io.opts.transports.includes('websocket')) {
     console.log('Falling back to polling transport');
     socket.io.opts.transports = ['polling'];
@@ -33,6 +36,10 @@ socket.on('reconnect_error', (error) => {
 
 socket.on('disconnect', (reason) => {
   console.log('Disconnected from signaling server:', reason);
+  if (reason === 'io server disconnect') {
+    // Reconnect if server disconnected
+    socket.connect();
+  }
 });
 
 socket.on('offer', ({ from, offer }) => {
