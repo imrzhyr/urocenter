@@ -1,5 +1,6 @@
 import { lazy, Suspense } from "react";
-import { Routes, Route, useRoutes } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
+import { LoadingScreen } from "@/components/LoadingScreen";
 
 const Index = lazy(() => import("@/pages/Index"));
 const SignIn = lazy(() => import("@/pages/SignIn"));
@@ -56,7 +57,7 @@ const routes = [
 
 export const AppRoutes = () => {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<></>}>
       <Routes>
         {routes.map((route) => (
           <Route
