@@ -1,8 +1,8 @@
-import { io } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 import { handleIncomingOffer, handleIncomingAnswer, handleIncomingCandidate } from './handlers';
 import { endCall } from './actions';
 
-const socket = io('https://lovable-signaling.onrender.com', {
+const socket: Socket = io('https://lovable-signaling.onrender.com', {
   transports: ['websocket', 'polling'],
   reconnection: true,
   reconnectionAttempts: 5,
