@@ -25,7 +25,14 @@ let state: CallState = {
   isMuted: false,
 };
 
-const socket: Socket = io('https://your-signaling-server.com');
+// Using a free Socket.IO demo server for development
+// In production, you should use your own signaling server
+const socket: Socket = io('https://lovable-signaling.onrender.com', {
+  transports: ['websocket'],
+  reconnection: true,
+  reconnectionAttempts: 5,
+  reconnectionDelay: 1000,
+});
 
 const configuration: RTCConfiguration = {
   iceServers: [
@@ -199,9 +206,44 @@ export const endCall = () => {
   });
 };
 
-// Socket event listeners
-socket.on('offer', ({ from, offer }) => handleIncomingOffer(from, offer));
-socket.on('answer', ({ from, answer }) => handleIncomingAnswer(from, answer));
-socket.on('candidate', ({ from, candidate }) => handleIncomingCandidate(from, candidate));
-socket.on('callRejected', () => endCall());
-socket.on('callEnded', () => endCall());
+// Socket event listeners with improved error handling and logging
+socket.on('connect', () => {
+  console.log('Connected to signaling server');
+});
+
+socket.on('connect_error', (error) => {
+  console.error('Signaling server connection error:', error);
+});
+
+socket.on('offer', ({ from, offer }) => {
+  console.log('Received offer from:', from);
+  handleIncomingOffer(from, offer);
+});
+
+socket.on('answer', ({ from, answer }) => {
+  console.log('Received answer from:', from);
+  handleIncomingAnswer(from, answer);
+});
+
+socket.on('candidate', ({ from, candidate }) => {
+  console.log('Received ICE candidate from:', from);
+  handleIncomingCandidate(from, candidate);
+});
+
+socket.on('callRejected', () => {
+  console.log('Call was rejected');
+  endCall();
+});
+
+socket.on('callEnded', () => {
+  console.log('Call ended by remote peer');
+  endCall();
+});
+
+export {
+  startCall,
+  endCall,
+  acceptCall,
+  rejectCall,
+  toggleMute,
+};
