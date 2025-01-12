@@ -3,6 +3,9 @@ import { MessageList } from './MessageList';
 import { MessageInput } from './MessageInput';
 import { VideoCall } from '../call/VideoCall';
 import { Message } from '@/types/profile';
+import { callSignaling } from '@/features/call/CallSignaling';
+import { useProfile } from '@/hooks/useProfile';
+import { toast } from 'sonner';
 
 interface MessageContainerProps {
   messages: Message[];
@@ -20,9 +23,15 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
   userId
 }) => {
   const [isCallActive, setIsCallActive] = useState(false);
+  const { profile } = useProfile();
   
-  const startCall = () => {
+  const startCall = async () => {
+    if (!profile?.id) return;
+    
     setIsCallActive(true);
+    callSignaling.initialize(userId);
+    await callSignaling.sendCallRequest(userId, profile.id);
+    toast.info('Calling...');
   };
 
   return (
@@ -51,6 +60,7 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
         <MessageInput 
           onSendMessage={onSendMessage} 
           isLoading={isLoading}
+          onStartCall={startCall}
         />
       </div>
     </div>
