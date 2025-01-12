@@ -1,51 +1,45 @@
-import { useEffect, useRef } from "react";
-import { MessageList } from "./MessageList";
-import { MessageInput } from "./MessageInput";
-import { Message } from "@/types/profile";
-import { ViewReportsDialog } from "../medical-reports/ViewReportsDialog";
-import { useState } from "react";
+import React, { useState } from 'react';
+import { MessageList } from './MessageList';
+import { MessageInput } from './MessageInput';
+import { VideoCall } from '../call/VideoCall';
 
 interface MessageContainerProps {
-  messages: Message[];
-  onSendMessage: (message: string, fileInfo?: { url: string; name: string; type: string; duration?: number }) => void;
+  messages: Array<{ id: string; content: string; senderId: string }>;
+  onSendMessage: (content: string) => void;
   isLoading: boolean;
   header: React.ReactNode;
   userId: string;
 }
 
-export const MessageContainer = ({
+export const MessageContainer: React.FC<MessageContainerProps> = ({ 
   messages,
   onSendMessage,
   isLoading,
   header,
   userId
-}: MessageContainerProps) => {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [showReports, setShowReports] = useState(false);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+}) => {
+  const [isCallActive, setIsCallActive] = useState(false);
+  
+  const startCall = () => {
+    setIsCallActive(true);
   };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
   return (
-    <div className="flex flex-col h-[100vh] w-full">
-      <div className="bg-primary text-white sticky top-0 z-50 shadow-md">
-        {header}
-      </div>
-      <div className="flex-1 overflow-y-auto pt-4">
-        <MessageList messages={messages} />
-        <div ref={messagesEndRef} />
-      </div>
-      <div className="sticky bottom-0 bg-white border-t shadow-sm">
-        <div className="px-4 py-3">
-          <MessageInput onSendMessage={onSendMessage} isLoading={isLoading} />
-        </div>
-      </div>
-      <ViewReportsDialog open={showReports} onOpenChange={setShowReports} />
+    <div className="flex flex-col h-full bg-white">
+      {header}
+      
+      {isCallActive ? (
+        <VideoCall recipientId={userId} />
+      ) : (
+        <>
+          <MessageList
+            messages={messages}
+            isLoading={isLoading}
+            userId={userId}
+          />
+          <MessageInput onSendMessage={onSendMessage} />
+        </>
+      )}
     </div>
   );
 };
