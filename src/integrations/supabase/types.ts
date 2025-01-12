@@ -41,7 +41,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
       messages: {
@@ -49,6 +49,7 @@ export type Database = {
           content: string
           created_at: string | null
           delivered_at: string | null
+          duration: number | null
           file_name: string | null
           file_type: string | null
           file_url: string | null
@@ -66,6 +67,7 @@ export type Database = {
           content: string
           created_at?: string | null
           delivered_at?: string | null
+          duration?: number | null
           file_name?: string | null
           file_type?: string | null
           file_url?: string | null
@@ -83,6 +85,7 @@ export type Database = {
           content?: string
           created_at?: string | null
           delivered_at?: string | null
+          duration?: number | null
           file_name?: string | null
           file_type?: string | null
           file_url?: string | null
@@ -103,7 +106,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
       profiles: {
@@ -267,4 +270,19 @@ export type Enums<
   ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
     ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof PublicSchema["CompositeTypes"]
+    | { schema: keyof Database },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
+    ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
