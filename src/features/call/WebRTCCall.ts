@@ -1,10 +1,12 @@
-import { socket } from './socket';
+import { supabase } from "@/integrations/supabase/client";
+import { RealtimeChannel } from "@supabase/supabase-js";
 
 export class WebRTCCall {
   private peerConnection: RTCPeerConnection | null = null;
   private localStream: MediaStream | null = null;
   private remoteStream: MediaStream | null = null;
   private currentCallPeerId: string | null = null;
+  private channel: RealtimeChannel | null = null;
 
   private config: RTCConfiguration = {
     iceServers: [
@@ -13,14 +15,32 @@ export class WebRTCCall {
   };
 
   constructor() {
-    this.setupSocketListeners();
+    this.setupSignalingChannel();
   }
 
-  private setupSocketListeners() {
-    socket.on('offer', this.handleIncomingOffer.bind(this));
-    socket.on('answer', this.handleIncomingAnswer.bind(this));
-    socket.on('candidate', this.handleIncomingCandidate.bind(this));
-    socket.on('callStatus', this.handleCallStatus.bind(this));
+  private setupSignalingChannel() {
+    this.channel = supabase.channel('webrtc');
+    
+    this.channel
+      .on('broadcast', { event: 'offer' }, ({ payload }) => {
+        console.log('Received offer:', payload);
+        this.handleIncomingOffer(payload);
+      })
+      .on('broadcast', { event: 'answer' }, ({ payload }) => {
+        console.log('Received answer:', payload);
+        this.handleIncomingAnswer(payload);
+      })
+      .on('broadcast', { event: 'candidate' }, ({ payload }) => {
+        console.log('Received ICE candidate:', payload);
+        this.handleIncomingCandidate(payload);
+      })
+      .on('broadcast', { event: 'callStatus' }, ({ payload }) => {
+        console.log('Received call status:', payload);
+        this.handleCallStatus(payload);
+      })
+      .subscribe((status) => {
+        console.log('Subscription status:', status);
+      });
   }
 
   async startCall(calleeId: string) {
@@ -39,8 +59,24 @@ export class WebRTCCall {
 
       const offer = await this.peerConnection.createOffer();
       await this.peerConnection.setLocalDescription(offer);
-      socket.emit('offer', { to: calleeId, offer });
-      socket.emit('callStatus', { to: calleeId, status: 'ringing' });
+      
+      this.channel?.send({
+        type: 'broadcast',
+        event: 'offer',
+        payload: {
+          to: calleeId,
+          offer
+        }
+      });
+
+      this.channel?.send({
+        type: 'broadcast',
+        event: 'callStatus',
+        payload: {
+          to: calleeId,
+          status: 'ringing'
+        }
+      });
 
     } catch (error) {
       console.error('startCall error:', error);
@@ -53,7 +89,6 @@ export class WebRTCCall {
 
     this.peerConnection.ontrack = (event) => {
       this.remoteStream = event.streams[0];
-      // Emit an event that can be listened to by the UI
       window.dispatchEvent(new CustomEvent('remoteStreamUpdated', { 
         detail: { stream: this.remoteStream }
       }));
@@ -61,9 +96,13 @@ export class WebRTCCall {
 
     this.peerConnection.onicecandidate = (event) => {
       if (event.candidate && this.currentCallPeerId) {
-        socket.emit('candidate', {
-          to: this.currentCallPeerId,
-          candidate: event.candidate
+        this.channel?.send({
+          type: 'broadcast',
+          event: 'candidate',
+          payload: {
+            to: this.currentCallPeerId,
+            candidate: event.candidate
+          }
         });
       }
     };
@@ -87,8 +126,24 @@ export class WebRTCCall {
       await this.peerConnection.setRemoteDescription(data.offer);
       const answer = await this.peerConnection.createAnswer();
       await this.peerConnection.setLocalDescription(answer);
-      socket.emit('answer', { to: callerId, answer });
-      socket.emit('callStatus', { to: callerId, status: 'accepted' });
+
+      this.channel?.send({
+        type: 'broadcast',
+        event: 'answer',
+        payload: {
+          to: callerId,
+          answer
+        }
+      });
+
+      this.channel?.send({
+        type: 'broadcast',
+        event: 'callStatus',
+        payload: {
+          to: callerId,
+          status: 'accepted'
+        }
+      });
 
     } catch (error) {
       console.error('handleIncomingOffer error:', error);
@@ -128,7 +183,14 @@ export class WebRTCCall {
 
   endCall() {
     if (this.currentCallPeerId) {
-      socket.emit('callStatus', { to: this.currentCallPeerId, status: 'ended' });
+      this.channel?.send({
+        type: 'broadcast',
+        event: 'callStatus',
+        payload: {
+          to: this.currentCallPeerId,
+          status: 'ended'
+        }
+      });
     }
 
     if (this.peerConnection) {
@@ -144,7 +206,6 @@ export class WebRTCCall {
     this.remoteStream = null;
     this.currentCallPeerId = null;
 
-    // Emit events for UI updates
     window.dispatchEvent(new CustomEvent('callEnded'));
   }
 
