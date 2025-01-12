@@ -14,7 +14,6 @@ interface AudioCallProps {
 export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
   const [isSpeakerEnabled, setIsSpeakerEnabled] = useState(false);
-  const [isVideoEnabled, setIsVideoEnabled] = useState(false); // Added for type compatibility
   const [showNotification, setShowNotification] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { profile } = useProfile();
@@ -29,6 +28,9 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
               audioRef.current.srcObject = stream;
             }
           });
+          // Send call request to recipient
+          await callSignaling.sendCallRequest(recipientId, profile.id);
+          toast.info('Calling...');
         } catch (error) {
           console.error('Error starting call:', error);
           toast.error('Failed to start audio call');
@@ -39,10 +41,12 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
 
     const handleIncomingCall = (event: CustomEvent) => {
       const { callerId } = event.detail;
-      setShowNotification(true);
-      toast.info('Incoming call...', {
-        duration: 10000,
-      });
+      if (callerId === recipientId) {
+        setShowNotification(true);
+        toast.info('Incoming call...', {
+          duration: 10000,
+        });
+      }
     };
 
     const handleCallResponse = async (event: CustomEvent) => {
@@ -53,6 +57,7 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
       } else {
         callState.setStatus('ended');
         toast.error('Call rejected');
+        handleEndCall();
       }
     };
 
@@ -60,9 +65,15 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
       callState.setStatus('ended');
       toast.info('Call ended');
       webRTCCall.endCall();
+      if (audioRef.current) {
+        audioRef.current.srcObject = null;
+      }
     };
 
-    startCall();
+    // Only start call if we're the initiator
+    if (callState.getStatus() === 'ringing') {
+      startCall();
+    }
 
     window.addEventListener('incomingCall', handleIncomingCall as EventListener);
     window.addEventListener('callResponse', handleCallResponse as EventListener);
@@ -81,6 +92,9 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
     callSignaling.sendCallEnded();
     webRTCCall.endCall();
     callState.setStatus('ended');
+    if (audioRef.current) {
+      audioRef.current.srcObject = null;
+    }
   };
 
   const handleAcceptCall = async () => {
@@ -112,11 +126,6 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
     }
   };
 
-  // Added for type compatibility - no-op since this is audio-only
-  const toggleVideo = () => {
-    setIsVideoEnabled(!isVideoEnabled);
-  };
-
   return (
     <>
       {showNotification && (
@@ -133,10 +142,8 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
         onEndCall={handleEndCall}
         isAudioEnabled={isAudioEnabled}
         isSpeakerEnabled={isSpeakerEnabled}
-        isVideoEnabled={isVideoEnabled}
         onToggleAudio={toggleAudio}
         onToggleSpeaker={toggleSpeaker}
-        onToggleVideo={toggleVideo}
       />
     </>
   );

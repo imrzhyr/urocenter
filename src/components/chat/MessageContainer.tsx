@@ -38,8 +38,6 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
       setIsCallActive(true);
       callState.setStatus('ringing', userId);
       callSignaling.initialize(userId);
-      await callSignaling.sendCallRequest(userId, profile.id);
-      toast.info('Calling...');
     } catch (error) {
       console.error('Error starting call:', error);
       toast.error('Failed to start call');
