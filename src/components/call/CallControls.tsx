@@ -1,22 +1,26 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { PhoneOff, Mic, MicOff, Volume2, Volume1 } from 'lucide-react';
+import { PhoneOff, Mic, MicOff, Volume2, Volume1, Video, VideoOff } from 'lucide-react';
 import { CallDuration } from './CallDuration';
 
 interface CallControlsProps {
   onEndCall: () => void;
   isAudioEnabled: boolean;
   isSpeakerEnabled: boolean;
+  isVideoEnabled: boolean;
   onToggleAudio: () => void;
   onToggleSpeaker: () => void;
+  onToggleVideo: () => void;
 }
 
 export const CallControls: React.FC<CallControlsProps> = ({
   onEndCall,
   isAudioEnabled,
   isSpeakerEnabled,
+  isVideoEnabled,
   onToggleAudio,
-  onToggleSpeaker
+  onToggleSpeaker,
+  onToggleVideo
 }) => {
   return (
     <div className="flex items-center justify-between px-4 py-2 bg-gray-900/95 border-b border-gray-800">
@@ -33,6 +37,19 @@ export const CallControls: React.FC<CallControlsProps> = ({
             <Mic className="h-4 w-4 text-white" />
           ) : (
             <MicOff className="h-4 w-4 text-red-500" />
+          )}
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onToggleVideo}
+          className="hover:bg-gray-800"
+        >
+          {isVideoEnabled ? (
+            <Video className="h-4 w-4 text-white" />
+          ) : (
+            <VideoOff className="h-4 w-4 text-red-500" />
           )}
         </Button>
 
