@@ -52,7 +52,7 @@ export const MessageList = ({ messages, currentUserId, isLoading }: MessageListP
                 />
               )}
               
-              <p className="text-sm">{message.content}</p>
+              {message.content && <p className="text-sm">{message.content}</p>}
               
               {message.duration && (
                 <p className="text-xs opacity-70">
