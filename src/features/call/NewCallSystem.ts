@@ -258,3 +258,14 @@ socket.on('callEnded', () => {
   console.log('Call ended by remote peer');
   endCall();
 });
+
+export {
+  startCall,
+  handleIncomingOffer,
+  handleIncomingAnswer,
+  handleIncomingCandidate,
+  acceptCall,
+  rejectCall,
+  toggleMute,
+  endCall,
+};
