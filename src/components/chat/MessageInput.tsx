@@ -5,9 +5,10 @@ import { Input } from "@/components/ui/input";
 export interface MessageInputProps {
   onSendMessage: (content: string) => void;
   isLoading: boolean;
+  onStartCall?: () => void;
 }
 
-export const MessageInput = ({ onSendMessage, isLoading }: MessageInputProps) => {
+export const MessageInput = ({ onSendMessage, isLoading, onStartCall }: MessageInputProps) => {
   const [message, setMessage] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {

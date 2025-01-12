@@ -8,9 +8,10 @@ import { MediaGallery } from "./media/MediaGallery";
 interface MessageListProps {
   messages: Message[];
   currentUserId: string;
+  isLoading?: boolean;
 }
 
-export const MessageList = ({ messages, currentUserId }: MessageListProps) => {
+export const MessageList = ({ messages, currentUserId, isLoading }: MessageListProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

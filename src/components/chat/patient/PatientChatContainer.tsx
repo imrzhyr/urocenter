@@ -12,11 +12,6 @@ export const PatientChatContainer = () => {
     return null;
   }
 
-  const handleStartCall = async () => {
-    // Implement call functionality
-    console.log("Starting call...");
-  };
-
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)]">
       <div className="p-4 border-b">
@@ -30,7 +25,6 @@ export const PatientChatContainer = () => {
       <MessageInput 
         onSendMessage={sendMessage} 
         isLoading={isLoading}
-        onStartCall={handleStartCall}
       />
     </div>
   );

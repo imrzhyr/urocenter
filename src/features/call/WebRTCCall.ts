@@ -3,7 +3,7 @@ class WebRTCCall {
   private localStream: MediaStream | null = null;
   private remoteStream: MediaStream | null = null;
 
-  async startAudioCall(recipientId: string) {
+  async startCall(recipientId: string) {
     try {
       this.localStream = await navigator.mediaDevices.getUserMedia({ 
         audio: true,
@@ -32,7 +32,7 @@ class WebRTCCall {
 
       return offer;
     } catch (error) {
-      console.error('Error starting audio call:', error);
+      console.error('Error starting call:', error);
       throw error;
     }
   }
