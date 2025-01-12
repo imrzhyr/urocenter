@@ -7,20 +7,29 @@ import { toast } from "sonner";
 import { useDoctorChat } from "./hooks/useDoctorChat";
 import { startTransition } from "react";
 import { Profile } from "@/types/profile";
+import { Message } from "@/types/profile";
 
 interface PatientInfo {
   name: string;
   phone: string;
 }
 
+interface DoctorChatData {
+  messages: Message[];
+  isLoading: boolean;
+  sendMessage: (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }) => Promise<Message>;
+  refreshMessages: () => Promise<void>;
+  patientProfile?: Profile;
+}
+
 export const DoctorChatContainer = () => {
   const { patientId } = useParams();
   const [patientInfo, setPatientInfo] = useState<PatientInfo | null>(null);
 
-  const chatData = useDoctorChat(patientId);
+  const chatData = useDoctorChat(patientId) as DoctorChatData;
   const messages = chatData?.messages || [];
   const isLoading = chatData?.isLoading || false;
-  const sendMessage = chatData?.sendMessage || (() => Promise.resolve());
+  const sendMessage = chatData?.sendMessage || (() => Promise.resolve({} as Message));
   const refreshMessages = chatData?.refreshMessages || (() => Promise.resolve());
   const patientProfile = chatData?.patientProfile;
 
