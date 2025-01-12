@@ -12,9 +12,11 @@ import { messageSound } from "@/utils/audioUtils";
 
 interface MessageListProps {
   messages: Message[];
+  isLoading: boolean;
+  userId: string;
 }
 
-export const MessageList = ({ messages }: MessageListProps) => {
+export const MessageList = ({ messages, isLoading, userId }: MessageListProps) => {
   const { profile } = useProfile();
   const { language } = useLanguage();
   const messagesEndRef = useRef<HTMLDivElement>(null);
