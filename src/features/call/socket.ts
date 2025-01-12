@@ -1,16 +1,22 @@
-import { io, Socket, Transport } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 import { handleIncomingOffer, handleIncomingAnswer, handleIncomingCandidate } from './handlers';
 import { endCall } from './actions';
 
 const socket: Socket = io('https://lovable-signaling.onrender.com', {
-  transports: ['polling', 'websocket'] as Transport[],
+  transports: ['websocket', 'polling'],
   reconnection: true,
   reconnectionAttempts: 5,
   reconnectionDelay: 1000,
   timeout: 10000,
   forceNew: true,
   autoConnect: true,
-  path: '/socket.io',
+  path: '/socket.io/',
+  withCredentials: true,
+  extraHeaders: {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+  }
 });
 
 socket.on('connect', () => {
@@ -22,7 +28,7 @@ socket.on('connect_error', (error) => {
   // Attempt to reconnect with polling if websocket fails
   if (socket.io.opts.transports?.includes('websocket')) {
     console.log('Falling back to polling transport');
-    socket.io.opts.transports = ['polling'] as Transport[];
+    socket.io.opts.transports = ['polling'];
   }
 });
 
@@ -37,7 +43,6 @@ socket.on('reconnect_error', (error) => {
 socket.on('disconnect', (reason) => {
   console.log('Disconnected from signaling server:', reason);
   if (reason === 'io server disconnect') {
-    // Reconnect if server disconnected
     socket.connect();
   }
 });
