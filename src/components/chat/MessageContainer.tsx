@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { MessageList } from './MessageList';
 import { MessageInput } from './MessageInput';
-import { VideoCall } from '../call/VideoCall';
+import { AudioCall } from '../call/AudioCall';
 import { Message } from '@/types/profile';
 import { callSignaling } from '@/features/call/CallSignaling';
 import { useProfile } from '@/hooks/useProfile';
 import { toast } from 'sonner';
 import { callState } from '@/features/call/CallState';
+import { Button } from "@/components/ui/button";
+import { Phone } from "lucide-react";
 
 interface MessageContainerProps {
   messages: Message[];
@@ -48,20 +50,27 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
 
   return (
     <div className="flex flex-col h-screen bg-white">
-      <div className="fixed top-0 left-0 right-0 z-10 bg-primary text-white shadow-md">
-        {header}
+      <div className="fixed top-0 left-0 right-0 z-10 bg-primary text-white shadow-md flex justify-between items-center">
+        <div>{header}</div>
+        <Button 
+          variant="ghost" 
+          size="icon"
+          onClick={startCall}
+          className="mr-4"
+        >
+          <Phone className="h-5 w-5 text-white" />
+        </Button>
       </div>
       
       <div className="flex-1 overflow-hidden flex flex-col mt-[72px] mb-[80px]">
         {isCallActive ? (
-          <VideoCall recipientId={userId} />
+          <AudioCall recipientId={userId} />
         ) : (
           <>
             <div className="flex-1 overflow-y-auto">
               <MessageList
                 messages={messages}
-                currentUserId={userId}
-                isLoading={isLoading}
+                currentUserId={profile?.id || ''}
               />
             </div>
           </>
@@ -72,7 +81,6 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
         <MessageInput 
           onSendMessage={onSendMessage} 
           isLoading={isLoading}
-          onStartCall={startCall}
         />
       </div>
     </div>
