@@ -28,10 +28,12 @@ let state: CallState = {
 // Using a free Socket.IO demo server for development
 // In production, you should use your own signaling server
 const socket: Socket = io('https://lovable-signaling.onrender.com', {
-  transports: ['websocket'],
+  transports: ['websocket', 'polling'], // Allow fallback to polling if WebSocket fails
   reconnection: true,
   reconnectionAttempts: 5,
   reconnectionDelay: 1000,
+  timeout: 10000, // Increase timeout to 10 seconds
+  forceNew: true, // Force a new connection
 });
 
 const configuration: RTCConfiguration = {
@@ -213,6 +215,23 @@ socket.on('connect', () => {
 
 socket.on('connect_error', (error) => {
   console.error('Signaling server connection error:', error);
+  // Attempt to reconnect with polling if WebSocket fails
+  if (socket.io.opts.transports.includes('websocket')) {
+    console.log('Falling back to polling transport');
+    socket.io.opts.transports = ['polling'];
+  }
+});
+
+socket.on('reconnect', (attemptNumber) => {
+  console.log(`Reconnected to signaling server after ${attemptNumber} attempts`);
+});
+
+socket.on('reconnect_error', (error) => {
+  console.error('Failed to reconnect to signaling server:', error);
+});
+
+socket.on('disconnect', (reason) => {
+  console.log('Disconnected from signaling server:', reason);
 });
 
 socket.on('offer', ({ from, offer }) => {
