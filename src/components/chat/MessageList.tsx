@@ -34,12 +34,12 @@ export const MessageList = ({ messages, currentUserId, isLoading }: MessageListP
           <div
             key={message.id}
             className={`flex ${
-              message.user_id === currentUserId ? "justify-end" : "justify-start"
+              !message.is_from_doctor ? "justify-end" : "justify-start"
             }`}
           >
             <div
               className={`max-w-[70%] rounded-lg p-3 space-y-2 ${
-                message.user_id === currentUserId
+                !message.is_from_doctor
                   ? "bg-primary text-primary-foreground"
                   : "bg-muted"
               }`}
