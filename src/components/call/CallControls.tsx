@@ -1,25 +1,25 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { PhoneOff, Mic, MicOff, Video, VideoOff } from 'lucide-react';
+import { PhoneOff, Mic, MicOff, Volume2, Volume1 } from 'lucide-react';
 import { CallDuration } from './CallDuration';
 
 interface CallControlsProps {
   onEndCall: () => void;
   isAudioEnabled: boolean;
-  isVideoEnabled: boolean;
+  isSpeakerEnabled: boolean;
   onToggleAudio: () => void;
-  onToggleVideo: () => void;
+  onToggleSpeaker: () => void;
 }
 
 export const CallControls: React.FC<CallControlsProps> = ({
   onEndCall,
   isAudioEnabled,
-  isVideoEnabled,
+  isSpeakerEnabled,
   onToggleAudio,
-  onToggleVideo
+  onToggleSpeaker
 }) => {
   return (
-    <div className="flex flex-col items-center justify-center space-y-4 p-4 bg-gray-900 rounded-lg">
+    <div className="flex items-center justify-between px-4 py-2 bg-gray-900/95 border-b border-gray-800">
       <CallDuration />
       
       <div className="flex items-center space-x-4">
@@ -30,9 +30,9 @@ export const CallControls: React.FC<CallControlsProps> = ({
           className="hover:bg-gray-800"
         >
           {isAudioEnabled ? (
-            <Mic className="h-6 w-6 text-white" />
+            <Mic className="h-4 w-4 text-white" />
           ) : (
-            <MicOff className="h-6 w-6 text-red-500" />
+            <MicOff className="h-4 w-4 text-red-500" />
           )}
         </Button>
 
@@ -40,21 +40,21 @@ export const CallControls: React.FC<CallControlsProps> = ({
           variant="destructive"
           size="icon"
           onClick={onEndCall}
-          className="rounded-full bg-red-500 hover:bg-red-600"
+          className="h-8 w-8 rounded-full bg-red-500 hover:bg-red-600"
         >
-          <PhoneOff className="h-6 w-6" />
+          <PhoneOff className="h-4 w-4" />
         </Button>
 
         <Button
           variant="ghost"
           size="icon"
-          onClick={onToggleVideo}
+          onClick={onToggleSpeaker}
           className="hover:bg-gray-800"
         >
-          {isVideoEnabled ? (
-            <Video className="h-6 w-6 text-white" />
+          {isSpeakerEnabled ? (
+            <Volume2 className="h-4 w-4 text-white" />
           ) : (
-            <VideoOff className="h-6 w-6 text-red-500" />
+            <Volume1 className="h-4 w-4 text-gray-400" />
           )}
         </Button>
       </div>

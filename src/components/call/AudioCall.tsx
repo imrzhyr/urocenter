@@ -13,7 +13,9 @@ interface AudioCallProps {
 
 export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
+  const [isSpeakerEnabled, setIsSpeakerEnabled] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const { profile } = useProfile();
 
   useEffect(() => {
@@ -21,6 +23,11 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
       if (profile?.id) {
         try {
           await webRTCCall.startCall(recipientId);
+          webRTCCall.onRemoteStream((stream) => {
+            if (audioRef.current) {
+              audioRef.current.srcObject = stream;
+            }
+          });
         } catch (error) {
           console.error('Error starting call:', error);
           toast.error('Failed to start audio call');
@@ -97,6 +104,13 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
     }
   };
 
+  const toggleSpeaker = () => {
+    if (audioRef.current) {
+      audioRef.current.setSinkId(isSpeakerEnabled ? 'default' : 'speaker');
+      setIsSpeakerEnabled(!isSpeakerEnabled);
+    }
+  };
+
   return (
     <>
       {showNotification && (
@@ -107,17 +121,15 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
         />
       )}
       
-      <div className="fixed inset-0 bg-gray-900/80 flex items-center justify-center">
-        <div className="bg-gray-800 p-8 rounded-lg shadow-lg">
-          <CallControls
-            onEndCall={handleEndCall}
-            isAudioEnabled={isAudioEnabled}
-            isVideoEnabled={false}
-            onToggleAudio={toggleAudio}
-            onToggleVideo={() => {}}
-          />
-        </div>
-      </div>
+      <audio ref={audioRef} autoPlay />
+      
+      <CallControls
+        onEndCall={handleEndCall}
+        isAudioEnabled={isAudioEnabled}
+        isSpeakerEnabled={isSpeakerEnabled}
+        onToggleAudio={toggleAudio}
+        onToggleSpeaker={toggleSpeaker}
+      />
     </>
   );
 };

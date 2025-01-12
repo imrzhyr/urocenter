@@ -2,6 +2,7 @@ class WebRTCCall {
   private peerConnection: RTCPeerConnection | null = null;
   private localStream: MediaStream | null = null;
   private remoteStream: MediaStream | null = null;
+  private onRemoteStreamCallback: ((stream: MediaStream) => void) | null = null;
 
   async startCall(recipientId: string) {
     try {
@@ -22,9 +23,9 @@ class WebRTCCall {
 
       this.peerConnection.ontrack = (event) => {
         this.remoteStream = event.streams[0];
-        window.dispatchEvent(new CustomEvent('remoteStreamUpdated', {
-          detail: { stream: this.remoteStream }
-        }));
+        if (this.onRemoteStreamCallback) {
+          this.onRemoteStreamCallback(this.remoteStream);
+        }
       };
 
       const offer = await this.peerConnection.createOffer();
@@ -34,6 +35,13 @@ class WebRTCCall {
     } catch (error) {
       console.error('Error starting call:', error);
       throw error;
+    }
+  }
+
+  onRemoteStream(callback: (stream: MediaStream) => void) {
+    this.onRemoteStreamCallback = callback;
+    if (this.remoteStream) {
+      callback(this.remoteStream);
     }
   }
 
@@ -64,9 +72,9 @@ class WebRTCCall {
 
       this.peerConnection.ontrack = (event) => {
         this.remoteStream = event.streams[0];
-        window.dispatchEvent(new CustomEvent('remoteStreamUpdated', {
-          detail: { stream: this.remoteStream }
-        }));
+        if (this.onRemoteStreamCallback) {
+          this.onRemoteStreamCallback(this.remoteStream);
+        }
       };
 
       await this.peerConnection.setRemoteDescription(offer);
@@ -92,6 +100,7 @@ class WebRTCCall {
     }
 
     this.remoteStream = null;
+    this.onRemoteStreamCallback = null;
   }
 }
 
