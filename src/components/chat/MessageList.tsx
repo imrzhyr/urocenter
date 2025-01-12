@@ -1,19 +1,20 @@
 import { useEffect, useRef } from "react";
-import { Message } from "@/types/messages";
+import { Message } from "@/types/profile";
 import { MessageStatus } from "./MessageStatus";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface MessageListProps {
   messages: Message[];
   currentUserId: string;
+  isLoading?: boolean;
 }
 
-export const MessageList = ({ messages, currentUserId }: MessageListProps) => {
+export const MessageList = ({ messages, currentUserId, isLoading }: MessageListProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollIntoView({ behavior: "smooth" });
+      scrollRef.current.scrollIntoView({ behavior: "instant" });
     }
   }, [messages]);
 
@@ -35,11 +36,7 @@ export const MessageList = ({ messages, currentUserId }: MessageListProps) => {
               }`}
             >
               <p className="text-sm">{message.content}</p>
-              <MessageStatus
-                status={message.status}
-                deliveredAt={message.delivered_at}
-                seenAt={message.seen_at}
-              />
+              <MessageStatus message={message} />
             </div>
           </div>
         ))}

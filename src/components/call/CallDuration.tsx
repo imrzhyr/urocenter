@@ -7,7 +7,7 @@ export const CallDuration = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setDuration(callState.getState().duration);
+      setDuration(callState.getCallDuration());
     }, 1000);
 
     return () => clearInterval(interval);

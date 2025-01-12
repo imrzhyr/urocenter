@@ -1,5 +1,3 @@
-import { toast } from "sonner";
-
 export class CallState {
   private static instance: CallState;
   private isInCall: boolean = false;
@@ -66,3 +64,5 @@ export class CallState {
     return this.isInCall;
   }
 }
+
+export const callState = CallState.getInstance();
