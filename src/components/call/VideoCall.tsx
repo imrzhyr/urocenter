@@ -16,6 +16,7 @@ export const VideoCall: React.FC<VideoCallProps> = ({ recipientId }) => {
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
   const [isVideoEnabled, setIsVideoEnabled] = useState(true);
+  const [isSpeakerEnabled, setIsSpeakerEnabled] = useState(true); // Added speaker control
   const [showNotification, setShowNotification] = useState(false);
   const { profile } = useProfile();
 
@@ -122,6 +123,13 @@ export const VideoCall: React.FC<VideoCallProps> = ({ recipientId }) => {
     }
   };
 
+  const toggleSpeaker = () => {
+    if (remoteVideoRef.current) {
+      remoteVideoRef.current.setSinkId(isSpeakerEnabled ? 'default' : 'speaker');
+      setIsSpeakerEnabled(!isSpeakerEnabled);
+    }
+  };
+
   return (
     <>
       {showNotification && (
@@ -157,8 +165,10 @@ export const VideoCall: React.FC<VideoCallProps> = ({ recipientId }) => {
             onEndCall={handleEndCall}
             isAudioEnabled={isAudioEnabled}
             isVideoEnabled={isVideoEnabled}
+            isSpeakerEnabled={isSpeakerEnabled}
             onToggleAudio={toggleAudio}
             onToggleVideo={toggleVideo}
+            onToggleSpeaker={toggleSpeaker}
           />
         </div>
       </div>

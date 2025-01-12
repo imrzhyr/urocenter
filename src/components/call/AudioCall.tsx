@@ -14,6 +14,7 @@ interface AudioCallProps {
 export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
   const [isSpeakerEnabled, setIsSpeakerEnabled] = useState(false);
+  const [isVideoEnabled, setIsVideoEnabled] = useState(false); // Added for type compatibility
   const [showNotification, setShowNotification] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { profile } = useProfile();
@@ -111,6 +112,11 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
     }
   };
 
+  // Added for type compatibility - no-op since this is audio-only
+  const toggleVideo = () => {
+    setIsVideoEnabled(!isVideoEnabled);
+  };
+
   return (
     <>
       {showNotification && (
@@ -127,8 +133,10 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
         onEndCall={handleEndCall}
         isAudioEnabled={isAudioEnabled}
         isSpeakerEnabled={isSpeakerEnabled}
+        isVideoEnabled={isVideoEnabled}
         onToggleAudio={toggleAudio}
         onToggleSpeaker={toggleSpeaker}
+        onToggleVideo={toggleVideo}
       />
     </>
   );
