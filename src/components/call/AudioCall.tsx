@@ -6,6 +6,7 @@ import { callState } from '@/features/call/CallState';
 import { callSignaling } from '@/features/call/CallSignaling';
 import { CallNotification } from './CallNotification';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 interface AudioCallProps {
   recipientId: string;
@@ -17,6 +18,7 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
   const [showNotification, setShowNotification] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { profile } = useProfile();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const startCall = async () => {
@@ -39,6 +41,7 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
           console.error('Error starting call:', error);
           toast.error('Failed to start audio call');
           callState.setStatus('ended');
+          navigate(`/chat/${recipientId}`);
         }
       }
     };
@@ -76,6 +79,7 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
       if (audioRef.current) {
         audioRef.current.srcObject = null;
       }
+      navigate(`/chat/${recipientId}`);
     };
 
     if (callState.getStatus() === 'ringing') {
@@ -93,7 +97,7 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
       webRTCCall.endCall();
       callSignaling.cleanup();
     };
-  }, [recipientId, profile?.id]);
+  }, [recipientId, profile?.id, navigate]);
 
   const handleEndCall = () => {
     console.log('Ending call');
@@ -103,6 +107,7 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
     if (audioRef.current) {
       audioRef.current.srcObject = null;
     }
+    navigate(`/chat/${recipientId}`);
   };
 
   const handleAcceptCall = async () => {
@@ -117,6 +122,7 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
     setShowNotification(false);
     await callSignaling.sendCallResponse(false);
     callState.setStatus('ended');
+    navigate(`/chat/${recipientId}`);
   };
 
   const toggleAudio = () => {

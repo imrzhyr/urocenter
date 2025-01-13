@@ -5,9 +5,7 @@ import { FileText, PhoneCall } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ViewReportsDialog } from "@/components/medical-reports/ViewReportsDialog";
 import { useState } from "react";
-import { AudioCall } from "@/components/call/AudioCall";
-import { callState } from "@/features/call/CallState";
-import { callSignaling } from "@/features/call/CallSignaling";
+import { useNavigate } from "react-router-dom";
 
 interface DoctorChatHeaderProps {
   patientName: string;
@@ -25,15 +23,12 @@ export const DoctorChatHeader = ({
   const { t } = useLanguage();
   const { profile } = useProfile();
   const [showReports, setShowReports] = useState(false);
-  const [showCall, setShowCall] = useState(false);
+  const navigate = useNavigate();
 
   if (!profile?.id) return null;
 
   const handleCallClick = () => {
-    console.log('Initializing call to:', patientId);
-    callState.setStatus('ringing');
-    callSignaling.initialize(patientId);
-    setShowCall(true);
+    navigate(`/call/${patientId}`);
   };
 
   return (
@@ -73,12 +68,6 @@ export const DoctorChatHeader = ({
         onOpenChange={setShowReports}
         userId={patientId}
       />
-
-      {showCall && (
-        <AudioCall 
-          recipientId={patientId}
-        />
-      )}
     </>
   );
 };
