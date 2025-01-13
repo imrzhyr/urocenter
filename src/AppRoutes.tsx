@@ -1,103 +1,55 @@
-import { lazy, Suspense } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { LoadingSpinner } from "@/components/LoadingSpinner";
-
-// Lazy load components with prefetching
-const Dashboard = lazy(() => {
-  const component = import("@/pages/Dashboard");
-  // Prefetch other common routes
-  import("@/pages/Chat");
-  import("@/pages/Profile");
-  return component;
-});
-
-const Chat = lazy(() => import("@/pages/Chat"));
-const Profile = lazy(() => import("@/pages/Profile"));
-const SignIn = lazy(() => import("@/pages/SignIn"));
-const SignUp = lazy(() => import("@/pages/SignUp"));
-const Welcome = lazy(() => import("@/pages/Welcome"));
-const MedicalInformation = lazy(() => import("@/pages/MedicalInformation"));
-const Payment = lazy(() => import("@/pages/Payment"));
-const Settings = lazy(() => import("@/pages/Settings"));
-const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"));
+import Dashboard from "@/pages/Dashboard";
+import Chat from "@/pages/Chat";
+import Profile from "@/pages/Profile";
+import SignIn from "@/pages/SignIn";
+import SignUp from "@/pages/SignUp";
+import Welcome from "@/pages/Welcome";
+import MedicalInformation from "@/pages/MedicalInformation";
+import Payment from "@/pages/Payment";
+import Settings from "@/pages/Settings";
+import AdminDashboard from "@/pages/AdminDashboard";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Welcome />,
-    errorElement: <LoadingSpinner />,
   },
   {
     path: "/signin",
-    element: (
-      <Suspense fallback={<LoadingSpinner />}>
-        <SignIn />
-      </Suspense>
-    ),
+    element: <SignIn />,
   },
   {
     path: "/signup",
-    element: (
-      <Suspense fallback={<LoadingSpinner />}>
-        <SignUp />
-      </Suspense>
-    ),
+    element: <SignUp />,
   },
   {
     path: "/dashboard",
-    element: (
-      <Suspense fallback={<LoadingSpinner />}>
-        <Dashboard />
-      </Suspense>
-    ),
+    element: <Dashboard />,
   },
   {
     path: "/chat",
-    element: (
-      <Suspense fallback={<LoadingSpinner />}>
-        <Chat />
-      </Suspense>
-    ),
+    element: <Chat />,
   },
   {
     path: "/profile",
-    element: (
-      <Suspense fallback={<LoadingSpinner />}>
-        <Profile />
-      </Suspense>
-    ),
+    element: <Profile />,
   },
   {
     path: "/medical-information",
-    element: (
-      <Suspense fallback={<LoadingSpinner />}>
-        <MedicalInformation />
-      </Suspense>
-    ),
+    element: <MedicalInformation />,
   },
   {
     path: "/payment",
-    element: (
-      <Suspense fallback={<LoadingSpinner />}>
-        <Payment />
-      </Suspense>
-    ),
+    element: <Payment />,
   },
   {
     path: "/settings",
-    element: (
-      <Suspense fallback={<LoadingSpinner />}>
-        <Settings />
-      </Suspense>
-    ),
+    element: <Settings />,
   },
   {
     path: "/admin",
-    element: (
-      <Suspense fallback={<LoadingSpinner />}>
-        <AdminDashboard />
-      </Suspense>
-    ),
+    element: <AdminDashboard />,
   },
 ]);
 
