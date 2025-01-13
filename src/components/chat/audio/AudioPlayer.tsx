@@ -35,9 +35,9 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
       audio.currentTime = 0;
     };
 
-    const handleError = (e: Event) => {
-      console.error('Audio playback error:', e);
-      toast.error('Failed to play audio message');
+    const handleError = () => {
+      console.error('Audio playback error:', audioUrl);
+      toast.error('Unable to play audio message');
       setIsPlaying(false);
       setIsLoading(false);
     };
@@ -55,7 +55,7 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
       audio.pause();
       audio.src = '';
     };
-  }, [duration]);
+  }, [duration, audioUrl]);
 
   const formatTime = (time: number) => {
     if (!isFinite(time)) return "0:00";
@@ -76,8 +76,11 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
         setIsPlaying(false);
       } else {
         audio.src = audioUrl;
-        await audio.play();
-        setIsPlaying(true);
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          await playPromise;
+          setIsPlaying(true);
+        }
       }
     } catch (error) {
       console.error('Playback error:', error);
@@ -88,13 +91,13 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
   };
 
   return (
-    <div className="mt-2 flex items-center gap-2 bg-[#E5DEFF] dark:bg-[#2A2A2A] rounded-full p-2">
+    <div className="mt-2 flex items-center gap-2 bg-[#E5F6FF] dark:bg-[#1A2433] rounded-full p-2">
       <Button
         onClick={handlePlayPause}
         disabled={isLoading}
         size="icon"
         variant="ghost"
-        className="w-8 h-8 rounded-full bg-[#9b87f5] hover:bg-[#8B5CF6] dark:bg-[#7E69AB] dark:hover:bg-[#6E59A5]"
+        className="w-8 h-8 rounded-full bg-[#0066CC] hover:bg-[#0052A3] dark:bg-[#0066CC] dark:hover:bg-[#0052A3]"
       >
         {isLoading ? (
           <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -106,9 +109,9 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
       </Button>
       
       <div className="flex-1">
-        <div className="h-1.5 bg-[#D6BCFA] dark:bg-[#3A3A3A] rounded-full">
+        <div className="h-1.5 bg-[#E5F6FF] dark:bg-[#1A2433] rounded-full">
           <div 
-            className="h-full bg-[#8B5CF6] dark:bg-[#D946EF] rounded-full transition-all duration-100"
+            className="h-full bg-[#0066CC] dark:bg-[#0066CC] rounded-full transition-all duration-100"
             style={{ 
               width: `${(currentTime / audioDuration) * 100}%`
             }}
