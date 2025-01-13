@@ -1,13 +1,10 @@
 import { BackButton } from "@/components/BackButton";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useProfile } from "@/hooks/useProfile";
 import { FileText, PhoneCall } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ViewReportsDialog } from "@/components/medical-reports/ViewReportsDialog";
 import { useState } from "react";
-import { AudioCall } from "@/components/call/AudioCall";
-import { callState } from "@/features/call/CallState";
-import { callSignaling } from "@/features/call/CallSignaling";
+import { useNavigate } from "react-router-dom";
 
 interface DoctorChatHeaderProps {
   patientName: string;
@@ -23,49 +20,41 @@ export const DoctorChatHeader = ({
   patientId
 }: DoctorChatHeaderProps) => {
   const { t } = useLanguage();
-  const { profile } = useProfile();
   const [showReports, setShowReports] = useState(false);
-  const [showCall, setShowCall] = useState(false);
-
-  if (!profile?.id) return null;
+  const navigate = useNavigate();
 
   const handleCallClick = () => {
-    console.log('Initializing call to:', patientId);
-    callState.setStatus('ringing');
-    callSignaling.initialize(patientId);
-    setShowCall(true);
+    navigate(`/call/${patientId}`);
   };
 
   return (
-    <>
-      <div className="flex items-center justify-between py-2 px-4">
-        <div className="flex items-center gap-2">
-          <BackButton />
-          <div>
-            <h3 className="font-medium text-white text-sm">
-              {patientName || t('unknown_patient')}
-            </h3>
-            <p className="text-xs text-white/80">{patientPhone}</p>
-          </div>
+    <div className="flex items-center justify-between py-2 px-4">
+      <div className="flex items-center gap-2">
+        <BackButton />
+        <div>
+          <h3 className="font-medium text-white text-sm">
+            {patientName || t('unknown_patient')}
+          </h3>
+          <p className="text-xs text-white/80">{patientPhone}</p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-white hover:bg-primary-foreground/10 h-8 w-8"
-            onClick={() => setShowReports(true)}
-          >
-            <FileText className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-white hover:bg-primary-foreground/10 h-8 w-8"
-            onClick={handleCallClick}
-          >
-            <PhoneCall className="h-4 w-4" />
-          </Button>
-        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-white hover:bg-primary-foreground/10 h-8 w-8"
+          onClick={() => setShowReports(true)}
+        >
+          <FileText className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-white hover:bg-primary-foreground/10 h-8 w-8"
+          onClick={handleCallClick}
+        >
+          <PhoneCall className="h-4 w-4" />
+        </Button>
       </div>
 
       <ViewReportsDialog 
@@ -73,12 +62,6 @@ export const DoctorChatHeader = ({
         onOpenChange={setShowReports}
         userId={patientId}
       />
-
-      {showCall && (
-        <AudioCall 
-          recipientId={patientId}
-        />
-      )}
-    </>
+    </div>
   );
 };

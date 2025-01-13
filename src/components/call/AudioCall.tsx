@@ -6,6 +6,7 @@ import { callState } from '@/features/call/CallState';
 import { callSignaling } from '@/features/call/CallSignaling';
 import { CallNotification } from './CallNotification';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 interface AudioCallProps {
   recipientId: string;
@@ -17,10 +18,13 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
   const [showNotification, setShowNotification] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { profile } = useProfile();
+  const navigate = useNavigate();
+  const hasInitiatedCall = useRef(false);
 
   useEffect(() => {
     const startCall = async () => {
-      if (profile?.id) {
+      if (profile?.id && !hasInitiatedCall.current) {
+        hasInitiatedCall.current = true;
         try {
           console.log('Starting call to:', recipientId);
           await webRTCCall.startCall(recipientId);
@@ -39,6 +43,7 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
           console.error('Error starting call:', error);
           toast.error('Failed to start audio call');
           callState.setStatus('ended');
+          navigate(`/chat/${recipientId}`);
         }
       }
     };
@@ -64,7 +69,7 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
       } else {
         callState.setStatus('ended');
         toast.error('Call rejected');
-        handleEndCall();
+        navigate(`/chat/${recipientId}`);
       }
     };
 
@@ -76,6 +81,7 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
       if (audioRef.current) {
         audioRef.current.srcObject = null;
       }
+      navigate(`/chat/${recipientId}`);
     };
 
     if (callState.getStatus() === 'ringing') {
@@ -93,7 +99,7 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
       webRTCCall.endCall();
       callSignaling.cleanup();
     };
-  }, [recipientId, profile?.id]);
+  }, [recipientId, profile?.id, navigate]);
 
   const handleEndCall = () => {
     console.log('Ending call');
@@ -103,6 +109,7 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
     if (audioRef.current) {
       audioRef.current.srcObject = null;
     }
+    navigate(`/chat/${recipientId}`);
   };
 
   const handleAcceptCall = async () => {
@@ -117,6 +124,7 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
     setShowNotification(false);
     await callSignaling.sendCallResponse(false);
     callState.setStatus('ended');
+    navigate(`/chat/${recipientId}`);
   };
 
   const toggleAudio = () => {
@@ -154,13 +162,15 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
       
       <audio ref={audioRef} autoPlay />
       
-      <CallControls
-        onEndCall={handleEndCall}
-        isAudioEnabled={isAudioEnabled}
-        isSpeakerEnabled={isSpeakerEnabled}
-        onToggleAudio={toggleAudio}
-        onToggleSpeaker={toggleSpeaker}
-      />
+      <div className="fixed top-[48px] left-0 right-0 bg-background border-b border-border">
+        <CallControls
+          onEndCall={handleEndCall}
+          isAudioEnabled={isAudioEnabled}
+          isSpeakerEnabled={isSpeakerEnabled}
+          onToggleAudio={toggleAudio}
+          onToggleSpeaker={toggleSpeaker}
+        />
+      </div>
     </>
   );
 };
