@@ -42,18 +42,32 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
     }
   };
 
-  const getReplyPreview = (content: string, fileType?: string | null) => {
-    if (!content && !fileType) return 'Message not available';
-    if (fileType?.startsWith('audio/')) return '🎵 Voice message';
-    if (fileType?.startsWith('image/')) return '📷 Photo';
-    if (fileType?.startsWith('video/')) return '🎥 Video';
-    return content.slice(0, 30) + (content.length > 30 ? '...' : '');
+  const renderReplyPreview = (replyTo: NonNullable<Message['replyTo']>) => {
+    if (!replyTo) return null;
+
+    return (
+      <div className="text-xs bg-black/5 dark:bg-white/5 rounded p-2 mb-2 border-l-2 border-[#0066CC]">
+        <div className="opacity-70 flex items-center gap-1">
+          <span>↩️ Replying to:</span>
+          <span className="font-medium">{replyTo.sender_name || 'Unknown'}</span>
+        </div>
+        <div className="truncate font-medium mt-1">
+          {getMessagePreview(replyTo)}
+        </div>
+      </div>
+    );
+  };
+
+  const getMessagePreview = (message: { content: string; file_type?: string | null }) => {
+    if (!message.content && !message.file_type) return 'Message not available';
+    if (message.file_type?.startsWith('audio/')) return '🎵 Voice message';
+    if (message.file_type?.startsWith('image/')) return '📷 Photo';
+    if (message.file_type?.startsWith('video/')) return '🎥 Video';
+    return message.content.slice(0, 30) + (message.content.length > 30 ? '...' : '');
   };
 
   return (
-    <ScrollArea 
-      className="flex-1 p-4 chat-background"
-    >
+    <ScrollArea className="flex-1 p-4 chat-background">
       <div className="space-y-4">
         {messages.map((message) => (
           <motion.div
@@ -64,7 +78,6 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
             animate={controls}
             className={`flex flex-col ${!message.is_from_doctor ? "items-end" : "items-start"}`}
           >
-            {/* Sender name */}
             {message.sender_name && (
               <span className={`text-sm mb-1 px-2 ${
                 !message.is_from_doctor ? "text-right text-gray-600" : "text-left text-[#0066CC]"
@@ -78,17 +91,7 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
                 ? "bg-[#0066CC] text-white"
                 : "bg-white dark:bg-[#1A2433] text-gray-800 dark:text-white"
             }`}>
-              {message.replyTo && (
-                <div className="text-xs bg-black/5 dark:bg-white/5 rounded p-2 mb-2 border-l-2 border-[#0066CC]">
-                  <div className="opacity-70 flex items-center gap-1">
-                    <span>↩️ Replying to:</span>
-                    <span className="font-medium">{message.replyTo.sender_name || 'Unknown'}</span>
-                  </div>
-                  <div className="truncate font-medium mt-1">
-                    {getReplyPreview(message.replyTo.content, message.replyTo.file_type)}
-                  </div>
-                </div>
-              )}
+              {message.replyTo && renderReplyPreview(message.replyTo)}
               
               {message.file_url && message.file_type?.startsWith('audio/') ? (
                 <AudioPlayer
