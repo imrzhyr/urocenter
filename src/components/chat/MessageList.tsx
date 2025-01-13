@@ -43,6 +43,7 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
   };
 
   const getReplyPreview = (content: string, fileType?: string | null) => {
+    if (!content && !fileType) return 'Message not available';
     if (fileType?.startsWith('audio/')) return '🎵 Voice message';
     if (fileType?.startsWith('image/')) return '📷 Photo';
     if (fileType?.startsWith('video/')) return '🎥 Video';
@@ -81,7 +82,7 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
                 <div className="text-xs bg-black/5 dark:bg-white/5 rounded p-2 mb-2 border-l-2 border-[#0066CC]">
                   <div className="opacity-70 flex items-center gap-1">
                     <span>↩️ Replying to:</span>
-                    <span className="font-medium">{message.replyTo.sender_name}</span>
+                    <span className="font-medium">{message.replyTo.sender_name || 'Unknown'}</span>
                   </div>
                   <div className="truncate font-medium mt-1">
                     {getReplyPreview(message.replyTo.content, message.replyTo.file_type)}

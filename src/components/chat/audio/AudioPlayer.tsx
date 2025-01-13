@@ -35,7 +35,7 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
       audio.currentTime = 0;
     };
 
-    const handleError = (e: ErrorEvent) => {
+    const handleError = () => {
       console.error('Audio playback error:', audioUrl);
       toast.error('Unable to play audio message. Please try again.');
       setIsPlaying(false);
@@ -123,7 +123,7 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
       </div>
       
       <span className="text-xs text-gray-600 dark:text-gray-300 min-w-[40px]">
-        {formatTime(audioDuration)}
+        {formatTime(currentTime)} / {formatTime(audioDuration)}
       </span>
       
       <Volume2 className="w-4 h-4 text-gray-500" />
