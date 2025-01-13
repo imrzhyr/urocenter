@@ -25,7 +25,7 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
     };
 
     const handleLoadedMetadata = () => {
-      setAudioDuration(audio.duration);
+      setAudioDuration(audio.duration || duration || 0);
       setIsLoading(false);
     };
 
@@ -42,17 +42,10 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
       setIsLoading(false);
     };
 
-    // Add event listeners
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('error', handleError);
-
-    // Set audio output to speaker
-    if ('setSinkId' in audio) {
-      (audio as any).setSinkId('default')
-        .catch((e: Error) => console.error('Error setting audio output:', e));
-    }
 
     return () => {
       audio.removeEventListener('timeupdate', handleTimeUpdate);
@@ -62,7 +55,14 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
       audio.pause();
       audio.src = '';
     };
-  }, []);
+  }, [duration]);
+
+  const formatTime = (time: number) => {
+    if (!isFinite(time)) return "0:00";
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
 
   const handlePlayPause = async () => {
     const audio = audioRef.current;
@@ -88,13 +88,13 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
   };
 
   return (
-    <div className="mt-2 flex items-center gap-2 bg-gray-100 rounded-full p-2">
+    <div className="mt-2 flex items-center gap-2 bg-[#E5DEFF] dark:bg-[#2A2A2A] rounded-full p-2">
       <Button
         onClick={handlePlayPause}
         disabled={isLoading}
         size="icon"
         variant="ghost"
-        className="w-8 h-8 rounded-full bg-primary hover:bg-primary/90"
+        className="w-8 h-8 rounded-full bg-[#9b87f5] hover:bg-[#8B5CF6] dark:bg-[#7E69AB] dark:hover:bg-[#6E59A5]"
       >
         {isLoading ? (
           <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -106,9 +106,9 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
       </Button>
       
       <div className="flex-1">
-        <div className="h-1.5 bg-gray-200 rounded-full">
+        <div className="h-1.5 bg-[#D6BCFA] dark:bg-[#3A3A3A] rounded-full">
           <div 
-            className="h-full bg-primary rounded-full transition-all duration-100"
+            className="h-full bg-[#8B5CF6] dark:bg-[#D946EF] rounded-full transition-all duration-100"
             style={{ 
               width: `${(currentTime / audioDuration) * 100}%`
             }}
@@ -116,10 +116,8 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
         </div>
       </div>
       
-      <span className="text-xs text-gray-500 min-w-[40px]">
-        {audioDuration ? 
-          `${Math.floor(audioDuration / 60)}:${(Math.floor(audioDuration) % 60).toString().padStart(2, '0')}` 
-          : '0:00'}
+      <span className="text-xs text-gray-600 dark:text-gray-300 min-w-[40px]">
+        {formatTime(audioDuration)}
       </span>
       
       <Volume2 className="w-4 h-4 text-gray-500" />
