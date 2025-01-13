@@ -4,6 +4,7 @@ import { MessageStatus } from "./MessageStatus";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { format } from "date-fns";
 import { MediaGallery } from "./media/MediaGallery";
+import { AudioPlayer } from "./audio/AudioPlayer";
 
 interface MessageListProps {
   messages: Message[];
@@ -19,13 +20,6 @@ export const MessageList = ({ messages, currentUserId, isLoading }: MessageListP
       scrollRef.current.scrollIntoView({ behavior: "instant" });
     }
   }, [messages]);
-
-  const formatDuration = (duration?: number) => {
-    if (!duration) return null;
-    const minutes = Math.floor(duration / 60);
-    const seconds = duration % 60;
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  };
 
   return (
     <ScrollArea className="flex-1 p-4 bg-[#ECE5DD]">
@@ -44,24 +38,24 @@ export const MessageList = ({ messages, currentUserId, isLoading }: MessageListP
                   : "bg-white text-black"
               }`}
             >
-              {message.file_url && (message.file_type?.startsWith('image/') || message.file_type?.startsWith('video/')) && (
+              {message.file_url && message.file_type?.startsWith('audio/') ? (
+                <AudioPlayer
+                  audioUrl={message.file_url}
+                  messageId={message.id}
+                  duration={message.duration}
+                />
+              ) : message.file_url && (message.file_type?.startsWith('image/') || message.file_type?.startsWith('video/')) ? (
                 <MediaGallery
                   url={message.file_url}
                   type={message.file_type}
                   name={message.file_name || ''}
                 />
-              )}
+              ) : null}
               
               {message.content && <p className="text-sm break-words">{message.content}</p>}
               
-              {message.duration && (
-                <p className="text-xs opacity-70">
-                  Duration: {formatDuration(message.duration)}
-                </p>
-              )}
-              
               <div className="flex items-center justify-end gap-1 mt-1">
-                <span className="text-[11px] text-gray-500">
+                <span className="text-xs text-gray-500">
                   {format(new Date(message.created_at), 'HH:mm')}
                 </span>
                 <MessageStatus message={message} />
