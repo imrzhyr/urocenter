@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { VoiceMessageRecorder } from './VoiceMessageRecorder';
 import { Label } from "@/components/ui/label";
-import { Upload } from "lucide-react";
+import { Upload, Send, Mic } from "lucide-react";
 
 export interface MessageInputProps {
   onSendMessage: (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }) => void;
@@ -11,7 +11,7 @@ export interface MessageInputProps {
   onStartCall?: () => void;
 }
 
-export const MessageInput = ({ onSendMessage, isLoading, onStartCall }: MessageInputProps) => {
+export const MessageInput = ({ onSendMessage, isLoading }: MessageInputProps) => {
   const [message, setMessage] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -49,16 +49,9 @@ export const MessageInput = ({ onSendMessage, isLoading, onStartCall }: MessageI
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex items-center gap-2 p-4">
-      <Input
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        placeholder="Type a message..."
-        disabled={isLoading}
-        className="flex-1"
-      />
-      <Label htmlFor="file" className="cursor-pointer">
-        <Upload className="h-5 w-5 text-gray-500 hover:text-gray-700" />
+    <form onSubmit={handleSubmit} className="flex items-center gap-2 p-3 bg-[#F0F2F5] border-t">
+      <Label htmlFor="file" className="cursor-pointer hover:text-gray-600">
+        <Upload className="h-5 w-5 text-gray-500" />
         <input
           type="file"
           id="file"
@@ -68,10 +61,26 @@ export const MessageInput = ({ onSendMessage, isLoading, onStartCall }: MessageI
           disabled={isLoading}
         />
       </Label>
-      <VoiceMessageRecorder onRecordingComplete={handleVoiceMessage} />
-      <Button type="submit" disabled={isLoading || !message.trim()}>
-        Send
-      </Button>
+      <Input
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        placeholder="Type a message..."
+        disabled={isLoading}
+        className="flex-1 rounded-full bg-white border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+      />
+      {message.trim() ? (
+        <Button 
+          type="submit" 
+          disabled={isLoading} 
+          size="icon"
+          variant="ghost"
+          className="hover:bg-gray-100"
+        >
+          <Send className="h-5 w-5 text-gray-500" />
+        </Button>
+      ) : (
+        <VoiceMessageRecorder onRecordingComplete={handleVoiceMessage} />
+      )}
     </form>
   );
 };

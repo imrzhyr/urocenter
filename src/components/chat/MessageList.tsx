@@ -28,8 +28,8 @@ export const MessageList = ({ messages, currentUserId, isLoading }: MessageListP
   };
 
   return (
-    <ScrollArea className="flex-1 p-4">
-      <div className="space-y-4">
+    <ScrollArea className="flex-1 p-4 bg-[#ECE5DD]">
+      <div className="space-y-2">
         {messages.map((message) => (
           <div
             key={message.id}
@@ -38,10 +38,10 @@ export const MessageList = ({ messages, currentUserId, isLoading }: MessageListP
             }`}
           >
             <div
-              className={`max-w-[70%] rounded-lg p-3 space-y-2 ${
+              className={`max-w-[70%] rounded-lg p-3 space-y-1 shadow-sm ${
                 !message.is_from_doctor
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted"
+                  ? "bg-[#DCF8C6] text-black"
+                  : "bg-white text-black"
               }`}
             >
               {message.file_url && (message.file_type?.startsWith('image/') || message.file_type?.startsWith('video/')) && (
@@ -52,7 +52,7 @@ export const MessageList = ({ messages, currentUserId, isLoading }: MessageListP
                 />
               )}
               
-              {message.content && <p className="text-sm">{message.content}</p>}
+              {message.content && <p className="text-sm break-words">{message.content}</p>}
               
               {message.duration && (
                 <p className="text-xs opacity-70">
@@ -60,8 +60,8 @@ export const MessageList = ({ messages, currentUserId, isLoading }: MessageListP
                 </p>
               )}
               
-              <div className="flex items-center justify-end gap-2 mt-1">
-                <span className="text-xs opacity-70">
+              <div className="flex items-center justify-end gap-1 mt-1">
+                <span className="text-[11px] text-gray-500">
                   {format(new Date(message.created_at), 'HH:mm')}
                 </span>
                 <MessageStatus message={message} />
