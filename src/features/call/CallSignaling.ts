@@ -85,7 +85,7 @@ export class CallSignaling {
     await this.channel?.send({
       type: 'broadcast',
       event: 'call-request',
-      payload: { callerId, recipientId }
+      payload: { callerId, recipientId, timestamp: new Date().toISOString() }
     });
   }
 
@@ -96,7 +96,11 @@ export class CallSignaling {
     await this.channel?.send({
       type: 'broadcast',
       event: 'call-response',
-      payload: { accepted, peerId: this.peerId }
+      payload: { 
+        accepted, 
+        peerId: this.peerId,
+        timestamp: new Date().toISOString() 
+      }
     });
   }
 
@@ -105,7 +109,10 @@ export class CallSignaling {
     await this.channel?.send({
       type: 'broadcast',
       event: 'webrtc-offer',
-      payload: { offer }
+      payload: { 
+        offer,
+        timestamp: new Date().toISOString() 
+      }
     });
   }
 
@@ -114,7 +121,10 @@ export class CallSignaling {
     await this.channel?.send({
       type: 'broadcast',
       event: 'webrtc-answer',
-      payload: { answer }
+      payload: { 
+        answer,
+        timestamp: new Date().toISOString() 
+      }
     });
   }
 
@@ -123,7 +133,10 @@ export class CallSignaling {
     await this.channel?.send({
       type: 'broadcast',
       event: 'webrtc-ice-candidate',
-      payload: { candidate }
+      payload: { 
+        candidate,
+        timestamp: new Date().toISOString() 
+      }
     });
   }
 
@@ -131,7 +144,11 @@ export class CallSignaling {
     console.log('Sending call ended signal');
     await this.channel?.send({
       type: 'broadcast',
-      event: 'call-ended'
+      event: 'call-ended',
+      payload: { 
+        timestamp: new Date().toISOString(),
+        reason: 'user_ended' 
+      }
     });
   }
 
