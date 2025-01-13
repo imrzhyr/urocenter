@@ -14,6 +14,7 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
   const [currentTime, setCurrentTime] = useState(0);
   const [audioDuration, setAudioDuration] = useState(duration);
   const [progress, setProgress] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -22,6 +23,7 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
 
     const handleLoadedMetadata = () => {
       setAudioDuration(audio.duration);
+      setIsLoading(false);
     };
 
     const handleTimeUpdate = () => {
@@ -40,6 +42,7 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
       console.error('Audio playback error:', audioUrl);
       toast.error('Unable to play audio message. Please try again.');
       setIsPlaying(false);
+      setIsLoading(false);
     };
 
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
@@ -72,8 +75,12 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
   };
 
   return (
-    <div className="flex items-center gap-2 w-full max-w-[300px] bg-gray-50 dark:bg-gray-800 rounded-lg p-2">
-      <AudioControls isPlaying={isPlaying} onPlayPause={handlePlayPause} />
+    <div className="flex items-center gap-3 w-full max-w-[300px] bg-white dark:bg-gray-800 rounded-xl p-3 shadow-sm">
+      <AudioControls 
+        isPlaying={isPlaying} 
+        onPlayPause={handlePlayPause}
+        isLoading={isLoading}
+      />
       <AudioProgress 
         currentTime={currentTime}
         duration={audioDuration}
