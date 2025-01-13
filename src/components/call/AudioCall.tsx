@@ -97,7 +97,7 @@ export const AudioCall: React.FC<AudioCallProps> = ({
     console.log('Ending call');
     callSignaling.sendCallEnded();
     webRTCCall.endCall();
-    callState.setStatus('idle');  // Set status to idle when call ends
+    callState.setStatus('idle');
     if (audioRef.current) {
       audioRef.current.srcObject = null;
     }
@@ -153,13 +153,15 @@ export const AudioCall: React.FC<AudioCallProps> = ({
       
       <audio ref={audioRef} autoPlay />
       
-      <CallControls
-        onEndCall={handleEndCall}
-        isAudioEnabled={isAudioEnabled}
-        isSpeakerEnabled={isSpeakerEnabled}
-        onToggleAudio={toggleAudio}
-        onToggleSpeaker={toggleSpeaker}
-      />
+      {(callState.getStatus() === 'ringing' || callState.getStatus() === 'connected') && (
+        <CallControls
+          onEndCall={handleEndCall}
+          isAudioEnabled={isAudioEnabled}
+          isSpeakerEnabled={isSpeakerEnabled}
+          onToggleAudio={toggleAudio}
+          onToggleSpeaker={toggleSpeaker}
+        />
+      )}
     </>
   );
 };
