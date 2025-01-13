@@ -15,6 +15,7 @@ export interface Message {
   duration?: number;
   is_resolved?: boolean;
   sender_name?: string;
+  replyTo?: Message | null;
 }
 
 export interface Profile {
