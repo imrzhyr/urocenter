@@ -56,7 +56,7 @@ export class CallState {
       this.onDurationChange(0);
     }
     this.onDurationChange = null;
-    this.currentStatus = 'ended';
+    this.setStatus('ended');
     this.currentPeerId = null;
 
     toast.info("Call ended");
@@ -67,6 +67,11 @@ export class CallState {
     if (peerId) {
       this.currentPeerId = peerId;
     }
+    
+    // Dispatch event for state change
+    window.dispatchEvent(new CustomEvent('callStateChange', {
+      detail: { status, peerId: this.currentPeerId }
+    }));
   }
 
   public getCallDuration(): number {

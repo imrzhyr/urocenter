@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import { AudioCall } from "@/components/call/AudioCall";
 import { callState } from "@/features/call/CallState";
 import { callSignaling } from "@/features/call/CallSignaling";
+import { toast } from "sonner";
 
 interface DoctorChatHeaderProps {
   patientName: string;
@@ -28,30 +29,46 @@ export const DoctorChatHeader = ({
   const [showCall, setShowCall] = useState(false);
 
   useEffect(() => {
-    const status = callState.getStatus();
-    if (status === 'ringing') {
-      setShowCall(true);
-    } else if (status === 'idle') {
-      setShowCall(false);
-    }
-  }, [callState.getStatus()]);
+    const handleCallStateChange = () => {
+      const status = callState.getStatus();
+      console.log('Call state changed:', status);
+      if (status === 'ringing' || status === 'connected') {
+        setShowCall(true);
+      } else if (status === 'idle' || status === 'ended') {
+        setShowCall(false);
+      }
+    };
+
+    // Initial state check
+    handleCallStateChange();
+
+    // Subscribe to call state changes
+    window.addEventListener('callStateChange', handleCallStateChange);
+
+    return () => {
+      window.removeEventListener('callStateChange', handleCallStateChange);
+    };
+  }, []);
 
   if (!profile?.id) return null;
 
   const handleCallClick = () => {
     if (callState.getStatus() === 'idle') {
       console.log('Initializing call to:', patientId);
-      callState.setStatus('ringing');
+      callState.setStatus('ringing', patientId);
       callSignaling.initialize(patientId);
+      setShowCall(true);
+      toast.info('Initiating call...');
     } else {
       console.log('Call already in progress or not in idle state');
+      toast.error('Call already in progress');
     }
   };
 
   const handleCallEnded = () => {
-    setShowCall(false);
     callState.setStatus('idle');
     callSignaling.cleanup();
+    setShowCall(false);
   };
 
   return (
