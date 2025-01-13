@@ -15,7 +15,11 @@ export interface Message {
   duration?: number;
   is_resolved?: boolean;
   sender_name?: string;
-  replyTo?: Message | null;
+  replyTo?: {
+    content: string;
+    file_type?: string;
+    file_url?: string;
+  } | null;
 }
 
 export interface Profile {

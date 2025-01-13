@@ -57,6 +57,7 @@ export type Database = {
           is_from_doctor: boolean | null
           is_read: boolean | null
           is_resolved: boolean | null
+          replyTo: Json | null
           seen_at: string | null
           sender_name: string | null
           status: string
@@ -75,6 +76,7 @@ export type Database = {
           is_from_doctor?: boolean | null
           is_read?: boolean | null
           is_resolved?: boolean | null
+          replyTo?: Json | null
           seen_at?: string | null
           sender_name?: string | null
           status?: string
@@ -93,6 +95,7 @@ export type Database = {
           is_from_doctor?: boolean | null
           is_read?: boolean | null
           is_resolved?: boolean | null
+          replyTo?: Json | null
           seen_at?: string | null
           sender_name?: string | null
           status?: string

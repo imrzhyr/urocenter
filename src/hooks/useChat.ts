@@ -22,7 +22,10 @@ export const useChat = (userId?: string) => {
       
       const { data: messages, error: messagesError } = await supabase
         .from('messages')
-        .select('*')
+        .select(`
+          *,
+          replyTo
+        `)
         .eq('user_id', userId)
         .order('created_at', { ascending: true });
 
