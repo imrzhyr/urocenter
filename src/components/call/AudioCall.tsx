@@ -89,8 +89,7 @@ export const AudioCall: React.FC<AudioCallProps> = ({
       window.removeEventListener('incomingCall', handleIncomingCall as EventListener);
       window.removeEventListener('callResponse', handleCallResponse as EventListener);
       window.removeEventListener('callEnded', handleCallEnded as EventListener);
-      webRTCCall.endCall();
-      callSignaling.cleanup();
+      handleEndCall();
     };
   }, [recipientId, profile?.id]);
 
@@ -98,7 +97,7 @@ export const AudioCall: React.FC<AudioCallProps> = ({
     console.log('Ending call');
     callSignaling.sendCallEnded();
     webRTCCall.endCall();
-    callState.setStatus('ended');
+    callState.setStatus('idle');  // Set status to idle when call ends
     if (audioRef.current) {
       audioRef.current.srcObject = null;
     }

@@ -30,12 +30,23 @@ export const DoctorChatHeader = ({
   if (!profile?.id) return null;
 
   const handleCallClick = () => {
+    // Only initialize call if we're in idle state
     if (callState.getStatus() === 'idle') {
       console.log('Initializing call to:', patientId);
       callState.setStatus('ringing');
       callSignaling.initialize(patientId);
       setShowCall(true);
+    } else {
+      console.log('Call already in progress or not in idle state');
     }
+  };
+
+  const handleCallEnded = () => {
+    setShowCall(false);
+    // Reset call state to idle
+    callState.setStatus('idle');
+    // Cleanup signaling
+    callSignaling.cleanup();
   };
 
   return (
@@ -79,7 +90,7 @@ export const DoctorChatHeader = ({
       {showCall && (
         <AudioCall 
           recipientId={patientId}
-          onCallEnded={() => setShowCall(false)}
+          onCallEnded={handleCallEnded}
         />
       )}
     </>
