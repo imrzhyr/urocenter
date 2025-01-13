@@ -1,5 +1,5 @@
-import AppRoutes from "./AppRoutes";
-import { Toaster } from "./components/ui/sonner";
+import { AppRoutes } from "./AppRoutes";
+import { Toaster } from "@/components/ui/sonner";
 import { LanguageProvider } from "./contexts/LanguageContext";
 
 function App() {
