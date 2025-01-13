@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Play, Pause } from 'lucide-react-native';
-import { Audio } from 'expo-av';
+import { Audio, AVPlaybackStatus } from 'expo-av';
 
 interface AudioPlayerProps {
   audioUrl: string;
@@ -34,8 +34,8 @@ export const AudioPlayer = ({ audioUrl, duration }: AudioPlayerProps) => {
           const { sound } = await Audio.Sound.createAsync(
             { uri: audioUrl },
             { shouldPlay: true },
-            (status) => {
-              if (status.didJustFinish) {
+            (status: AVPlaybackStatus) => {
+              if ('didJustFinish' in status && status.didJustFinish) {
                 setIsPlaying(false);
               }
             }
