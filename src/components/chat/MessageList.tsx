@@ -51,7 +51,9 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
   };
 
   return (
-    <ScrollArea className="flex-1 p-4 bg-[#ECE5DD] dark:bg-[#1A1F2C]">
+    <ScrollArea 
+      className="flex-1 p-4 bg-[#F0F7FF] dark:bg-[#1A1F2C] bg-[url('/pattern-bg.png')] bg-repeat"
+    >
       <div className="space-y-2">
         {messages.map((message) => (
           <motion.div
@@ -65,14 +67,16 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
             <div
               className={`max-w-[70%] rounded-lg p-3 space-y-1 shadow-sm ${
                 !message.is_from_doctor
-                  ? "bg-[#D6BCFA] dark:bg-[#7E69AB] text-black dark:text-white"
-                  : "bg-[#E5DEFF] dark:bg-[#2A2A2A] text-black dark:text-white"
+                  ? "bg-[#0EA5E9] text-white"
+                  : "bg-[#F1F5F9] dark:bg-[#2A2A2A] text-gray-800 dark:text-white"
               }`}
             >
               {message.replyTo && (
-                <div className="text-xs bg-black/5 dark:bg-white/5 rounded p-1 mb-1">
+                <div className="text-xs bg-black/5 dark:bg-white/5 rounded p-2 mb-2 border-l-2 border-[#33C3F0]">
                   <div className="opacity-70">↩️ Replying to:</div>
-                  <div className="truncate">{getReplyPreview(message.replyTo.content, message.replyTo.file_type)}</div>
+                  <div className="truncate font-medium">
+                    {getReplyPreview(message.replyTo.content, message.replyTo.file_type)}
+                  </div>
                 </div>
               )}
               
@@ -93,7 +97,7 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
               {message.content && <p className="text-sm break-words">{message.content}</p>}
               
               <div className="flex items-center justify-end gap-1 mt-1">
-                <span className="text-xs text-gray-600 dark:text-gray-300">
+                <span className={`text-xs ${!message.is_from_doctor ? "text-white/80" : "text-gray-600 dark:text-gray-300"}`}>
                   {format(new Date(message.created_at), 'HH:mm')}
                 </span>
                 <MessageStatus message={message} />

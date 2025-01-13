@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { VoiceMessageRecorder } from './VoiceMessageRecorder';
 import { Label } from "@/components/ui/label";
-import { Upload, Send, Mic, X } from "lucide-react";
+import { Upload, Send, X } from "lucide-react";
 import { Message } from '@/types/profile';
 
 export interface MessageInputProps {
@@ -62,21 +62,23 @@ export const MessageInput = ({ onSendMessage, isLoading, replyingTo, onCancelRep
   };
 
   return (
-    <div className="bg-[#F0F2F5] border-t">
+    <div className="bg-white dark:bg-[#1A1F2C] border-t dark:border-gray-800">
       {replyingTo && (
-        <div className="px-4 py-2 bg-[#E5DEFF] dark:bg-[#2A2A2A] border-b border-[#D6BCFA] dark:border-[#3A3A3A] flex items-center justify-between">
+        <div className="px-3 py-2 bg-[#F0F7FF] dark:bg-[#222632] border-b border-[#D3E4FD] dark:border-gray-700 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <div className="w-1 h-8 bg-primary rounded-full" />
+            <div className="w-1 h-8 bg-[#0EA5E9] rounded-full" />
             <div>
-              <p className="text-xs text-gray-600 dark:text-gray-300">Replying to</p>
-              <p className="text-sm truncate max-w-[200px]">{getReplyPreview(replyingTo)}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Replying to</p>
+              <p className="text-sm truncate max-w-[200px] text-gray-700 dark:text-gray-300">
+                {getReplyPreview(replyingTo)}
+              </p>
             </div>
           </div>
           <Button
             variant="ghost"
             size="icon"
             onClick={onCancelReply}
-            className="h-6 w-6"
+            className="h-6 w-6 hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             <X className="h-4 w-4" />
           </Button>
@@ -100,7 +102,7 @@ export const MessageInput = ({ onSendMessage, isLoading, replyingTo, onCancelRep
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Type a message..."
           disabled={isLoading}
-          className="flex-1 rounded-full bg-white border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+          className="flex-1 rounded-full bg-gray-50 dark:bg-gray-800 border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
         />
         {message.trim() ? (
           <Button 
@@ -108,9 +110,9 @@ export const MessageInput = ({ onSendMessage, isLoading, replyingTo, onCancelRep
             disabled={isLoading} 
             size="icon"
             variant="ghost"
-            className="hover:bg-gray-100"
+            className="hover:bg-gray-100 dark:hover:bg-gray-700"
           >
-            <Send className="h-5 w-5 text-gray-500" />
+            <Send className="h-5 w-5 text-[#0EA5E9]" />
           </Button>
         ) : (
           <VoiceMessageRecorder onRecordingComplete={handleVoiceMessage} />

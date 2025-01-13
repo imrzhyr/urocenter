@@ -63,7 +63,8 @@ export const useChat = (userId?: string) => {
 
   const sendMessage = async (
     content: string,
-    fileInfo?: { url: string; name: string; type: string; duration?: number }
+    fileInfo?: { url: string; name: string; type: string; duration?: number },
+    replyTo?: Message
   ) => {
     if (!userId || !profile?.id) {
       toast.error("Unable to send message");
@@ -82,7 +83,12 @@ export const useChat = (userId?: string) => {
         file_name: fileInfo?.name,
         file_type: fileInfo?.type,
         duration: fileInfo?.duration,
-        sender_name: profile.full_name || 'Unknown User'
+        sender_name: profile.full_name || 'Unknown User',
+        replyTo: replyTo ? {
+          content: replyTo.content,
+          file_type: replyTo.file_type,
+          file_url: replyTo.file_url
+        } : null
       };
 
       console.log('Sending message:', messageData);

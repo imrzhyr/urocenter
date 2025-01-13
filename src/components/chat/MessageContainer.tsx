@@ -54,14 +54,14 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-screen bg-white">
-      <div className="fixed top-0 left-0 right-0 z-10 bg-primary text-white shadow-sm">
+    <div className="flex flex-col h-screen bg-white dark:bg-[#1A1F2C]">
+      <div className="fixed top-0 left-0 right-0 z-10 bg-[#0EA5E9] text-white shadow-sm">
         <div className="flex items-center gap-3 py-2 px-4">
           <Button 
             variant="ghost" 
             size="icon"
             onClick={() => navigate(-1)}
-            className="hover:bg-primary/20"
+            className="hover:bg-white/20"
           >
             <ChevronLeft className="h-5 w-5 text-white" />
           </Button>
@@ -86,7 +86,7 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
         )}
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 bg-white">
+      <div className="fixed bottom-0 left-0 right-0">
         <MessageInput 
           onSendMessage={handleSendMessage}
           isLoading={isLoading}
