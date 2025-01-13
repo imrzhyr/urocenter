@@ -60,7 +60,7 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
           <Button 
             variant="ghost" 
             size="icon"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/dashboard')}
             className="hover:bg-white/20"
           >
             <ChevronLeft className="h-5 w-5 text-white" />

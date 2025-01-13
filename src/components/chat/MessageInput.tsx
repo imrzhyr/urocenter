@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { VoiceMessageRecorder } from './VoiceMessageRecorder';
 import { Label } from "@/components/ui/label";
 import { Upload, Send, X } from "lucide-react";
@@ -16,12 +16,24 @@ export interface MessageInputProps {
 
 export const MessageInput = ({ onSendMessage, isLoading, replyingTo, onCancelReply }: MessageInputProps) => {
   const [message, setMessage] = useState('');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      const scrollHeight = textareaRef.current.scrollHeight;
+      textareaRef.current.style.height = Math.min(scrollHeight, 120) + 'px';
+    }
+  }, [message]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (message.trim()) {
       onSendMessage(message.trim(), undefined, replyingTo || undefined);
       setMessage('');
+      if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto';
+      }
       onCancelReply?.();
     }
   };
@@ -85,8 +97,8 @@ export const MessageInput = ({ onSendMessage, isLoading, replyingTo, onCancelRep
         </div>
       )}
       
-      <form onSubmit={handleSubmit} className="flex items-center gap-2 p-3">
-        <Label htmlFor="file" className="cursor-pointer hover:text-gray-600">
+      <form onSubmit={handleSubmit} className="flex items-end gap-2 p-3">
+        <Label htmlFor="file" className="cursor-pointer hover:text-gray-600 mb-2">
           <Upload className="h-5 w-5 text-gray-500" />
           <input
             type="file"
@@ -97,12 +109,18 @@ export const MessageInput = ({ onSendMessage, isLoading, replyingTo, onCancelRep
             disabled={isLoading}
           />
         </Label>
-        <Input
+        <Textarea
+          ref={textareaRef}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Type a message..."
           disabled={isLoading}
-          className="flex-1 rounded-full bg-gray-50 dark:bg-gray-800 border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+          rows={1}
+          className="flex-1 min-h-[40px] max-h-[120px] resize-none rounded-full bg-gray-50 dark:bg-gray-800 border-0 focus-visible:ring-0 focus-visible:ring-offset-0 py-2.5 px-4"
+          style={{
+            overflow: 'hidden',
+            transition: 'height 0.1s ease-out'
+          }}
         />
         {message.trim() ? (
           <Button 
@@ -110,12 +128,14 @@ export const MessageInput = ({ onSendMessage, isLoading, replyingTo, onCancelRep
             disabled={isLoading} 
             size="icon"
             variant="ghost"
-            className="hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="hover:bg-gray-100 dark:hover:bg-gray-700 mb-1"
           >
             <Send className="h-5 w-5 text-[#0EA5E9]" />
           </Button>
         ) : (
-          <VoiceMessageRecorder onRecordingComplete={handleVoiceMessage} />
+          <div className="mb-1">
+            <VoiceMessageRecorder onRecordingComplete={handleVoiceMessage} />
+          </div>
         )}
       </form>
     </div>
