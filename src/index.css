@@ -73,6 +73,17 @@
   }
 }
 
+.chat-background {
+  background-color: #f0f7ff;
+  background-image: radial-gradient(#0066CC15 2px, transparent 2px);
+  background-size: 30px 30px;
+}
+
+.dark .chat-background {
+  background-color: #1A2433;
+  background-image: radial-gradient(#0066CC15 2px, transparent 2px);
+}
+
 /* Dark mode specific styles */
 .dark .bg-white {
   @apply bg-[#1A1F2C];

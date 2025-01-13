@@ -55,7 +55,7 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
 
   return (
     <div className="flex flex-col h-screen bg-white dark:bg-[#1A1F2C]">
-      <div className="fixed top-0 left-0 right-0 z-10 bg-[#0EA5E9] text-white shadow-sm">
+      <div className="fixed top-0 left-0 right-0 z-10 bg-[#0066CC] text-white shadow-sm">
         <div className="flex items-center gap-3 py-2 px-4">
           <Button 
             variant="ghost" 

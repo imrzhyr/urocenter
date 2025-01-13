@@ -35,9 +35,9 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
       audio.currentTime = 0;
     };
 
-    const handleError = () => {
+    const handleError = (e: ErrorEvent) => {
       console.error('Audio playback error:', audioUrl);
-      toast.error('Unable to play audio message');
+      toast.error('Unable to play audio message. Please try again.');
       setIsPlaying(false);
       setIsLoading(false);
     };
@@ -46,6 +46,10 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('error', handleError);
+
+    // Preload the audio
+    audio.preload = 'metadata';
+    audio.src = audioUrl;
 
     return () => {
       audio.removeEventListener('timeupdate', handleTimeUpdate);
@@ -75,7 +79,6 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
         audio.pause();
         setIsPlaying(false);
       } else {
-        audio.src = audioUrl;
         const playPromise = audio.play();
         if (playPromise !== undefined) {
           await playPromise;

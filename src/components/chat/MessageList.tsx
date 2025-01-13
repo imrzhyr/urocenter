@@ -51,7 +51,7 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
 
   return (
     <ScrollArea 
-      className="flex-1 p-4 bg-[#F0F7FF] dark:bg-[#1A2433] bg-[url('/pattern-bg.png')] bg-repeat"
+      className="flex-1 p-4 chat-background"
     >
       <div className="space-y-4">
         {messages.map((message) => (
@@ -79,8 +79,11 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
             }`}>
               {message.replyTo && (
                 <div className="text-xs bg-black/5 dark:bg-white/5 rounded p-2 mb-2 border-l-2 border-[#0066CC]">
-                  <div className="opacity-70">↩️ Replying to:</div>
-                  <div className="truncate font-medium">
+                  <div className="opacity-70 flex items-center gap-1">
+                    <span>↩️ Replying to:</span>
+                    <span className="font-medium">{message.replyTo.sender_name}</span>
+                  </div>
+                  <div className="truncate font-medium mt-1">
                     {getReplyPreview(message.replyTo.content, message.replyTo.file_type)}
                   </div>
                 </div>
