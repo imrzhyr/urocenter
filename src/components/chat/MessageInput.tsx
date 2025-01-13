@@ -116,9 +116,8 @@ export const MessageInput = ({ onSendMessage, isLoading, replyingTo, onCancelRep
           placeholder="Type a message..."
           disabled={isLoading}
           rows={1}
-          className="flex-1 min-h-[40px] max-h-[120px] resize-none rounded-full bg-gray-50 dark:bg-gray-800 border-0 focus-visible:ring-0 focus-visible:ring-offset-0 py-2.5 px-4"
+          className="flex-1 min-h-[40px] max-h-[120px] resize-none bg-gray-50 dark:bg-gray-800 border-0 focus-visible:ring-0 focus-visible:ring-offset-0 py-2.5 px-4 overflow-y-auto"
           style={{
-            overflow: 'hidden',
             transition: 'height 0.1s ease-out'
           }}
         />
