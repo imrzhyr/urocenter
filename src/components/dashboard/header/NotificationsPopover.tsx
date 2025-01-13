@@ -22,20 +22,19 @@ interface Notification {
 export const NotificationsPopover = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [hasUnread, setHasUnread] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const { profile } = useProfile();
   const { t } = useLanguage();
 
   const fetchNotifications = async () => {
     if (!profile) return;
 
-    // Fetch messages
     const { data: messages } = await supabase
       .from('messages')
       .select('*, profiles(full_name)')
       .order('created_at', { ascending: false })
       .limit(5);
 
-    // Fetch medical reports
     const { data: reports } = await supabase
       .from('medical_reports')
       .select('*')
@@ -88,12 +87,19 @@ export const NotificationsPopover = () => {
     };
   }, [profile]);
 
+  const handleOpen = (open: boolean) => {
+    setIsOpen(open);
+    if (open) {
+      setHasUnread(false);
+    }
+  };
+
   return (
-    <Popover>
+    <Popover open={isOpen} onOpenChange={handleOpen}>
       <PopoverTrigger asChild>
         <button className="relative p-2 hover:bg-gray-100 rounded-full">
           <Bell className="w-5 h-5 text-primary" />
-          {hasUnread && (
+          {hasUnread && !isOpen && (
             <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
           )}
         </button>

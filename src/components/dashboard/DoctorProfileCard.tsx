@@ -45,7 +45,7 @@ export const DoctorProfileCard = () => {
             <div className="flex items-center justify-center text-primary mb-1">
               <Award className="w-4 h-4 mr-1" />
             </div>
-            <p className="text-2xl font-bold text-primary">15+</p>
+            <p className="text-2xl font-bold text-primary">20+</p>
             <p className="text-xs text-gray-600 dark:text-gray-300">{t("years_experience")}</p>
           </div>
           <div className="text-center">

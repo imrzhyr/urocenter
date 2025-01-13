@@ -5,7 +5,6 @@ import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { MessagesCard } from "@/components/dashboard/MessagesCard";
 import { MedicalReportsCard } from "@/components/dashboard/MedicalReportsCard";
 import { DoctorProfileCard } from "@/components/dashboard/DoctorProfileCard";
-import { AppointmentCard } from "@/components/dashboard/AppointmentCard";
 import { HealthTipsCard } from "@/components/dashboard/HealthTipsCard";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -56,7 +55,7 @@ const Dashboard = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background dark:bg-[#1A1F2C]">
-        <div className="animate-pulse text-primary">{t("loading")}</div>
+        <div className="animate-spin text-primary">{t("loading")}</div>
       </div>
     );
   }
@@ -82,7 +81,6 @@ const Dashboard = () => {
               <MessagesCard />
               <div className="grid gap-6 md:grid-cols-2">
                 <MedicalReportsCard />
-                <AppointmentCard />
               </div>
               <HealthTipsCard />
             </div>

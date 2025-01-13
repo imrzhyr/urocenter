@@ -1,84 +1,50 @@
 export const medicalTranslations = {
   en: {
-    // Medical Terms
-    "urological_consultation": "Urological Consultation",
-    "medical_history": "Medical History",
-    "symptoms": "Symptoms",
-    "diagnosis": "Diagnosis",
-    "treatment_plan": "Treatment Plan",
-    "medications": "Medications",
-    "lab_results": "Laboratory Results",
-    "imaging_results": "Imaging Results",
-    "follow_up": "Follow-up",
-    "emergency_contact": "Emergency Contact",
-    
-    // Medical Measurements
-    "blood_pressure": "Blood Pressure",
-    "heart_rate": "Heart Rate",
-    "temperature": "Temperature",
-    "weight": "Weight",
-    "height": "Height",
-    
-    // Common Symptoms
-    "pain": "Pain",
-    "fever": "Fever",
-    "nausea": "Nausea",
-    "fatigue": "Fatigue",
-    "dizziness": "Dizziness",
-    
-    // Medical Reports
-    "medical_report": "Medical Report",
-    "patient_info": "Patient Information",
-    "doctor_notes": "Doctor's Notes",
-    "prescription": "Prescription",
-    "test_results": "Test Results",
-    
-    // Medical Units
-    "mmHg": "mmHg",
-    "bpm": "BPM",
-    "celsius": "°C",
-    "kg": "kg",
-    "cm": "cm"
+    "upload_report": "Upload Report",
+    "view_reports": "View Reports",
+    "upload_info": "Upload Information",
+    "select_files": "Select files",
+    "drag_drop": "or drag and drop",
+    "file_types": "PDF, Images, or Audio files",
+    "uploading": "Uploading...",
+    "upload_success": "Upload successful!",
+    "upload_error": "Upload failed",
+    "no_reports": "No medical reports found",
+    "download": "Download",
+    "delete": "Delete",
+    "confirm_delete": "Are you sure you want to delete this report?",
+    "yes_delete": "Yes, delete",
+    "cancel": "Cancel",
+    "upload_guidelines": "Upload Guidelines",
+    "file_size": "Maximum file size: 10MB",
+    "accepted_formats": "Accepted formats: PDF, JPG, PNG, MP3",
+    "clear_readable": "Files should be clear and readable",
+    "personal_info": "Include relevant personal information",
+    "recent_first": "Upload most recent reports first",
+    "got_it": "Got it"
   },
   ar: {
-    // Medical Terms
-    "urological_consultation": "استشارة المسالك البولية",
-    "medical_history": "التاريخ الطبي",
-    "symptoms": "الأعراض",
-    "diagnosis": "التشخيص",
-    "treatment_plan": "خطة العلاج",
-    "medications": "الأدوية",
-    "lab_results": "نتائج المختبر",
-    "imaging_results": "نتائج التصوير",
-    "follow_up": "المتابعة",
-    "emergency_contact": "الاتصال في حالات الطوارئ",
-    
-    // Medical Measurements
-    "blood_pressure": "ضغط الدم",
-    "heart_rate": "معدل ضربات القلب",
-    "temperature": "درجة الحرارة",
-    "weight": "الوزن",
-    "height": "الطول",
-    
-    // Common Symptoms
-    "pain": "ألم",
-    "fever": "حمى",
-    "nausea": "غثيان",
-    "fatigue": "إرهاق",
-    "dizziness": "دوار",
-    
-    // Medical Reports
-    "medical_report": "التقرير الطبي",
-    "patient_info": "معلومات المريض",
-    "doctor_notes": "ملاحظات الطبيب",
-    "prescription": "الوصفة الطبية",
-    "test_results": "نتائج الفحوصات",
-    
-    // Medical Units
-    "mmHg": "مم زئبق",
-    "bpm": "نبضة/دقيقة",
-    "celsius": "°م",
-    "kg": "كغم",
-    "cm": "سم"
+    "upload_report": "تحميل التقرير",
+    "view_reports": "عرض التقارير",
+    "upload_info": "معلومات التحميل",
+    "select_files": "اختر الملفات",
+    "drag_drop": "أو اسحب وأفلت",
+    "file_types": "PDF أو صور أو ملفات صوتية",
+    "uploading": "جاري التحميل...",
+    "upload_success": "تم التحميل بنجاح!",
+    "upload_error": "فشل التحميل",
+    "no_reports": "لم يتم العثور على تقارير طبية",
+    "download": "تحميل",
+    "delete": "حذف",
+    "confirm_delete": "هل أنت متأكد أنك تريد حذف هذا التقرير؟",
+    "yes_delete": "نعم، احذف",
+    "cancel": "إلغاء",
+    "upload_guidelines": "إرشادات التحميل",
+    "file_size": "الحد الأقصى لحجم الملف: 10 ميجابايت",
+    "accepted_formats": "الصيغ المقبولة: PDF، JPG، PNG، MP3",
+    "clear_readable": "يجب أن تكون الملفات واضحة ومقروءة",
+    "personal_info": "تضمين المعلومات الشخصية ذات الصلة",
+    "recent_first": "قم بتحميل التقارير الأحدث أولاً",
+    "got_it": "فهمت"
   }
 };
