@@ -22,15 +22,19 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
     const startCall = async () => {
       if (profile?.id) {
         try {
+          console.log('Starting call to:', recipientId);
           await webRTCCall.startCall(recipientId);
+          
           webRTCCall.onRemoteStream((stream) => {
+            console.log('Received remote stream:', stream);
             if (audioRef.current) {
               audioRef.current.srcObject = stream;
             }
           });
-          // Send call request to recipient
+          
           await callSignaling.sendCallRequest(recipientId, profile.id);
           toast.info('Calling...');
+          
         } catch (error) {
           console.error('Error starting call:', error);
           toast.error('Failed to start audio call');
@@ -41,6 +45,7 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
 
     const handleIncomingCall = (event: CustomEvent) => {
       const { callerId } = event.detail;
+      console.log('Incoming call from:', callerId);
       if (callerId === recipientId) {
         setShowNotification(true);
         toast.info('Incoming call...', {
@@ -51,6 +56,8 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
 
     const handleCallResponse = async (event: CustomEvent) => {
       const { accepted } = event.detail;
+      console.log('Call response:', accepted);
+      
       if (accepted) {
         callState.setStatus('connected', recipientId);
         toast.success('Call connected');
@@ -62,6 +69,7 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
     };
 
     const handleCallEnded = () => {
+      console.log('Call ended');
       callState.setStatus('ended');
       toast.info('Call ended');
       webRTCCall.endCall();
@@ -70,7 +78,6 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
       }
     };
 
-    // Only start call if we're the initiator
     if (callState.getStatus() === 'ringing') {
       startCall();
     }
@@ -89,6 +96,7 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
   }, [recipientId, profile?.id]);
 
   const handleEndCall = () => {
+    console.log('Ending call');
     callSignaling.sendCallEnded();
     webRTCCall.endCall();
     callState.setStatus('ended');
@@ -98,12 +106,14 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
   };
 
   const handleAcceptCall = async () => {
+    console.log('Accepting call');
     setShowNotification(false);
     await callSignaling.sendCallResponse(true);
     callState.setStatus('connected', recipientId);
   };
 
   const handleRejectCall = async () => {
+    console.log('Rejecting call');
     setShowNotification(false);
     await callSignaling.sendCallResponse(false);
     callState.setStatus('ended');
@@ -121,8 +131,14 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
 
   const toggleSpeaker = () => {
     if (audioRef.current) {
-      audioRef.current.setSinkId(isSpeakerEnabled ? 'default' : 'speaker');
-      setIsSpeakerEnabled(!isSpeakerEnabled);
+      audioRef.current.setSinkId(isSpeakerEnabled ? 'default' : 'speaker')
+        .then(() => {
+          setIsSpeakerEnabled(!isSpeakerEnabled);
+        })
+        .catch(error => {
+          console.error('Error switching audio output:', error);
+          toast.error('Failed to switch speaker');
+        });
     }
   };
 
