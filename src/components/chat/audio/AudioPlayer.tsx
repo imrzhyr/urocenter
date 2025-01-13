@@ -18,31 +18,49 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (audio) {
-      audio.addEventListener('timeupdate', () => {
-        setCurrentTime(audio.currentTime || 0);
-      });
-      audio.addEventListener('loadedmetadata', () => {
-        setAudioDuration(audio.duration || 0);
-        setIsLoading(false);
-      });
-      audio.addEventListener('ended', () => {
-        setIsPlaying(false);
-        setCurrentTime(0);
-      });
-      audio.addEventListener('error', (e) => {
-        console.error('Audio playback error:', e);
-        toast.error('Failed to play audio message');
-        setIsPlaying(false);
-        setIsLoading(false);
-      });
+    if (!audio) return;
+
+    const handleTimeUpdate = () => {
+      setCurrentTime(audio.currentTime);
+    };
+
+    const handleLoadedMetadata = () => {
+      setAudioDuration(audio.duration);
+      setIsLoading(false);
+    };
+
+    const handleEnded = () => {
+      setIsPlaying(false);
+      setCurrentTime(0);
+      audio.currentTime = 0;
+    };
+
+    const handleError = (e: Event) => {
+      console.error('Audio playback error:', e);
+      toast.error('Failed to play audio message');
+      setIsPlaying(false);
+      setIsLoading(false);
+    };
+
+    // Add event listeners
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+    audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('error', handleError);
+
+    // Set audio output to speaker
+    if ('setSinkId' in audio) {
+      (audio as any).setSinkId('default')
+        .catch((e: Error) => console.error('Error setting audio output:', e));
     }
 
     return () => {
-      if (audio) {
-        audio.pause();
-        audio.src = '';
-      }
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('error', handleError);
+      audio.pause();
+      audio.src = '';
     };
   }, []);
 
@@ -52,6 +70,7 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
 
     try {
       setIsLoading(true);
+      
       if (isPlaying) {
         audio.pause();
         setIsPlaying(false);
@@ -73,18 +92,21 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
       <Button
         onClick={handlePlayPause}
         disabled={isLoading}
-        className="w-8 h-8 flex items-center justify-center bg-primary rounded-full text-white hover:bg-primary/90 transition-colors"
+        size="icon"
+        variant="ghost"
+        className="w-8 h-8 rounded-full bg-primary hover:bg-primary/90"
       >
         {isLoading ? (
           <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
         ) : isPlaying ? (
-          <Pause className="w-4 h-4" />
+          <Pause className="h-4 w-4 text-white" />
         ) : (
-          <Play className="w-4 h-4" />
+          <Play className="h-4 w-4 text-white" />
         )}
       </Button>
+      
       <div className="flex-1">
-        <div className="h-1 bg-gray-200 rounded-full">
+        <div className="h-1.5 bg-gray-200 rounded-full">
           <div 
             className="h-full bg-primary rounded-full transition-all duration-100"
             style={{ 
@@ -93,13 +115,15 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
           />
         </div>
       </div>
+      
       <span className="text-xs text-gray-500 min-w-[40px]">
         {audioDuration ? 
           `${Math.floor(audioDuration / 60)}:${(Math.floor(audioDuration) % 60).toString().padStart(2, '0')}` 
           : '0:00'}
       </span>
+      
       <Volume2 className="w-4 h-4 text-gray-500" />
-      <audio ref={audioRef} className="hidden" />
+      <audio ref={audioRef} preload="metadata" />
     </div>
   );
 };
