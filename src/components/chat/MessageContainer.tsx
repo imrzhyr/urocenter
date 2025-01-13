@@ -7,9 +7,6 @@ import { callSignaling } from '@/features/call/CallSignaling';
 import { useProfile } from '@/hooks/useProfile';
 import { toast } from 'sonner';
 import { callState } from '@/features/call/CallState';
-import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
 
 interface MessageContainerProps {
   messages: Message[];
@@ -29,7 +26,6 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
   const [isCallActive, setIsCallActive] = useState(false);
   const [replyingTo, setReplyingTo] = useState<Message | null>(null);
   const { profile } = useProfile();
-  const navigate = useNavigate();
   
   const startCall = async () => {
     if (!profile?.id) {
@@ -56,20 +52,10 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
   return (
     <div className="flex flex-col h-screen bg-white dark:bg-[#1A1F2C]">
       <div className="fixed top-0 left-0 right-0 z-10 bg-[#0066CC] text-white shadow-sm">
-        <div className="flex items-center gap-3 py-2 px-4">
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={() => navigate('/dashboard')}
-            className="hover:bg-white/20"
-          >
-            <ChevronLeft className="h-5 w-5 text-white" />
-          </Button>
-          <div className="flex-1">{header}</div>
-        </div>
+        {header}
       </div>
       
-      <div className="flex-1 overflow-hidden flex flex-col mt-[56px] mb-[64px]">
+      <div className="flex-1 overflow-hidden flex flex-col mt-[48px] mb-[64px]">
         {isCallActive ? (
           <AudioCall recipientId={userId} />
         ) : (

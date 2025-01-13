@@ -76,18 +76,18 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
             dragConstraints={{ left: 0, right: 0 }}
             onDragEnd={(_, info) => handleDragEnd(message, info)}
             animate={controls}
-            className={`flex flex-col ${!message.is_from_doctor ? "items-end" : "items-start"}`}
+            className={`flex flex-col ${message.is_from_doctor ? "items-end" : "items-start"}`}
           >
             {message.sender_name && (
               <span className={`text-sm mb-1 px-2 ${
-                !message.is_from_doctor ? "text-right text-gray-600" : "text-left text-[#0066CC]"
+                message.is_from_doctor ? "text-right text-[#0066CC]" : "text-left text-gray-600"
               }`}>
                 {message.sender_name}
               </span>
             )}
             
             <div className={`max-w-[70%] rounded-lg p-3 space-y-1 shadow-sm ${
-              !message.is_from_doctor
+              message.is_from_doctor
                 ? "bg-[#0066CC] text-white"
                 : "bg-white dark:bg-[#1A2433] text-gray-800 dark:text-white"
             }`}>
@@ -110,7 +110,7 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
               {message.content && <p className="text-sm break-words">{message.content}</p>}
               
               <div className="flex items-center justify-end gap-1 mt-1">
-                <span className={`text-xs ${!message.is_from_doctor ? "text-white/80" : "text-gray-600 dark:text-gray-300"}`}>
+                <span className={`text-xs ${message.is_from_doctor ? "text-white/80" : "text-gray-600 dark:text-gray-300"}`}>
                   {format(new Date(message.created_at), 'HH:mm')}
                 </span>
                 <MessageStatus message={message} />
