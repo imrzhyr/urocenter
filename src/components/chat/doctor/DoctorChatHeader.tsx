@@ -4,7 +4,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { FileText, PhoneCall } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ViewReportsDialog } from "@/components/medical-reports/ViewReportsDialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AudioCall } from "@/components/call/AudioCall";
 import { callState } from "@/features/call/CallState";
 import { callSignaling } from "@/features/call/CallSignaling";
@@ -27,15 +27,22 @@ export const DoctorChatHeader = ({
   const [showReports, setShowReports] = useState(false);
   const [showCall, setShowCall] = useState(false);
 
+  useEffect(() => {
+    const status = callState.getStatus();
+    if (status === 'ringing') {
+      setShowCall(true);
+    } else if (status === 'idle') {
+      setShowCall(false);
+    }
+  }, [callState.getStatus()]);
+
   if (!profile?.id) return null;
 
   const handleCallClick = () => {
-    // Only initialize call if we're in idle state
     if (callState.getStatus() === 'idle') {
       console.log('Initializing call to:', patientId);
       callState.setStatus('ringing');
       callSignaling.initialize(patientId);
-      setShowCall(true);
     } else {
       console.log('Call already in progress or not in idle state');
     }
@@ -43,9 +50,7 @@ export const DoctorChatHeader = ({
 
   const handleCallEnded = () => {
     setShowCall(false);
-    // Reset call state to idle
     callState.setStatus('idle');
-    // Cleanup signaling
     callSignaling.cleanup();
   };
 
