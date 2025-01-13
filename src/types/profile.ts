@@ -17,8 +17,8 @@ export interface Message {
   sender_name?: string;
   replyTo?: {
     content: string;
-    file_type?: string;
-    file_url?: string;
+    file_type?: string | null;
+    file_url?: string | null;
   } | null;
 }
 
