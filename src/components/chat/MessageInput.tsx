@@ -28,6 +28,9 @@ export const MessageInput = ({
     if (message.trim()) {
       onSendMessage(message.trim(), undefined, replyingTo || undefined);
       setMessage("");
+      if (onCancelReply) {
+        onCancelReply();
+      }
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto';
       }
