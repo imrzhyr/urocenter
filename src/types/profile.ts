@@ -19,6 +19,7 @@ export interface Message {
     content: string;
     file_type?: string | null;
     file_url?: string | null;
+    sender_name?: string;
   } | null;
 }
 

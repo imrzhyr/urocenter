@@ -90,7 +90,8 @@ export const useChat = (userId?: string) => {
         replyTo: replyTo ? {
           content: replyTo.content,
           file_type: replyTo.file_type,
-          file_url: replyTo.file_url
+          file_url: replyTo.file_url,
+          sender_name: replyTo.sender_name
         } : null
       };
 
