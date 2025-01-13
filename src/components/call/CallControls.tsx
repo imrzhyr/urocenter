@@ -19,7 +19,7 @@ export const CallControls: React.FC<CallControlsProps> = ({
   onToggleSpeaker
 }) => {
   return (
-    <div className="fixed bottom-0 left-0 right-0 flex items-center justify-between px-4 py-3 bg-gray-900/95 border-t border-gray-800">
+    <div className="fixed top-[48px] left-0 right-0 flex items-center justify-between px-4 py-2 bg-gray-900/95 border-b border-gray-800">
       <CallDuration />
       
       <div className="flex items-center space-x-4">
@@ -27,7 +27,7 @@ export const CallControls: React.FC<CallControlsProps> = ({
           variant="ghost"
           size="icon"
           onClick={onToggleAudio}
-          className="hover:bg-gray-800"
+          className="hover:bg-gray-800 h-8 w-8"
         >
           {isAudioEnabled ? (
             <Mic className="h-4 w-4 text-white" />
@@ -40,7 +40,7 @@ export const CallControls: React.FC<CallControlsProps> = ({
           variant="destructive"
           size="icon"
           onClick={onEndCall}
-          className="h-10 w-10 rounded-full bg-red-500 hover:bg-red-600"
+          className="h-8 w-8 rounded-full bg-red-500 hover:bg-red-600"
         >
           <PhoneOff className="h-4 w-4" />
         </Button>
@@ -49,7 +49,7 @@ export const CallControls: React.FC<CallControlsProps> = ({
           variant="ghost"
           size="icon"
           onClick={onToggleSpeaker}
-          className="hover:bg-gray-800"
+          className="hover:bg-gray-800 h-8 w-8"
         >
           {isSpeakerEnabled ? (
             <Volume2 className="h-4 w-4 text-white" />

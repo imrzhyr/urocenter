@@ -9,9 +9,13 @@ import { toast } from 'sonner';
 
 interface AudioCallProps {
   recipientId: string;
+  onCallEnded?: () => void;
 }
 
-export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
+export const AudioCall: React.FC<AudioCallProps> = ({ 
+  recipientId,
+  onCallEnded 
+}) => {
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
   const [isSpeakerEnabled, setIsSpeakerEnabled] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
@@ -38,7 +42,7 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
         } catch (error) {
           console.error('Error starting call:', error);
           toast.error('Failed to start audio call');
-          callState.setStatus('ended');
+          handleEndCall();
         }
       }
     };
@@ -62,20 +66,15 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
         callState.setStatus('connected', recipientId);
         toast.success('Call connected');
       } else {
-        callState.setStatus('ended');
-        toast.error('Call rejected');
         handleEndCall();
+        toast.error('Call rejected');
       }
     };
 
     const handleCallEnded = () => {
       console.log('Call ended');
-      callState.setStatus('ended');
+      handleEndCall();
       toast.info('Call ended');
-      webRTCCall.endCall();
-      if (audioRef.current) {
-        audioRef.current.srcObject = null;
-      }
     };
 
     if (callState.getStatus() === 'ringing') {
@@ -103,6 +102,7 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
     if (audioRef.current) {
       audioRef.current.srcObject = null;
     }
+    onCallEnded?.();
   };
 
   const handleAcceptCall = async () => {
@@ -116,7 +116,7 @@ export const AudioCall: React.FC<AudioCallProps> = ({ recipientId }) => {
     console.log('Rejecting call');
     setShowNotification(false);
     await callSignaling.sendCallResponse(false);
-    callState.setStatus('ended');
+    handleEndCall();
   };
 
   const toggleAudio = () => {

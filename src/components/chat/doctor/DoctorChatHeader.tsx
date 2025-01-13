@@ -30,10 +30,12 @@ export const DoctorChatHeader = ({
   if (!profile?.id) return null;
 
   const handleCallClick = () => {
-    console.log('Initializing call to:', patientId);
-    callState.setStatus('ringing');
-    callSignaling.initialize(patientId);
-    setShowCall(true);
+    if (callState.getStatus() === 'idle') {
+      console.log('Initializing call to:', patientId);
+      callState.setStatus('ringing');
+      callSignaling.initialize(patientId);
+      setShowCall(true);
+    }
   };
 
   return (
@@ -77,6 +79,7 @@ export const DoctorChatHeader = ({
       {showCall && (
         <AudioCall 
           recipientId={patientId}
+          onCallEnded={() => setShowCall(false)}
         />
       )}
     </>
