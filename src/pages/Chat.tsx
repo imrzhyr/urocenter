@@ -2,24 +2,41 @@ import { UserChatContainer } from "@/components/chat/UserChatContainer";
 import { DoctorChatContainer } from "@/components/chat/doctor/DoctorChatContainer";
 import { useProfile } from "@/hooks/useProfile";
 import { useParams, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
-export const Chat = () => {
+const Chat = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
   const { profile } = useProfile();
 
-  if (!profile) {
-    navigate('/signin');
-    return null;
-  }
+  useEffect(() => {
+    if (!profile) {
+      navigate('/signin');
+      return;
+    }
 
-  const isAdmin = profile.role === 'admin';
+    const isAdmin = profile.role === 'admin';
+    
+    // If admin but no userId, redirect to admin dashboard
+    if (isAdmin && !userId) {
+      navigate('/admin');
+      return;
+    }
+
+    // If regular user but has userId in URL, redirect to normal chat
+    if (!isAdmin && userId) {
+      navigate('/chat');
+      return;
+    }
+  }, [profile, userId, navigate]);
+
+  if (!profile) return null;
 
   return (
     <>
-      {!userId && !isAdmin ? (
+      {!userId && profile.role !== 'admin' ? (
         <UserChatContainer />
-      ) : userId && isAdmin ? (
+      ) : userId && profile.role === 'admin' ? (
         <DoctorChatContainer />
       ) : null}
     </>
