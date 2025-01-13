@@ -35,7 +35,7 @@ export const useChat = (userId?: string) => {
       }
 
       console.log('Fetched messages:', messages);
-      setMessages(messages as Message[] || []);
+      setMessages(messages as Message[]);
 
       // Mark messages as seen if they're from the other party
       const unseenMessages = messages?.filter(m => 
