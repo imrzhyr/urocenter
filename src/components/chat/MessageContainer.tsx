@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 
 interface MessageContainerProps {
   messages: Message[];
-  onSendMessage: (content: string) => void;
+  onSendMessage: (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }, replyTo?: Message) => void;
   isLoading: boolean;
   header: React.ReactNode;
   userId: string;
@@ -27,6 +27,7 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
   userId
 }) => {
   const [isCallActive, setIsCallActive] = useState(false);
+  const [replyingTo, setReplyingTo] = useState<Message | null>(null);
   const { profile } = useProfile();
   const navigate = useNavigate();
   
@@ -46,6 +47,10 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
       setIsCallActive(false);
       callState.setStatus('idle');
     }
+  };
+
+  const handleSendMessage = (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }, replyTo?: Message) => {
+    onSendMessage(content, fileInfo, replyTo);
   };
 
   return (
@@ -73,6 +78,8 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
               <MessageList
                 messages={messages}
                 currentUserId={profile?.id || ''}
+                onReply={setReplyingTo}
+                replyingTo={replyingTo}
               />
             </div>
           </>
@@ -81,8 +88,10 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
 
       <div className="fixed bottom-0 left-0 right-0 bg-white">
         <MessageInput 
-          onSendMessage={onSendMessage} 
+          onSendMessage={handleSendMessage}
           isLoading={isLoading}
+          replyingTo={replyingTo}
+          onCancelReply={() => setReplyingTo(null)}
         />
       </div>
     </div>

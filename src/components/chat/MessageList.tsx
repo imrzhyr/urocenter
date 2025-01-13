@@ -6,60 +6,52 @@ import { format } from "date-fns";
 import { MediaGallery } from "./media/MediaGallery";
 import { AudioPlayer } from "./audio/AudioPlayer";
 import { motion, useAnimation, PanInfo } from "framer-motion";
+import { messageSound } from "@/utils/audioUtils";
 
 interface MessageListProps {
   messages: Message[];
   currentUserId: string;
   isLoading?: boolean;
+  onReply?: (message: Message | null) => void;
+  replyingTo?: Message | null;
 }
 
-export const MessageList = ({ messages, currentUserId, isLoading }: MessageListProps) => {
+export const MessageList = ({ messages, currentUserId, isLoading, onReply, replyingTo }: MessageListProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [replyingTo, setReplyingTo] = useState<Message | null>(null);
   const controls = useAnimation();
+  const prevMessagesLength = useRef(messages.length);
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollIntoView({ behavior: "instant" });
     }
+    
+    // Play sound when new message arrives
+    if (messages.length > prevMessagesLength.current) {
+      messageSound.play();
+    }
+    prevMessagesLength.current = messages.length;
   }, [messages]);
 
   const handleDragEnd = async (message: Message, info: PanInfo) => {
     const threshold = 100;
     if (Math.abs(info.offset.x) > threshold) {
       await controls.start({ x: 0, transition: { type: "spring", stiffness: 300, damping: 25 } });
-      setReplyingTo(message);
+      onReply?.(message);
     } else {
       controls.start({ x: 0, transition: { type: "spring", stiffness: 500, damping: 30 } });
     }
   };
 
+  const getReplyPreview = (content: string, fileType?: string | null) => {
+    if (fileType?.startsWith('audio/')) return '🎵 Voice message';
+    if (fileType?.startsWith('image/')) return '📷 Photo';
+    if (fileType?.startsWith('video/')) return '🎥 Video';
+    return content.slice(0, 30) + (content.length > 30 ? '...' : '');
+  };
+
   return (
     <ScrollArea className="flex-1 p-4 bg-[#ECE5DD] dark:bg-[#1A1F2C]">
-      {replyingTo && (
-        <div className="fixed bottom-[72px] left-0 right-0 bg-[#E5DEFF] dark:bg-[#2A2A2A] p-3 animate-fade-in border-t border-[#D6BCFA] dark:border-[#3A3A3A]">
-          <div className="container flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-1 h-12 bg-[#8B5CF6] rounded-full" />
-              <div>
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Replying to {replyingTo.is_from_doctor ? 'Doctor' : 'Message'}
-                </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-[200px]">
-                  {replyingTo.content}
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={() => setReplyingTo(null)}
-              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-      )}
-
       <div className="space-y-2">
         {messages.map((message) => (
           <motion.div
@@ -68,9 +60,7 @@ export const MessageList = ({ messages, currentUserId, isLoading }: MessageListP
             dragConstraints={{ left: 0, right: 0 }}
             onDragEnd={(_, info) => handleDragEnd(message, info)}
             animate={controls}
-            className={`flex ${
-              !message.is_from_doctor ? "justify-end" : "justify-start"
-            }`}
+            className={`flex ${!message.is_from_doctor ? "justify-end" : "justify-start"}`}
           >
             <div
               className={`max-w-[70%] rounded-lg p-3 space-y-1 shadow-sm ${
@@ -79,6 +69,13 @@ export const MessageList = ({ messages, currentUserId, isLoading }: MessageListP
                   : "bg-[#E5DEFF] dark:bg-[#2A2A2A] text-black dark:text-white"
               }`}
             >
+              {message.replyTo && (
+                <div className="text-xs bg-black/5 dark:bg-white/5 rounded p-1 mb-1">
+                  <div className="opacity-70">↩️ Replying to:</div>
+                  <div className="truncate">{getReplyPreview(message.replyTo.content, message.replyTo.file_type)}</div>
+                </div>
+              )}
+              
               {message.file_url && message.file_type?.startsWith('audio/') ? (
                 <AudioPlayer
                   audioUrl={message.file_url}
