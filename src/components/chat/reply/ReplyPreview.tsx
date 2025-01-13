@@ -3,12 +3,12 @@ import { Message } from '@/types/profile';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-interface ReplyPreviewProps {
+export interface ReplyPreviewProps {
   message: Message;
   onCancelReply: () => void;
 }
 
-export const ReplyPreview = ({ message, onCancelReply }: ReplyPreviewProps) => {
+export const ReplyPreview: React.FC<ReplyPreviewProps> = ({ message, onCancelReply }) => {
   const getPreviewContent = (message: Message) => {
     if (message.file_type?.startsWith('audio/')) return '🎵 Voice message';
     if (message.file_type?.startsWith('image/')) return '📷 Photo';

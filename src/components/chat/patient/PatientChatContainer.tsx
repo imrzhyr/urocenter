@@ -3,6 +3,7 @@ import { MessageList } from "../MessageList";
 import { MessageInput } from "../MessageInput";
 import { PatientChatHeader } from "./PatientChatHeader";
 import { usePatientChat } from "./hooks/usePatientChat";
+import { Message } from "@/types/profile";
 
 export const PatientChatContainer = () => {
   const { profile } = useProfile();
@@ -11,6 +12,10 @@ export const PatientChatContainer = () => {
   if (!profile?.id) {
     return null;
   }
+
+  const handleSendMessage = (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }, replyTo?: Message) => {
+    sendMessage(content);
+  };
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)]">
@@ -23,7 +28,7 @@ export const PatientChatContainer = () => {
         isLoading={isLoading}
       />
       <MessageInput 
-        onSendMessage={sendMessage} 
+        onSendMessage={handleSendMessage} 
         isLoading={isLoading}
       />
     </div>

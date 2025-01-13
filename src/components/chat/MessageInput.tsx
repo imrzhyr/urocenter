@@ -4,20 +4,19 @@ import { TextArea } from "./input/TextArea";
 import { AttachmentButton } from "./input/AttachmentButton";
 import { SendButton } from "./input/SendButton";
 import { ReplyPreview } from "./reply/ReplyPreview";
+import { Message } from "@/types/profile";
 
-interface MessageInputProps {
-  onSend: (content: string) => void;
-  onAttachment: () => void;
+export interface MessageInputProps {
+  onSendMessage: (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }, replyTo?: Message) => void;
   isLoading?: boolean;
-  replyTo?: any;
+  replyingTo?: Message | null;
   onCancelReply?: () => void;
 }
 
 export const MessageInput = ({
-  onSend,
-  onAttachment,
+  onSendMessage,
   isLoading,
-  replyTo,
+  replyingTo,
   onCancelReply
 }: MessageInputProps) => {
   const [message, setMessage] = useState("");
@@ -27,7 +26,7 @@ export const MessageInput = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (message.trim()) {
-      onSend(message.trim());
+      onSendMessage(message.trim(), undefined, replyingTo || undefined);
       setMessage("");
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto';
@@ -37,14 +36,14 @@ export const MessageInput = ({
 
   return (
     <form onSubmit={handleSubmit} className="p-4 bg-background">
-      {replyTo && (
+      {replyingTo && (
         <ReplyPreview
-          replyTo={replyTo}
-          onCancel={onCancelReply}
+          message={replyingTo}
+          onCancelReply={onCancelReply || (() => {})}
         />
       )}
       <div className="relative flex items-center gap-2">
-        <AttachmentButton onClick={onAttachment} isLoading={isLoading} />
+        <AttachmentButton onClick={() => {}} isLoading={isLoading} />
         <TextArea
           ref={textareaRef}
           value={message}
