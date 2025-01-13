@@ -19,9 +19,21 @@ interface Notification {
   type: NotificationType;
 }
 
+// Create a global state for notifications
+const globalNotificationState = {
+  hasUnread: false,
+  setHasUnread: (value: boolean) => {
+    globalNotificationState.hasUnread = value;
+    localStorage.setItem('hasUnreadNotifications', value.toString());
+  },
+  getHasUnread: () => {
+    return localStorage.getItem('hasUnreadNotifications') === 'true';
+  }
+};
+
 export const NotificationsPopover = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [hasUnread, setHasUnread] = useState(false);
+  const [hasUnread, setHasUnread] = useState(globalNotificationState.getHasUnread());
   const [isOpen, setIsOpen] = useState(false);
   const { profile } = useProfile();
   const { t } = useLanguage();
@@ -60,8 +72,10 @@ export const NotificationsPopover = () => {
       })) || [])
     ];
 
+    const hasNewNotifications = messages?.some(msg => !msg.is_read) || false;
     setNotifications(formattedNotifications);
-    setHasUnread(messages?.some(msg => !msg.is_read) || false);
+    setHasUnread(hasNewNotifications);
+    globalNotificationState.setHasUnread(hasNewNotifications);
   };
 
   useEffect(() => {
@@ -91,6 +105,7 @@ export const NotificationsPopover = () => {
     setIsOpen(open);
     if (open) {
       setHasUnread(false);
+      globalNotificationState.setHasUnread(false);
     }
   };
 

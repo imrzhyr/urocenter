@@ -1,73 +1,105 @@
 import { lazy, Suspense } from "react";
-import { Routes, Route } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
-const Index = lazy(() => import("@/pages/Index"));
-const SignIn = lazy(() => import("@/pages/SignIn"));
-const SignUp = lazy(() => import("@/pages/SignUp"));
-const Dashboard = lazy(() => import("@/pages/Dashboard"));
+// Lazy load components with prefetching
+const Dashboard = lazy(() => {
+  const component = import("@/pages/Dashboard");
+  // Prefetch other common routes
+  import("@/pages/Chat");
+  import("@/pages/Profile");
+  return component;
+});
+
 const Chat = lazy(() => import("@/pages/Chat"));
 const Profile = lazy(() => import("@/pages/Profile"));
+const SignIn = lazy(() => import("@/pages/SignIn"));
+const SignUp = lazy(() => import("@/pages/SignUp"));
+const Welcome = lazy(() => import("@/pages/Welcome"));
 const MedicalInformation = lazy(() => import("@/pages/MedicalInformation"));
 const Payment = lazy(() => import("@/pages/Payment"));
 const Settings = lazy(() => import("@/pages/Settings"));
+const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"));
 
-const routes = [
+const router = createBrowserRouter([
   {
     path: "/",
-    element: <Index />,
+    element: <Welcome />,
   },
   {
     path: "/signin",
-    element: <SignIn />,
+    element: (
+      <Suspense fallback={<LoadingSpinner />}>
+        <SignIn />
+      </Suspense>
+    ),
   },
   {
     path: "/signup",
-    element: <SignUp />,
+    element: (
+      <Suspense fallback={<LoadingSpinner />}>
+        <SignUp />
+      </Suspense>
+    ),
   },
   {
     path: "/dashboard",
-    element: <Dashboard />,
+    element: (
+      <Suspense fallback={<LoadingSpinner />}>
+        <Dashboard />
+      </Suspense>
+    ),
   },
   {
     path: "/chat",
-    element: <Chat />,
-  },
-  {
-    path: "/chat/:userId",
-    element: <Chat />,
+    element: (
+      <Suspense fallback={<LoadingSpinner />}>
+        <Chat />
+      </Suspense>
+    ),
   },
   {
     path: "/profile",
-    element: <Profile />,
+    element: (
+      <Suspense fallback={<LoadingSpinner />}>
+        <Profile />
+      </Suspense>
+    ),
   },
   {
     path: "/medical-information",
-    element: <MedicalInformation />,
+    element: (
+      <Suspense fallback={<LoadingSpinner />}>
+        <MedicalInformation />
+      </Suspense>
+    ),
   },
   {
     path: "/payment",
-    element: <Payment />,
+    element: (
+      <Suspense fallback={<LoadingSpinner />}>
+        <Payment />
+      </Suspense>
+    ),
   },
   {
     path: "/settings",
-    element: <Settings />,
+    element: (
+      <Suspense fallback={<LoadingSpinner />}>
+        <Settings />
+      </Suspense>
+    ),
   },
-];
+  {
+    path: "/admin",
+    element: (
+      <Suspense fallback={<LoadingSpinner />}>
+        <AdminDashboard />
+      </Suspense>
+    ),
+  },
+]);
 
 export const AppRoutes = () => {
-  return (
-    <Suspense fallback={<></>}>
-      <Routes>
-        {routes.map((route) => (
-          <Route
-            key={route.path}
-            path={route.path}
-            element={route.element}
-          />
-        ))}
-      </Routes>
-    </Suspense>
-  );
+  return <RouterProvider router={router} />;
 };
-
-export { routes };
