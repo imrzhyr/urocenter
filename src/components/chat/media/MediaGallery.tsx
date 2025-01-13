@@ -39,8 +39,7 @@ export const MediaGallery = ({ url, type, name }: MediaGalleryProps) => {
         <ImageViewer
           isOpen={isImageViewerOpen}
           onClose={() => setIsImageViewerOpen(false)}
-          imageUrl={url}
-          imageName={name}
+          url={url}
         />
       )}
     </>
