@@ -1,4 +1,4 @@
-import { AppRoutes } from "./AppRoutes";
+import AppRoutes from "./AppRoutes";
 import { Toaster } from "@/components/ui/sonner";
 import { LanguageProvider } from "./contexts/LanguageContext";
 
