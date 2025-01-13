@@ -8,7 +8,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { toast } from 'sonner';
 import { callState } from '@/features/call/CallState';
 import { Button } from "@/components/ui/button";
-import { Phone, ChevronLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 
 interface MessageContainerProps {
@@ -51,20 +51,20 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
   return (
     <div className="flex flex-col h-screen bg-white">
       <div className="fixed top-0 left-0 right-0 z-10 bg-primary text-white shadow-sm">
-        <div className="flex items-center gap-3 p-4">
+        <div className="flex items-center gap-3 py-2 px-4">
           <Button 
             variant="ghost" 
             size="icon"
             onClick={() => navigate(-1)}
             className="hover:bg-primary/20"
           >
-            <ChevronLeft className="h-6 w-6 text-white" />
+            <ChevronLeft className="h-5 w-5 text-white" />
           </Button>
           <div className="flex-1">{header}</div>
         </div>
       </div>
       
-      <div className="flex-1 overflow-hidden flex flex-col mt-[72px] mb-[64px]">
+      <div className="flex-1 overflow-hidden flex flex-col mt-[56px] mb-[64px]">
         {isCallActive ? (
           <AudioCall recipientId={userId} />
         ) : (

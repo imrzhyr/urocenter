@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Play, Pause, Volume2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface AudioPlayerProps {
   audioUrl: string;
@@ -11,47 +13,76 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [audioDuration, setAudioDuration] = useState(duration || 0);
+  const [isLoading, setIsLoading] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.addEventListener('timeupdate', () => {
-        setCurrentTime(audioRef.current?.currentTime || 0);
+    const audio = audioRef.current;
+    if (audio) {
+      audio.addEventListener('timeupdate', () => {
+        setCurrentTime(audio.currentTime || 0);
       });
-      audioRef.current.addEventListener('loadedmetadata', () => {
-        setAudioDuration(audioRef.current?.duration || 0);
+      audio.addEventListener('loadedmetadata', () => {
+        setAudioDuration(audio.duration || 0);
+        setIsLoading(false);
       });
-      audioRef.current.addEventListener('ended', () => {
+      audio.addEventListener('ended', () => {
         setIsPlaying(false);
         setCurrentTime(0);
       });
+      audio.addEventListener('error', (e) => {
+        console.error('Audio playback error:', e);
+        toast.error('Failed to play audio message');
+        setIsPlaying(false);
+        setIsLoading(false);
+      });
     }
+
+    return () => {
+      if (audio) {
+        audio.pause();
+        audio.src = '';
+      }
+    };
   }, []);
 
-  const handlePlayPause = () => {
-    if (audioRef.current) {
+  const handlePlayPause = async () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    try {
+      setIsLoading(true);
       if (isPlaying) {
-        audioRef.current.pause();
+        audio.pause();
+        setIsPlaying(false);
       } else {
-        audioRef.current.src = audioUrl;
-        audioRef.current.play();
+        audio.src = audioUrl;
+        await audio.play();
+        setIsPlaying(true);
       }
-      setIsPlaying(!isPlaying);
+    } catch (error) {
+      console.error('Playback error:', error);
+      toast.error('Failed to play audio message');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="mt-2 flex items-center gap-2 bg-gray-100 rounded-full p-2">
-      <button
+      <Button
         onClick={handlePlayPause}
-        className="w-8 h-8 flex items-center justify-center bg-primary rounded-full text-white"
+        disabled={isLoading}
+        className="w-8 h-8 flex items-center justify-center bg-primary rounded-full text-white hover:bg-primary/90 transition-colors"
       >
-        {isPlaying ? (
+        {isLoading ? (
+          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+        ) : isPlaying ? (
           <Pause className="w-4 h-4" />
         ) : (
           <Play className="w-4 h-4" />
         )}
-      </button>
+      </Button>
       <div className="flex-1">
         <div className="h-1 bg-gray-200 rounded-full">
           <div 
@@ -62,7 +93,7 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
           />
         </div>
       </div>
-      <span className="text-xs text-gray-500">
+      <span className="text-xs text-gray-500 min-w-[40px]">
         {audioDuration ? 
           `${Math.floor(audioDuration / 60)}:${(Math.floor(audioDuration) % 60).toString().padStart(2, '0')}` 
           : '0:00'}
