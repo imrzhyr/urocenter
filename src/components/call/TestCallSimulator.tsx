@@ -37,42 +37,36 @@ export const TestCallSimulator = ({ recipientId }: { recipientId: string }) => {
             console.log('[TestCallSimulator] Received remote stream:', remoteStream.id);
           });
           
-          // Set call status and send request after a delay
-          console.log('[TestCallSimulator] Setting up delayed test call...');
-          setTimeout(async () => {
-            try {
-              console.log('[TestCallSimulator] Setting call status to ringing...');
-              callState.setStatus('ringing', 'ADMIN_TEST_CALL');
-              
-              console.log('[TestCallSimulator] Sending call request...');
-              await callSignaling.sendCallRequest('ADMIN_TEST_CALL');
-              console.log('[TestCallSimulator] Test call request sent successfully');
-              
-              toast.info('Incoming test call...', {
-                duration: 10000,
-                position: 'top-center'
-              });
-            } catch (error) {
-              console.error('[TestCallSimulator] Error during test call:', error);
-              toast.error('Failed to initiate test call');
-              callState.setStatus('idle');
-              webRTCCall.endCall();
-            }
-          }, 3000); // Reduced delay to 3 seconds for better UX
+          // Set call status and send request immediately
+          console.log('[TestCallSimulator] Setting call status to ringing...');
+          callState.setStatus('ringing', 'ADMIN_TEST_CALL');
           
+          console.log('[TestCallSimulator] Sending call request...');
+          await callSignaling.sendCallRequest('ADMIN_TEST_CALL');
+          console.log('[TestCallSimulator] Test call request sent successfully');
+          
+          // Dispatch custom event to trigger call notification
+          window.dispatchEvent(new CustomEvent('incomingCall', {
+            detail: { callerId: 'ADMIN_TEST_CALL' }
+          }));
+          
+          toast.info('Incoming test call...', {
+            duration: 10000,
+            position: 'top-center'
+          });
         } catch (error) {
-          console.error('[TestCallSimulator] Error setting up test call:', error);
-          toast.error('Failed to set up test call');
+          console.error('[TestCallSimulator] Error during test call:', error);
+          toast.error('Failed to initiate test call');
           callState.setStatus('idle');
           webRTCCall.endCall();
         }
       };
 
-      // Start test call simulation with initial delay
+      // Start test call simulation with a short delay
       console.log('[TestCallSimulator] Scheduling test call simulation...');
       const timer = setTimeout(() => {
         simulateTestCall();
-      }, 2000);
+      }, 1000); // Reduced to 1 second for better UX
 
       // Cleanup function
       return () => {
