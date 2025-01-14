@@ -80,21 +80,16 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
   return (
     <ScrollArea className="flex-1 p-4 chat-background overflow-x-hidden">
       <div className="space-y-4 max-w-full">
-        {messages.map((message, index) => {
+        {messages.map((message) => {
           const fromCurrentUser = isFromCurrentUser(message);
           
           return (
             <motion.div
               key={message.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ 
-                opacity: 1, 
-                y: 0,
-                x: dragX
-              }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ 
-                duration: 0.3,
-                delay: index * 0.1,
+                duration: 0.15,
                 ease: [0.4, 0, 0.2, 1]
               }}
               drag="x"
