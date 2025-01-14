@@ -7,6 +7,7 @@ import { callSignaling } from '@/features/call/CallSignaling';
 import { useProfile } from '@/hooks/useProfile';
 import { toast } from 'sonner';
 import { callState } from '@/features/call/CallState';
+import { motion } from 'framer-motion';
 
 interface MessageContainerProps {
   messages: Message[];
@@ -50,12 +51,22 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-screen bg-white dark:bg-[#1A1F2C]">
-      <div className="fixed top-0 left-0 right-0 z-10 bg-[#0066CC] text-white shadow-sm">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      className="flex flex-col h-screen bg-white dark:bg-[#1A1F2C]"
+    >
+      <div className="fixed top-0 left-0 right-0 z-10 bg-[#0066CC] text-white backdrop-blur-lg bg-opacity-90">
         {header}
       </div>
       
-      <div className="flex-1 overflow-hidden flex flex-col mt-[48px] mb-[64px]">
+      <motion.div 
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.1, duration: 0.4 }}
+        className="flex-1 overflow-hidden flex flex-col mt-[48px] mb-[64px]"
+      >
         {isCallActive ? (
           <AudioCall recipientId={userId} />
         ) : (
@@ -70,16 +81,21 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
             </div>
           </>
         )}
-      </div>
+      </motion.div>
 
-      <div className="fixed bottom-0 left-0 right-0">
+      <motion.div 
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.2, duration: 0.4 }}
+        className="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-[#1A1F2C]/80 backdrop-blur-lg border-t border-gray-200 dark:border-gray-700/50"
+      >
         <MessageInput 
           onSendMessage={handleSendMessage}
           isLoading={isLoading}
           replyingTo={replyingTo}
           onCancelReply={() => setReplyingTo(null)}
         />
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };

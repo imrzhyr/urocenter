@@ -25,7 +25,7 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
 
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollIntoView({ behavior: "instant" });
+      scrollRef.current.scrollIntoView({ behavior: "smooth" });
     }
     
     if (messages.length > prevMessagesLength.current) {
@@ -78,12 +78,19 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
   return (
     <ScrollArea className="flex-1 p-4 chat-background overflow-x-hidden">
       <div className="space-y-4 max-w-full">
-        {messages.map((message) => {
+        {messages.map((message, index) => {
           const fromCurrentUser = isFromCurrentUser(message);
           
           return (
             <motion.div
               key={message.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ 
+                duration: 0.3,
+                delay: index * 0.1,
+                ease: [0.4, 0, 0.2, 1]
+              }}
               drag="x"
               dragConstraints={{ left: 0, right: 0 }}
               onDragEnd={(_, info) => handleDragEnd(message, info)}
@@ -92,7 +99,7 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
             >
               {message.sender_name && (
                 <span className={`text-sm mb-1 px-2 ${
-                  fromCurrentUser ? "text-right text-[#0066CC]" : "text-left text-gray-600"
+                  fromCurrentUser ? "text-right text-[#0066CC]" : "text-left text-gray-600 dark:text-gray-300"
                 }`}>
                   {message.sender_name}
                 </span>
@@ -101,7 +108,7 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
               <div className={`max-w-[85%] sm:max-w-[70%] md:max-w-[60%] rounded-lg p-3 space-y-1 shadow-sm break-words ${
                 fromCurrentUser
                   ? "bg-[#0066CC] text-white"
-                  : "bg-white dark:bg-[#1A2433] text-gray-800 dark:text-white"
+                  : "bg-white dark:bg-[#1A2433] dark:border dark:border-gray-700/50 text-gray-800 dark:text-white"
               }`}>
                 {message.replyTo && renderReplyPreview(message.replyTo)}
                 
