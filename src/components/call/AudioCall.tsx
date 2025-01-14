@@ -36,7 +36,7 @@ export const AudioCall: React.FC<AudioCallProps> = ({
             }
           });
           
-          await callSignaling.sendCallRequest(recipientId, profile.id);
+          await callSignaling.sendCallRequest(profile.id);
           toast.info('Calling...');
           
         } catch (error) {
@@ -95,7 +95,7 @@ export const AudioCall: React.FC<AudioCallProps> = ({
 
   const handleEndCall = () => {
     console.log('Ending call');
-    callSignaling.sendCallEnded();
+    callSignaling.endCall();
     webRTCCall.endCall();
     callState.setStatus('idle');
     if (audioRef.current) {

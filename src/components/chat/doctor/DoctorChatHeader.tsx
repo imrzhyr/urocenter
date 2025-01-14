@@ -75,7 +75,7 @@ export const DoctorChatHeader = ({
   const handleCallEnded = () => {
     console.log('Call ended, cleaning up...');
     callState.setStatus('idle');
-    callSignaling.cleanup();
+    callSignaling.endCall();
     setShowCall(false);
   };
 

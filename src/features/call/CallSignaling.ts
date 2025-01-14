@@ -121,10 +121,23 @@ class CallSignaling {
         event: 'call_ended'
       });
 
-      await this.channel.unsubscribe();
-      this.peerId = null;
+      await this.cleanup();
     } catch (error) {
       logger.error(MODULE_NAME, 'Error ending call', error as Error);
+      throw error;
+    }
+  }
+
+  async cleanup() {
+    try {
+      if (this.channel) {
+        await this.channel.unsubscribe();
+        this.channel = null;
+      }
+      this.peerId = null;
+      logger.info(MODULE_NAME, 'Call signaling cleaned up');
+    } catch (error) {
+      logger.error(MODULE_NAME, 'Error cleaning up call signaling', error as Error);
       throw error;
     }
   }
