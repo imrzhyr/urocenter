@@ -1,16 +1,46 @@
-import { motion } from "framer-motion";
-import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { DashboardHeader } from "@/features/dashboard/components/DashboardHeader";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { MessagesCard } from "@/components/dashboard/MessagesCard";
 import { MedicalReportsCard } from "@/components/dashboard/MedicalReportsCard";
 import { DoctorProfileCard } from "@/components/dashboard/DoctorProfileCard";
 import { HealthTipsCard } from "@/components/dashboard/HealthTipsCard";
+import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useDashboard } from "@/features/dashboard/hooks/useDashboard";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { useProfile } from "@/hooks/useProfile";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
   const { t } = useLanguage();
-  const { isLoading } = useDashboard();
+  const { profile } = useProfile();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const userPhone = localStorage.getItem('userPhone');
+        
+        if (!userPhone) {
+          navigate("/signin", { replace: true });
+          return;
+        }
+
+        if (profile?.role === 'admin') {
+          navigate("/admin", { replace: true });
+          return;
+        }
+
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error checking auth:", error);
+        navigate("/signin", { replace: true });
+      }
+    };
+
+    checkAuth();
+  }, [navigate, profile]);
 
   if (isLoading) {
     return (
