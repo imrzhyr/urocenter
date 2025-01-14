@@ -1,4 +1,7 @@
 import { toast } from "sonner";
+import { logger } from "@/utils/logger";
+
+const MODULE_NAME = 'CallState';
 
 export class CallState {
   private static instance: CallState;
@@ -21,10 +24,12 @@ export class CallState {
 
   public startCall(onDurationUpdate: (duration: number) => void) {
     if (this.isInCall) {
+      logger.warn(MODULE_NAME, 'Attempted to start call while already in a call');
       toast.error("Already in a call");
       return;
     }
 
+    logger.info(MODULE_NAME, 'Starting call');
     this.isInCall = true;
     this.callStartTime = Date.now();
     this.onDurationChange = onDurationUpdate;
@@ -35,6 +40,7 @@ export class CallState {
       if (this.onDurationChange) {
         this.onDurationChange(this.currentDuration);
       }
+      logger.debug(MODULE_NAME, `Call duration updated: ${this.currentDuration}s`);
     }, 1000);
 
     toast.success("Call started");
@@ -42,9 +48,11 @@ export class CallState {
 
   public endCall() {
     if (!this.isInCall) {
+      logger.debug(MODULE_NAME, 'Attempted to end call when not in a call');
       return;
     }
 
+    logger.info(MODULE_NAME, 'Ending call');
     this.isInCall = false;
     this.callStartTime = null;
     if (this.durationTimer) {
@@ -63,12 +71,12 @@ export class CallState {
   }
 
   public setStatus(status: 'idle' | 'ringing' | 'connected' | 'ended', peerId?: string) {
+    logger.info(MODULE_NAME, `Setting call status to: ${status}${peerId ? `, peerId: ${peerId}` : ''}`);
     this.currentStatus = status;
     if (peerId) {
       this.currentPeerId = peerId;
     }
     
-    // Dispatch event for state change
     window.dispatchEvent(new CustomEvent('callStateChange', {
       detail: { status, peerId: this.currentPeerId }
     }));

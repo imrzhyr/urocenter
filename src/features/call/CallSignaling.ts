@@ -1,165 +1,133 @@
 import { supabase } from "@/integrations/supabase/client";
-import { RealtimeChannel } from "@supabase/supabase-js";
-import { webRTCCall } from "./WebRTCCall";
-import { toast } from "sonner";
+import { logger } from "@/utils/logger";
 
-export class CallSignaling {
-  private channel: RealtimeChannel | null = null;
+const MODULE_NAME = 'CallSignaling';
+
+class CallSignaling {
+  private static instance: CallSignaling;
+  private channel: any;
   private peerId: string | null = null;
 
-  initialize(peerId: string) {
-    console.log('Initializing call signaling for peer:', peerId);
-    this.peerId = peerId;
-    this.channel = supabase.channel(`call:${peerId}`);
+  private constructor() {}
 
-    this.channel
-      .on('broadcast', { event: 'call-request' }, this.handleCallRequest)
-      .on('broadcast', { event: 'call-response' }, this.handleCallResponse)
-      .on('broadcast', { event: 'call-ended' }, this.handleCallEnded)
-      .on('broadcast', { event: 'webrtc-offer' }, this.handleWebRTCOffer)
-      .on('broadcast', { event: 'webrtc-answer' }, this.handleWebRTCAnswer)
-      .on('broadcast', { event: 'webrtc-ice-candidate' }, this.handleICECandidate)
-      .subscribe((status) => {
-        console.log('Call channel status:', status);
-      });
+  static getInstance(): CallSignaling {
+    if (!CallSignaling.instance) {
+      CallSignaling.instance = new CallSignaling();
+    }
+    return CallSignaling.instance;
   }
 
-  private handleCallRequest = async ({ payload }: any) => {
-    console.log('Received call request:', payload);
-    window.dispatchEvent(new CustomEvent('incomingCall', { detail: payload }));
-  };
+  async initialize(peerId: string) {
+    try {
+      this.peerId = peerId;
+      logger.info(MODULE_NAME, `Initializing call signaling for peer: ${peerId}`);
 
-  private handleCallResponse = async ({ payload }: any) => {
-    console.log('Received call response:', payload);
-    window.dispatchEvent(new CustomEvent('callResponse', { detail: payload }));
-    
-    if (payload.accepted) {
-      try {
-        const offer = await webRTCCall.startCall(this.peerId!);
-        await this.sendWebRTCOffer(offer);
-      } catch (error) {
-        console.error('Error starting WebRTC call:', error);
-        toast.error('Failed to establish call connection');
+      if (this.channel) {
+        await this.channel.unsubscribe();
       }
-    }
-  };
 
-  private handleCallEnded = () => {
-    console.log('Call ended');
-    window.dispatchEvent(new CustomEvent('callEnded'));
-    webRTCCall.endCall();
-  };
+      this.channel = supabase.channel(`call_${peerId}`);
 
-  private handleWebRTCOffer = async ({ payload }: any) => {
-    console.log('Received WebRTC offer:', payload);
-    try {
-      const answer = await webRTCCall.handleIncomingOffer(payload.offer);
-      await this.sendWebRTCAnswer(answer);
+      this.channel.on('broadcast', { event: 'call_request' }, (payload: any) => {
+        logger.debug(MODULE_NAME, 'Received call request', payload);
+        window.dispatchEvent(new CustomEvent('incomingCall', { 
+          detail: { callerId: payload.callerId }
+        }));
+      });
+
+      this.channel.on('broadcast', { event: 'call_response' }, (payload: any) => {
+        logger.debug(MODULE_NAME, 'Received call response', payload);
+        window.dispatchEvent(new CustomEvent('callResponse', { 
+          detail: { accepted: payload.accepted }
+        }));
+      });
+
+      this.channel.on('broadcast', { event: 'call_ended' }, () => {
+        logger.info(MODULE_NAME, 'Call ended by peer');
+        window.dispatchEvent(new CustomEvent('callEnded'));
+      });
+
+      this.channel.on('presence', { event: 'sync' }, () => {
+        const status = this.channel.presenceState();
+        logger.debug(MODULE_NAME, 'Call channel status:', status);
+      });
+
+      this.channel.on('presence', { event: 'join' }, () => {
+        logger.debug(MODULE_NAME, 'Peer joined call channel');
+      });
+
+      this.channel.on('presence', { event: 'leave' }, () => {
+        logger.debug(MODULE_NAME, 'Peer left call channel');
+      });
+
+      try {
+        await this.channel.subscribe();
+        logger.info(MODULE_NAME, 'Successfully subscribed to call channel');
+      } catch (error) {
+        logger.error(MODULE_NAME, 'Failed to subscribe to call channel', error as Error);
+        throw error;
+      }
     } catch (error) {
-      console.error('Error handling WebRTC offer:', error);
-      toast.error('Failed to handle incoming call');
+      logger.error(MODULE_NAME, 'Error initializing call signaling', error as Error);
+      throw error;
     }
-  };
+  }
 
-  private handleWebRTCAnswer = async ({ payload }: any) => {
-    console.log('Received WebRTC answer:', payload);
+  async sendCallRequest(callerId: string) {
     try {
-      await webRTCCall.handleAnswer(payload.answer);
-    } catch (error) {
-      console.error('Error handling WebRTC answer:', error);
-      toast.error('Failed to establish call connection');
-    }
-  };
+      if (!this.channel || !this.peerId) {
+        throw logger.createError('Call channel not initialized', 'CALL_001', MODULE_NAME);
+      }
 
-  private handleICECandidate = async ({ payload }: any) => {
-    console.log('Received ICE candidate:', payload);
-    try {
-      await webRTCCall.handleIceCandidate(payload.candidate);
+      logger.info(MODULE_NAME, `Sending call request to peer: ${this.peerId}`);
+      await this.channel.send({
+        type: 'broadcast',
+        event: 'call_request',
+        payload: { callerId }
+      });
     } catch (error) {
-      console.error('Error handling ICE candidate:', error);
+      logger.error(MODULE_NAME, 'Error sending call request', error as Error);
+      throw error;
     }
-  };
-
-  async sendCallRequest(recipientId: string, callerId: string) {
-    console.log('Sending call request to:', recipientId);
-    await this.channel?.send({
-      type: 'broadcast',
-      event: 'call-request',
-      payload: { callerId, recipientId, timestamp: new Date().toISOString() }
-    });
   }
 
   async sendCallResponse(accepted: boolean) {
-    console.log('Sending call response:', accepted);
-    if (!this.peerId) return;
-    
-    await this.channel?.send({
-      type: 'broadcast',
-      event: 'call-response',
-      payload: { 
-        accepted, 
-        peerId: this.peerId,
-        timestamp: new Date().toISOString() 
+    try {
+      if (!this.channel || !this.peerId) {
+        throw logger.createError('Call channel not initialized', 'CALL_002', MODULE_NAME);
       }
-    });
-  }
 
-  async sendWebRTCOffer(offer: RTCSessionDescriptionInit) {
-    console.log('Sending WebRTC offer:', offer);
-    await this.channel?.send({
-      type: 'broadcast',
-      event: 'webrtc-offer',
-      payload: { 
-        offer,
-        timestamp: new Date().toISOString() 
-      }
-    });
-  }
-
-  async sendWebRTCAnswer(answer: RTCSessionDescriptionInit) {
-    console.log('Sending WebRTC answer:', answer);
-    await this.channel?.send({
-      type: 'broadcast',
-      event: 'webrtc-answer',
-      payload: { 
-        answer,
-        timestamp: new Date().toISOString() 
-      }
-    });
-  }
-
-  async sendICECandidate(candidate: RTCIceCandidateInit) {
-    console.log('Sending ICE candidate:', candidate);
-    await this.channel?.send({
-      type: 'broadcast',
-      event: 'webrtc-ice-candidate',
-      payload: { 
-        candidate,
-        timestamp: new Date().toISOString() 
-      }
-    });
-  }
-
-  async sendCallEnded() {
-    console.log('Sending call ended signal');
-    await this.channel?.send({
-      type: 'broadcast',
-      event: 'call-ended',
-      payload: { 
-        timestamp: new Date().toISOString(),
-        reason: 'user_ended' 
-      }
-    });
-  }
-
-  cleanup() {
-    console.log('Cleaning up call signaling');
-    if (this.channel) {
-      supabase.removeChannel(this.channel);
-      this.channel = null;
+      logger.info(MODULE_NAME, `Sending call response: ${accepted ? 'accepted' : 'rejected'}`);
+      await this.channel.send({
+        type: 'broadcast',
+        event: 'call_response',
+        payload: { accepted }
+      });
+    } catch (error) {
+      logger.error(MODULE_NAME, 'Error sending call response', error as Error);
+      throw error;
     }
-    this.peerId = null;
+  }
+
+  async endCall() {
+    try {
+      if (!this.channel || !this.peerId) {
+        throw logger.createError('Call channel not initialized', 'CALL_003', MODULE_NAME);
+      }
+
+      logger.info(MODULE_NAME, 'Ending call');
+      await this.channel.send({
+        type: 'broadcast',
+        event: 'call_ended'
+      });
+
+      await this.channel.unsubscribe();
+      this.peerId = null;
+    } catch (error) {
+      logger.error(MODULE_NAME, 'Error ending call', error as Error);
+      throw error;
+    }
   }
 }
 
-export const callSignaling = new CallSignaling();
+export const callSignaling = CallSignaling.getInstance();
