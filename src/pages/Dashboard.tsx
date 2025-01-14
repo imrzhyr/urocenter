@@ -8,6 +8,7 @@ import { DoctorProfileCard } from "@/components/dashboard/DoctorProfileCard";
 import { HealthTipsCard } from "@/components/dashboard/HealthTipsCard";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -55,7 +56,7 @@ const Dashboard = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background dark:bg-[#1A1F2C]">
-        <div className="animate-spin text-primary">{t("loading")}</div>
+        <LoadingSpinner />
       </div>
     );
   }
