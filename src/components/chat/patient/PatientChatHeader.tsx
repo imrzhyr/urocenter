@@ -5,6 +5,7 @@ import { callSignaling } from '@/features/call/CallSignaling';
 import { useProfile } from '@/hooks/useProfile';
 import { toast } from 'sonner';
 import { callState } from '@/features/call/CallState';
+import { BackButton } from "@/components/BackButton";
 
 export const PatientChatHeader = () => {
   const { t } = useLanguage();
@@ -28,12 +29,15 @@ export const PatientChatHeader = () => {
   };
 
   return (
-    <div className="flex items-center justify-between">
-      <div>
-        <h3 className="font-medium text-white text-sm">
-          {t('doctor_name')}
-        </h3>
-        <p className="text-xs text-white/80">{t('doctor_title')}</p>
+    <div className="flex items-center justify-between p-2">
+      <div className="flex items-center gap-2">
+        <BackButton />
+        <div>
+          <h3 className="font-medium text-white text-sm">
+            {t('doctor_name')}
+          </h3>
+          <p className="text-xs text-white/80">{t('doctor_title')}</p>
+        </div>
       </div>
       <Button
         variant="ghost"

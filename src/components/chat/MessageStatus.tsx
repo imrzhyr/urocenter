@@ -9,11 +9,10 @@ interface MessageStatusProps {
 export const MessageStatus = ({ message }: MessageStatusProps) => {
   const { profile } = useProfile();
   
+  const isFromCurrentUser = profile?.role === 'admin' ? message.is_from_doctor : !message.is_from_doctor;
+  
   // Only show status for messages sent by the current user
-  if (
-    (profile?.role === 'admin' && !message.is_from_doctor) ||
-    (profile?.role !== 'admin' && message.is_from_doctor)
-  ) {
+  if (!isFromCurrentUser) {
     return null;
   }
 

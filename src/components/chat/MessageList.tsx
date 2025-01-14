@@ -7,6 +7,7 @@ import { MediaGallery } from "./media/MediaGallery";
 import { AudioPlayer } from "./audio/AudioPlayer";
 import { motion, useAnimation, PanInfo } from "framer-motion";
 import { messageSound } from "@/utils/audioUtils";
+import { useProfile } from "@/hooks/useProfile";
 
 interface MessageListProps {
   messages: Message[];
@@ -20,6 +21,7 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
   const scrollRef = useRef<HTMLDivElement>(null);
   const controls = useAnimation();
   const prevMessagesLength = useRef(messages.length);
+  const { profile } = useProfile();
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -40,6 +42,13 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
     } else {
       controls.start({ x: 0, transition: { type: "spring", stiffness: 500, damping: 30 } });
     }
+  };
+
+  const isFromCurrentUser = (message: Message) => {
+    if (profile?.role === 'admin') {
+      return message.is_from_doctor;
+    }
+    return !message.is_from_doctor;
   };
 
   const renderReplyPreview = (replyTo: NonNullable<Message['replyTo']>) => {
@@ -69,55 +78,59 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
   return (
     <ScrollArea className="flex-1 p-4 chat-background">
       <div className="space-y-4">
-        {messages.map((message) => (
-          <motion.div
-            key={message.id}
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            onDragEnd={(_, info) => handleDragEnd(message, info)}
-            animate={controls}
-            className={`flex flex-col ${message.is_from_doctor ? "items-end" : "items-start"}`}
-          >
-            {message.sender_name && (
-              <span className={`text-sm mb-1 px-2 ${
-                message.is_from_doctor ? "text-right text-[#0066CC]" : "text-left text-gray-600"
-              }`}>
-                {message.sender_name}
-              </span>
-            )}
-            
-            <div className={`max-w-[70%] rounded-lg p-3 space-y-1 shadow-sm ${
-              message.is_from_doctor
-                ? "bg-[#0066CC] text-white"
-                : "bg-white dark:bg-[#1A2433] text-gray-800 dark:text-white"
-            }`}>
-              {message.replyTo && renderReplyPreview(message.replyTo)}
-              
-              {message.file_url && message.file_type?.startsWith('audio/') ? (
-                <AudioPlayer
-                  audioUrl={message.file_url}
-                  messageId={message.id}
-                  duration={message.duration}
-                />
-              ) : message.file_url && (message.file_type?.startsWith('image/') || message.file_type?.startsWith('video/')) ? (
-                <MediaGallery
-                  url={message.file_url}
-                  type={message.file_type}
-                  name={message.file_name || ''}
-                />
-              ) : null}
-              
-              {message.content && <p className="text-sm break-words">{message.content}</p>}
-              
-              <div className="flex items-center justify-end gap-1 mt-1">
-                <span className={`text-xs ${message.is_from_doctor ? "text-white/80" : "text-gray-600 dark:text-gray-300"}`}>
-                  {format(new Date(message.created_at), 'HH:mm')}
+        {messages.map((message) => {
+          const fromCurrentUser = isFromCurrentUser(message);
+          
+          return (
+            <motion.div
+              key={message.id}
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              onDragEnd={(_, info) => handleDragEnd(message, info)}
+              animate={controls}
+              className={`flex flex-col ${fromCurrentUser ? "items-end" : "items-start"}`}
+            >
+              {message.sender_name && (
+                <span className={`text-sm mb-1 px-2 ${
+                  fromCurrentUser ? "text-right text-[#0066CC]" : "text-left text-gray-600"
+                }`}>
+                  {message.sender_name}
                 </span>
-                <MessageStatus message={message} />
+              )}
+              
+              <div className={`max-w-[70%] rounded-lg p-3 space-y-1 shadow-sm ${
+                fromCurrentUser
+                  ? "bg-[#0066CC] text-white"
+                  : "bg-white dark:bg-[#1A2433] text-gray-800 dark:text-white"
+              }`}>
+                {message.replyTo && renderReplyPreview(message.replyTo)}
+                
+                {message.file_url && message.file_type?.startsWith('audio/') ? (
+                  <AudioPlayer
+                    audioUrl={message.file_url}
+                    messageId={message.id}
+                    duration={message.duration}
+                  />
+                ) : message.file_url && (message.file_type?.startsWith('image/') || message.file_type?.startsWith('video/')) ? (
+                  <MediaGallery
+                    url={message.file_url}
+                    type={message.file_type}
+                    name={message.file_name || ''}
+                  />
+                ) : null}
+                
+                {message.content && <p className="text-sm break-words">{message.content}</p>}
+                
+                <div className="flex items-center justify-end gap-1 mt-1">
+                  <span className={`text-xs ${fromCurrentUser ? "text-white/80" : "text-gray-600 dark:text-gray-300"}`}>
+                    {format(new Date(message.created_at), 'HH:mm')}
+                  </span>
+                  {fromCurrentUser && <MessageStatus message={message} />}
+                </div>
               </div>
-            </div>
-          </motion.div>
-        ))}
+            </motion.div>
+          );
+        })}
         <div ref={scrollRef} />
       </div>
     </ScrollArea>
