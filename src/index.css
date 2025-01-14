@@ -136,3 +136,9 @@
 .dark .bg-[#F8FAFC] {
   @apply bg-[#1A1F2C];
 }
+
+/* Add better text wrapping for chat messages */
+.overflow-wrap-anywhere {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}

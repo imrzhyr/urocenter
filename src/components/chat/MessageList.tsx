@@ -76,8 +76,8 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
   };
 
   return (
-    <ScrollArea className="flex-1 p-4 chat-background">
-      <div className="space-y-4">
+    <ScrollArea className="flex-1 p-4 chat-background overflow-x-hidden">
+      <div className="space-y-4 max-w-full">
         {messages.map((message) => {
           const fromCurrentUser = isFromCurrentUser(message);
           
@@ -88,7 +88,7 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
               dragConstraints={{ left: 0, right: 0 }}
               onDragEnd={(_, info) => handleDragEnd(message, info)}
               animate={controls}
-              className={`flex flex-col ${fromCurrentUser ? "items-end" : "items-start"}`}
+              className={`flex flex-col ${fromCurrentUser ? "items-end" : "items-start"} w-full`}
             >
               {message.sender_name && (
                 <span className={`text-sm mb-1 px-2 ${
@@ -98,7 +98,7 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
                 </span>
               )}
               
-              <div className={`min-w-fit max-w-[250px] sm:max-w-[300px] md:max-w-[350px] rounded-lg p-3 space-y-1 shadow-sm break-words ${
+              <div className={`max-w-[85%] sm:max-w-[70%] md:max-w-[60%] rounded-lg p-3 space-y-1 shadow-sm break-words ${
                 fromCurrentUser
                   ? "bg-[#0066CC] text-white"
                   : "bg-white dark:bg-[#1A2433] text-gray-800 dark:text-white"
@@ -119,7 +119,11 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
                   />
                 ) : null}
                 
-                {message.content && <p className="text-sm break-words">{message.content}</p>}
+                {message.content && (
+                  <p className="text-sm break-words whitespace-pre-wrap overflow-wrap-anywhere">
+                    {message.content}
+                  </p>
+                )}
                 
                 <div className="flex items-center justify-end gap-1 mt-1">
                   <span className={`text-xs ${fromCurrentUser ? "text-white/80" : "text-gray-600 dark:text-gray-300"}`}>
