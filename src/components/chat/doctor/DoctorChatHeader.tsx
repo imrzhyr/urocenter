@@ -4,10 +4,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { FileText, PhoneCall } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ViewReportsDialog } from "@/components/medical-reports/ViewReportsDialog";
-import { useState, useEffect } from "react";
-import { AudioCall } from "@/components/call/AudioCall";
-import { callState } from "@/features/call/CallState";
-import { callSignaling } from "@/features/call/CallSignaling";
+import { useState } from "react";
 import { toast } from "sonner";
 
 interface DoctorChatHeaderProps {
@@ -26,57 +23,11 @@ export const DoctorChatHeader = ({
   const { t } = useLanguage();
   const { profile } = useProfile();
   const [showReports, setShowReports] = useState(false);
-  const [showCall, setShowCall] = useState(false);
-
-  useEffect(() => {
-    const handleCallStateChange = () => {
-      const status = callState.getStatus();
-      console.log('Call state changed:', status);
-      
-      // Only hide call UI when explicitly ended or idle
-      if (status === 'idle' || status === 'ended') {
-        setShowCall(false);
-      } else if (status === 'ringing' || status === 'connected') {
-        setShowCall(true);
-      }
-    };
-
-    // Initial state check
-    handleCallStateChange();
-
-    // Subscribe to call state changes
-    window.addEventListener('callStateChange', handleCallStateChange);
-
-    return () => {
-      window.removeEventListener('callStateChange', handleCallStateChange);
-    };
-  }, []);
 
   if (!profile?.id) return null;
 
   const handleCallClick = () => {
-    if (callState.getStatus() === 'idle') {
-      console.log('Initializing call to:', patientId);
-      
-      // Initialize call signaling first
-      callSignaling.initialize(patientId);
-      
-      // Then set call state to ringing
-      callState.setStatus('ringing', patientId);
-      setShowCall(true);
-      
-      toast.info('Initiating call...');
-    } else {
-      console.log('Call already in progress or not in idle state');
-      toast.error('Call already in progress');
-    }
-  };
-
-  const handleCallEnded = () => {
-    console.log('Call ended, cleaning up...');
-    callState.setStatus('idle');
-    callSignaling.endCall();
-    setShowCall(false);
+    toast.info('Calling feature is currently unavailable');
   };
 
   return (
@@ -116,13 +67,6 @@ export const DoctorChatHeader = ({
         onOpenChange={setShowReports}
         userId={patientId}
       />
-
-      {showCall && (
-        <AudioCall 
-          recipientId={patientId}
-          onCallEnded={handleCallEnded}
-        />
-      )}
     </>
   );
 };

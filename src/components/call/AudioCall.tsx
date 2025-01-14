@@ -8,7 +8,6 @@ import { CallNotification } from './CallNotification';
 import { toast } from 'sonner';
 import { useCallHandlers } from './hooks/useCallHandlers';
 import { useCallSetup } from './hooks/useCallSetup';
-import { TestCallSimulator } from './TestCallSimulator';
 
 interface AudioCallProps {
   recipientId: string;
@@ -92,8 +91,6 @@ export const AudioCall: React.FC<AudioCallProps> = ({
 
   return (
     <>
-      <TestCallSimulator recipientId={recipientId} />
-      
       {showNotification && (
         <CallNotification
           callerId={recipientId}
