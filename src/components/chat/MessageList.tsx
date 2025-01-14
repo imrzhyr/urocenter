@@ -85,7 +85,11 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
             <motion.div
               key={message.id}
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              animate={{ 
+                opacity: 1, 
+                y: 0,
+                x: controls.get()?.x || 0
+              }}
               transition={{ 
                 duration: 0.3,
                 delay: index * 0.1,
@@ -94,7 +98,6 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
               drag="x"
               dragConstraints={{ left: 0, right: 0 }}
               onDragEnd={(_, info) => handleDragEnd(message, info)}
-              animate={controls}
               className={`flex flex-col ${fromCurrentUser ? "items-end" : "items-start"} w-full`}
             >
               {message.sender_name && (
