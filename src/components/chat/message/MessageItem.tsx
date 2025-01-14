@@ -6,11 +6,10 @@ import { ReplyPreview } from "./ReplyPreview";
 interface MessageItemProps {
   message: Message;
   fromCurrentUser: boolean;
-  dragX: number;
   onDragEnd: (message: Message, info: PanInfo) => void;
 }
 
-export const MessageItem = ({ message, fromCurrentUser, dragX, onDragEnd }: MessageItemProps) => {
+export const MessageItem = ({ message, fromCurrentUser, onDragEnd }: MessageItemProps) => {
   return (
     <motion.div
       key={message.id}
@@ -23,7 +22,7 @@ export const MessageItem = ({ message, fromCurrentUser, dragX, onDragEnd }: Mess
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
       onDragEnd={(_, info) => onDragEnd(message, info)}
-      className="w-full px-4"
+      className="w-full px-2 sm:px-4"
     >
       <div className={`flex flex-col ${fromCurrentUser ? "items-end" : "items-start"} w-full`}>
         {message.sender_name && (

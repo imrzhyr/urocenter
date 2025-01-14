@@ -11,9 +11,9 @@ interface MessageContentProps {
 
 export const MessageContent = ({ message, fromCurrentUser }: MessageContentProps) => {
   return (
-    <div className={`max-w-[85%] sm:max-w-[70%] md:max-w-[60%] rounded-lg p-3 space-y-1 shadow-sm ${
+    <div className={`max-w-[85%] sm:max-w-[70%] md:max-w-[60%] rounded-lg p-3 space-y-1 shadow-sm break-words ${
       fromCurrentUser
-        ? "bg-[#0066CC] text-white ml-auto" // Added ml-auto to ensure right alignment
+        ? "bg-[#0066CC] text-white ml-auto" 
         : "bg-white dark:bg-[#1A2433] dark:border dark:border-gray-700/50 text-gray-800 dark:text-white"
     }`}>
       {message.file_url && message.file_type?.startsWith('audio/') ? (
@@ -31,7 +31,7 @@ export const MessageContent = ({ message, fromCurrentUser }: MessageContentProps
       ) : null}
       
       {message.content && (
-        <p className="text-sm break-words whitespace-pre-wrap">
+        <p className="text-sm whitespace-pre-wrap break-words overflow-wrap-anywhere">
           {message.content}
         </p>
       )}
