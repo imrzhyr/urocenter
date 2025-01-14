@@ -45,6 +45,7 @@ export const AudioCall: React.FC<AudioCallProps> = ({
     try {
       await callSignaling.sendCallResponse(true);
       callState.setStatus('connected', recipientId);
+      toast.success('Call connected');
     } catch (error) {
       console.error('Error accepting call:', error);
       toast.error('Failed to accept call');
@@ -56,6 +57,7 @@ export const AudioCall: React.FC<AudioCallProps> = ({
     try {
       await callSignaling.sendCallResponse(false);
       callState.setStatus('idle');
+      toast.info('Call rejected');
     } catch (error) {
       console.error('Error rejecting call:', error);
       toast.error('Failed to reject call');
