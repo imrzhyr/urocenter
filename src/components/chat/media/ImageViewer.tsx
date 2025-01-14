@@ -5,10 +5,11 @@ import {
 } from "@/components/ui/dialog";
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
-interface ImageViewerProps {
+export interface ImageViewerProps {
   isOpen: boolean;
   onClose: () => void;
   url: string;
+  name?: string; // Added name as optional prop
 }
 
 export const ImageViewer = ({ isOpen, onClose, url }: ImageViewerProps) => {

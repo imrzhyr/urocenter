@@ -1,7 +1,7 @@
 import { Message } from "@/types/profile";
 import { motion, PanInfo } from "framer-motion";
 import { MessageContent } from "../MessageContent/MessageContent";
-import { ReplyPreview } from "../ReplyPreview/ReplyPreview";
+import { ReplyPreview } from "@/components/chat/reply/ReplyPreview";
 
 interface MessageItemProps {
   message: Message;
@@ -34,7 +34,21 @@ export const MessageItem = ({ message, fromCurrentUser, onDragEnd }: MessageItem
         )}
         
         <div className="relative w-full flex flex-col">
-          {message.replyTo && <ReplyPreview replyTo={message.replyTo} />}
+          {message.replyTo && (
+            <ReplyPreview 
+              message={{
+                ...message.replyTo,
+                id: 'reply-' + message.id,
+                created_at: message.created_at,
+                updated_at: message.updated_at,
+                user_id: message.user_id,
+                is_from_doctor: message.is_from_doctor,
+                is_read: true,
+                status: 'seen'
+              }} 
+              onCancelReply={() => {}}
+            />
+          )}
           <div className={`flex ${fromCurrentUser ? 'justify-end' : 'justify-start'} w-full`}>
             <MessageContent message={message} fromCurrentUser={fromCurrentUser} />
           </div>

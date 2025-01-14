@@ -22,7 +22,11 @@ export const MediaGallery = ({ url, type, name }: MediaGalleryProps) => {
         />
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogContent className="max-w-4xl">
-            <ImageViewer url={url} name={name} />
+            <ImageViewer 
+              url={url} 
+              isOpen={isOpen} 
+              onClose={() => setIsOpen(false)} 
+            />
           </DialogContent>
         </Dialog>
       </>
