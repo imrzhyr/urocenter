@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Message } from "@/types/profile";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { PanInfo } from "framer-motion";
