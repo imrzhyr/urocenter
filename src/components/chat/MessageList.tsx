@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Message } from "@/types/profile";
 import { MessageStatus } from "./MessageStatus";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -22,6 +22,7 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
   const controls = useAnimation();
   const prevMessagesLength = useRef(messages.length);
   const { profile } = useProfile();
+  const [dragX, setDragX] = useState(0);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -42,6 +43,7 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
     } else {
       controls.start({ x: 0, transition: { type: "spring", stiffness: 500, damping: 30 } });
     }
+    setDragX(0);
   };
 
   const isFromCurrentUser = (message: Message) => {
@@ -88,7 +90,7 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
               animate={{ 
                 opacity: 1, 
                 y: 0,
-                x: controls.get()?.x || 0
+                x: dragX
               }}
               transition={{ 
                 duration: 0.3,
@@ -97,6 +99,7 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
               }}
               drag="x"
               dragConstraints={{ left: 0, right: 0 }}
+              onDrag={(_, info) => setDragX(info.offset.x)}
               onDragEnd={(_, info) => handleDragEnd(message, info)}
               className={`flex flex-col ${fromCurrentUser ? "items-end" : "items-start"} w-full`}
             >
