@@ -28,9 +28,10 @@ export const AudioCall: React.FC<AudioCallProps> = ({
     const initializeCallChannel = async () => {
       if (profile?.id && !channelInitializedRef.current) {
         try {
+          console.log('Initializing call channel for recipient:', recipientId);
           await callSignaling.initialize(recipientId);
           channelInitializedRef.current = true;
-          console.log('Call channel initialized for recipient:', recipientId);
+          console.log('Call channel initialized successfully');
         } catch (error) {
           console.error('Failed to initialize call channel:', error);
           toast.error('Failed to initialize call');
@@ -55,6 +56,7 @@ export const AudioCall: React.FC<AudioCallProps> = ({
               }
             });
             
+            // Only send call request after WebRTC setup is complete
             await callSignaling.sendCallRequest(profile.id);
             toast.info('Calling...');
           }
@@ -87,11 +89,18 @@ export const AudioCall: React.FC<AudioCallProps> = ({
 
     const handleCallResponse = async (event: CustomEvent) => {
       const { accepted } = event.detail;
-      console.log('Call response:', accepted);
+      console.log('Call response received:', accepted);
       
       if (accepted) {
-        callState.setStatus('connected', recipientId);
-        toast.success('Call connected');
+        try {
+          await webRTCCall.startCall(recipientId);
+          callState.setStatus('connected', recipientId);
+          toast.success('Call connected');
+        } catch (error) {
+          console.error('Error starting call after acceptance:', error);
+          toast.error('Failed to establish call connection');
+          handleEndCall();
+        }
       } else {
         handleEndCall();
         toast.error('Call rejected');
@@ -100,26 +109,31 @@ export const AudioCall: React.FC<AudioCallProps> = ({
 
     const handleWebRTCOffer = async (event: CustomEvent) => {
       const { offer } = event.detail;
+      console.log('Received WebRTC offer:', offer);
       try {
         await webRTCCall.handleIncomingOffer(offer);
       } catch (error) {
         console.error('Error handling WebRTC offer:', error);
         toast.error('Failed to establish connection');
+        handleEndCall();
       }
     };
 
     const handleWebRTCAnswer = async (event: CustomEvent) => {
       const { answer } = event.detail;
+      console.log('Received WebRTC answer:', answer);
       try {
         await webRTCCall.handleAnswer(answer);
       } catch (error) {
         console.error('Error handling WebRTC answer:', error);
         toast.error('Failed to establish connection');
+        handleEndCall();
       }
     };
 
     const handleIceCandidate = async (event: CustomEvent) => {
       const { candidate } = event.detail;
+      console.log('Received ICE candidate:', candidate);
       try {
         await webRTCCall.handleIceCandidate(candidate);
       } catch (error) {
@@ -128,7 +142,7 @@ export const AudioCall: React.FC<AudioCallProps> = ({
     };
 
     const handleCallEnded = () => {
-      console.log('Call ended');
+      console.log('Call ended event received');
       handleEndCall();
       toast.info('Call ended');
     };
@@ -180,15 +194,27 @@ export const AudioCall: React.FC<AudioCallProps> = ({
   const handleAcceptCall = async () => {
     console.log('Accepting call');
     setShowNotification(false);
-    await callSignaling.sendCallResponse(true);
-    callState.setStatus('connected', recipientId);
+    try {
+      await callSignaling.sendCallResponse(true);
+      callState.setStatus('connected', recipientId);
+    } catch (error) {
+      console.error('Error accepting call:', error);
+      toast.error('Failed to accept call');
+      handleEndCall();
+    }
   };
 
   const handleRejectCall = async () => {
     console.log('Rejecting call');
     setShowNotification(false);
-    await callSignaling.sendCallResponse(false);
-    handleEndCall();
+    try {
+      await callSignaling.sendCallResponse(false);
+      handleEndCall();
+    } catch (error) {
+      console.error('Error rejecting call:', error);
+      toast.error('Failed to reject call');
+      handleEndCall();
+    }
   };
 
   const toggleAudio = () => {
