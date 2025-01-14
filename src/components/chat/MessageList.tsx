@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { Message } from "@/types/profile";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { PanInfo } from "framer-motion";
@@ -47,8 +47,8 @@ export const MessageList = ({ messages, currentUserId, onReply }: MessageListPro
   };
 
   return (
-    <ScrollArea className="flex-1 p-4 chat-background overflow-x-hidden">
-      <div className="space-y-4 max-w-full">
+    <ScrollArea className="flex-1 chat-background">
+      <div className="flex flex-col space-y-2 py-4">
         {messages.map((message) => (
           <MessageItem
             key={message.id}

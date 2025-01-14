@@ -23,19 +23,23 @@ export const MessageItem = ({ message, fromCurrentUser, dragX, onDragEnd }: Mess
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
       onDragEnd={(_, info) => onDragEnd(message, info)}
-      className={`flex flex-col ${fromCurrentUser ? "items-end" : "items-start"} w-full`}
+      className="w-full px-4"
     >
-      {message.sender_name && (
-        <span className={`text-sm mb-1 px-2 ${
-          fromCurrentUser ? "text-right text-[#0066CC]" : "text-left text-gray-600 dark:text-gray-300"
-        }`}>
-          {message.sender_name}
-        </span>
-      )}
-      
-      <div className="relative">
-        {message.replyTo && <ReplyPreview replyTo={message.replyTo} />}
-        <MessageContent message={message} fromCurrentUser={fromCurrentUser} />
+      <div className={`flex flex-col ${fromCurrentUser ? "items-end" : "items-start"} w-full`}>
+        {message.sender_name && (
+          <span className={`text-sm mb-1 ${
+            fromCurrentUser ? "text-right text-[#0066CC]" : "text-left text-gray-600 dark:text-gray-300"
+          }`}>
+            {message.sender_name}
+          </span>
+        )}
+        
+        <div className="relative w-full flex flex-col">
+          {message.replyTo && <ReplyPreview replyTo={message.replyTo} />}
+          <div className={`flex ${fromCurrentUser ? 'justify-end' : 'justify-start'} w-full`}>
+            <MessageContent message={message} fromCurrentUser={fromCurrentUser} />
+          </div>
+        </div>
       </div>
     </motion.div>
   );
