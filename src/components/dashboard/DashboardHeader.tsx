@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { UserMenu } from "./header/UserMenu";
 import { NotificationsPopover } from "./header/NotificationsPopover";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { motion } from "framer-motion";
 
 export const DashboardHeader = () => {
   const [fullName, setFullName] = useState<string | null>(null);
@@ -33,9 +34,14 @@ export const DashboardHeader = () => {
   }, []);
 
   return (
-    <div className="p-4 flex justify-between items-center bg-card border-b sticky top-0 z-50 min-h-[4rem] backdrop-blur-sm dark:bg-[#1A1F2C] dark:border-gray-800">
+    <motion.div 
+      initial={{ y: -20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="p-4 flex justify-between items-center bg-white/80 dark:bg-[#1A1F2C]/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50 min-h-[4rem]"
+    >
       <div className="flex items-center gap-2">
-        <h1 className="text-xl font-semibold">
+        <h1 className="text-xl font-semibold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent">
           {t('welcome')}{fullName ? `, ${fullName}` : ''}
         </h1>
       </div>
@@ -43,6 +49,6 @@ export const DashboardHeader = () => {
         <NotificationsPopover />
         <UserMenu />
       </div>
-    </div>
+    </motion.div>
   );
 };
