@@ -12,7 +12,7 @@ export const AttachmentButton = ({ onClick, isLoading }: AttachmentButtonProps) 
       type="button"
       variant="ghost"
       size="icon"
-      className="h-9 w-9"
+      className="h-10 w-10 flex items-center justify-center"
       onClick={onClick}
       disabled={isLoading}
     >
