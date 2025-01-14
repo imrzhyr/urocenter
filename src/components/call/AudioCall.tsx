@@ -41,6 +41,7 @@ export const AudioCall: React.FC<AudioCallProps> = ({
   );
 
   const handleAcceptCall = async () => {
+    console.log('Accepting call');
     setShowNotification(false);
     try {
       await callSignaling.sendCallResponse(true);
@@ -53,10 +54,12 @@ export const AudioCall: React.FC<AudioCallProps> = ({
   };
 
   const handleRejectCall = async () => {
+    console.log('Rejecting call');
     setShowNotification(false);
     try {
       await callSignaling.sendCallResponse(false);
       callState.setStatus('idle');
+      webRTCCall.endCall();
       toast.info('Call rejected');
     } catch (error) {
       console.error('Error rejecting call:', error);
@@ -103,7 +106,11 @@ export const AudioCall: React.FC<AudioCallProps> = ({
       
       {(callState.getStatus() === 'ringing' || callState.getStatus() === 'connected') && (
         <CallControls
-          onEndCall={() => onCallEnded?.()}
+          onEndCall={() => {
+            webRTCCall.endCall();
+            callState.setStatus('idle');
+            onCallEnded?.();
+          }}
           isAudioEnabled={isAudioEnabled}
           isSpeakerEnabled={isSpeakerEnabled}
           onToggleAudio={toggleAudio}
