@@ -78,17 +78,20 @@ export const MessageInput = ({
         />
       )}
       <div className="relative flex items-center gap-2 p-4 max-w-7xl mx-auto">
-        <AttachmentButton 
-          onClick={() => fileInputRef.current?.click()} 
-          isLoading={isLoading} 
-        />
-        <VoiceMessageRecorder onRecordingComplete={(fileInfo) => onSendMessage("", fileInfo)} />
+        <div className="flex items-center gap-2">
+          <AttachmentButton 
+            onClick={() => fileInputRef.current?.click()} 
+            isLoading={isLoading} 
+          />
+          <VoiceMessageRecorder onRecordingComplete={(fileInfo) => onSendMessage("", fileInfo)} />
+        </div>
         <TextArea
           ref={textareaRef}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder={t("type_message")}
           rows={1}
+          className="flex-1"
         />
         <SendButton isLoading={isLoading} />
       </div>
