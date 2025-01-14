@@ -98,7 +98,7 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
                 </span>
               )}
               
-              <div className={`min-w-fit max-w-[55%] rounded-lg p-3 space-y-1 shadow-sm break-words ${
+              <div className={`min-w-fit max-w-[250px] sm:max-w-[300px] md:max-w-[350px] rounded-lg p-3 space-y-1 shadow-sm break-words ${
                 fromCurrentUser
                   ? "bg-[#0066CC] text-white"
                   : "bg-white dark:bg-[#1A2433] text-gray-800 dark:text-white"
