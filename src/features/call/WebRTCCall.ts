@@ -1,3 +1,5 @@
+import { callSignaling } from './CallSignaling';
+
 class WebRTCCall {
   private peerConnection: RTCPeerConnection | null = null;
   private localStream: MediaStream | null = null;
