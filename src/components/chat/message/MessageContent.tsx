@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import { MessageStatus } from "../MessageStatus";
 import { AudioPlayer } from "../audio/AudioPlayer";
 import { MediaGallery } from "../media/MediaGallery";
+import { ReferencedMessage } from "../ReferencedMessage";
 
 interface MessageContentProps {
   message: Message;
@@ -16,6 +17,10 @@ export const MessageContent = ({ message, fromCurrentUser }: MessageContentProps
         ? "bg-[#0066CC] text-white ml-auto" 
         : "bg-white dark:bg-[#1A2433] dark:border dark:border-gray-700/50 text-gray-800 dark:text-white"
     }`}>
+      {message.referenced_message && (
+        <ReferencedMessage message={message.referenced_message} />
+      )}
+      
       {message.file_url && message.file_type?.startsWith('audio/') ? (
         <AudioPlayer
           audioUrl={message.file_url}

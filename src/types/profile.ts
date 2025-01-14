@@ -21,6 +21,13 @@ export interface Message {
     file_url?: string | null;
     sender_name?: string;
   } | null;
+  typing_users?: string[];
+  referenced_message?: {
+    id: string;
+    content: string;
+    sender_name?: string;
+    file_type?: string;
+  } | null;
 }
 
 export interface Profile {

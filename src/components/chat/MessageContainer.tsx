@@ -8,10 +8,12 @@ import { useProfile } from '@/hooks/useProfile';
 import { toast } from 'sonner';
 import { callState } from '@/features/call/CallState';
 import { motion } from 'framer-motion';
+import { TypingIndicator } from './TypingIndicator';
 
 interface MessageContainerProps {
   messages: Message[];
   onSendMessage: (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }, replyTo?: Message) => void;
+  onTyping?: (isTyping: boolean) => void;
   isLoading: boolean;
   header: React.ReactNode;
   userId: string;
@@ -20,6 +22,7 @@ interface MessageContainerProps {
 export const MessageContainer: React.FC<MessageContainerProps> = ({ 
   messages,
   onSendMessage,
+  onTyping,
   isLoading,
   header,
   userId
@@ -48,7 +51,10 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
 
   const handleSendMessage = (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }, replyTo?: Message) => {
     onSendMessage(content, fileInfo, replyTo);
+    setReplyingTo(null);
   };
+
+  const typingUsers = messages[messages.length - 1]?.typing_users || [];
 
   return (
     <motion.div 
@@ -78,6 +84,7 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
                 onReply={setReplyingTo}
                 replyingTo={replyingTo}
               />
+              <TypingIndicator typingUsers={typingUsers} />
             </div>
           </>
         )}
@@ -94,6 +101,7 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
           isLoading={isLoading}
           replyingTo={replyingTo}
           onCancelReply={() => setReplyingTo(null)}
+          onTyping={onTyping}
         />
       </motion.div>
     </motion.div>

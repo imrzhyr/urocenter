@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { TextArea } from "./input/TextArea";
 import { AttachmentButton } from "./input/AttachmentButton";
@@ -8,24 +8,54 @@ import { Message } from "@/types/profile";
 import { VoiceMessageRecorder } from "./VoiceMessageRecorder";
 import { uploadFile } from "@/utils/fileUpload";
 import { toast } from "sonner";
+import { debounce } from "lodash";
 
 export interface MessageInputProps {
   onSendMessage: (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }, replyTo?: Message) => void;
   isLoading?: boolean;
   replyingTo?: Message | null;
   onCancelReply?: () => void;
+  onTyping?: (isTyping: boolean) => void;
 }
 
 export const MessageInput = ({
   onSendMessage,
   isLoading,
   replyingTo,
-  onCancelReply
+  onCancelReply,
+  onTyping
 }: MessageInputProps) => {
   const [message, setMessage] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { t } = useLanguage();
+
+  const debouncedTypingUpdate = useRef(
+    debounce((isTyping: boolean) => {
+      onTyping?.(isTyping);
+    }, 500)
+  ).current;
+
+  useEffect(() => {
+    return () => {
+      debouncedTypingUpdate.cancel();
+    };
+  }, [debouncedTypingUpdate]);
+
+  const handleMessageChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newMessage = e.target.value;
+    setMessage(newMessage);
+    
+    if (onTyping) {
+      const isTyping = newMessage.length > 0;
+      debouncedTypingUpdate(isTyping);
+      
+      // If the message is empty, immediately stop typing
+      if (!isTyping) {
+        debouncedTypingUpdate.flush();
+      }
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,6 +68,7 @@ export const MessageInput = ({
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto';
       }
+      onTyping?.(false);
     }
   };
 
@@ -56,7 +87,6 @@ export const MessageInput = ({
       toast.error('Failed to upload file');
     }
 
-    // Reset file input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -88,7 +118,7 @@ export const MessageInput = ({
         <TextArea
           ref={textareaRef}
           value={message}
-          onChange={(e) => setMessage(e.target.value)}
+          onChange={handleMessageChange}
           placeholder={t("type_message")}
           rows={1}
           className="flex-1"

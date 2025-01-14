@@ -57,10 +57,12 @@ export type Database = {
           is_from_doctor: boolean | null
           is_read: boolean | null
           is_resolved: boolean | null
+          referenced_message: Json | null
           replyTo: Json | null
           seen_at: string | null
           sender_name: string | null
           status: string
+          typing_users: Json | null
           updated_at: string | null
           user_id: string
         }
@@ -76,10 +78,12 @@ export type Database = {
           is_from_doctor?: boolean | null
           is_read?: boolean | null
           is_resolved?: boolean | null
+          referenced_message?: Json | null
           replyTo?: Json | null
           seen_at?: string | null
           sender_name?: string | null
           status?: string
+          typing_users?: Json | null
           updated_at?: string | null
           user_id: string
         }
@@ -95,10 +99,12 @@ export type Database = {
           is_from_doctor?: boolean | null
           is_read?: boolean | null
           is_resolved?: boolean | null
+          referenced_message?: Json | null
           replyTo?: Json | null
           seen_at?: string | null
           sender_name?: string | null
           status?: string
+          typing_users?: Json | null
           updated_at?: string | null
           user_id?: string
         }
