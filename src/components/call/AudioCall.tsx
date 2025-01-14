@@ -21,11 +21,28 @@ export const AudioCall: React.FC<AudioCallProps> = ({
   const [showNotification, setShowNotification] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { profile } = useProfile();
+  const channelInitializedRef = useRef(false);
 
   useEffect(() => {
+    const initializeCallChannel = async () => {
+      if (profile?.id && !channelInitializedRef.current) {
+        try {
+          await callSignaling.initialize(recipientId);
+          channelInitializedRef.current = true;
+          console.log('Call channel initialized for recipient:', recipientId);
+        } catch (error) {
+          console.error('Failed to initialize call channel:', error);
+          toast.error('Failed to initialize call');
+          handleEndCall();
+        }
+      }
+    };
+
     const setupCallHandlers = async () => {
       if (profile?.id) {
         try {
+          await initializeCallChannel();
+          
           if (callState.getStatus() === 'ringing') {
             console.log('Starting call to:', recipientId);
             await webRTCCall.startCall(recipientId);
@@ -129,13 +146,16 @@ export const AudioCall: React.FC<AudioCallProps> = ({
 
   const handleEndCall = () => {
     console.log('Ending call');
-    callSignaling.endCall();
-    webRTCCall.endCall();
-    callState.setStatus('idle');
-    if (audioRef.current) {
-      audioRef.current.srcObject = null;
+    if (channelInitializedRef.current) {
+      callSignaling.endCall();
+      webRTCCall.endCall();
+      callState.setStatus('idle');
+      if (audioRef.current) {
+        audioRef.current.srcObject = null;
+      }
+      channelInitializedRef.current = false;
+      onCallEnded?.();
     }
-    onCallEnded?.();
   };
 
   const handleAcceptCall = async () => {
