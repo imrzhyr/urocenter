@@ -26,13 +26,13 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    lng: 'en', // default language
+    lng: localStorage.getItem('preferredLanguage') || 'en',
     fallbackLng: 'en',
     interpolation: {
-      escapeValue: false, // react already safes from xss
+      escapeValue: false,
     },
     react: {
-      useSuspense: false, // prevents suspense during language switch
+      useSuspense: false,
     },
   });
 

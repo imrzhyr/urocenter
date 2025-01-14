@@ -1,12 +1,10 @@
-import { AppRoutes } from "./AppRoutes";
-import { Toaster } from "@/components/ui/sonner";
-import { LanguageProvider } from "./contexts/LanguageContext";
+import { LanguageProvider } from '@/contexts/LanguageContext';
+import { AppRoutes } from './AppRoutes';
 
 function App() {
   return (
     <LanguageProvider>
       <AppRoutes />
-      <Toaster />
     </LanguageProvider>
   );
 }
