@@ -22,83 +22,70 @@ export const AudioCall: React.FC<AudioCallProps> = ({
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { profile } = useProfile();
   const channelInitializedRef = useRef(false);
+  const callInitiatedRef = useRef(false);
   const notificationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const initializeCallChannel = async () => {
-      if (profile?.id && !channelInitializedRef.current) {
-        try {
-          console.log('Initializing call channel for recipient:', recipientId);
-          await callSignaling.initialize(recipientId);
-          channelInitializedRef.current = true;
-          console.log('Call channel initialized successfully');
-        } catch (error) {
-          console.error('Failed to initialize call channel:', error);
-          toast.error('Failed to initialize call');
-          handleEndCall();
-        }
+      if (!profile?.id || channelInitializedRef.current) return;
+      
+      try {
+        await callSignaling.initialize(recipientId);
+        channelInitializedRef.current = true;
+        console.log('Call channel initialized for:', recipientId);
+      } catch (error) {
+        console.error('Failed to initialize call channel:', error);
+        toast.error('Failed to initialize call');
+        handleEndCall();
       }
     };
 
-    const setupCallHandlers = async () => {
-      if (profile?.id) {
-        try {
-          await initializeCallChannel();
-          
-          if (callState.getStatus() === 'ringing') {
-            console.log('Starting call to:', recipientId);
-            await webRTCCall.startCall(recipientId);
-            
-            webRTCCall.onRemoteStream((stream) => {
-              console.log('Received remote stream:', stream);
-              if (audioRef.current) {
-                audioRef.current.srcObject = stream;
-              }
-            });
-            
-            // Only send call request after WebRTC setup is complete
-            await callSignaling.sendCallRequest(profile.id);
-            toast.info('Calling...');
+    const startOutgoingCall = async () => {
+      if (!profile?.id || callInitiatedRef.current) return;
+      
+      try {
+        callInitiatedRef.current = true;
+        await webRTCCall.startCall(recipientId);
+        
+        webRTCCall.onRemoteStream((stream) => {
+          if (audioRef.current) {
+            audioRef.current.srcObject = stream;
           }
-        } catch (error) {
-          console.error('Error starting call:', error);
-          toast.error('Failed to start audio call');
-          handleEndCall();
-        }
+        });
+        
+        await callSignaling.sendCallRequest(profile.id);
+        toast.info('Calling...');
+      } catch (error) {
+        console.error('Error starting call:', error);
+        toast.error('Failed to start audio call');
+        handleEndCall();
       }
     };
 
     const handleIncomingCall = (event: CustomEvent) => {
       const { callerId } = event.detail;
-      console.log('Incoming call from:', callerId);
       if (callerId === recipientId) {
-        // Clear any existing timeout
         if (notificationTimeoutRef.current) {
           clearTimeout(notificationTimeoutRef.current);
         }
         
-        // Set a new timeout to show the notification after 2 seconds
         notificationTimeoutRef.current = setTimeout(() => {
           setShowNotification(true);
-          toast.info('Incoming call...', {
-            duration: 10000,
-          });
+          toast.info('Incoming call...', { duration: 10000 });
         }, 2000);
       }
     };
 
     const handleCallResponse = async (event: CustomEvent) => {
       const { accepted } = event.detail;
-      console.log('Call response received:', accepted);
-      
       if (accepted) {
         try {
           await webRTCCall.startCall(recipientId);
           callState.setStatus('connected', recipientId);
           toast.success('Call connected');
         } catch (error) {
-          console.error('Error starting call after acceptance:', error);
-          toast.error('Failed to establish call connection');
+          console.error('Error establishing call connection:', error);
+          toast.error('Failed to connect call');
           handleEndCall();
         }
       } else {
@@ -108,10 +95,8 @@ export const AudioCall: React.FC<AudioCallProps> = ({
     };
 
     const handleWebRTCOffer = async (event: CustomEvent) => {
-      const { offer } = event.detail;
-      console.log('Received WebRTC offer:', offer);
       try {
-        await webRTCCall.handleIncomingOffer(offer);
+        await webRTCCall.handleIncomingOffer(event.detail.offer);
       } catch (error) {
         console.error('Error handling WebRTC offer:', error);
         toast.error('Failed to establish connection');
@@ -120,10 +105,8 @@ export const AudioCall: React.FC<AudioCallProps> = ({
     };
 
     const handleWebRTCAnswer = async (event: CustomEvent) => {
-      const { answer } = event.detail;
-      console.log('Received WebRTC answer:', answer);
       try {
-        await webRTCCall.handleAnswer(answer);
+        await webRTCCall.handleAnswer(event.detail.answer);
       } catch (error) {
         console.error('Error handling WebRTC answer:', error);
         toast.error('Failed to establish connection');
@@ -132,22 +115,26 @@ export const AudioCall: React.FC<AudioCallProps> = ({
     };
 
     const handleIceCandidate = async (event: CustomEvent) => {
-      const { candidate } = event.detail;
-      console.log('Received ICE candidate:', candidate);
       try {
-        await webRTCCall.handleIceCandidate(candidate);
+        await webRTCCall.handleIceCandidate(event.detail.candidate);
       } catch (error) {
         console.error('Error handling ICE candidate:', error);
       }
     };
 
     const handleCallEnded = () => {
-      console.log('Call ended event received');
       handleEndCall();
       toast.info('Call ended');
     };
 
-    setupCallHandlers();
+    const setup = async () => {
+      await initializeCallChannel();
+      if (callState.getStatus() === 'ringing') {
+        await startOutgoingCall();
+      }
+    };
+
+    setup();
 
     window.addEventListener('incomingCall', handleIncomingCall as EventListener);
     window.addEventListener('callResponse', handleCallResponse as EventListener);
@@ -157,7 +144,6 @@ export const AudioCall: React.FC<AudioCallProps> = ({
     window.addEventListener('callEnded', handleCallEnded as EventListener);
 
     return () => {
-      // Clear the notification timeout if component unmounts
       if (notificationTimeoutRef.current) {
         clearTimeout(notificationTimeoutRef.current);
       }
@@ -173,9 +159,7 @@ export const AudioCall: React.FC<AudioCallProps> = ({
   }, [recipientId, profile?.id]);
 
   const handleEndCall = () => {
-    console.log('Ending call');
     if (channelInitializedRef.current) {
-      // Clear any pending notification timeout
       if (notificationTimeoutRef.current) {
         clearTimeout(notificationTimeoutRef.current);
       }
@@ -187,12 +171,12 @@ export const AudioCall: React.FC<AudioCallProps> = ({
         audioRef.current.srcObject = null;
       }
       channelInitializedRef.current = false;
+      callInitiatedRef.current = false;
       onCallEnded?.();
     }
   };
 
   const handleAcceptCall = async () => {
-    console.log('Accepting call');
     setShowNotification(false);
     try {
       await callSignaling.sendCallResponse(true);
@@ -205,7 +189,6 @@ export const AudioCall: React.FC<AudioCallProps> = ({
   };
 
   const handleRejectCall = async () => {
-    console.log('Rejecting call');
     setShowNotification(false);
     try {
       await callSignaling.sendCallResponse(false);
