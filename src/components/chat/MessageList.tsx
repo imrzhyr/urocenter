@@ -77,7 +77,7 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
 
   return (
     <ScrollArea className="flex-1 p-4 chat-background">
-      <div className="space-y-4 max-w-[800px] mx-auto">
+      <div className="space-y-4">
         {messages.map((message) => {
           const fromCurrentUser = isFromCurrentUser(message);
           
@@ -98,7 +98,7 @@ export const MessageList = ({ messages, currentUserId, isLoading, onReply, reply
                 </span>
               )}
               
-              <div className={`max-w-[60%] sm:max-w-[55%] md:max-w-[450px] rounded-lg p-3 space-y-1 shadow-sm ${
+              <div className={`max-w-[60%] rounded-lg p-3 space-y-1 shadow-sm ${
                 fromCurrentUser
                   ? "bg-[#0066CC] text-white"
                   : "bg-white dark:bg-[#1A2433] text-gray-800 dark:text-white"
