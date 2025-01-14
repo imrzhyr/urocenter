@@ -54,7 +54,7 @@ export const PatientInfoContainer = ({ patientId }: PatientInfoContainerProps) =
     },
     enabled: !!patientId,
     staleTime: 30000, // Consider data fresh for 30 seconds
-    cacheTime: 5 * 60 * 1000, // Keep data in cache for 5 minutes
+    gcTime: 5 * 60 * 1000 // Keep data in cache for 5 minutes (previously cacheTime)
   });
 
   if (!patientId || !patientInfo) return null;
