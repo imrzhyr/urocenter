@@ -1,23 +1,22 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { translations } from '@/translations/translations';
-import { medicalTranslations } from '@/translations/medicalTranslations';
 import { chatTranslations } from '@/translations/chatTranslations';
+import { medicalTranslations } from '@/translations/medicalTranslations';
 
-// Merge all translations
 const resources = {
   en: {
     translation: {
       ...translations.en,
-      ...medicalTranslations.en,
       ...chatTranslations.en,
+      ...medicalTranslations.en,
     },
   },
   ar: {
     translation: {
       ...translations.ar,
-      ...medicalTranslations.ar,
       ...chatTranslations.ar,
+      ...medicalTranslations.ar,
     },
   },
 };
