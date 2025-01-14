@@ -31,7 +31,7 @@ export const PatientChatHeader = () => {
   return (
     <div className="flex items-center justify-between p-2">
       <div className="flex items-center gap-2">
-        <BackButton />
+        <BackButton customRoute="/dashboard" />
         <div>
           <h3 className="font-medium text-white text-sm">
             {t('doctor_name')}
