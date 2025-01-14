@@ -32,10 +32,12 @@ export const DoctorChatHeader = ({
     const handleCallStateChange = () => {
       const status = callState.getStatus();
       console.log('Call state changed:', status);
-      if (status === 'ringing' || status === 'connected') {
-        setShowCall(true);
-      } else if (status === 'idle' || status === 'ended') {
+      
+      // Only hide call UI when explicitly ended or idle
+      if (status === 'idle' || status === 'ended') {
         setShowCall(false);
+      } else if (status === 'ringing' || status === 'connected') {
+        setShowCall(true);
       }
     };
 
@@ -55,9 +57,14 @@ export const DoctorChatHeader = ({
   const handleCallClick = () => {
     if (callState.getStatus() === 'idle') {
       console.log('Initializing call to:', patientId);
-      callState.setStatus('ringing', patientId);
+      
+      // Initialize call signaling first
       callSignaling.initialize(patientId);
+      
+      // Then set call state to ringing
+      callState.setStatus('ringing', patientId);
       setShowCall(true);
+      
       toast.info('Initiating call...');
     } else {
       console.log('Call already in progress or not in idle state');
@@ -66,6 +73,7 @@ export const DoctorChatHeader = ({
   };
 
   const handleCallEnded = () => {
+    console.log('Call ended, cleaning up...');
     callState.setStatus('idle');
     callSignaling.cleanup();
     setShowCall(false);
