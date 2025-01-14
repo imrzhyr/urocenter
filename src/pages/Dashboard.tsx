@@ -9,49 +9,38 @@ import { HealthTipsCard } from "@/components/dashboard/HealthTipsCard";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { useProfile } from "@/hooks/useProfile";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const { t } = useLanguage();
+  const { profile } = useProfile();
 
   useEffect(() => {
-    const checkProfile = async () => {
+    const checkAuth = async () => {
       try {
         const userPhone = localStorage.getItem('userPhone');
         
         if (!userPhone) {
-          console.log("No user phone found, redirecting to signin");
           navigate("/signin", { replace: true });
           return;
         }
 
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('phone', userPhone)
-          .maybeSingle();
-
-        if (error || !profile) {
-          console.log("No profile found, redirecting to signin");
-          navigate("/signin", { replace: true });
-          return;
-        }
-
-        if (profile.role === 'admin') {
+        if (profile?.role === 'admin') {
           navigate("/admin", { replace: true });
           return;
         }
 
         setIsLoading(false);
       } catch (error) {
-        console.error("Error checking profile:", error);
+        console.error("Error checking auth:", error);
         navigate("/signin", { replace: true });
       }
     };
 
-    checkProfile();
-  }, [navigate]);
+    checkAuth();
+  }, [navigate, profile]);
 
   if (isLoading) {
     return (
