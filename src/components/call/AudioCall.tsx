@@ -22,6 +22,7 @@ export const AudioCall: React.FC<AudioCallProps> = ({
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { profile } = useProfile();
   const channelInitializedRef = useRef(false);
+  const notificationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const initializeCallChannel = async () => {
@@ -69,10 +70,18 @@ export const AudioCall: React.FC<AudioCallProps> = ({
       const { callerId } = event.detail;
       console.log('Incoming call from:', callerId);
       if (callerId === recipientId) {
-        setShowNotification(true);
-        toast.info('Incoming call...', {
-          duration: 10000,
-        });
+        // Clear any existing timeout
+        if (notificationTimeoutRef.current) {
+          clearTimeout(notificationTimeoutRef.current);
+        }
+        
+        // Set a new timeout to show the notification after 2 seconds
+        notificationTimeoutRef.current = setTimeout(() => {
+          setShowNotification(true);
+          toast.info('Incoming call...', {
+            duration: 10000,
+          });
+        }, 2000);
       }
     };
 
@@ -134,6 +143,11 @@ export const AudioCall: React.FC<AudioCallProps> = ({
     window.addEventListener('callEnded', handleCallEnded as EventListener);
 
     return () => {
+      // Clear the notification timeout if component unmounts
+      if (notificationTimeoutRef.current) {
+        clearTimeout(notificationTimeoutRef.current);
+      }
+      
       window.removeEventListener('incomingCall', handleIncomingCall as EventListener);
       window.removeEventListener('callResponse', handleCallResponse as EventListener);
       window.removeEventListener('webrtcOffer', handleWebRTCOffer as EventListener);
@@ -147,6 +161,11 @@ export const AudioCall: React.FC<AudioCallProps> = ({
   const handleEndCall = () => {
     console.log('Ending call');
     if (channelInitializedRef.current) {
+      // Clear any pending notification timeout
+      if (notificationTimeoutRef.current) {
+        clearTimeout(notificationTimeoutRef.current);
+      }
+      
       callSignaling.endCall();
       webRTCCall.endCall();
       callState.setStatus('idle');
