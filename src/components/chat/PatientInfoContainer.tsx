@@ -2,36 +2,18 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PatientInfoCard } from "@/components/chat/PatientInfoCard";
 import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
 
 interface PatientInfoContainerProps {
   patientId?: string;
 }
 
 export const PatientInfoContainer = ({ patientId }: PatientInfoContainerProps) => {
-  const [patientInfo, setPatientInfo] = useState<{
-    complaint: string;
-    reportsCount: number;
-    fullName: string;
-    age: string;
-    gender: string;
-    isResolved: boolean;
-    phone: string;
-    createdAt: string;
-  }>({ 
-    complaint: "", 
-    reportsCount: 0,
-    fullName: "",
-    age: "",
-    gender: "",
-    isResolved: false,
-    phone: "",
-    createdAt: ""
-  });
-
-  useEffect(() => {
-    const fetchPatientInfo = async () => {
+  const { data: patientInfo, isLoading } = useQuery({
+    queryKey: ['patient', patientId],
+    queryFn: async () => {
       try {
-        if (!patientId) return;
+        if (!patientId) return null;
 
         const { data: profileData } = await supabase
           .from('profiles')
@@ -52,7 +34,7 @@ export const PatientInfoContainer = ({ patientId }: PatientInfoContainerProps) =
             .limit(1)
             .single();
 
-          setPatientInfo({
+          return {
             complaint: profileData.complaint || "",
             reportsCount: reports?.length || 0,
             fullName: profileData.full_name || "",
@@ -61,18 +43,21 @@ export const PatientInfoContainer = ({ patientId }: PatientInfoContainerProps) =
             isResolved: messageData?.is_resolved || false,
             phone: profileData.phone || "",
             createdAt: profileData.created_at || ""
-          });
+          };
         }
+        return null;
       } catch (error) {
         console.error('Error fetching patient info:', error);
         toast.error("Failed to load patient information");
+        return null;
       }
-    };
+    },
+    enabled: !!patientId,
+    staleTime: 30000, // Consider data fresh for 30 seconds
+    cacheTime: 5 * 60 * 1000, // Keep data in cache for 5 minutes
+  });
 
-    fetchPatientInfo();
-  }, [patientId]);
-
-  if (!patientId) return null;
+  if (!patientId || !patientInfo) return null;
 
   return (
     <PatientInfoCard 
