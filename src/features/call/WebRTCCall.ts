@@ -38,7 +38,7 @@ class WebRTCCall {
       this.peerConnection.onicecandidate = (event) => {
         if (event.candidate) {
           console.log('New ICE candidate:', event.candidate);
-          // Send candidate to signaling server
+          callSignaling.sendIceCandidate(event.candidate.toJSON());
         }
       };
 
@@ -64,6 +64,9 @@ class WebRTCCall {
       
       await this.peerConnection.setLocalDescription(offer);
       console.log('Created and set local offer:', offer);
+
+      // Send offer through signaling
+      await callSignaling.sendWebRTCOffer(offer);
 
       return offer;
     } catch (error) {
@@ -93,6 +96,12 @@ class WebRTCCall {
         }
       });
 
+      this.peerConnection.onicecandidate = (event) => {
+        if (event.candidate) {
+          callSignaling.sendIceCandidate(event.candidate.toJSON());
+        }
+      };
+
       this.peerConnection.ontrack = (event) => {
         console.log('Received remote track:', event.track);
         this.remoteStream = event.streams[0];
@@ -107,6 +116,9 @@ class WebRTCCall {
       const answer = await this.peerConnection.createAnswer();
       await this.peerConnection.setLocalDescription(answer);
       console.log('Created and set local answer:', answer);
+
+      // Send answer through signaling
+      await callSignaling.sendWebRTCAnswer(answer);
 
       return answer;
     } catch (error) {

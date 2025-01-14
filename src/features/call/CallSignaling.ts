@@ -26,7 +26,8 @@ class CallSignaling {
         await this.channel.unsubscribe();
       }
 
-      this.channel = supabase.channel(`call_${peerId}`);
+      // Create a unique channel name for this call
+      this.channel = supabase.channel(`call:${peerId}`);
 
       this.channel.on('broadcast', { event: 'call_request' }, (payload: any) => {
         logger.debug(MODULE_NAME, 'Received call request', payload);
@@ -42,22 +43,30 @@ class CallSignaling {
         }));
       });
 
+      this.channel.on('broadcast', { event: 'webrtc_offer' }, (payload: any) => {
+        logger.debug(MODULE_NAME, 'Received WebRTC offer', payload);
+        window.dispatchEvent(new CustomEvent('webrtcOffer', { 
+          detail: payload.payload
+        }));
+      });
+
+      this.channel.on('broadcast', { event: 'webrtc_answer' }, (payload: any) => {
+        logger.debug(MODULE_NAME, 'Received WebRTC answer', payload);
+        window.dispatchEvent(new CustomEvent('webrtcAnswer', { 
+          detail: payload.payload
+        }));
+      });
+
+      this.channel.on('broadcast', { event: 'ice_candidate' }, (payload: any) => {
+        logger.debug(MODULE_NAME, 'Received ICE candidate', payload);
+        window.dispatchEvent(new CustomEvent('iceCandidate', { 
+          detail: payload.payload
+        }));
+      });
+
       this.channel.on('broadcast', { event: 'call_ended' }, () => {
         logger.info(MODULE_NAME, 'Call ended by peer');
         window.dispatchEvent(new CustomEvent('callEnded'));
-      });
-
-      this.channel.on('presence', { event: 'sync' }, () => {
-        const status = this.channel.presenceState();
-        logger.debug(MODULE_NAME, 'Call channel status:', status);
-      });
-
-      this.channel.on('presence', { event: 'join' }, () => {
-        logger.debug(MODULE_NAME, 'Peer joined call channel');
-      });
-
-      this.channel.on('presence', { event: 'leave' }, () => {
-        logger.debug(MODULE_NAME, 'Peer left call channel');
       });
 
       try {
@@ -109,10 +118,48 @@ class CallSignaling {
     }
   }
 
+  async sendWebRTCOffer(offer: RTCSessionDescriptionInit) {
+    try {
+      if (!this.channel) return;
+      await this.channel.send({
+        type: 'broadcast',
+        event: 'webrtc_offer',
+        payload: { offer }
+      });
+    } catch (error) {
+      logger.error(MODULE_NAME, 'Error sending WebRTC offer', error as Error);
+    }
+  }
+
+  async sendWebRTCAnswer(answer: RTCSessionDescriptionInit) {
+    try {
+      if (!this.channel) return;
+      await this.channel.send({
+        type: 'broadcast',
+        event: 'webrtc_answer',
+        payload: { answer }
+      });
+    } catch (error) {
+      logger.error(MODULE_NAME, 'Error sending WebRTC answer', error as Error);
+    }
+  }
+
+  async sendIceCandidate(candidate: RTCIceCandidateInit) {
+    try {
+      if (!this.channel) return;
+      await this.channel.send({
+        type: 'broadcast',
+        event: 'ice_candidate',
+        payload: { candidate }
+      });
+    } catch (error) {
+      logger.error(MODULE_NAME, 'Error sending ICE candidate', error as Error);
+    }
+  }
+
   async endCall() {
     try {
       if (!this.channel || !this.peerId) {
-        // Instead of throwing an error, just log a warning and return
         logger.warn(MODULE_NAME, 'Attempted to end call when channel not initialized');
         return;
       }
@@ -121,13 +168,12 @@ class CallSignaling {
       await this.channel.send({
         type: 'broadcast',
         event: 'call_ended',
-        payload: { ended: true }  // Add a payload to prevent 422 error
+        payload: { ended: true }
       });
 
       await this.cleanup();
     } catch (error) {
       logger.error(MODULE_NAME, 'Error ending call', error as Error);
-      // Don't throw the error, just log it
       await this.cleanup();
     }
   }
@@ -142,7 +188,6 @@ class CallSignaling {
       logger.info(MODULE_NAME, 'Call signaling cleaned up');
     } catch (error) {
       logger.error(MODULE_NAME, 'Error cleaning up call signaling', error as Error);
-      // Don't throw the error, just log it
     }
   }
 }

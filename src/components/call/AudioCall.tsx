@@ -23,22 +23,23 @@ export const AudioCall: React.FC<AudioCallProps> = ({
   const { profile } = useProfile();
 
   useEffect(() => {
-    const startCall = async () => {
+    const setupCallHandlers = async () => {
       if (profile?.id) {
         try {
-          console.log('Starting call to:', recipientId);
-          await webRTCCall.startCall(recipientId);
-          
-          webRTCCall.onRemoteStream((stream) => {
-            console.log('Received remote stream:', stream);
-            if (audioRef.current) {
-              audioRef.current.srcObject = stream;
-            }
-          });
-          
-          await callSignaling.sendCallRequest(profile.id);
-          toast.info('Calling...');
-          
+          if (callState.getStatus() === 'ringing') {
+            console.log('Starting call to:', recipientId);
+            await webRTCCall.startCall(recipientId);
+            
+            webRTCCall.onRemoteStream((stream) => {
+              console.log('Received remote stream:', stream);
+              if (audioRef.current) {
+                audioRef.current.srcObject = stream;
+              }
+            });
+            
+            await callSignaling.sendCallRequest(profile.id);
+            toast.info('Calling...');
+          }
         } catch (error) {
           console.error('Error starting call:', error);
           toast.error('Failed to start audio call');
@@ -71,23 +72,56 @@ export const AudioCall: React.FC<AudioCallProps> = ({
       }
     };
 
+    const handleWebRTCOffer = async (event: CustomEvent) => {
+      const { offer } = event.detail;
+      try {
+        await webRTCCall.handleIncomingOffer(offer);
+      } catch (error) {
+        console.error('Error handling WebRTC offer:', error);
+        toast.error('Failed to establish connection');
+      }
+    };
+
+    const handleWebRTCAnswer = async (event: CustomEvent) => {
+      const { answer } = event.detail;
+      try {
+        await webRTCCall.handleAnswer(answer);
+      } catch (error) {
+        console.error('Error handling WebRTC answer:', error);
+        toast.error('Failed to establish connection');
+      }
+    };
+
+    const handleIceCandidate = async (event: CustomEvent) => {
+      const { candidate } = event.detail;
+      try {
+        await webRTCCall.handleIceCandidate(candidate);
+      } catch (error) {
+        console.error('Error handling ICE candidate:', error);
+      }
+    };
+
     const handleCallEnded = () => {
       console.log('Call ended');
       handleEndCall();
       toast.info('Call ended');
     };
 
-    if (callState.getStatus() === 'ringing') {
-      startCall();
-    }
+    setupCallHandlers();
 
     window.addEventListener('incomingCall', handleIncomingCall as EventListener);
     window.addEventListener('callResponse', handleCallResponse as EventListener);
+    window.addEventListener('webrtcOffer', handleWebRTCOffer as EventListener);
+    window.addEventListener('webrtcAnswer', handleWebRTCAnswer as EventListener);
+    window.addEventListener('iceCandidate', handleIceCandidate as EventListener);
     window.addEventListener('callEnded', handleCallEnded as EventListener);
 
     return () => {
       window.removeEventListener('incomingCall', handleIncomingCall as EventListener);
       window.removeEventListener('callResponse', handleCallResponse as EventListener);
+      window.removeEventListener('webrtcOffer', handleWebRTCOffer as EventListener);
+      window.removeEventListener('webrtcAnswer', handleWebRTCAnswer as EventListener);
+      window.removeEventListener('iceCandidate', handleIceCandidate as EventListener);
       window.removeEventListener('callEnded', handleCallEnded as EventListener);
       handleEndCall();
     };
