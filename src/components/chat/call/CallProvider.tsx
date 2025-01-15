@@ -81,7 +81,10 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error creating call:', error);
+        throw error;
+      }
 
       setCurrentCallId(call.id);
       setIsCalling(true);
@@ -200,86 +203,45 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
           table: 'calls',
         },
         async (payload) => {
-          console.log('Call change event:', payload);
-          if (payload.eventType === 'INSERT' && payload.new.receiver_id === profile.id) {
-            const { data: caller } = await supabase
-              .from('profiles')
-              .select('full_name')
-              .eq('id', payload.new.caller_id)
-              .maybeSingle();
-
-            setIncomingCall({
-              id: payload.new.id,
-              callerName: caller?.full_name || 'Unknown'
-            });
-          } else if (payload.eventType === 'UPDATE') {
-            if (payload.new.status === 'active' && 
-               (payload.new.caller_id === profile.id || payload.new.receiver_id === profile.id)) {
-              // Clear timeout when call becomes active
-              if (callTimeoutRef.current) {
-                clearTimeout(callTimeoutRef.current);
-                callTimeoutRef.current = undefined;
-              }
-              setIsInCall(true);
-              setIsCalling(false);
-              startDurationTimer();
-            } else if (payload.new.status === 'ended' && 
-                     (payload.new.caller_id === profile.id || payload.new.receiver_id === profile.id)) {
-              setIsCallEnded(true);
-              stopDurationTimer();
-              setTimeout(() => {
-                setIsInCall(false);
-                setIsCalling(false);
-                setCurrentCallId(null);
-              }, 2000);
-            }
-          }
-        }
-      )
-      .subscribe();
-
-    const signalChannel = supabase
-      .channel('call_signals')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'call_signals',
-          filter: `to_user=eq.${profile.id}`,
-        },
-        async (payload) => {
-          const signal = payload.new;
-          if (!peerConnection.current) return;
-
           try {
-            console.log('Received signal:', signal.type, signal.data);
-            if (signal.type === 'offer') {
-              console.log('Setting remote description (offer)');
-              await peerConnection.current.setRemoteDescription(new RTCSessionDescription(signal.data.sdp));
-              const answer = await peerConnection.current.createAnswer({
-                offerToReceiveAudio: true,
-                offerToReceiveVideo: false
-              });
-              await peerConnection.current.setLocalDescription(answer);
+            console.log('Call change event:', payload);
+            if (payload.eventType === 'INSERT' && payload.new.receiver_id === profile.id) {
+              const { data: caller, error: callerError } = await supabase
+                .from('profiles')
+                .select('full_name')
+                .eq('id', payload.new.caller_id)
+                .maybeSingle();
 
-              console.log('Sending answer');
-              await supabase.from('call_signals').insert({
-                call_id: signal.call_id,
-                from_user: profile.id,
-                to_user: signal.from_user,
-                type: 'answer',
-                data: { sdp: answer }
+              if (callerError) throw callerError;
+
+              setIncomingCall({
+                id: payload.new.id,
+                callerName: caller?.full_name || 'Unknown'
               });
-            } else if (signal.type === 'answer') {
-              console.log('Setting remote description (answer)');
-              await peerConnection.current.setRemoteDescription(new RTCSessionDescription(signal.data.sdp));
-            } else if (signal.type === 'ice-candidate' && signal.data.candidate) {
-              console.log('Adding ICE candidate');
-              await peerConnection.current.addIceCandidate(new RTCIceCandidate(signal.data.candidate));
+            } else if (payload.eventType === 'UPDATE') {
+              if (payload.new.status === 'active' && 
+                 (payload.new.caller_id === profile.id || payload.new.receiver_id === profile.id)) {
+                if (callTimeoutRef.current) {
+                  clearTimeout(callTimeoutRef.current);
+                  callTimeoutRef.current = undefined;
+                }
+                setIsInCall(true);
+                setIsCalling(false);
+                startDurationTimer();
+              } else if (payload.new.status === 'ended' && 
+                       (payload.new.caller_id === profile.id || payload.new.receiver_id === profile.id)) {
+                setIsCallEnded(true);
+                stopDurationTimer();
+                setTimeout(() => {
+                  setIsInCall(false);
+                  setIsCalling(false);
+                  setCurrentCallId(null);
+                }, 2000);
+              }
             }
           } catch (error) {
-            console.error('Error handling WebRTC signal:', error);
+            console.error('Error handling call event:', error);
+            toast.error('Error processing call update');
           }
         }
       )
@@ -287,7 +249,6 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
 
     return () => {
       supabase.removeChannel(channel);
-      supabase.removeChannel(signalChannel);
     };
   }, [profile?.id]);
 
