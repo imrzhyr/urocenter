@@ -1,7 +1,6 @@
 import { MessageContainer } from "../MessageContainer";
 import { DoctorChatHeader } from "./DoctorChatHeader";
 import { useChat } from "@/hooks/useChat";
-import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useDoctorChat } from "./hooks/useDoctorChat";
 import { useProfile } from "@/hooks/useProfile";
