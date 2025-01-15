@@ -14,6 +14,7 @@ serve(async (req) => {
     const appId = Deno.env.get('AGORA_APP_ID')
     
     if (!appId) {
+      console.error('Agora App ID not configured')
       throw new Error('Agora App ID not configured')
     }
 
