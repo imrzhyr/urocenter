@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Image, Animated, Dimensions } from 'react-native';
+import { View, Image, Animated } from 'react-native';
 import { styled } from 'nativewind';
 
 const StyledView = styled(View);
