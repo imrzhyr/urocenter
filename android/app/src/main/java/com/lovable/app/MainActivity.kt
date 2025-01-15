@@ -6,15 +6,15 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import io.github.jan.supabase.gotrue.SessionStatus
+import androidx.navigation.NavOptions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import androidx.navigation.NavOptions
+import io.github.jan.supabase.gotrue.SessionStatus
 
 class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
-    private lateinit var bottomNav: BottomNavigationView
+    private val mainScope = CoroutineScope(Dispatchers.Main)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,25 +23,15 @@ class MainActivity : AppCompatActivity() {
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
-        
-        bottomNav = findViewById(R.id.bottom_navigation)
-        bottomNav.setupWithNavController(navController)
 
-        setupNavigation()
+        findViewById<BottomNavigationView>(R.id.bottom_navigation)
+            .setupWithNavController(navController)
+
         observeAuthState()
     }
 
-    private fun setupNavigation() {
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            when (destination.id) {
-                R.id.welcomeFragment, R.id.signInFragment -> bottomNav.visibility = android.view.View.GONE
-                else -> bottomNav.visibility = android.view.View.VISIBLE
-            }
-        }
-    }
-
     private fun observeAuthState() {
-        CoroutineScope(Dispatchers.Main).launch {
+        mainScope.launch {
             LovableApp.supabase.gotrue.sessionStatus.collect { status ->
                 when (status) {
                     is SessionStatus.Authenticated -> {
