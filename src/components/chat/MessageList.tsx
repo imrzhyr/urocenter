@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Message } from "@/types/profile";
+import { Message, MessageType } from "@/types/profile";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { PanInfo } from "framer-motion";
 import { messageSound } from "@/utils/audioUtils";
@@ -111,13 +111,22 @@ export const MessageList = ({ messages, currentUserId, onReply }: MessageListPro
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  // Merge messages and calls into a single timeline
-  const timeline = [...messages, ...calls.map(call => ({
+  // Convert calls to message format
+  const callMessages: Message[] = calls.map(call => ({
     id: call.id,
-    type: 'call',
+    content: '',
     created_at: call.created_at,
+    updated_at: call.created_at,
+    user_id: call.caller_id,
+    is_from_doctor: false,
+    is_read: true,
+    status: 'seen',
+    type: 'call' as MessageType,
     call
-  }))].sort((a, b) => {
+  }));
+
+  // Merge messages and calls into a single timeline
+  const timeline = [...messages, ...callMessages].sort((a, b) => {
     const dateA = new Date(a.created_at);
     const dateB = new Date(b.created_at);
     return dateA.getTime() - dateB.getTime();
@@ -127,14 +136,14 @@ export const MessageList = ({ messages, currentUserId, onReply }: MessageListPro
     <ScrollArea className="h-full chat-background">
       <div className="flex flex-col space-y-2 py-4 px-2 sm:px-4 min-h-full w-full overflow-x-hidden">
         {timeline.map((item) => (
-          'type' in item && item.type === 'call' ? (
+          item.type === 'call' ? (
             <div key={item.id} className="flex items-center justify-center">
               <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/50 dark:bg-gray-800/50 backdrop-blur-lg text-sm">
-                {getCallIcon(item.call)}
+                {item.call && getCallIcon(item.call)}
                 <span className="text-gray-600 dark:text-gray-300">
-                  {format(new Date(item.call.created_at), 'MMM d, HH:mm')}
+                  {format(new Date(item.created_at), 'MMM d, HH:mm')}
                 </span>
-                {getCallDuration(item.call) && (
+                {item.call && getCallDuration(item.call) && (
                   <span className="text-gray-500 dark:text-gray-400 ml-2">
                     {getCallDuration(item.call)}
                   </span>
