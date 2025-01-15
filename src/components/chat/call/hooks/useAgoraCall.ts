@@ -139,7 +139,6 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
       
       if (isIOS) {
         // On iOS, we need to use the WebAudio API
-        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
         const audioElements = document.querySelectorAll('audio');
         
         // Get current state (assuming first audio element represents current state)
@@ -150,6 +149,10 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
         const newSinkId = isSpeakerActive ? 'default' : 'speaker';
         
         try {
+          // Force audio context creation to ensure audio routing works
+          const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+          
+          // Apply the new sink ID to all audio elements
           await Promise.all(
             Array.from(audioElements).map(audio => {
               const audioEl = audio as HTMLAudioElement;
@@ -159,6 +162,11 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
               return Promise.resolve();
             })
           );
+          
+          // If we successfully switched to default, ensure we release the audio context
+          if (newSinkId === 'default') {
+            await audioContext.close();
+          }
           
           return !isSpeakerActive; // Return true if speaker is now active
         } catch (err) {
