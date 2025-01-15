@@ -135,7 +135,6 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
   const toggleSpeaker = async () => {
     try {
       const audioDevices = await AgoraRTC.getPlaybackDevices();
-      const currentDevice = await AgoraRTC.getPlaybackDevice();
       
       // Find speaker device (usually contains 'speaker' in the name)
       const speakerDevice = audioDevices.find(device => 
@@ -147,6 +146,9 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
         device.label.toLowerCase().includes('default') || 
         device.label.toLowerCase().includes('earpiece')
       );
+
+      // Get current device
+      const currentDevice = audioDevices[0]; // Default to first device if none selected
 
       // If current device is speaker, switch to earpiece, otherwise switch to speaker
       const isSpeakerActive = currentDevice?.label.toLowerCase().includes('speaker');

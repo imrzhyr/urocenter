@@ -21,8 +21,8 @@ export const ActiveCallUI = () => {
     setIsMuted(muted);
   };
 
-  const handleToggleSpeaker = () => {
-    const speakerOn = toggleSpeaker();
+  const handleToggleSpeaker = async () => {
+    const speakerOn = await toggleSpeaker();
     setIsSpeakerOn(speakerOn);
   };
 
