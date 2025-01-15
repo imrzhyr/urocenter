@@ -50,6 +50,14 @@ android {
     kotlinOptions {
         jvmTarget = '17'
     }
+
+    // Prevent Gradle from eagerly configuring all variants
+    variantFilter { variant ->
+        def buildType = variant.buildType.name
+        if (buildType == 'debug') {
+            variant.ignore = false
+        }
+    }
 }
 
 dependencies {

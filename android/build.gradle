@@ -20,6 +20,7 @@ allprojects {
     }
 }
 
-task clean(type: Delete) {
+// Replace deprecated 'Delete' task type with 'Delete' from core
+tasks.register('clean', Delete) {
     delete rootProject.buildDir
 }
