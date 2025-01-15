@@ -15,9 +15,10 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
   const setupAgoraClient = async () => {
     try {
       // Fetch Agora credentials from Edge Function
-      const { data: { appId }, error } = await supabase.functions.invoke('get-agora-credentials');
+      const { data, error } = await supabase.functions.invoke('get-agora-credentials');
       
-      if (error || !appId) {
+      if (error || !data?.appId) {
+        console.error('Failed to get Agora credentials:', error || 'No App ID returned');
         throw new Error('Failed to get Agora credentials');
       }
 
@@ -26,7 +27,7 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
         mode: 'rtc', 
         codec: 'vp8'
       });
-      
+
       // Create and get microphone audio track
       localAudioTrack.current = await AgoraRTC.createMicrophoneAudioTrack();
       

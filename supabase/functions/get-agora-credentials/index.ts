@@ -18,10 +18,14 @@ serve(async (req) => {
       throw new Error('Agora App ID not configured')
     }
 
-    console.log('Retrieved Agora credentials successfully')
+    // Log successful retrieval but don't expose the actual appId in logs
+    console.log('Successfully retrieved Agora App ID')
     
     return new Response(
-      JSON.stringify({ appId }),
+      JSON.stringify({ 
+        appId,
+        success: true 
+      }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
@@ -30,7 +34,10 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error retrieving Agora credentials:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        success: false 
+      }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400,
