@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,6 +10,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Phone, PhoneOff } from "lucide-react";
+import { callSoundUtils } from '@/utils/callSoundUtils';
 
 interface CallNotificationProps {
   callerName: string;
@@ -24,6 +25,28 @@ export const CallNotification = ({
   onReject,
   open
 }: CallNotificationProps) => {
+  useEffect(() => {
+    if (open) {
+      // Start playing the call sound when the notification opens
+      callSoundUtils.startCallingSound();
+    }
+    
+    return () => {
+      // Stop the sound when the notification closes
+      callSoundUtils.stopCallingSound();
+    };
+  }, [open]);
+
+  const handleAccept = () => {
+    callSoundUtils.stopCallingSound();
+    onAccept();
+  };
+
+  const handleReject = () => {
+    callSoundUtils.stopCallingSound();
+    onReject();
+  };
+
   return (
     <AlertDialog open={open}>
       <AlertDialogContent className="sm:max-w-[425px]">
@@ -37,11 +60,11 @@ export const CallNotification = ({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onReject} className="flex items-center gap-2">
+          <AlertDialogCancel onClick={handleReject} className="flex items-center gap-2">
             <PhoneOff className="h-4 w-4" />
             Reject
           </AlertDialogCancel>
-          <AlertDialogAction onClick={onAccept} className="flex items-center gap-2 bg-green-500 hover:bg-green-600">
+          <AlertDialogAction onClick={handleAccept} className="flex items-center gap-2 bg-green-500 hover:bg-green-600">
             <Phone className="h-4 w-4" />
             Accept
           </AlertDialogAction>

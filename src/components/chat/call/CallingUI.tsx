@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Phone, PhoneOff } from "lucide-react";
 import { useCall } from './CallProvider';
+import { callSoundUtils } from '@/utils/callSoundUtils';
 
 interface CallingUIProps {
   recipientName: string;
@@ -9,6 +10,16 @@ interface CallingUIProps {
 
 export const CallingUI = ({ recipientName }: CallingUIProps) => {
   const { endCall } = useCall();
+
+  useEffect(() => {
+    // Start playing the calling sound when the component mounts
+    callSoundUtils.startCallingSound();
+    
+    // Stop the sound when the component unmounts
+    return () => {
+      callSoundUtils.stopCallingSound();
+    };
+  }, []);
 
   return (
     <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center text-white z-50">
