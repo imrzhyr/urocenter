@@ -71,10 +71,18 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       // Handle incoming remote stream
       peerConnection.current.ontrack = (event) => {
         console.log('Received remote track:', event.track.kind);
-        remoteStream.current = event.streams[0];
-        const audio = new Audio();
-        audio.srcObject = remoteStream.current;
-        audio.play().catch(console.error);
+        if (!remoteStream.current) {
+          remoteStream.current = new MediaStream();
+        }
+        remoteStream.current.addTrack(event.track);
+        
+        // Create and play audio element for remote stream
+        const audioElement = new Audio();
+        audioElement.srcObject = remoteStream.current;
+        audioElement.autoplay = true;
+        audioElement.play().catch(error => {
+          console.error('Error playing remote audio:', error);
+        });
       };
 
       // Handle connection state changes
@@ -82,7 +90,6 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
         console.log('Connection state:', peerConnection.current?.connectionState);
         if (peerConnection.current?.connectionState === 'connected') {
           console.log('Peers connected!');
-          // Clear the timeout when peers are connected
           if (callTimeoutRef.current) {
             clearTimeout(callTimeoutRef.current);
             callTimeoutRef.current = undefined;
@@ -93,6 +100,10 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       // Handle ICE connection state changes
       peerConnection.current.oniceconnectionstatechange = () => {
         console.log('ICE connection state:', peerConnection.current?.iceConnectionState);
+        if (peerConnection.current?.iceConnectionState === 'disconnected') {
+          console.log('ICE connection disconnected');
+          endCall();
+        }
       };
 
       // Handle ICE candidates
@@ -162,11 +173,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
         .select()
         .single();
 
-      if (error) {
-        console.error('Error initiating call:', error);
-        toast.error('Failed to initiate call');
-        return;
-      }
+      if (error) throw error;
 
       setCurrentCallId(call.id);
       setIsCalling(true);
@@ -175,7 +182,10 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       // Create and send offer
       if (peerConnection.current) {
         console.log('Creating offer...');
-        const offer = await peerConnection.current.createOffer();
+        const offer = await peerConnection.current.createOffer({
+          offerToReceiveAudio: true,
+          offerToReceiveVideo: false
+        });
         await peerConnection.current.setLocalDescription(offer);
 
         await supabase.from('call_signals').insert({
@@ -189,7 +199,6 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
 
       // Set up call timeout
       callTimeoutRef.current = setTimeout(async () => {
-        // Only trigger timeout if we're still in the calling state
         if (call.id && !isInCall) {
           await endCall();
           toast.error('Call was not answered');
@@ -375,7 +384,10 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
             if (signal.type === 'offer') {
               console.log('Setting remote description (offer)');
               await peerConnection.current.setRemoteDescription(new RTCSessionDescription(signal.data.sdp));
-              const answer = await peerConnection.current.createAnswer();
+              const answer = await peerConnection.current.createAnswer({
+                offerToReceiveAudio: true,
+                offerToReceiveVideo: false
+              });
               await peerConnection.current.setLocalDescription(answer);
 
               console.log('Sending answer');
@@ -402,6 +414,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
 
     return () => {
       supabase.removeChannel(channel);
+      supabase.removeChannel(signalChannel);
     };
   }, [profile?.id]);
 
