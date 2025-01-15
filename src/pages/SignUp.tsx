@@ -4,10 +4,12 @@ import { PhoneInput } from "@/components/PhoneInput";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { LanguageSelector } from "@/components/LanguageSelector";
+import { BackButton } from "@/components/BackButton";
 
 const SignUp = () => {
   const [phone, setPhone] = useState("");
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
 
   const handleSignUpSuccess = () => {
@@ -15,16 +17,15 @@ const SignUp = () => {
   };
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3 }}
-      className="flex-1 flex flex-col justify-center items-center p-4"
-    >
-      <Card className="w-full max-w-md mx-auto border-0 shadow-lg bg-white dark:bg-gray-800">
-        <CardHeader className="space-y-2 text-center pb-4">
-          <div className="mx-auto w-16 h-16 bg-primary rounded-2xl flex items-center justify-center shadow-lg">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-primary/5 via-white to-background dark:from-primary/10 dark:via-gray-900 dark:to-background">
+      <div className={`p-4 flex justify-between items-center relative z-10 ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
+        <BackButton />
+        <LanguageSelector />
+      </div>
+      
+      <div className="container max-w-md mx-auto my-auto px-4">
+        <div className="text-center mb-8">
+          <div className="mx-auto w-16 h-16 bg-primary rounded-2xl flex items-center justify-center shadow-lg mb-6">
             <motion.svg
               className="w-8 h-8 text-white"
               fill="none"
@@ -42,30 +43,41 @@ const SignUp = () => {
               />
             </motion.svg>
           </div>
-          <CardTitle className="text-2xl font-semibold text-primary">
+          <h1 className="text-2xl font-semibold text-primary">
             {t('create_account')}
-          </CardTitle>
-          <p className="text-muted-foreground text-sm">
+          </h1>
+          <p className="text-muted-foreground text-sm mt-2">
             {t('sign_up_description')}
           </p>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="rounded-lg"
-          >
-            <PhoneInput 
-              value={phone} 
-              onChange={setPhone} 
-              isSignUp={true} 
-              onSignUpSuccess={handleSignUpSuccess}
-            />
-          </motion.div>
-        </CardContent>
-      </Card>
-    </motion.div>
+        </div>
+
+        <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm dark:bg-gray-800/80">
+          <CardHeader className="space-y-1 pb-4">
+            <CardTitle className="text-xl text-center">
+              {t('enter_phone')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <PhoneInput 
+                value={phone} 
+                onChange={setPhone} 
+                isSignUp={true} 
+                onSignUpSuccess={handleSignUpSuccess}
+              />
+            </motion.div>
+          </CardContent>
+        </Card>
+      </div>
+      
+      <footer className="p-4 text-center text-sm text-muted-foreground mt-auto">
+        {t('all_rights_reserved')}
+      </footer>
+    </div>
   );
 };
 
