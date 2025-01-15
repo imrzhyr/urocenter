@@ -14,7 +14,7 @@ interface MessageContainerProps {
 }
 
 export const MessageContainer: React.FC<MessageContainerProps> = ({ 
-  messages,
+  messages = [], // Provide default empty array
   onSendMessage,
   onTyping,
   isLoading,
@@ -23,7 +23,10 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
 }) => {
   const [replyingTo, setReplyingTo] = useState<Message | null>(null);
   
-  const typingUsers = messages[messages.length - 1]?.typing_users || [];
+  // Safely access typing_users with null checks and default to empty array
+  const typingUsers = messages && messages.length > 0 ? 
+    messages[messages.length - 1]?.typing_users || [] : 
+    [];
 
   // Prevent pull to refresh and zooming
   useEffect(() => {
