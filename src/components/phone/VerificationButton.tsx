@@ -34,46 +34,63 @@ export const VerificationButton = ({ phone, password, onSuccess }: VerificationB
     try {
       const formattedPhone = `+964${phone}`;
       console.log("Attempting to create account with:", { formattedPhone });
-      
-      localStorage.setItem('userPhone', formattedPhone);
-      localStorage.setItem('userPassword', password);
 
-      const { data: existingProfile, error: fetchError } = await supabase
+      // First check if the phone number already exists in profiles
+      const { data: existingProfile } = await supabase
         .from('profiles')
         .select('*')
         .eq('phone', formattedPhone)
         .maybeSingle();
 
-      if (fetchError) {
-        console.error("Error checking existing profile:", fetchError);
-        throw fetchError;
-      }
-
       if (existingProfile) {
         toast.error(t('phone_already_exists'));
+        setIsLoading(false);
         return;
       }
 
-      const { data: newProfile, error: createError } = await supabase
+      // Create the authenticated user first
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        phone: formattedPhone,
+        password: password,
+        options: {
+          data: {
+            phone: formattedPhone,
+          }
+        }
+      });
+
+      if (authError) {
+        console.error("Auth error:", authError);
+        throw authError;
+      }
+
+      if (!authData.user) {
+        throw new Error("No user returned from auth signup");
+      }
+
+      // Now create the profile
+      const { error: profileError } = await supabase
         .from('profiles')
         .insert([
           {
+            id: authData.user.id,
             phone: formattedPhone,
             password: password,
             role: 'patient'
           }
-        ])
-        .select()
-        .single();
+        ]);
 
-      if (createError) {
-        console.error("Error creating profile:", createError);
-        throw createError;
+      if (profileError) {
+        console.error("Profile creation error:", profileError);
+        // If profile creation fails, we should clean up the auth user
+        await supabase.auth.signOut();
+        throw profileError;
       }
 
-      console.log("Successfully created profile:", newProfile);
+      console.log("Successfully created auth user and profile");
+      localStorage.setItem('userPhone', formattedPhone);
       toast.success(t('signup_success'));
-      
+
       if (onSuccess) {
         onSuccess();
       } else {
