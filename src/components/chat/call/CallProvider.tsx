@@ -47,7 +47,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
                 .from('profiles')
                 .select('full_name')
                 .eq('id', call.caller_id)
-                .single();
+                .maybeSingle();
 
               toast(`Incoming call from ${caller?.full_name || 'Unknown'}`, {
                 action: {
@@ -220,14 +220,6 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
         .eq('id', currentCallId);
 
       if (error) throw error;
-
-      await supabase.from('call_signals').insert({
-        call_id: currentCallId,
-        from_user: profile.id,
-        to_user: '', // The other participant's ID
-        type: 'leave',
-        data: {},
-      });
 
       // Cleanup
       if (peerConnection.current) {
