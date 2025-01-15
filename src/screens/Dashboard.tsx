@@ -1,13 +1,17 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useProfile } from '@/hooks/useProfile';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { MessageSquare, Settings, User } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { RootStackParamList } from '@/types/navigation';
+
+type DashboardScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 export default function Dashboard() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<DashboardScreenNavigationProp>();
   const { profile } = useProfile();
   const { t } = useLanguage();
 
