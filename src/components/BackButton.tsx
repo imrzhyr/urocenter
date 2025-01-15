@@ -21,15 +21,8 @@ export const BackButton = ({ onClick, customRoute }: BackButtonProps) => {
       onClick();
     } else if (customRoute) {
       navigate(customRoute);
-    } else if (location.pathname === '/signup') {
-      navigate('/'); // Navigate to welcome page from signup
     } else {
-      // Navigate based on user role
-      if (profile?.role === 'admin') {
-        navigate('/admin');
-      } else {
-        navigate('/dashboard');
-      }
+      navigate(-1); // This will take the user back to their previous location
     }
   };
 
