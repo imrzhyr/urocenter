@@ -1,14 +1,8 @@
 <resources>
-    <string name="app_name">UroCenter</string>
+    <string name="app_name">Lovable</string>
+    <string name="welcome">Welcome</string>
+    <string name="welcome_subtitle">Your trusted healthcare companion</string>
+    <string name="sign_in">Sign In</string>
     <string name="dashboard">Dashboard</string>
     <string name="chat">Chat</string>
-    <string name="messages">Messages</string>
-    <string name="chat_with_doctor">Chat with your doctor</string>
-    <string name="medical_reports">Medical Reports</string>
-    <string name="view_medical_reports">View your medical reports</string>
-    <string name="type_message">Type a message...</string>
-    <string name="send">Send</string>
-    <string name="welcome">Welcome</string>
-    <string name="welcome_subtitle">Start your healthcare journey with us</string>
-    <string name="sign_in">Sign In</string>
 </resources>
