@@ -9,6 +9,103 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      call_signals: {
+        Row: {
+          call_id: string
+          created_at: string | null
+          data: Json
+          from_user: string
+          id: string
+          to_user: string
+          type: Database["public"]["Enums"]["signal_type"]
+        }
+        Insert: {
+          call_id: string
+          created_at?: string | null
+          data: Json
+          from_user: string
+          id?: string
+          to_user: string
+          type: Database["public"]["Enums"]["signal_type"]
+        }
+        Update: {
+          call_id?: string
+          created_at?: string | null
+          data?: Json
+          from_user?: string
+          id?: string
+          to_user?: string
+          type?: Database["public"]["Enums"]["signal_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "call_signals_call_id_fkey"
+            columns: ["call_id"]
+            isOneToOne: false
+            referencedRelation: "calls"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "call_signals_from_user_fkey"
+            columns: ["from_user"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "call_signals_to_user_fkey"
+            columns: ["to_user"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calls: {
+        Row: {
+          caller_id: string
+          created_at: string | null
+          ended_at: string | null
+          id: string
+          receiver_id: string
+          started_at: string | null
+          status: Database["public"]["Enums"]["call_status"]
+        }
+        Insert: {
+          caller_id: string
+          created_at?: string | null
+          ended_at?: string | null
+          id?: string
+          receiver_id: string
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["call_status"]
+        }
+        Update: {
+          caller_id?: string
+          created_at?: string | null
+          ended_at?: string | null
+          id?: string
+          receiver_id?: string
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["call_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calls_caller_id_fkey"
+            columns: ["caller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calls_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       medical_reports: {
         Row: {
           created_at: string
@@ -191,6 +288,8 @@ export type Database = {
       }
     }
     Enums: {
+      call_status: "pending" | "active" | "ended" | "missed" | "rejected"
+      signal_type: "offer" | "answer" | "candidate" | "leave"
       user_role: "admin" | "patient"
     }
     CompositeTypes: {

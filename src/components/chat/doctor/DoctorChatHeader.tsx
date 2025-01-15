@@ -1,11 +1,12 @@
 import { BackButton } from "@/components/BackButton";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useProfile } from "@/hooks/useProfile";
-import { FileText, PhoneCall } from "lucide-react";
+import { FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ViewReportsDialog } from "@/components/medical-reports/ViewReportsDialog";
 import { useState } from "react";
 import { toast } from "sonner";
+import { CallButton } from "../call/CallButton";
 
 interface DoctorChatHeaderProps {
   patientName: string;
@@ -25,10 +26,6 @@ export const DoctorChatHeader = ({
   const [showReports, setShowReports] = useState(false);
 
   if (!profile?.id) return null;
-
-  const handleCallClick = () => {
-    toast.info('Calling feature is currently unavailable');
-  };
 
   return (
     <>
@@ -51,14 +48,7 @@ export const DoctorChatHeader = ({
           >
             <FileText className="h-4 w-4" />
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-white hover:bg-primary-foreground/10 h-8 w-8"
-            onClick={handleCallClick}
-          >
-            <PhoneCall className="h-4 w-4" />
-          </Button>
+          <CallButton recipientId={patientId} recipientName={patientName} />
         </div>
       </div>
 
