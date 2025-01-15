@@ -1,45 +1,27 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { formatMedicalNumber } from '@/utils/numberFormatting';
-import { Language } from '@/types/language';
+import { useLanguage } from "@/contexts/LanguageContext";
+import { formatMedicalNumber } from "@/utils/numberFormatting";
 
 interface MedicalMeasurementProps {
   value: number;
   unit: string;
   label: string;
-  style?: object;
+  className?: string;
 }
 
 export const MedicalMeasurement = ({
   value,
   unit,
   label,
-  style = {}
+  className = ""
 }: MedicalMeasurementProps) => {
   const { t, language } = useLanguage();
 
   return (
-    <View style={[styles.container, style]}>
-      <Text style={styles.label}>{t(label)}</Text>
-      <Text style={styles.value}>
-        {formatMedicalNumber(value, t(unit), language as Language)}
-      </Text>
-    </View>
+    <div className={`flex flex-col space-y-1 ${className}`}>
+      <span className="text-sm text-gray-500">{t(label)}</span>
+      <span className="text-lg font-medium">
+        {formatMedicalNumber(value, t(unit), language)}
+      </span>
+    </div>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    marginVertical: 4,
-  },
-  label: {
-    fontSize: 14,
-    color: '#6b7280',
-    marginBottom: 4,
-  },
-  value: {
-    fontSize: 18,
-    fontWeight: '500',
-  },
-});
