@@ -22,14 +22,35 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
         throw new Error('Failed to get Agora credentials');
       }
 
-      // Initialize Agora client with basic configuration
+      // Initialize Agora client
       agoraClient.current = AgoraRTC.createClient({ 
-        mode: 'rtc', 
+        mode: 'rtc',
         codec: 'vp8'
       });
 
-      // Create and get microphone audio track
-      localAudioTrack.current = await AgoraRTC.createMicrophoneAudioTrack();
+      // Set up event handlers
+      agoraClient.current.on('user-published', async (user: IAgoraRTCRemoteUser, mediaType: 'audio' | 'video') => {
+        await agoraClient.current?.subscribe(user, mediaType);
+        console.log('Subscribe success');
+      });
+
+      agoraClient.current.on('user-unpublished', (user: IAgoraRTCRemoteUser) => {
+        console.log('Remote user unpublished');
+      });
+
+      agoraClient.current.on('connection-state-change', (curState, prevState) => {
+        console.log('Connection state changed:', prevState, '->', curState);
+      });
+
+      // Create and get microphone audio track with proper error handling
+      try {
+        localAudioTrack.current = await AgoraRTC.createMicrophoneAudioTrack();
+        console.log('Microphone track created successfully');
+      } catch (err) {
+        console.error('Error creating microphone track:', err);
+        toast.error('Failed to access microphone');
+        throw new Error('Failed to access microphone');
+      }
       
       return true;
     } catch (error) {
@@ -55,9 +76,10 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
         throw new Error('Failed to generate token');
       }
 
-      // Join the channel
+      // Join the channel with proper error handling
       await agoraClient.current.join(token, channelName, null);
       await agoraClient.current.publish(localAudioTrack.current);
+      console.log('Successfully joined channel:', channelName);
       
       return true;
     } catch (error) {
@@ -76,6 +98,7 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
         localAudioTrack.current.close();
       }
       await agoraClient.current.leave();
+      console.log('Left channel successfully');
     } catch (error) {
       console.error('Error leaving channel:', error);
     }
@@ -83,13 +106,9 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
 
   const toggleMute = () => {
     if (localAudioTrack.current) {
-      if (localAudioTrack.current.enabled) {
-        localAudioTrack.current.setEnabled(false);
-        return true;
-      } else {
-        localAudioTrack.current.setEnabled(true);
-        return false;
-      }
+      const newState = !localAudioTrack.current.enabled;
+      localAudioTrack.current.setEnabled(newState);
+      return !newState; // Return true if muted, false if unmuted
     }
     return false;
   };
