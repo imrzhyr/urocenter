@@ -71,6 +71,34 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  // Subscribe to call status changes
+  React.useEffect(() => {
+    if (!currentCallId || !profile?.id) return;
+
+    const channel = supabase
+      .channel(`call_status_${currentCallId}`)
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'calls',
+        filter: `id=eq.${currentCallId}`,
+      }, async (payload) => {
+        const newStatus = payload.new.status;
+        if (newStatus === 'active' && isCalling) {
+          // Update UI for caller when call is accepted
+          setIsCalling(false);
+          setIsInCall(true);
+          startDurationTimer();
+          toast.success('Call connected');
+        }
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [currentCallId, profile?.id, isCalling]);
+
   const acceptCall = async (callId: string) => {
     if (!profile?.id) return;
 
