@@ -145,13 +145,16 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
         const firstAudio = audioElements[0] as HTMLAudioElement;
         const isSpeakerActive = firstAudio?.sinkId === 'speaker';
         
-        // Toggle between speaker and default
-        const newSinkId = isSpeakerActive ? 'default' : 'speaker';
+        // Toggle between speaker and default (earpiece)
+        const newSinkId = isSpeakerActive ? '' : 'speaker';
         
         try {
           // Only create audio context when switching to speaker
-          if (newSinkId === 'speaker' && !audioContext.current) {
-            audioContext.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+          if (newSinkId === 'speaker') {
+            if (!audioContext.current) {
+              audioContext.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+              await audioContext.current.resume();
+            }
           }
           
           // Apply the new sink ID to all audio elements
@@ -165,10 +168,12 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
             })
           );
           
-          // If switching back to default, close the audio context
-          if (newSinkId === 'default' && audioContext.current) {
-            await audioContext.current.close();
-            audioContext.current = null;
+          // If switching back to earpiece, close the audio context
+          if (newSinkId === '') {
+            if (audioContext.current) {
+              await audioContext.current.close();
+              audioContext.current = null;
+            }
           }
           
           return !isSpeakerActive; // Return true if speaker is now active
