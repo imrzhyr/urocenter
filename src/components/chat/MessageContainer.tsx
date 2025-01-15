@@ -27,39 +27,22 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
   const typingUsers = messages[messages.length - 1]?.typing_users || [];
 
   return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.2 }}
-      className="flex flex-col h-[100dvh] bg-white dark:bg-[#1A1F2C] relative"
-    >      
+    <div className="flex flex-col h-[100dvh] bg-white dark:bg-[#1A1F2C] relative overflow-hidden">
       <div className="fixed top-0 left-0 right-0 z-50">
         {header}
       </div>
 
-      <motion.div 
-        initial={{ y: 10, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.2 }}
-        className="flex-1 overflow-hidden flex flex-col mt-[64px] mb-[80px]"
-      >
-        <div className="flex-1 overflow-y-auto">
-          <MessageList
-            messages={messages}
-            currentUserId={userId}
-            onReply={setReplyingTo}
-            replyingTo={replyingTo}
-          />
-          <TypingIndicator typingUsers={typingUsers} />
-        </div>
-      </motion.div>
+      <div className="flex-1 overflow-y-auto mt-[48px] mb-[80px]">
+        <MessageList
+          messages={messages}
+          currentUserId={userId}
+          onReply={setReplyingTo}
+          replyingTo={replyingTo}
+        />
+        <TypingIndicator typingUsers={typingUsers} />
+      </div>
 
-      <motion.div 
-        initial={{ y: 10, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.2 }}
-        className="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-[#1A1F2C]/80 backdrop-blur-lg border-t border-gray-200 dark:border-gray-700/50 z-50"
-      >
+      <div className="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-[#1A1F2C]/80 backdrop-blur-lg border-t border-gray-200 dark:border-gray-700/50 z-50">
         <MessageInput 
           onSendMessage={onSendMessage}
           isLoading={isLoading}
@@ -67,7 +50,7 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
           onCancelReply={() => setReplyingTo(null)}
           onTyping={onTyping}
         />
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 };
