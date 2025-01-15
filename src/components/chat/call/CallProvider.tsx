@@ -217,6 +217,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
 
       setCurrentCallId(null);
       setIsInCall(false);
+      setIsCalling(false);
       setCallDuration(0);
       toast.info('Call ended');
     } catch (error) {
@@ -236,22 +237,25 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
           event: '*',
           schema: 'public',
           table: 'calls',
-          filter: `receiver_id=eq.${profile.id}`,
         },
         async (payload) => {
-          if (payload.eventType === 'INSERT') {
-            const call = payload.new;
-            if (call.status === 'pending') {
-              const { data: caller } = await supabase
-                .from('profiles')
-                .select('full_name')
-                .eq('id', call.caller_id)
-                .maybeSingle();
+          if (payload.eventType === 'INSERT' && payload.new.receiver_id === profile.id) {
+            const { data: caller } = await supabase
+              .from('profiles')
+              .select('full_name')
+              .eq('id', payload.new.caller_id)
+              .maybeSingle();
 
-              setIncomingCall({
-                id: call.id,
-                callerName: caller?.full_name || 'Unknown'
-              });
+            setIncomingCall({
+              id: payload.new.id,
+              callerName: caller?.full_name || 'Unknown'
+            });
+          } else if (payload.eventType === 'UPDATE' && payload.new.status === 'active') {
+            // When call is accepted, start the timer for both parties
+            if (payload.new.caller_id === profile.id || payload.new.receiver_id === profile.id) {
+              setIsInCall(true);
+              setIsCalling(false);
+              startDurationTimer();
             }
           }
         }
