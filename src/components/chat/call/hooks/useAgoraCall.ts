@@ -17,10 +17,17 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
       // Fetch Agora credentials from Edge Function
       const { data, error } = await supabase.functions.invoke('get-agora-credentials');
       
-      if (error || !data?.appId) {
-        console.error('Failed to get Agora credentials:', error || 'No App ID returned');
+      if (error) {
+        console.error('Failed to get Agora credentials:', error);
         throw new Error('Failed to get Agora credentials');
       }
+
+      if (!data?.appId) {
+        console.error('No Agora App ID returned');
+        throw new Error('Agora App ID not configured');
+      }
+
+      console.log('Successfully retrieved Agora credentials');
 
       // Initialize Agora client
       agoraClient.current = AgoraRTC.createClient({ 
@@ -31,6 +38,9 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
       // Set up event handlers
       agoraClient.current.on('user-published', async (user: IAgoraRTCRemoteUser, mediaType: 'audio' | 'video') => {
         await agoraClient.current?.subscribe(user, mediaType);
+        if (mediaType === 'audio') {
+          user.audioTrack?.play();
+        }
         console.log('Subscribe success');
       });
 
@@ -62,22 +72,31 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
 
   const joinChannel = async (channelName: string) => {
     if (!agoraClient.current || !localAudioTrack.current) {
+      console.error('Call setup incomplete');
       toast.error('Call setup incomplete');
       return false;
     }
 
     try {
       // Get token from Edge Function
-      const { data: { token }, error } = await supabase.functions.invoke('generate-agora-token', {
+      const { data, error } = await supabase.functions.invoke('generate-agora-token', {
         body: { channelName }
       });
 
-      if (error || !token) {
+      if (error || !data?.token) {
+        console.error('Failed to generate token:', error);
         throw new Error('Failed to generate token');
       }
 
+      const { token, appId } = data;
+
+      if (!appId) {
+        console.error('No Agora App ID provided');
+        throw new Error('Agora App ID not configured');
+      }
+
       // Join the channel with proper error handling
-      await agoraClient.current.join(token, channelName, null);
+      await agoraClient.current.join(appId, channelName, token, null);
       await agoraClient.current.publish(localAudioTrack.current);
       console.log('Successfully joined channel:', channelName);
       
