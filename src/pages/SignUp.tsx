@@ -23,7 +23,7 @@ const SignUp = () => {
       className="flex-1 flex flex-col justify-center items-center p-4"
     >
       <Card className="w-full max-w-md mx-auto border-0 shadow-lg bg-white dark:bg-gray-800">
-        <CardHeader>
+        <CardHeader className="space-y-2 text-center pb-4">
           <div className="mx-auto w-16 h-16 bg-primary rounded-2xl flex items-center justify-center shadow-lg">
             <motion.svg
               className="w-8 h-8 text-white"
@@ -49,7 +49,7 @@ const SignUp = () => {
             {t('sign_up_description')}
           </p>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-0">
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
