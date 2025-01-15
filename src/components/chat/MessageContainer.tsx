@@ -32,18 +32,14 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
       animate={{ opacity: 1 }}
       transition={{ duration: 0.2 }}
       className="flex flex-col h-[100dvh] bg-white dark:bg-[#1A1F2C] relative"
-    >
-      <div className="absolute top-0 left-0 right-0 z-10 bg-[#0066CC] text-white backdrop-blur-lg bg-opacity-90">
-        {header}
-      </div>
-      
+    >      
       <motion.div 
         initial={{ y: 10, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.2 }}
-        className="flex-1 overflow-hidden flex flex-col pt-[48px] pb-[64px]"
+        className="flex-1 overflow-hidden flex flex-col"
       >
-        <div className="flex-1 overflow-y-auto h-full">
+        <div className="flex-1 overflow-y-auto">
           <MessageList
             messages={messages}
             currentUserId={userId}
