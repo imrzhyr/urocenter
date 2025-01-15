@@ -9,6 +9,8 @@ import { useAgoraCall } from './hooks/useAgoraCall';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Portal } from '@/components/ui/portal';
+import { callSoundUtils } from '@/utils/callSoundUtils';
+import { verifyProfile } from '@/utils/profileUtils';
 
 interface CallContextType {
   isInCall: boolean;
