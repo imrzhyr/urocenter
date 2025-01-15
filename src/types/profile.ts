@@ -1,3 +1,5 @@
+export type MessageType = 'message' | 'call';
+
 export interface Message {
   id: string;
   content: string;
@@ -40,4 +42,17 @@ export interface Message {
   };
 }
 
-export type MessageType = 'message' | 'call';
+export interface Profile {
+  id: string;
+  full_name: string;
+  gender: string;
+  age: string;
+  complaint: string;
+  phone: string;
+  role: "admin" | "patient";
+  auth_method?: string;
+  last_login?: string;
+  password?: string;
+  created_at?: string;
+  updated_at?: string;
+}
