@@ -90,6 +90,17 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
           setIsInCall(true);
           startDurationTimer();
           toast.success('Call connected');
+        } else if (newStatus === 'ended') {
+          // Update UI for both parties when call ends
+          setIsCallEnded(true);
+          stopDurationTimer();
+          setTimeout(() => {
+            clearCallTimeout();
+            setCurrentCallId(null);
+            setIsInCall(false);
+            setIsCalling(false);
+            setIsCallEnded(false);
+          }, 3000);
         }
       })
       .subscribe();
@@ -160,7 +171,6 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
           ? callData.receiver_id 
           : callData.caller_id;
 
-        // Verify the other participant's profile exists
         const profileExists = await verifyProfile(otherParticipantId);
         
         if (!profileExists) {
@@ -184,14 +194,6 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
           toast.error('Failed to send call end signal');
         }
       }
-
-      setTimeout(() => {
-        clearCallTimeout();
-        setCurrentCallId(null);
-        setIsInCall(false);
-        setIsCalling(false);
-        setIsCallEnded(false);
-      }, 3000);
     } catch (error) {
       console.error('Error ending call:', error);
       toast.error('Failed to end call');
