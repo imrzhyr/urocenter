@@ -155,7 +155,7 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
       const targetDevice = isSpeakerActive ? earpieceDevice : speakerDevice;
 
       if (targetDevice) {
-        await AgoraRTC.setPlaybackDevice(targetDevice.deviceId);
+        await AgoraRTC.setAudioPlaybackDevice(targetDevice.deviceId);
         return !isSpeakerActive; // Return true if speaker is now active, false if earpiece
       }
 
