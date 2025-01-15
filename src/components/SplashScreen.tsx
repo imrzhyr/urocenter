@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { View, Image, Animated } from 'react-native';
-import { styled } from 'nativewind';
+import { styled } from 'nativewind/styled';
 
 const StyledView = styled(View);
 const StyledImage = styled(Image);
