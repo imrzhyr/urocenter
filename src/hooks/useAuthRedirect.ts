@@ -32,16 +32,5 @@ export const useAuthRedirect = () => {
     };
 
     checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_OUT') {
-        localStorage.removeItem('userPhone');
-        navigate("/signin", { replace: true });
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
   }, [navigate]);
 };
