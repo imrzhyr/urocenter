@@ -16,7 +16,8 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.lovable.app"
+      "bundleIdentifier": "com.lovable.app",
+      "icon": "./assets/icon.png"
     },
     "android": {
       "adaptiveIcon": {
