@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useProfile } from '@/hooks/useProfile';
 import { toast } from 'sonner';
 import { CallNotification } from './CallNotification';
+import { ActiveCallUI } from './ActiveCallUI';
 
 interface CallContextType {
   isInCall: boolean;
@@ -266,6 +267,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
           open={!!incomingCall}
         />
       )}
+      {isInCall && <ActiveCallUI />}
     </CallContext.Provider>
   );
 };
