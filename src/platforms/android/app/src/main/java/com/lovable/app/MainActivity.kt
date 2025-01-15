@@ -6,6 +6,10 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import io.github.jan.supabase.gotrue.SessionStatus
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
@@ -19,6 +23,7 @@ class MainActivity : AppCompatActivity() {
         navController = navHostFragment.navController
 
         setupNavigation()
+        checkAuthState()
     }
 
     private fun setupNavigation() {
@@ -27,6 +32,23 @@ class MainActivity : AppCompatActivity() {
         navController.addOnDestinationChangedListener { _, destination, _ ->
             // Handle navigation animations
             overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+        }
+    }
+
+    private fun checkAuthState() {
+        CoroutineScope(Dispatchers.Main).launch {
+            LovableApp.supabase.gotrue.sessionStatus.collect { status ->
+                when (status) {
+                    is SessionStatus.Authenticated -> {
+                        // User is authenticated, navigate to dashboard
+                        navController.navigate(R.id.dashboardFragment)
+                    }
+                    else -> {
+                        // User is not authenticated, stay on welcome screen
+                        navController.navigate(R.id.welcomeFragment)
+                    }
+                }
+            }
         }
     }
 }
