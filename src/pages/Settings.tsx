@@ -25,9 +25,9 @@ const Settings = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className={`min-h-screen bg-background ${isRTL ? 'rtl' : 'ltr'}`}>
       <div className="container max-w-4xl mx-auto p-4">
-        <div className={`flex items-center mb-6 w-full ${isRTL ? 'justify-end' : 'justify-start'}`}>
+        <div className="flex items-center mb-6 w-full justify-end">
           <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : 'flex-row'}`}>
             {isRTL ? (
               <>
@@ -47,7 +47,7 @@ const Settings = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="space-y-6"
+          className={`space-y-6 ${isRTL ? 'text-right' : 'text-left'}`}
         >
           {/* Appearance Section */}
           <div className="bg-card rounded-lg p-6 shadow-sm">
