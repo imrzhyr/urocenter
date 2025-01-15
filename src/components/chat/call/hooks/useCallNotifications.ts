@@ -4,7 +4,6 @@ import { toast } from 'sonner';
 
 interface IncomingCall {
   id: string;
-  callerId: string;
   callerName: string;
 }
 
@@ -14,7 +13,37 @@ export const useCallNotifications = (profileId: string | null) => {
   useEffect(() => {
     if (!profileId) return;
 
-    const channel = supabase
+    // Listen for new calls where user is the receiver
+    const callsChannel = supabase
+      .channel('calls')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'calls',
+          filter: `receiver_id=eq.${profileId}`,
+        },
+        async (payload) => {
+          // Get caller's name
+          const { data: caller } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', payload.new.caller_id)
+            .single();
+
+          if (caller) {
+            setIncomingCall({
+              id: payload.new.id,
+              callerName: caller.full_name || 'Unknown caller'
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    // Listen for call signals (e.g., call end)
+    const signalsChannel = supabase
       .channel('call-signals')
       .on(
         'postgres_changes',
@@ -26,7 +55,6 @@ export const useCallNotifications = (profileId: string | null) => {
         },
         (payload) => {
           if (payload.new.type === 'end_call') {
-            // Handle call end signal
             setIncomingCall(null);
             toast.info('Call ended');
           }
@@ -35,7 +63,8 @@ export const useCallNotifications = (profileId: string | null) => {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(callsChannel);
+      supabase.removeChannel(signalsChannel);
     };
   }, [profileId]);
 
