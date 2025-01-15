@@ -41,12 +41,14 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
 
   const setupWebRTC = async () => {
     try {
+      console.log('Setting up WebRTC...');
       const stream = await navigator.mediaDevices.getUserMedia({ 
         audio: true,
         video: false
       });
       
       localStream.current = stream;
+      console.log('Got local stream:', stream.getTracks());
 
       const configuration: RTCConfiguration = {
         iceServers: [
@@ -56,30 +58,46 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       };
 
       peerConnection.current = new RTCPeerConnection(configuration);
+      console.log('Created peer connection');
 
       // Add local stream tracks to peer connection
       stream.getTracks().forEach(track => {
         if (peerConnection.current && localStream.current) {
+          console.log('Adding track to peer connection:', track.kind);
           peerConnection.current.addTrack(track, localStream.current);
         }
       });
 
       // Handle incoming remote stream
       peerConnection.current.ontrack = (event) => {
-        console.log('Received remote track');
+        console.log('Received remote track:', event.track.kind);
         remoteStream.current = event.streams[0];
         const audio = new Audio();
         audio.srcObject = remoteStream.current;
         audio.play().catch(console.error);
       };
 
+      // Handle connection state changes
+      peerConnection.current.onconnectionstatechange = () => {
+        console.log('Connection state:', peerConnection.current?.connectionState);
+        if (peerConnection.current?.connectionState === 'connected') {
+          console.log('Peers connected!');
+        }
+      };
+
+      // Handle ICE connection state changes
+      peerConnection.current.oniceconnectionstatechange = () => {
+        console.log('ICE connection state:', peerConnection.current?.iceConnectionState);
+      };
+
       // Handle ICE candidates
       peerConnection.current.onicecandidate = async (event) => {
         if (event.candidate && currentCallId && profile?.id) {
+          console.log('Sending ICE candidate:', event.candidate);
           await supabase.from('call_signals').insert({
             call_id: currentCallId,
             from_user: profile.id,
-            to_user: event.candidate ? profile.id : null,
+            to_user: profile.id,
             type: 'ice-candidate',
             data: { candidate: event.candidate }
           });
@@ -125,6 +143,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     try {
+      console.log('Initiating call to:', receiverId);
       const success = await setupWebRTC();
       if (!success) return;
 
@@ -150,6 +169,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
 
       // Create and send offer
       if (peerConnection.current) {
+        console.log('Creating offer...');
         const offer = await peerConnection.current.createOffer();
         await peerConnection.current.setLocalDescription(offer);
 
@@ -163,7 +183,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       callTimeoutRef.current = setTimeout(async () => {
-        if (call.id) {
+        if (call.id && !isInCall) {
           await endCall();
           toast.error('Call was not answered');
         }
@@ -179,10 +199,17 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     if (!profile?.id) return;
 
     try {
+      console.log('Accepting call:', callId);
       const success = await setupWebRTC();
       if (!success) {
         toast.error('Failed to initialize call');
         return;
+      }
+
+      // Clear any existing timeout
+      if (callTimeoutRef.current) {
+        clearTimeout(callTimeoutRef.current);
+        callTimeoutRef.current = undefined;
       }
 
       setCurrentCallId(callId);
@@ -284,6 +311,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
           table: 'calls',
         },
         async (payload) => {
+          console.log('Call change event:', payload);
           if (payload.eventType === 'INSERT' && payload.new.receiver_id === profile.id) {
             const { data: caller } = await supabase
               .from('profiles')
@@ -331,11 +359,14 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
           if (!peerConnection.current) return;
 
           try {
+            console.log('Received signal:', signal.type, signal.data);
             if (signal.type === 'offer') {
+              console.log('Setting remote description (offer)');
               await peerConnection.current.setRemoteDescription(new RTCSessionDescription(signal.data.sdp));
               const answer = await peerConnection.current.createAnswer();
               await peerConnection.current.setLocalDescription(answer);
 
+              console.log('Sending answer');
               await supabase.from('call_signals').insert({
                 call_id: signal.call_id,
                 from_user: profile.id,
@@ -344,8 +375,10 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
                 data: { sdp: answer }
               });
             } else if (signal.type === 'answer') {
+              console.log('Setting remote description (answer)');
               await peerConnection.current.setRemoteDescription(new RTCSessionDescription(signal.data.sdp));
             } else if (signal.type === 'ice-candidate' && signal.data.candidate) {
+              console.log('Adding ICE candidate');
               await peerConnection.current.addIceCandidate(new RTCIceCandidate(signal.data.candidate));
             }
           } catch (error) {
