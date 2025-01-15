@@ -9,6 +9,7 @@ interface CallContextType {
   acceptCall: (callId: string) => Promise<void>;
   rejectCall: (callId: string) => Promise<void>;
   endCall: () => Promise<void>;
+  initiateCall: (receiverId: string) => Promise<void>;
 }
 
 const CallContext = createContext<CallContextType | null>(null);
@@ -26,49 +27,38 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
   const peerConnection = useRef<RTCPeerConnection | null>(null);
   const localStream = useRef<MediaStream | null>(null);
 
-  useEffect(() => {
-    if (!profile?.id) return;
+  const initiateCall = async (receiverId: string) => {
+    if (!profile?.id) {
+      toast.error('You must be logged in to make calls');
+      return;
+    }
 
-    const channel = supabase
-      .channel('calls')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'calls',
-          filter: `receiver_id=eq.${profile.id}`,
-        },
-        async (payload) => {
-          if (payload.eventType === 'INSERT') {
-            const call = payload.new;
-            if (call.status === 'pending') {
-              const { data: caller } = await supabase
-                .from('profiles')
-                .select('full_name')
-                .eq('id', call.caller_id)
-                .maybeSingle();
+    try {
+      const { data: call, error } = await supabase
+        .from('calls')
+        .insert({
+          caller_id: profile.id,
+          receiver_id: receiverId,
+          status: 'pending'
+        })
+        .select()
+        .single();
 
-              toast(`Incoming call from ${caller?.full_name || 'Unknown'}`, {
-                action: {
-                  label: 'Accept',
-                  onClick: () => acceptCall(call.id),
-                },
-                cancel: {
-                  label: 'Reject',
-                  onClick: () => rejectCall(call.id),
-                },
-              });
-            }
-          }
-        }
-      )
-      .subscribe();
+      if (error) {
+        console.error('Error initiating call:', error);
+        toast.error('Failed to initiate call');
+        return;
+      }
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [profile?.id]);
+      setCurrentCallId(call.id);
+      setIsInCall(true);
+      await initializePeerConnection();
+
+    } catch (error) {
+      console.error('Error in initiateCall:', error);
+      toast.error('Failed to start call');
+    }
+  };
 
   useEffect(() => {
     if (!profile?.id || !currentCallId) return;
@@ -239,8 +229,61 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  useEffect(() => {
+    if (!profile?.id) return;
+
+    const channel = supabase
+      .channel('calls')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'calls',
+          filter: `receiver_id=eq.${profile.id}`,
+        },
+        async (payload) => {
+          if (payload.eventType === 'INSERT') {
+            const call = payload.new;
+            if (call.status === 'pending') {
+              const { data: caller } = await supabase
+                .from('profiles')
+                .select('full_name')
+                .eq('id', call.caller_id)
+                .maybeSingle();
+
+              toast(`Incoming call from ${caller?.full_name || 'Unknown'}`, {
+                action: {
+                  label: 'Accept',
+                  onClick: () => acceptCall(call.id),
+                },
+                cancel: {
+                  label: 'Reject',
+                  onClick: () => rejectCall(call.id),
+                },
+              });
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [profile?.id]);
+
   return (
-    <CallContext.Provider value={{ isInCall, currentCallId, acceptCall, rejectCall, endCall }}>
+    <CallContext.Provider 
+      value={{ 
+        isInCall, 
+        currentCallId, 
+        acceptCall, 
+        rejectCall, 
+        endCall,
+        initiateCall 
+      }}
+    >
       {children}
     </CallContext.Provider>
   );
