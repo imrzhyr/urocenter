@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useEffect, useRef } from 'react';
 import { useProfile } from '@/hooks/useProfile';
 import { CallNotification } from './CallNotification';
 import { ActiveCallUI } from './ActiveCallUI';
@@ -27,7 +27,7 @@ const CallContext = createContext<CallContextType | null>(null);
 
 export const CallProvider = ({ children }: { children: React.ReactNode }) => {
   const { profile } = useProfile();
-  const [recipientName, setRecipientName] = React.useState<string>('');
+  const recipientNameRef = useRef<string>('');
 
   const {
     isInCall,
@@ -73,8 +73,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // Subscribe to call status changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (!currentCallId || !profile?.id) return;
 
     const channel = supabase
@@ -87,13 +86,11 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       }, async (payload) => {
         const newStatus = payload.new.status;
         if (newStatus === 'active' && isCalling) {
-          // Update UI for caller when call is accepted
           setIsCalling(false);
           setIsInCall(true);
           startDurationTimer();
           toast.success('Call connected');
         } else if (newStatus === 'ended') {
-          // Update UI for both parties when call ends
           setIsCallEnded(true);
           stopDurationTimer();
           setTimeout(() => {
@@ -202,14 +199,13 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const initiateCall = async (receiverId: string, name: string) => {
+  const initiateCall = async (receiverId: string, recipientName: string) => {
     if (!profile?.id) {
       toast.error('You must be logged in to make calls');
       return;
     }
 
     try {
-      // Verify receiver's profile exists
       const receiverExists = await verifyProfile(receiverId);
       if (!receiverExists) {
         toast.error('Cannot initiate call: recipient not found');
@@ -232,7 +228,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       if (error) throw error;
 
       setCurrentCallId(call.id);
-      setRecipientName(name);
+      recipientNameRef.current = recipientName;
       setIsCalling(true);
 
       const joined = await joinChannel(call.id);
@@ -270,7 +266,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
           open={!!incomingCall}
         />
       )}
-      {isCalling && <CallingUI recipientName={recipientName} />}
+      {isCalling && <CallingUI recipientName={recipientNameRef.current} />}
       {isInCall && <ActiveCallUI />}
     </CallContext.Provider>
   );
