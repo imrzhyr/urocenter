@@ -26,22 +26,24 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
   const typingUsers = messages[messages.length - 1]?.typing_users || [];
 
   return (
-    <div className="flex flex-col h-[100dvh] bg-white dark:bg-[#1A1F2C] relative">
-      <div className="fixed top-0 left-0 right-0 z-50 bg-[#0066CC] text-white">
+    <div className="flex flex-col h-[100dvh] overflow-hidden bg-white dark:bg-[#1A1F2C] relative">
+      <div className="absolute top-0 left-0 right-0 z-50 bg-[#0066CC] text-white">
         {header}
       </div>
       
-      <div className="flex-1 overflow-hidden flex flex-col pt-[56px] pb-[64px]">
-        <MessageList
-          messages={messages}
-          currentUserId={userId}
-          onReply={setReplyingTo}
-          replyingTo={replyingTo}
-        />
-        <TypingIndicator typingUsers={typingUsers} />
+      <div className="flex-1 pt-[56px] pb-[64px] relative">
+        <div className="absolute inset-0 chat-background">
+          <MessageList
+            messages={messages}
+            currentUserId={userId}
+            onReply={setReplyingTo}
+            replyingTo={replyingTo}
+          />
+          <TypingIndicator typingUsers={typingUsers} />
+        </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-[#1A1F2C]/80 backdrop-blur-lg border-t border-gray-200 dark:border-gray-700/50">
+      <div className="absolute bottom-0 left-0 right-0 bg-white/80 dark:bg-[#1A1F2C]/80 backdrop-blur-lg border-t border-gray-200 dark:border-gray-700/50">
         <MessageInput 
           onSendMessage={onSendMessage}
           isLoading={isLoading}
