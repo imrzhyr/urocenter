@@ -27,8 +27,8 @@ const Settings = () => {
   return (
     <div className={`min-h-screen bg-background ${isRTL ? 'rtl' : 'ltr'}`}>
       <div className="container max-w-4xl mx-auto p-4">
-        <div className="flex items-center mb-6 w-full">
-          <div className={`flex items-center gap-2 ${isRTL ? 'mr-auto' : 'ml-auto'}`}>
+        <div className="flex items-center mb-6">
+          <div className={`flex items-center gap-2 ${isRTL ? 'mr-auto' : ''}`}>
             {isRTL ? (
               <>
                 <h1 className="text-2xl font-semibold">{t('settings')}</h1>
