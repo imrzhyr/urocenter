@@ -155,7 +155,8 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
       const targetDevice = isSpeakerActive ? earpieceDevice : speakerDevice;
 
       if (targetDevice) {
-        await AgoraRTC.setPlaybackDevice(targetDevice.deviceId);
+        // Use the correct method to change audio output device
+        await navigator.mediaDevices.selectAudioOutput({ deviceId: targetDevice.deviceId });
         return !isSpeakerActive; // Return true if speaker is now active, false if earpiece
       }
 
