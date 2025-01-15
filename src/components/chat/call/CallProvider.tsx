@@ -4,39 +4,42 @@ import { useProfile } from '@/hooks/useProfile';
 import { toast } from 'sonner';
 import { CallNotification } from './CallNotification';
 import { ActiveCallUI } from './ActiveCallUI';
+import { CallingUI } from './CallingUI';
 
 interface CallContextType {
   isInCall: boolean;
+  isCalling: boolean;
   currentCallId: string | null;
   callDuration: number;
   acceptCall: (callId: string) => Promise<void>;
   rejectCall: (callId: string) => Promise<void>;
   endCall: () => Promise<void>;
-  initiateCall: (receiverId: string) => Promise<void>;
+  initiateCall: (receiverId: string, recipientName: string) => Promise<void>;
 }
 
 const CallContext = createContext<CallContextType | null>(null);
 
-const CALL_TIMEOUT = 20000; // 20 seconds
+const CALL_TIMEOUT = 30000; // 30 seconds
 
 export const CallProvider = ({ children }: { children: React.ReactNode }) => {
   const { profile } = useProfile();
   const [isInCall, setIsInCall] = useState(false);
+  const [isCalling, setIsCalling] = useState(false);
   const [currentCallId, setCurrentCallId] = useState<string | null>(null);
   const [incomingCall, setIncomingCall] = useState<{ id: string; callerName: string } | null>(null);
   const [callDuration, setCallDuration] = useState(0);
+  const [recipientName, setRecipientName] = useState('');
   const peerConnection = useRef<RTCPeerConnection | null>(null);
   const localStream = useRef<MediaStream | null>(null);
+  const remoteStream = useRef<MediaStream | null>(null);
   const callTimeoutRef = useRef<NodeJS.Timeout>();
   const durationIntervalRef = useRef<NodeJS.Timeout>();
 
-  const initializePeerConnection = async () => {
+  const setupWebRTC = async () => {
     try {
-      // Get user media (audio only for now)
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       localStream.current = stream;
 
-      // Create new RTCPeerConnection
       const configuration: RTCConfiguration = {
         iceServers: [
           { urls: 'stun:stun.l.google.com:19302' },
@@ -46,23 +49,22 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
 
       peerConnection.current = new RTCPeerConnection(configuration);
 
-      // Add local stream tracks to peer connection
       stream.getTracks().forEach(track => {
         if (peerConnection.current && localStream.current) {
           peerConnection.current.addTrack(track, localStream.current);
         }
       });
 
-      // Handle incoming tracks
       peerConnection.current.ontrack = (event) => {
-        // Handle remote audio stream
-        const [remoteStream] = event.streams;
-        // You can handle the remote stream here (e.g., play it through an audio element)
+        remoteStream.current = event.streams[0];
+        const audio = new Audio();
+        audio.srcObject = remoteStream.current;
+        audio.play();
       };
 
       return true;
     } catch (error) {
-      console.error('Error initializing peer connection:', error);
+      console.error('Error setting up WebRTC:', error);
       toast.error('Failed to access microphone');
       return false;
     }
@@ -78,13 +80,16 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     }, 1000);
   };
 
-  const initiateCall = async (receiverId: string) => {
+  const initiateCall = async (receiverId: string, recipientName: string) => {
     if (!profile?.id) {
       toast.error('You must be logged in to make calls');
       return;
     }
 
     try {
+      const success = await setupWebRTC();
+      if (!success) return;
+
       const { data: call, error } = await supabase
         .from('calls')
         .insert({
@@ -102,10 +107,23 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       setCurrentCallId(call.id);
-      setIsInCall(true);
-      await initializePeerConnection();
+      setIsCalling(true);
+      setRecipientName(recipientName);
 
-      // Set timeout for unanswered call
+      // Create and send offer
+      if (peerConnection.current) {
+        const offer = await peerConnection.current.createOffer();
+        await peerConnection.current.setLocalDescription(offer);
+
+        await supabase.from('call_signals').insert({
+          call_id: call.id,
+          from_user: profile.id,
+          to_user: receiverId,
+          type: 'offer',
+          data: { sdp: offer }
+        });
+      }
+
       callTimeoutRef.current = setTimeout(async () => {
         if (call.id) {
           await endCall();
@@ -123,7 +141,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     if (!profile?.id) return;
 
     try {
-      const success = await initializePeerConnection();
+      const success = await setupWebRTC();
       if (!success) {
         toast.error('Failed to initialize call');
         return;
@@ -140,7 +158,6 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (error) throw error;
 
-      // Start duration timer
       startDurationTimer();
       toast.success('Call connected');
     } catch (error) {
@@ -241,15 +258,80 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       )
       .subscribe();
 
+    // Listen for WebRTC signaling
+    const signalChannel = supabase
+      .channel('call_signals')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'call_signals',
+          filter: `to_user=eq.${profile.id}`,
+        },
+        async (payload) => {
+          const signal = payload.new;
+          if (!peerConnection.current) return;
+
+          if (signal.type === 'offer') {
+            await peerConnection.current.setRemoteDescription(new RTCSessionDescription(signal.data.sdp));
+            const answer = await peerConnection.current.createAnswer();
+            await peerConnection.current.setLocalDescription(answer);
+
+            await supabase.from('call_signals').insert({
+              call_id: signal.call_id,
+              from_user: profile.id,
+              to_user: signal.from_user,
+              type: 'answer',
+              data: { sdp: answer }
+            });
+          } else if (signal.type === 'answer') {
+            await peerConnection.current.setRemoteDescription(new RTCSessionDescription(signal.data.sdp));
+          } else if (signal.type === 'ice-candidate') {
+            await peerConnection.current.addIceCandidate(new RTCIceCandidate(signal.data.candidate));
+          }
+        }
+      )
+      .subscribe();
+
     return () => {
       supabase.removeChannel(channel);
+      supabase.removeChannel(signalChannel);
     };
   }, [profile?.id]);
+
+  // Handle ICE candidates
+  useEffect(() => {
+    if (!peerConnection.current || !profile?.id || !currentCallId) return;
+
+    peerConnection.current.onicecandidate = async (event) => {
+      if (event.candidate) {
+        const { data: call } = await supabase
+          .from('calls')
+          .select('caller_id, receiver_id')
+          .eq('id', currentCallId)
+          .single();
+
+        if (!call) return;
+
+        const toUser = call.caller_id === profile.id ? call.receiver_id : call.caller_id;
+
+        await supabase.from('call_signals').insert({
+          call_id: currentCallId,
+          from_user: profile.id,
+          to_user: toUser,
+          type: 'ice-candidate',
+          data: { candidate: event.candidate }
+        });
+      }
+    };
+  }, [currentCallId, profile?.id]);
 
   return (
     <CallContext.Provider 
       value={{ 
         isInCall, 
+        isCalling,
         currentCallId,
         callDuration,
         acceptCall, 
@@ -267,6 +349,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
           open={!!incomingCall}
         />
       )}
+      {isCalling && <CallingUI recipientName={recipientName} />}
       {isInCall && <ActiveCallUI />}
     </CallContext.Provider>
   );
