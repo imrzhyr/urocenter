@@ -56,6 +56,21 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     profileId: profile?.id
   });
 
+  const verifyProfile = async (profileId: string) => {
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', profileId)
+        .maybeSingle();
+      
+      return !!profile;
+    } catch (error) {
+      console.error('Error verifying profile:', error);
+      return false;
+    }
+  };
+
   const acceptCall = async (callId: string) => {
     if (!profile?.id) return;
 
@@ -106,7 +121,6 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       setIsCallEnded(true);
       stopDurationTimer();
 
-      // Get the call details to find the other participant
       const { data: callData } = await supabase
         .from('calls')
         .select('caller_id, receiver_id')
@@ -114,12 +128,19 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
         .single();
 
       if (callData) {
-        // Determine the other participant's ID
         const otherParticipantId = callData.caller_id === profile.id 
           ? callData.receiver_id 
           : callData.caller_id;
 
-        // Broadcast call end to other participant
+        // Verify the other participant's profile exists
+        const profileExists = await verifyProfile(otherParticipantId);
+        
+        if (!profileExists) {
+          console.error('Other participant profile not found');
+          toast.error('Failed to send call end signal');
+          return;
+        }
+
         const { error } = await supabase
           .from('call_signals')
           .insert({
@@ -130,7 +151,10 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
             data: { duration: callDuration }
           });
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error sending end call signal:', error);
+          toast.error('Failed to send call end signal');
+        }
       }
 
       setTimeout(() => {
@@ -153,6 +177,13 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     try {
+      // Verify receiver's profile exists
+      const receiverExists = await verifyProfile(receiverId);
+      if (!receiverExists) {
+        toast.error('Cannot initiate call: recipient not found');
+        return;
+      }
+
       const success = await setupAgoraClient();
       if (!success) return;
 
