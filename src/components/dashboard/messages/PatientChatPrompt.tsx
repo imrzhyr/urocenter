@@ -42,6 +42,10 @@ export const PatientChatPrompt = () => {
     fetchLastMessage();
   }, [profile?.id]);
 
+  const handleChatNavigation = () => {
+    navigate('/chat');
+  };
+
   if (loading) {
     return null;
   }
@@ -64,7 +68,7 @@ export const PatientChatPrompt = () => {
             {t("doctor_surgery")}
           </p>
           <Button 
-            onClick={() => navigate('/chat')}
+            onClick={handleChatNavigation}
             className="w-full max-w-[200px] bg-blue-600 hover:bg-blue-700 transition-colors shadow-md"
           >
             <MessageSquare className="mr-2 h-4 w-4" />
@@ -77,7 +81,7 @@ export const PatientChatPrompt = () => {
 
   return (
     <div 
-      onClick={() => navigate('/chat')}
+      onClick={handleChatNavigation}
       className="w-full cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors p-4 rounded-lg border dark:border-gray-700"
     >
       <div className="flex items-center gap-3 mb-2">

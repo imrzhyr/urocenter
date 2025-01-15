@@ -9,6 +9,7 @@ import MedicalInformation from "@/pages/MedicalInformation";
 import Payment from "@/pages/Payment";
 import Settings from "@/pages/Settings";
 import AdminDashboard from "@/pages/AdminDashboard";
+import UserChat from "@/pages/UserChat";
 
 const router = createBrowserRouter([
   {
@@ -29,7 +30,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/chat",
-    element: <Chat />,
+    element: <UserChat />,
   },
   {
     path: "/chat/:userId",
