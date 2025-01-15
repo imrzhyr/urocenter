@@ -5,7 +5,6 @@ import { ActiveCallUI } from './ActiveCallUI';
 import { CallingUI } from './CallingUI';
 import { useCallState } from './hooks/useCallState';
 import { useCallNotifications } from './hooks/useCallNotifications';
-import { useCallActions } from './hooks/useCallActions';
 import { useAgoraCall } from './hooks/useAgoraCall';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
