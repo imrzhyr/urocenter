@@ -1,0 +1,19 @@
+<resources>
+    <!-- Dark theme -->
+    <style name="Theme.Lovable" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary brand color -->
+        <item name="colorPrimary">@color/primary_light</item>
+        <item name="colorPrimaryVariant">@color/primary</item>
+        <item name="colorOnPrimary">@color/black</item>
+        
+        <!-- Status bar and Navigation bar colors -->
+        <item name="android:statusBarColor">@color/black</item>
+        <item name="android:navigationBarColor">@color/black</item>
+        
+        <!-- Enable window content transitions -->
+        <item name="android:windowActivityTransitions">true</item>
+        
+        <!-- Enable window background -->
+        <item name="android:windowBackground">@color/dark_background</item>
+    </style>
+</resources>
