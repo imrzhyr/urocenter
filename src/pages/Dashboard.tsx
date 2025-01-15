@@ -26,7 +26,6 @@ const Dashboard = () => {
           return;
         }
 
-        // Only redirect admin to admin dashboard if they're explicitly on the dashboard route
         if (profile?.role === 'admin' && window.location.pathname === '/dashboard') {
           navigate("/admin", { replace: true });
           return;
