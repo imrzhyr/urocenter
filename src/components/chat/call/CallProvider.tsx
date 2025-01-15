@@ -26,6 +26,44 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
   const localStream = useRef<MediaStream | null>(null);
   const callTimeoutRef = useRef<NodeJS.Timeout>();
 
+  const initializePeerConnection = async () => {
+    try {
+      // Get user media (audio only for now)
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      localStream.current = stream;
+
+      // Create new RTCPeerConnection
+      const configuration: RTCConfiguration = {
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:stun1.l.google.com:19302' },
+        ],
+      };
+
+      peerConnection.current = new RTCPeerConnection(configuration);
+
+      // Add local stream tracks to peer connection
+      stream.getTracks().forEach(track => {
+        if (peerConnection.current && localStream.current) {
+          peerConnection.current.addTrack(track, localStream.current);
+        }
+      });
+
+      // Handle incoming tracks
+      peerConnection.current.ontrack = (event) => {
+        // Handle remote audio stream
+        const [remoteStream] = event.streams;
+        // You can handle the remote stream here (e.g., play it through an audio element)
+      };
+
+      return true;
+    } catch (error) {
+      console.error('Error initializing peer connection:', error);
+      toast.error('Failed to access microphone');
+      return false;
+    }
+  };
+
   const initiateCall = async (receiverId: string) => {
     if (!profile?.id) {
       toast.error('You must be logged in to make calls');
