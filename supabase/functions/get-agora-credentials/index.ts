@@ -5,26 +5,27 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+console.log('Hello from get-agora-credentials!')
+
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response(null, { headers: corsHeaders })
   }
 
   try {
     const appId = Deno.env.get('AGORA_APP_ID')
     
     if (!appId) {
-      console.error('Agora App ID not configured')
+      console.error('AGORA_APP_ID not found in environment variables')
       throw new Error('Agora App ID not configured')
     }
 
-    // Log successful retrieval but don't expose the actual appId in logs
     console.log('Successfully retrieved Agora App ID')
-    
+
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         appId,
-        success: true 
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -32,15 +33,12 @@ serve(async (req) => {
       },
     )
   } catch (error) {
-    console.error('Error retrieving Agora credentials:', error)
+    console.error('Error in get-agora-credentials:', error.message)
     return new Response(
-      JSON.stringify({ 
-        error: error.message,
-        success: false 
-      }),
+      JSON.stringify({ error: error.message }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400,
+        status: 500,
       },
     )
   }
