@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -7,7 +7,7 @@ interface IncomingCall {
   callerName: string;
 }
 
-export const useCallNotifications = (profileId: string | null) => {
+export const useCallNotifications = (profileId: string | undefined) => {
   const [incomingCall, setIncomingCall] = useState<IncomingCall | null>(null);
 
   useEffect(() => {
