@@ -132,6 +132,39 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
     return false;
   };
 
+  const toggleSpeaker = async () => {
+    try {
+      const audioDevices = await AgoraRTC.getPlaybackDevices();
+      const currentDevice = await AgoraRTC.getPlaybackDevice();
+      
+      // Find speaker device (usually contains 'speaker' in the name)
+      const speakerDevice = audioDevices.find(device => 
+        device.label.toLowerCase().includes('speaker')
+      );
+      
+      // Find earpiece device (usually the default device or contains 'default' in the name)
+      const earpieceDevice = audioDevices.find(device => 
+        device.label.toLowerCase().includes('default') || 
+        device.label.toLowerCase().includes('earpiece')
+      );
+
+      // If current device is speaker, switch to earpiece, otherwise switch to speaker
+      const isSpeakerActive = currentDevice?.label.toLowerCase().includes('speaker');
+      const targetDevice = isSpeakerActive ? earpieceDevice : speakerDevice;
+
+      if (targetDevice) {
+        await AgoraRTC.setPlaybackDevice(targetDevice.deviceId);
+        return !isSpeakerActive; // Return true if speaker is now active, false if earpiece
+      }
+
+      return false;
+    } catch (error) {
+      console.error('Error toggling speaker:', error);
+      toast.error('Failed to switch audio output');
+      return false;
+    }
+  };
+
   useEffect(() => {
     return () => {
       leaveChannel();
@@ -142,6 +175,7 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
     setupAgoraClient,
     joinChannel,
     leaveChannel,
-    toggleMute
+    toggleMute,
+    toggleSpeaker
   };
 };

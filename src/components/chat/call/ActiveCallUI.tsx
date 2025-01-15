@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Phone, PhoneOff, Mic, MicOff } from "lucide-react";
+import { Phone, PhoneOff, Mic, MicOff, Volume2, VolumeX } from "lucide-react";
 import { useCall } from './CallProvider';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const ActiveCallUI = () => {
-  const { callDuration, endCall, toggleMute, isCallEnded } = useCall();
+  const { callDuration, endCall, toggleMute, toggleSpeaker, isCallEnded } = useCall();
   const [isMuted, setIsMuted] = React.useState(false);
+  const [isSpeakerOn, setIsSpeakerOn] = React.useState(false);
   const [showUI, setShowUI] = React.useState(true);
 
   const formatDuration = (seconds: number) => {
@@ -18,6 +19,11 @@ export const ActiveCallUI = () => {
   const handleToggleMute = () => {
     const muted = toggleMute();
     setIsMuted(muted);
+  };
+
+  const handleToggleSpeaker = () => {
+    const speakerOn = toggleSpeaker();
+    setIsSpeakerOn(speakerOn);
   };
 
   useEffect(() => {
@@ -62,10 +68,25 @@ export const ActiveCallUI = () => {
                 <Button
                   variant="outline"
                   size="lg"
-                  className="rounded-full p-6"
+                  className={`rounded-full p-6 ${isMuted ? 'bg-red-500 hover:bg-red-600 border-red-400' : 'bg-white/10 hover:bg-white/20 border-white/20'}`}
                   onClick={handleToggleMute}
                 >
-                  {isMuted ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
+                  {isMuted ? 
+                    <MicOff className="w-6 h-6 text-white" /> : 
+                    <Mic className="w-6 h-6 text-white" />
+                  }
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className={`rounded-full p-6 ${isSpeakerOn ? 'bg-blue-500 hover:bg-blue-600 border-blue-400' : 'bg-white/10 hover:bg-white/20 border-white/20'}`}
+                  onClick={handleToggleSpeaker}
+                >
+                  {isSpeakerOn ? 
+                    <Volume2 className="w-6 h-6 text-white" /> : 
+                    <VolumeX className="w-6 h-6 text-white" />
+                  }
                 </Button>
                 
                 <Button

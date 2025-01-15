@@ -20,6 +20,7 @@ interface CallContextType {
   endCall: () => Promise<void>;
   initiateCall: (receiverId: string, recipientName: string) => Promise<void>;
   toggleMute: () => boolean;
+  toggleSpeaker: () => Promise<boolean>;
 }
 
 const CallContext = createContext<CallContextType | null>(null);
@@ -50,7 +51,8 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     setupAgoraClient,
     joinChannel,
     leaveChannel,
-    toggleMute
+    toggleMute,
+    toggleSpeaker
   } = useAgoraCall({
     currentCallId,
     profileId: profile?.id
@@ -255,7 +257,8 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
         rejectCall, 
         endCall,
         initiateCall,
-        toggleMute
+        toggleMute,
+        toggleSpeaker
       }}
     >
       {children}
