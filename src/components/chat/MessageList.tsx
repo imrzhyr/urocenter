@@ -45,7 +45,7 @@ export const MessageList = ({ messages, currentUserId, onReply }: MessageListPro
   };
 
   return (
-    <ScrollArea className="flex-1 chat-background">
+    <ScrollArea className="h-full chat-background">
       <div className="flex flex-col space-y-2 py-4 px-2 sm:px-4 min-h-full w-full overflow-x-hidden">
         {messages.map((message) => (
           <MessageItem
