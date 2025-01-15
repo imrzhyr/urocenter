@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useRef, useState } from 'r
 import { supabase } from '@/integrations/supabase/client';
 import { useProfile } from '@/hooks/useProfile';
 import { toast } from 'sonner';
+import { CallNotification } from './CallNotification';
 
 interface CallContextType {
   isInCall: boolean;
@@ -14,18 +15,16 @@ interface CallContextType {
 
 const CallContext = createContext<CallContextType | null>(null);
 
-const ICE_SERVERS = [
-  { urls: 'stun:stun.l.google.com:19302' },
-  { urls: 'stun:stun1.l.google.com:19302' },
-  { urls: 'stun:stun2.l.google.com:19302' },
-];
+const CALL_TIMEOUT = 20000; // 20 seconds
 
 export const CallProvider = ({ children }: { children: React.ReactNode }) => {
   const { profile } = useProfile();
   const [isInCall, setIsInCall] = useState(false);
   const [currentCallId, setCurrentCallId] = useState<string | null>(null);
+  const [incomingCall, setIncomingCall] = useState<{ id: string; callerName: string } | null>(null);
   const peerConnection = useRef<RTCPeerConnection | null>(null);
   const localStream = useRef<MediaStream | null>(null);
+  const callTimeoutRef = useRef<NodeJS.Timeout>();
 
   const initiateCall = async (receiverId: string) => {
     if (!profile?.id) {
@@ -54,116 +53,18 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       setIsInCall(true);
       await initializePeerConnection();
 
+      // Set timeout for unanswered call
+      callTimeoutRef.current = setTimeout(async () => {
+        if (call.id) {
+          await endCall();
+          toast.error('Call was not answered');
+        }
+      }, CALL_TIMEOUT);
+
     } catch (error) {
       console.error('Error in initiateCall:', error);
       toast.error('Failed to start call');
     }
-  };
-
-  useEffect(() => {
-    if (!profile?.id || !currentCallId) return;
-
-    const channel = supabase
-      .channel('call_signals')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'call_signals',
-          filter: `to_user=eq.${profile.id}`,
-        },
-        async (payload) => {
-          const signal = payload.new;
-          if (signal.call_id !== currentCallId) return;
-
-          try {
-            switch (signal.type) {
-              case 'offer':
-                await handleOffer(signal);
-                break;
-              case 'answer':
-                await handleAnswer(signal);
-                break;
-              case 'candidate':
-                await handleCandidate(signal);
-                break;
-              case 'leave':
-                await endCall();
-                break;
-            }
-          } catch (error) {
-            console.error('Error handling signal:', error);
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [profile?.id, currentCallId]);
-
-  const initializePeerConnection = async () => {
-    peerConnection.current = new RTCPeerConnection({ iceServers: ICE_SERVERS });
-
-    try {
-      localStream.current = await navigator.mediaDevices.getUserMedia({ audio: true });
-      localStream.current.getTracks().forEach(track => {
-        if (localStream.current && peerConnection.current) {
-          peerConnection.current.addTrack(track, localStream.current);
-        }
-      });
-    } catch (error) {
-      console.error('Error accessing microphone:', error);
-      toast.error('Failed to access microphone');
-      throw error;
-    }
-
-    peerConnection.current.onicecandidate = async (event) => {
-      if (event.candidate && currentCallId && profile?.id) {
-        await supabase.from('call_signals').insert({
-          call_id: currentCallId,
-          from_user: profile.id,
-          to_user: event.candidate.sdpMid!, // The other participant's ID
-          type: 'candidate',
-          data: event.candidate,
-        });
-      }
-    };
-
-    peerConnection.current.ontrack = (event) => {
-      const remoteAudio = document.createElement('audio');
-      remoteAudio.srcObject = event.streams[0];
-      remoteAudio.autoplay = true;
-      document.body.appendChild(remoteAudio);
-    };
-  };
-
-  const handleOffer = async (signal: any) => {
-    if (!peerConnection.current || !profile?.id) return;
-
-    await peerConnection.current.setRemoteDescription(new RTCSessionDescription(signal.data));
-    const answer = await peerConnection.current.createAnswer();
-    await peerConnection.current.setLocalDescription(answer);
-
-    await supabase.from('call_signals').insert({
-      call_id: signal.call_id,
-      from_user: profile.id,
-      to_user: signal.from_user,
-      type: 'answer',
-      data: answer,
-    });
-  };
-
-  const handleAnswer = async (signal: any) => {
-    if (!peerConnection.current) return;
-    await peerConnection.current.setRemoteDescription(new RTCSessionDescription(signal.data));
-  };
-
-  const handleCandidate = async (signal: any) => {
-    if (!peerConnection.current) return;
-    await peerConnection.current.addIceCandidate(new RTCIceCandidate(signal.data));
   };
 
   const acceptCall = async (callId: string) => {
@@ -173,10 +74,11 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       await initializePeerConnection();
       setCurrentCallId(callId);
       setIsInCall(true);
+      setIncomingCall(null);
 
       const { error } = await supabase
         .from('calls')
-        .update({ status: 'active' })
+        .update({ status: 'active', started_at: new Date().toISOString() })
         .eq('id', callId);
 
       if (error) throw error;
@@ -190,10 +92,14 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const { error } = await supabase
         .from('calls')
-        .update({ status: 'rejected', ended_at: new Date().toISOString() })
+        .update({ 
+          status: 'rejected', 
+          ended_at: new Date().toISOString() 
+        })
         .eq('id', callId);
 
       if (error) throw error;
+      setIncomingCall(null);
     } catch (error) {
       console.error('Error rejecting call:', error);
       toast.error('Failed to reject call');
@@ -206,7 +112,10 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const { error } = await supabase
         .from('calls')
-        .update({ status: 'ended', ended_at: new Date().toISOString() })
+        .update({ 
+          status: 'ended', 
+          ended_at: new Date().toISOString() 
+        })
         .eq('id', currentCallId);
 
       if (error) throw error;
@@ -219,6 +128,9 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       if (localStream.current) {
         localStream.current.getTracks().forEach(track => track.stop());
         localStream.current = null;
+      }
+      if (callTimeoutRef.current) {
+        clearTimeout(callTimeoutRef.current);
       }
 
       setCurrentCallId(null);
@@ -252,15 +164,9 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
                 .eq('id', call.caller_id)
                 .maybeSingle();
 
-              toast(`Incoming call from ${caller?.full_name || 'Unknown'}`, {
-                action: {
-                  label: 'Accept',
-                  onClick: () => acceptCall(call.id),
-                },
-                cancel: {
-                  label: 'Reject',
-                  onClick: () => rejectCall(call.id),
-                },
+              setIncomingCall({
+                id: call.id,
+                callerName: caller?.full_name || 'Unknown'
               });
             }
           }
@@ -285,6 +191,14 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       }}
     >
       {children}
+      {incomingCall && (
+        <CallNotification
+          callerName={incomingCall.callerName}
+          onAccept={() => acceptCall(incomingCall.id)}
+          onReject={() => rejectCall(incomingCall.id)}
+          open={!!incomingCall}
+        />
+      )}
     </CallContext.Provider>
   );
 };
