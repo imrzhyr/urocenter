@@ -13,8 +13,7 @@ export const useDoctorChat = (userId?: string) => {
   useEffect(() => {
     const fetchPatientInfo = async () => {
       if (!userId) {
-        console.log("No patient ID provided, redirecting to admin dashboard");
-        navigate("/admin");
+        console.log("No patient ID provided");
         return;
       }
 
@@ -24,7 +23,7 @@ export const useDoctorChat = (userId?: string) => {
           .from("profiles")
           .select("*")
           .eq("id", userId)
-          .single();
+          .maybeSingle();
 
         if (error) {
           console.error("Error fetching patient info:", error);

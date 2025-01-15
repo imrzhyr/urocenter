@@ -1,11 +1,11 @@
-import { MessageContainer } from "../MessageContainer";
-import { DoctorChatHeader } from "./DoctorChatHeader";
-import { useChat } from "@/hooks/useChat";
 import { useParams } from "react-router-dom";
-import { toast } from "sonner";
-import { useDoctorChat } from "./hooks/useDoctorChat";
 import { useProfile } from "@/hooks/useProfile";
-import { CallProvider } from "../call/CallProvider";
+import { useChat } from "@/hooks/useChat";
+import { useDoctorChat } from "./hooks/useDoctorChat";
+import { DoctorChatHeader } from "./DoctorChatHeader";
+import { MessageContainer } from "@/features/chat/components/MessageContainer/MessageContainer";
+import { CallProvider } from "@/components/chat/call/CallProvider";
+import { toast } from "sonner";
 
 export const DoctorChatContainer = () => {
   const { id } = useParams();
@@ -18,34 +18,32 @@ export const DoctorChatContainer = () => {
   }
 
   if (!patientProfile) {
-    toast.error("No patient selected");
-    return null;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300">Loading patient information...</h2>
+          <p className="text-gray-500 dark:text-gray-400 mt-2">Please wait while we fetch the patient details.</p>
+        </div>
+      </div>
+    );
   }
 
   return (
     <CallProvider>
-      <div className="flex flex-col h-screen bg-background">
-        <DoctorChatHeader 
-          patientId={patientProfile.id}
-          patientName={patientProfile.full_name || "Patient"}
-          patientPhone={patientProfile.phone}
-          onRefresh={() => {}}
-        />
-        <MessageContainer
-          messages={messages}
-          onSendMessage={sendMessage}
-          isLoading={isLoading}
-          header={
-            <DoctorChatHeader 
-              patientId={patientProfile.id}
-              patientName={patientProfile.full_name || "Patient"}
-              patientPhone={patientProfile.phone}
-              onRefresh={() => {}}
-            />
-          }
-          userId={id || ''}
-        />
-      </div>
+      <MessageContainer
+        messages={messages}
+        onSendMessage={sendMessage}
+        isLoading={isLoading}
+        header={
+          <DoctorChatHeader 
+            patientId={patientProfile.id}
+            patientName={patientProfile.full_name || "Patient"}
+            patientPhone={patientProfile.phone}
+            onRefresh={() => {}}
+          />
+        }
+        userId={profile.id}
+      />
     </CallProvider>
   );
 };
