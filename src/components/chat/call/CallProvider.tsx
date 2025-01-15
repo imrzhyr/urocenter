@@ -1,14 +1,12 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext } from 'react';
 import { useProfile } from '@/hooks/useProfile';
-import { toast } from 'sonner';
 import { CallNotification } from './CallNotification';
 import { ActiveCallUI } from './ActiveCallUI';
 import { CallingUI } from './CallingUI';
 import { useWebRTC } from './hooks/useWebRTC';
 import { useCallState } from './hooks/useCallState';
-import { supabase } from '@/integrations/supabase/client';
-
-const CALL_TIMEOUT = 30000; // 30 seconds
+import { useCallNotifications } from './hooks/useCallNotifications';
+import { useCallActions } from './hooks/useCallActions';
 
 interface CallContextType {
   isInCall: boolean;
@@ -25,13 +23,8 @@ interface CallContextType {
 
 const CallContext = createContext<CallContextType | null>(null);
 
-/**
- * Provider component for managing WebRTC calls
- */
 export const CallProvider = ({ children }: { children: React.ReactNode }) => {
   const { profile } = useProfile();
-  const [incomingCall, setIncomingCall] = useState<{ id: string; callerName: string } | null>(null);
-  const [recipientName, setRecipientName] = useState('');
 
   const {
     isInCall,
@@ -57,115 +50,21 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     cleanup: cleanupWebRTC
   } = useWebRTC({ currentCallId, profileId: profile?.id });
 
-  /**
-   * Initialize a new call to another user
-   */
-  const initiateCall = async (receiverId: string, recipientName: string) => {
-    if (!profile?.id) {
-      toast.error('You must be logged in to make calls');
-      return;
-    }
+  const { incomingCall, setIncomingCall } = useCallNotifications(profile?.id);
 
-    try {
-      console.log('Initiating call to:', receiverId);
-      const success = await setupWebRTC();
-      if (!success) return;
+  const { acceptCall, rejectCall, initiateCall } = useCallActions({
+    profileId: profile?.id,
+    setupWebRTC,
+    clearCallTimeout,
+    setCurrentCallId,
+    setIsInCall,
+    setIncomingCall,
+    setIsCallEnded,
+    startDurationTimer,
+    updateCallStatus,
+    peerConnection
+  });
 
-      const { data: call, error } = await supabase
-        .from('calls')
-        .insert({
-          caller_id: profile.id,
-          receiver_id: receiverId,
-          status: 'pending'
-        })
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Error creating call:', error);
-        throw error;
-      }
-
-      setCurrentCallId(call.id);
-      setIsCalling(true);
-      setRecipientName(recipientName);
-
-      if (peerConnection.current) {
-        console.log('Creating offer...');
-        const offer = await peerConnection.current.createOffer({
-          offerToReceiveAudio: true,
-          offerToReceiveVideo: false
-        });
-        await peerConnection.current.setLocalDescription(offer);
-
-        await supabase.from('call_signals').insert({
-          call_id: call.id,
-          from_user: profile.id,
-          to_user: receiverId,
-          type: 'offer',
-          data: { sdp: offer }
-        });
-      }
-
-      callTimeoutRef.current = setTimeout(async () => {
-        if (call.id && !isInCall) {
-          await endCall();
-          toast.error('Call was not answered');
-        }
-      }, CALL_TIMEOUT);
-
-    } catch (error) {
-      console.error('Error in initiateCall:', error);
-      toast.error('Failed to start call');
-    }
-  };
-
-  /**
-   * Accept an incoming call
-   */
-  const acceptCall = async (callId: string) => {
-    if (!profile?.id) return;
-
-    try {
-      console.log('Accepting call:', callId);
-      const success = await setupWebRTC();
-      if (!success) {
-        toast.error('Failed to initialize call');
-        return;
-      }
-
-      clearCallTimeout();
-      setCurrentCallId(callId);
-      setIsInCall(true);
-      setIncomingCall(null);
-      setIsCallEnded(false);
-
-      await updateCallStatus(callId, 'active');
-      startDurationTimer();
-      toast.success('Call connected');
-    } catch (error) {
-      console.error('Error accepting call:', error);
-      toast.error('Failed to accept call');
-    }
-  };
-
-  /**
-   * Reject an incoming call
-   */
-  const rejectCall = async (callId: string) => {
-    try {
-      await updateCallStatus(callId, 'rejected', true);
-      setIncomingCall(null);
-      toast.info('Call rejected');
-    } catch (error) {
-      console.error('Error rejecting call:', error);
-      toast.error('Failed to reject call');
-    }
-  };
-
-  /**
-   * End the current call
-   */
   const endCall = async () => {
     if (!currentCallId || !profile?.id) return;
 
@@ -174,7 +73,6 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       setIsCallEnded(true);
       stopDurationTimer();
 
-      // Cleanup after 2 seconds
       setTimeout(() => {
         cleanupWebRTC();
         clearCallTimeout();
@@ -183,74 +81,11 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
         setIsCalling(false);
         setIsCallEnded(false);
       }, 2000);
-
     } catch (error) {
       console.error('Error ending call:', error);
       toast.error('Failed to end call');
     }
   };
-
-  useEffect(() => {
-    if (!profile?.id) return;
-
-    const channel = supabase
-      .channel('calls')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'calls',
-        },
-        async (payload) => {
-          try {
-            console.log('Call change event:', payload);
-            if (payload.eventType === 'INSERT' && payload.new.receiver_id === profile.id) {
-              const { data: caller, error: callerError } = await supabase
-                .from('profiles')
-                .select('full_name')
-                .eq('id', payload.new.caller_id)
-                .maybeSingle();
-
-              if (callerError) throw callerError;
-
-              setIncomingCall({
-                id: payload.new.id,
-                callerName: caller?.full_name || 'Unknown'
-              });
-            } else if (payload.eventType === 'UPDATE') {
-              if (payload.new.status === 'active' && 
-                 (payload.new.caller_id === profile.id || payload.new.receiver_id === profile.id)) {
-                if (callTimeoutRef.current) {
-                  clearTimeout(callTimeoutRef.current);
-                  callTimeoutRef.current = undefined;
-                }
-                setIsInCall(true);
-                setIsCalling(false);
-                startDurationTimer();
-              } else if (payload.new.status === 'ended' && 
-                       (payload.new.caller_id === profile.id || payload.new.receiver_id === profile.id)) {
-                setIsCallEnded(true);
-                stopDurationTimer();
-                setTimeout(() => {
-                  setIsInCall(false);
-                  setIsCalling(false);
-                  setCurrentCallId(null);
-                }, 2000);
-              }
-            }
-          } catch (error) {
-            console.error('Error handling call event:', error);
-            toast.error('Error processing call update');
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [profile?.id]);
 
   return (
     <CallContext.Provider 
