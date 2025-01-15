@@ -28,7 +28,7 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
         enableLogUpload: false, // Disable log upload
         enableCloudProxy: false, // Disable cloud proxy
         turnServer: { // Disable TURN server usage
-          forceTurn: false,
+          forceturn: false, // Fixed: changed forceTurn to forceturn
         }
       });
       
