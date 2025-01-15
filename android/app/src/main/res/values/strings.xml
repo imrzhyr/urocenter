@@ -8,4 +8,7 @@
     <string name="view_medical_reports">View your medical reports</string>
     <string name="type_message">Type a message...</string>
     <string name="send">Send</string>
+    <string name="welcome">Welcome</string>
+    <string name="welcome_subtitle">Start your healthcare journey with us</string>
+    <string name="sign_in">Sign In</string>
 </resources>
