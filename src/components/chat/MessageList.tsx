@@ -32,6 +32,20 @@ export const MessageList = ({ messages, currentUserId, onReply }: MessageListPro
   const prevMessagesLength = useRef(messages.length);
   const { profile } = useProfile();
   const [calls, setCalls] = useState<Call[]>([]);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  
+  useEffect(() => {
+    // Initialize audio element
+    audioRef.current = new Audio('/message-sound.mp3');
+    audioRef.current.preload = 'auto';
+    
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
   
   useEffect(() => {
     const fetchCalls = async () => {
@@ -69,8 +83,10 @@ export const MessageList = ({ messages, currentUserId, onReply }: MessageListPro
       scrollRef.current.scrollIntoView({ behavior: "smooth" });
     }
     
-    if (messages.length > prevMessagesLength.current) {
-      messageSound.play();
+    if (messages.length > prevMessagesLength.current && audioRef.current) {
+      audioRef.current.play().catch(error => {
+        console.error('Error playing message sound:', error);
+      });
     }
     prevMessagesLength.current = messages.length;
   }, [messages]);
