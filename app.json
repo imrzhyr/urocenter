@@ -17,19 +17,23 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.lovable.app",
-      "icon": "./assets/icon.png"
+      "buildNumber": "1.0.0"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.lovable.app"
+      "package": "com.lovable.app",
+      "versionCode": 1
     },
     "extra": {
       "eas": {
         "projectId": "29a5024c-3b80-4d36-a590-a54b6195b4c7"
       }
-    }
+    },
+    "plugins": [
+      "expo-updates"
+    ]
   }
 }
