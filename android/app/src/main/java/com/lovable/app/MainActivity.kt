@@ -45,11 +45,10 @@ class MainActivity : AppCompatActivity() {
                 when (status) {
                     is SessionStatus.Authenticated -> {
                         if (navController.currentDestination?.id == R.id.welcomeFragment) {
-                            navController.navigate(R.id.action_welcome_to_signIn)
+                            navController.navigate(R.id.action_welcome_to_dashboard)
                         }
                     }
                     else -> {
-                        // Only navigate to welcome if we're not already there
                         if (navController.currentDestination?.id != R.id.welcomeFragment) {
                             navController.navigate(R.id.welcomeFragment) {
                                 popUpTo(R.id.nav_graph) {

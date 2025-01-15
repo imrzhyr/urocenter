@@ -1,8 +1,20 @@
 <resources>
-    <string name="app_name">Lovable</string>
-    <string name="welcome">Welcome</string>
+    <string name="app_name">Uro Center</string>
+    <string name="welcome">Welcome to Uro Center</string>
     <string name="welcome_subtitle">Your trusted healthcare companion</string>
     <string name="sign_in">Sign In</string>
     <string name="dashboard">Dashboard</string>
     <string name="chat">Chat</string>
+    <string name="profile">Profile</string>
+    <string name="settings">Settings</string>
+    <string name="medical_reports">Medical Reports</string>
+    <string name="appointments">Appointments</string>
+    <string name="health_tips">Health Tips</string>
+    <string name="messages">Messages</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="password">Password</string>
+    <string name="enter_phone">Enter your phone number</string>
+    <string name="enter_password">Enter your password</string>
+    <string name="sign_in_error">Sign in failed</string>
+    <string name="invalid_credentials">Invalid phone number or password</string>
 </resources>
