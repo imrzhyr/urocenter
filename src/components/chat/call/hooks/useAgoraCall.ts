@@ -155,9 +155,22 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
       const targetDevice = isSpeakerActive ? earpieceDevice : speakerDevice;
 
       if (targetDevice) {
-        // Use the correct method to change audio output device
-        await navigator.mediaDevices.selectAudioOutput({ deviceId: targetDevice.deviceId });
-        return !isSpeakerActive; // Return true if speaker is now active, false if earpiece
+        try {
+          // Try using the newer Audio Output Devices API if available
+          if ('setSinkId' in HTMLAudioElement.prototype) {
+            const audioElements = document.querySelectorAll('audio');
+            await Promise.all(
+              Array.from(audioElements).map(audio => 
+                (audio as any).setSinkId(targetDevice.deviceId)
+              )
+            );
+          }
+          return !isSpeakerActive; // Return true if speaker is now active, false if earpiece
+        } catch (err) {
+          console.error('Error switching audio output:', err);
+          toast.error('Failed to switch audio output');
+          return false;
+        }
       }
 
       return false;
