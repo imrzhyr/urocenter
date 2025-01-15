@@ -16,7 +16,6 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
   messages,
   onSendMessage,
   isLoading,
-  header,
   userId
 }) => {
   const [replyingTo, setReplyingTo] = useState<Message | null>(null);
@@ -31,16 +30,12 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
       animate={{ opacity: 1 }}
       transition={{ duration: 0.2 }}
       className="flex flex-col h-screen bg-white dark:bg-[#1A1F2C]"
-    >
-      <div className="fixed top-0 left-0 right-0 z-10 bg-[#0066CC] text-white backdrop-blur-lg bg-opacity-90">
-        {header}
-      </div>
-      
+    >      
       <motion.div 
         initial={{ y: 10, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.2 }}
-        className="flex-1 overflow-hidden flex flex-col mt-[48px] mb-[64px]"
+        className="flex-1 overflow-hidden flex flex-col"
       >
         <div className="flex-1 overflow-y-auto">
           <MessageList

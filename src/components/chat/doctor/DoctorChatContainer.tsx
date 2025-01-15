@@ -34,7 +34,7 @@ export const DoctorChatContainer = () => {
 
   return (
     <div className="flex flex-col h-[100vh] w-full bg-gray-50">
-      <div className="bg-primary">
+      <div className="bg-primary sticky top-0 z-50">
         <CallProvider>
           <>
             <DoctorChatHeader
