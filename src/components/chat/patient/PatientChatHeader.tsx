@@ -17,11 +17,18 @@ export const PatientChatHeader = () => {
     <div className="flex items-center justify-between p-2">
       <div className="flex items-center gap-2">
         <BackButton customRoute="/dashboard" />
-        <div>
-          <h3 className="font-medium text-white text-sm">
-            {t('doctor_name')}
-          </h3>
-          <p className="text-xs text-white/80">{t('doctor_title')}</p>
+        <div className="flex items-center gap-2">
+          <img 
+            src="/lovable-uploads/7d63243e-3ad7-41fd-96b6-6452cca98258.png" 
+            alt="UroCenter Logo" 
+            className="h-6 w-auto"
+          />
+          <div>
+            <h3 className="font-medium text-white text-sm">
+              {t('doctor_name')}
+            </h3>
+            <p className="text-xs text-white/80">{t('doctor_title')}</p>
+          </div>
         </div>
       </div>
       <Button

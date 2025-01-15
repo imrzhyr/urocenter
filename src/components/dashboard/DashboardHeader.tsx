@@ -40,7 +40,12 @@ export const DashboardHeader = () => {
       transition={{ duration: 0.5 }}
       className="p-4 flex justify-between items-center bg-white/80 dark:bg-[#1A1F2C]/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50 min-h-[4rem]"
     >
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-4">
+        <img 
+          src="/lovable-uploads/7d63243e-3ad7-41fd-96b6-6452cca98258.png" 
+          alt="UroCenter Logo" 
+          className="h-8 w-auto"
+        />
         <h1 className="text-xl font-semibold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent">
           {t('welcome')}{fullName ? `, ${fullName}` : ''}
         </h1>
