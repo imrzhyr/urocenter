@@ -1,9 +1,10 @@
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Button } from "@/components/ui/button";
 import { useProfile } from '@/hooks/useProfile';
-import { toast } from 'sonner';
 import { BackButton } from "@/components/BackButton";
 import { CallButton } from "../call/CallButton";
+
+// This would typically come from your environment variables or configuration
+const DOCTOR_ID = "d7c60af5-2927-4b9d-a0b2-4d7dddc8a53c"; // Example UUID for doctor
 
 export const PatientChatHeader = () => {
   const { t } = useLanguage();
@@ -21,7 +22,8 @@ export const PatientChatHeader = () => {
         </div>
       </div>
       <CallButton 
-        receiverId="doctor-id"
+        receiverId={DOCTOR_ID}
+        recipientName={t('doctor_name')}
         className="text-white hover:bg-primary-foreground/10 h-8 w-8"
       />
     </div>
