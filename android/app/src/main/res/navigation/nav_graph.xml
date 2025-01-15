@@ -9,12 +9,7 @@
         android:name="com.lovable.app.WelcomeFragment"
         android:label="@string/welcome">
         <action
-            android:id="@+id/action_welcome_to_dashboard"
-            app:destination="@id/dashboardFragment"
-            app:popUpTo="@id/welcomeFragment"
-            app:popUpToInclusive="true" />
-        <action
-            android:id="@+id/action_welcome_to_signin"
+            android:id="@+id/action_welcome_to_signIn"
             app:destination="@id/signInFragment" />
     </fragment>
 
@@ -23,7 +18,7 @@
         android:name="com.lovable.app.SignInFragment"
         android:label="@string/sign_in">
         <action
-            android:id="@+id/action_signin_to_dashboard"
+            android:id="@+id/action_signIn_to_dashboard"
             app:destination="@id/dashboardFragment"
             app:popUpTo="@id/welcomeFragment"
             app:popUpToInclusive="true" />
@@ -31,16 +26,12 @@
 
     <fragment
         android:id="@+id/dashboardFragment"
-        android:name="com.lovable.app.DashboardFragment"
-        android:label="@string/dashboard">
-        <action
-            android:id="@+id/action_dashboard_to_chat"
-            app:destination="@id/chatFragment" />
-    </fragment>
+        android:name="com.lovable.app.ui.dashboard.DashboardFragment"
+        android:label="Dashboard" />
 
     <fragment
         android:id="@+id/chatFragment"
-        android:name="com.lovable.app.ChatFragment"
-        android:label="@string/chat" />
+        android:name="com.lovable.app.ui.chat.ChatFragment"
+        android:label="Chat" />
 
 </navigation>
