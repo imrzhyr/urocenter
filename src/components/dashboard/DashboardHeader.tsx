@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { UserMenu } from "./header/UserMenu";
-import { NotificationsPopover } from "./header/NotificationsPopover";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { motion } from "framer-motion";
 
@@ -46,7 +45,6 @@ export const DashboardHeader = () => {
         </h1>
       </div>
       <div className="flex items-center gap-1">
-        <NotificationsPopover />
         <UserMenu />
       </div>
     </motion.div>
