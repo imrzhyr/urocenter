@@ -21,17 +21,15 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
         throw new Error('Failed to get Agora credentials');
       }
 
-      // Initialize Agora client with disabled statistics
+      // Initialize Agora client with correct configuration
       agoraClient.current = AgoraRTC.createClient({ 
         mode: 'rtc', 
         codec: 'vp8',
-        enableLogUpload: false, // Disable log upload
-        enableCloudProxy: false, // Disable cloud proxy
         turnServer: {
-          turnServerURL: "", // Empty string as we're not using TURN server
-          username: "",      // Empty string as we're not using TURN server
-          password: "",      // Empty string as we're not using TURN server
-          forceturn: false   // Disable forced TURN server usage
+          turnServerURL: "",
+          username: "",
+          password: "",
+          forceturn: false
         }
       });
       
