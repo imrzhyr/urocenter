@@ -19,19 +19,28 @@ export const CallButton = ({ receiverId, className }: CallButtonProps) => {
       return;
     }
 
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(receiverId)) {
+      toast.error('Invalid receiver ID format');
+      return;
+    }
+
     if (profile.id === receiverId) {
       toast.error('You cannot call yourself');
       return;
     }
 
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('calls')
         .insert({
           caller_id: profile.id,
           receiver_id: receiverId,
           status: 'pending'
-        });
+        })
+        .select()
+        .single();
 
       if (error) {
         console.error('Error initiating call:', error);
@@ -39,7 +48,9 @@ export const CallButton = ({ receiverId, className }: CallButtonProps) => {
         return;
       }
 
-      toast.success('Call initiated');
+      if (data) {
+        toast.success('Call initiated');
+      }
     } catch (error) {
       console.error('Error initiating call:', error);
       toast.error('Failed to initiate call');
