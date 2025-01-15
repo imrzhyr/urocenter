@@ -134,42 +134,77 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
 
   const toggleSpeaker = async () => {
     try {
-      const audioDevices = await AgoraRTC.getPlaybackDevices();
+      // Check if running on iOS
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
       
-      // Find speaker device (usually contains 'speaker' in the name)
-      const speakerDevice = audioDevices.find(device => 
-        device.label.toLowerCase().includes('speaker')
-      );
-      
-      // Find earpiece device (usually the default device or contains 'default' in the name)
-      const earpieceDevice = audioDevices.find(device => 
-        device.label.toLowerCase().includes('default') || 
-        device.label.toLowerCase().includes('earpiece')
-      );
-
-      // Get current device
-      const currentDevice = audioDevices[0]; // Default to first device if none selected
-
-      // If current device is speaker, switch to earpiece, otherwise switch to speaker
-      const isSpeakerActive = currentDevice?.label.toLowerCase().includes('speaker');
-      const targetDevice = isSpeakerActive ? earpieceDevice : speakerDevice;
-
-      if (targetDevice) {
+      if (isIOS) {
+        // On iOS, we need to use the WebAudio API
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const audioElements = document.querySelectorAll('audio');
+        
+        // Get current state (assuming first audio element represents current state)
+        const firstAudio = audioElements[0] as HTMLAudioElement;
+        const isSpeakerActive = firstAudio?.sinkId === 'speaker';
+        
+        // Toggle between speaker and default
+        const newSinkId = isSpeakerActive ? 'default' : 'speaker';
+        
         try {
-          // Try using the newer Audio Output Devices API if available
-          if ('setSinkId' in HTMLAudioElement.prototype) {
-            const audioElements = document.querySelectorAll('audio');
-            await Promise.all(
-              Array.from(audioElements).map(audio => 
-                (audio as any).setSinkId(targetDevice.deviceId)
-              )
-            );
-          }
-          return !isSpeakerActive; // Return true if speaker is now active, false if earpiece
+          await Promise.all(
+            Array.from(audioElements).map(audio => {
+              const audioEl = audio as HTMLAudioElement;
+              if ('setSinkId' in audioEl) {
+                return (audioEl as any).setSinkId(newSinkId);
+              }
+              return Promise.resolve();
+            })
+          );
+          
+          return !isSpeakerActive; // Return true if speaker is now active
         } catch (err) {
-          console.error('Error switching audio output:', err);
+          console.error('Error switching iOS audio output:', err);
           toast.error('Failed to switch audio output');
           return false;
+        }
+      } else {
+        // Desktop/Android behavior
+        const audioDevices = await AgoraRTC.getPlaybackDevices();
+        
+        // Find speaker device (usually contains 'speaker' in the name)
+        const speakerDevice = audioDevices.find(device => 
+          device.label.toLowerCase().includes('speaker')
+        );
+        
+        // Find earpiece device (usually the default device or contains 'default' in the name)
+        const earpieceDevice = audioDevices.find(device => 
+          device.label.toLowerCase().includes('default') || 
+          device.label.toLowerCase().includes('earpiece')
+        );
+
+        // Get current device
+        const currentDevice = audioDevices[0]; // Default to first device if none selected
+
+        // If current device is speaker, switch to earpiece, otherwise switch to speaker
+        const isSpeakerActive = currentDevice?.label.toLowerCase().includes('speaker');
+        const targetDevice = isSpeakerActive ? earpieceDevice : speakerDevice;
+
+        if (targetDevice) {
+          try {
+            // Try using the newer Audio Output Devices API if available
+            if ('setSinkId' in HTMLAudioElement.prototype) {
+              const audioElements = document.querySelectorAll('audio');
+              await Promise.all(
+                Array.from(audioElements).map(audio => 
+                  (audio as any).setSinkId(targetDevice.deviceId)
+                )
+              );
+            }
+            return !isSpeakerActive; // Return true if speaker is now active, false if earpiece
+          } catch (err) {
+            console.error('Error switching audio output:', err);
+            toast.error('Failed to switch audio output');
+            return false;
+          }
         }
       }
 
