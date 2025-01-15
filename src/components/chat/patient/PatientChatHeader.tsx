@@ -21,8 +21,8 @@ export const PatientChatHeader = () => {
         </div>
       </div>
       <CallButton 
-        recipientId="doctor-id" // Replace with actual doctor ID
-        recipientName={t('doctor_name')}
+        receiverId="doctor-id"
+        className="text-white hover:bg-primary-foreground/10 h-8 w-8"
       />
     </div>
   );

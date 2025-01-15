@@ -48,7 +48,10 @@ export const DoctorChatHeader = ({
           >
             <FileText className="h-4 w-4" />
           </Button>
-          <CallButton recipientId={patientId} recipientName={patientName} />
+          <CallButton 
+            receiverId={patientId} 
+            className="text-white hover:bg-primary-foreground/10 h-8 w-8"
+          />
         </div>
       </div>
 
