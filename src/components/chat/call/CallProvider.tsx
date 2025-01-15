@@ -11,6 +11,8 @@ interface CallContextType {
   isCalling: boolean;
   currentCallId: string | null;
   callDuration: number;
+  isCallEnded: boolean;
+  localStream: React.MutableRefObject<MediaStream | null>;
   acceptCall: (callId: string) => Promise<void>;
   rejectCall: (callId: string) => Promise<void>;
   endCall: () => Promise<void>;
@@ -25,6 +27,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
   const { profile } = useProfile();
   const [isInCall, setIsInCall] = useState(false);
   const [isCalling, setIsCalling] = useState(false);
+  const [isCallEnded, setIsCallEnded] = useState(false);
   const [currentCallId, setCurrentCallId] = useState<string | null>(null);
   const [incomingCall, setIncomingCall] = useState<{ id: string; callerName: string } | null>(null);
   const [callDuration, setCallDuration] = useState(0);
@@ -37,7 +40,11 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
 
   const setupWebRTC = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: true,
+        video: false
+      });
+      
       localStream.current = stream;
 
       const configuration: RTCConfiguration = {
@@ -59,7 +66,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
         remoteStream.current = event.streams[0];
         const audio = new Audio();
         audio.srcObject = remoteStream.current;
-        audio.play();
+        audio.play().catch(console.error);
       };
 
       return true;
@@ -150,6 +157,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       setCurrentCallId(callId);
       setIsInCall(true);
       setIncomingCall(null);
+      setIsCallEnded(false);
 
       const { error } = await supabase
         .from('calls')
@@ -199,27 +207,36 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (error) throw error;
 
-      // Cleanup
-      if (peerConnection.current) {
-        peerConnection.current.close();
-        peerConnection.current = null;
-      }
-      if (localStream.current) {
-        localStream.current.getTracks().forEach(track => track.stop());
-        localStream.current = null;
-      }
-      if (callTimeoutRef.current) {
-        clearTimeout(callTimeoutRef.current);
-      }
-      if (durationIntervalRef.current) {
-        clearInterval(durationIntervalRef.current);
-      }
+      setIsCallEnded(true);
 
-      setCurrentCallId(null);
-      setIsInCall(false);
-      setIsCalling(false);
-      setCallDuration(0);
-      toast.info('Call ended');
+      // Cleanup after 2 seconds
+      setTimeout(() => {
+        if (peerConnection.current) {
+          peerConnection.current.close();
+          peerConnection.current = null;
+        }
+        if (localStream.current) {
+          localStream.current.getTracks().forEach(track => track.stop());
+          localStream.current = null;
+        }
+        if (remoteStream.current) {
+          remoteStream.current.getTracks().forEach(track => track.stop());
+          remoteStream.current = null;
+        }
+        if (callTimeoutRef.current) {
+          clearTimeout(callTimeoutRef.current);
+        }
+        if (durationIntervalRef.current) {
+          clearInterval(durationIntervalRef.current);
+        }
+
+        setCurrentCallId(null);
+        setIsInCall(false);
+        setIsCalling(false);
+        setCallDuration(0);
+        setIsCallEnded(false);
+      }, 2000);
+
     } catch (error) {
       console.error('Error ending call:', error);
       toast.error('Failed to end call');
@@ -251,7 +268,6 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
               callerName: caller?.full_name || 'Unknown'
             });
           } else if (payload.eventType === 'UPDATE' && payload.new.status === 'active') {
-            // When call is accepted, start the timer for both parties
             if (payload.new.caller_id === profile.id || payload.new.receiver_id === profile.id) {
               setIsInCall(true);
               setIsCalling(false);
@@ -262,7 +278,6 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       )
       .subscribe();
 
-    // Listen for WebRTC signaling
     const signalChannel = supabase
       .channel('call_signals')
       .on(
@@ -304,33 +319,6 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, [profile?.id]);
 
-  // Handle ICE candidates
-  useEffect(() => {
-    if (!peerConnection.current || !profile?.id || !currentCallId) return;
-
-    peerConnection.current.onicecandidate = async (event) => {
-      if (event.candidate) {
-        const { data: call } = await supabase
-          .from('calls')
-          .select('caller_id, receiver_id')
-          .eq('id', currentCallId)
-          .single();
-
-        if (!call) return;
-
-        const toUser = call.caller_id === profile.id ? call.receiver_id : call.caller_id;
-
-        await supabase.from('call_signals').insert({
-          call_id: currentCallId,
-          from_user: profile.id,
-          to_user: toUser,
-          type: 'ice-candidate',
-          data: { candidate: event.candidate }
-        });
-      }
-    };
-  }, [currentCallId, profile?.id]);
-
   return (
     <CallContext.Provider 
       value={{ 
@@ -338,6 +326,8 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
         isCalling,
         currentCallId,
         callDuration,
+        isCallEnded,
+        localStream,
         acceptCall, 
         rejectCall, 
         endCall,
