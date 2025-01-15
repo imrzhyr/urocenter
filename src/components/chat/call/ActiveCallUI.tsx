@@ -24,7 +24,7 @@ export const ActiveCallUI = () => {
     if (isCallEnded) {
       const timer = setTimeout(() => {
         setShowUI(false);
-      }, 2000);
+      }, 3000);
       return () => clearTimeout(timer);
     }
   }, [isCallEnded]);

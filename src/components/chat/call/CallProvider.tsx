@@ -106,13 +106,26 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       setIsCallEnded(true);
       stopDurationTimer();
 
+      // Broadcast call end to other participant
+      const { error } = await supabase
+        .from('call_signals')
+        .insert({
+          call_id: currentCallId,
+          from_user: profile.id,
+          to_user: incomingCall?.callerId || currentCallId, // Use appropriate ID based on call direction
+          type: 'end_call',
+          data: { duration: callDuration }
+        });
+
+      if (error) throw error;
+
       setTimeout(() => {
         clearCallTimeout();
         setCurrentCallId(null);
         setIsInCall(false);
         setIsCalling(false);
         setIsCallEnded(false);
-      }, 2000);
+      }, 3000);
     } catch (error) {
       console.error('Error ending call:', error);
       toast.error('Failed to end call');
