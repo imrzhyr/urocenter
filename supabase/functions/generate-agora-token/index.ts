@@ -32,6 +32,14 @@ serve(async (req) => {
     const currentTimestamp = Math.floor(Date.now() / 1000)
     const privilegeExpiredTs = currentTimestamp + expirationTimeInSeconds
 
+    console.log('Generating token with params:', {
+      appId,
+      channelName,
+      uid,
+      role,
+      privilegeExpiredTs
+    })
+
     const token = RtcTokenBuilder.buildTokenWithUid(
       appId,
       appCertificate,
@@ -41,7 +49,7 @@ serve(async (req) => {
       privilegeExpiredTs
     )
 
-    console.log('Generated token for channel:', channelName)
+    console.log('Successfully generated token for channel:', channelName)
 
     return new Response(
       JSON.stringify({ token }),
