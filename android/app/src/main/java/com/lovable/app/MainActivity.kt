@@ -10,6 +10,7 @@ import io.github.jan.supabase.gotrue.SessionStatus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import androidx.navigation.NavOptions
 
 class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
@@ -45,16 +46,18 @@ class MainActivity : AppCompatActivity() {
                 when (status) {
                     is SessionStatus.Authenticated -> {
                         if (navController.currentDestination?.id == R.id.welcomeFragment) {
-                            navController.navigate(R.id.action_welcome_to_dashboard)
+                            val navOptions = NavOptions.Builder()
+                                .setPopUpTo(R.id.welcomeFragment, true)
+                                .build()
+                            navController.navigate(R.id.action_welcome_to_dashboard, null, navOptions)
                         }
                     }
                     else -> {
                         if (navController.currentDestination?.id != R.id.welcomeFragment) {
-                            navController.navigate(R.id.welcomeFragment) {
-                                popUpTo(R.id.nav_graph) {
-                                    inclusive = true
-                                }
-                            }
+                            val navOptions = NavOptions.Builder()
+                                .setPopUpTo(R.id.nav_graph, true)
+                                .build()
+                            navController.navigate(R.id.welcomeFragment, null, navOptions)
                         }
                     }
                 }
