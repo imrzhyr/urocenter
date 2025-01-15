@@ -3,10 +3,10 @@ import { useProfile } from '@/hooks/useProfile';
 import { CallNotification } from './CallNotification';
 import { ActiveCallUI } from './ActiveCallUI';
 import { CallingUI } from './CallingUI';
-import { useWebRTC } from './hooks/useWebRTC';
 import { useCallState } from './hooks/useCallState';
 import { useCallNotifications } from './hooks/useCallNotifications';
 import { useCallActions } from './hooks/useCallActions';
+import { useAgoraCall } from './hooks/useAgoraCall';
 import { toast } from 'sonner';
 
 interface CallContextType {
@@ -15,11 +15,11 @@ interface CallContextType {
   currentCallId: string | null;
   callDuration: number;
   isCallEnded: boolean;
-  localStream: React.MutableRefObject<MediaStream | null>;
   acceptCall: (callId: string) => Promise<void>;
   rejectCall: (callId: string) => Promise<void>;
   endCall: () => Promise<void>;
   initiateCall: (receiverId: string, recipientName: string) => Promise<void>;
+  toggleMute: () => boolean;
 }
 
 const CallContext = createContext<CallContextType | null>(null);
@@ -38,45 +38,75 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     currentCallId,
     setCurrentCallId,
     callDuration,
-    callTimeoutRef,
     startDurationTimer,
     stopDurationTimer,
     clearCallTimeout,
     updateCallStatus
   } = useCallState({ profileId: profile?.id });
 
-  const {
-    peerConnection,
-    localStream,
-    setupWebRTC,
-    cleanup: cleanupWebRTC
-  } = useWebRTC({ currentCallId, profileId: profile?.id });
-
   const { incomingCall, setIncomingCall } = useCallNotifications(profile?.id);
 
-  const { acceptCall, rejectCall, initiateCall } = useCallActions({
-    profileId: profile?.id,
-    setupWebRTC,
-    clearCallTimeout,
-    setCurrentCallId,
-    setIsInCall,
-    setIncomingCall,
-    setIsCallEnded,
-    startDurationTimer,
-    updateCallStatus,
-    peerConnection
+  const {
+    setupAgoraClient,
+    joinChannel,
+    leaveChannel,
+    toggleMute
+  } = useAgoraCall({
+    currentCallId,
+    profileId: profile?.id
   });
+
+  const acceptCall = async (callId: string) => {
+    if (!profile?.id) return;
+
+    try {
+      const success = await setupAgoraClient();
+      if (!success) {
+        toast.error('Failed to initialize call');
+        return;
+      }
+
+      clearCallTimeout();
+      setCurrentCallId(callId);
+      setIsInCall(true);
+      setIncomingCall(null);
+      setIsCallEnded(false);
+
+      const joined = await joinChannel(callId);
+      if (!joined) {
+        throw new Error('Failed to join call');
+      }
+
+      await updateCallStatus(callId, 'active');
+      startDurationTimer();
+      toast.success('Call connected');
+    } catch (error) {
+      console.error('Error accepting call:', error);
+      toast.error('Failed to accept call');
+    }
+  };
+
+  const rejectCall = async (callId: string) => {
+    try {
+      await updateCallStatus(callId, 'rejected', true);
+      setIncomingCall(null);
+      toast.info('Call rejected');
+    } catch (error) {
+      console.error('Error rejecting call:', error);
+      toast.error('Failed to reject call');
+    }
+  };
 
   const endCall = async () => {
     if (!currentCallId || !profile?.id) return;
 
     try {
       await updateCallStatus(currentCallId, 'ended', true);
+      await leaveChannel();
       setIsCallEnded(true);
       stopDurationTimer();
 
       setTimeout(() => {
-        cleanupWebRTC();
         clearCallTimeout();
         setCurrentCallId(null);
         setIsInCall(false);
@@ -89,9 +119,40 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const handleInitiateCall = async (receiverId: string, name: string) => {
-    setRecipientName(name);
-    await initiateCall(receiverId, name);
+  const initiateCall = async (receiverId: string, name: string) => {
+    if (!profile?.id) {
+      toast.error('You must be logged in to make calls');
+      return;
+    }
+
+    try {
+      const success = await setupAgoraClient();
+      if (!success) return;
+
+      const { data: call, error } = await supabase
+        .from('calls')
+        .insert({
+          caller_id: profile.id,
+          receiver_id: receiverId,
+          status: 'pending'
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setCurrentCallId(call.id);
+      setRecipientName(name);
+      setIsCalling(true);
+
+      const joined = await joinChannel(call.id);
+      if (!joined) {
+        throw new Error('Failed to join call');
+      }
+    } catch (error) {
+      console.error('Error in initiateCall:', error);
+      toast.error('Failed to start call');
+    }
   };
 
   return (
@@ -102,11 +163,11 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
         currentCallId,
         callDuration,
         isCallEnded,
-        localStream,
         acceptCall, 
         rejectCall, 
         endCall,
-        initiateCall: handleInitiateCall
+        initiateCall,
+        toggleMute
       }}
     >
       {children}

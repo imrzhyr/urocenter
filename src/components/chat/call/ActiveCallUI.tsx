@@ -5,7 +5,7 @@ import { useCall } from './CallProvider';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const ActiveCallUI = () => {
-  const { callDuration, endCall, localStream, isCallEnded } = useCall();
+  const { callDuration, endCall, toggleMute, isCallEnded } = useCall();
   const [isMuted, setIsMuted] = React.useState(false);
   const [showUI, setShowUI] = React.useState(true);
 
@@ -15,13 +15,9 @@ export const ActiveCallUI = () => {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const toggleMute = () => {
-    if (localStream.current) {
-      localStream.current.getAudioTracks().forEach(track => {
-        track.enabled = !track.enabled;
-      });
-      setIsMuted(!isMuted);
-    }
+  const handleToggleMute = () => {
+    const muted = toggleMute();
+    setIsMuted(muted);
   };
 
   useEffect(() => {
@@ -67,7 +63,7 @@ export const ActiveCallUI = () => {
                   variant="outline"
                   size="lg"
                   className="rounded-full p-6"
-                  onClick={toggleMute}
+                  onClick={handleToggleMute}
                 >
                   {isMuted ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
                 </Button>
