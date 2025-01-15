@@ -7,6 +7,7 @@ import { useWebRTC } from './hooks/useWebRTC';
 import { useCallState } from './hooks/useCallState';
 import { useCallNotifications } from './hooks/useCallNotifications';
 import { useCallActions } from './hooks/useCallActions';
+import { toast } from 'sonner';
 
 interface CallContextType {
   isInCall: boolean;
@@ -25,6 +26,7 @@ const CallContext = createContext<CallContextType | null>(null);
 
 export const CallProvider = ({ children }: { children: React.ReactNode }) => {
   const { profile } = useProfile();
+  const [recipientName, setRecipientName] = React.useState<string>('');
 
   const {
     isInCall,
@@ -87,6 +89,11 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const handleInitiateCall = async (receiverId: string, name: string) => {
+    setRecipientName(name);
+    await initiateCall(receiverId, name);
+  };
+
   return (
     <CallContext.Provider 
       value={{ 
@@ -99,7 +106,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
         acceptCall, 
         rejectCall, 
         endCall,
-        initiateCall 
+        initiateCall: handleInitiateCall
       }}
     >
       {children}
