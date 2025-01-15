@@ -27,8 +27,11 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
         codec: 'vp8',
         enableLogUpload: false, // Disable log upload
         enableCloudProxy: false, // Disable cloud proxy
-        turnServer: { // Disable TURN server usage
-          forceturn: false, // Fixed: changed forceTurn to forceturn
+        turnServer: {
+          turnServerURL: "", // Empty string as we're not using TURN server
+          username: "",      // Empty string as we're not using TURN server
+          password: "",      // Empty string as we're not using TURN server
+          forceturn: false   // Disable forced TURN server usage
         }
       });
       
