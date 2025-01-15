@@ -21,16 +21,10 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
         throw new Error('Failed to get Agora credentials');
       }
 
-      // Initialize Agora client with correct configuration
+      // Initialize Agora client with basic configuration
       agoraClient.current = AgoraRTC.createClient({ 
         mode: 'rtc', 
-        codec: 'vp8',
-        turnServer: {
-          turnServerURL: "",
-          username: "",
-          password: "",
-          forceturn: false
-        }
+        codec: 'vp8'
       });
       
       // Create and get microphone audio track
