@@ -5,51 +5,34 @@ import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useDoctorChat } from "./hooks/useDoctorChat";
 import { useProfile } from "@/hooks/useProfile";
-import { CallProvider } from "@/components/chat/call/CallProvider";
+import { CallProvider } from "../call/CallProvider";
 
 export const DoctorChatContainer = () => {
-  const { userId } = useParams();
-  const { messages, sendMessage, isLoading, refreshMessages } = useChat(userId);
-  const { patientProfile } = useDoctorChat(userId);
+  const { id } = useParams();
   const { profile } = useProfile();
+  const { messages, sendMessage } = useChat(id);
+  const { selectedPatient } = useDoctorChat();
 
-  const handleSendMessage = async (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }) => {
-    if (!userId || !profile?.id) {
-      toast.error("Unable to send message");
-      return;
-    }
+  if (!profile) {
+    return null;
+  }
 
-    try {
-      await sendMessage(content, fileInfo);
-      refreshMessages();
-    } catch (error) {
-      console.error("Error sending message:", error);
-      toast.error("Failed to send message");
-    }
-  };
-
-  if (!patientProfile) {
+  if (!selectedPatient) {
+    toast.error("No patient selected");
     return null;
   }
 
   return (
-    <div className="flex flex-col h-[100vh] w-full bg-gray-50">
-      <CallProvider>
+    <CallProvider>
+      <div className="flex flex-col h-screen bg-background">
+        <DoctorChatHeader patient={selectedPatient} />
         <MessageContainer
           messages={messages}
-          onSendMessage={handleSendMessage}
-          isLoading={isLoading}
-          header={
-            <DoctorChatHeader
-              patientId={userId || ''}
-              patientName={patientProfile.full_name || "Unknown Patient"}
-              patientPhone={patientProfile.phone}
-              onRefresh={refreshMessages}
-            />
-          }
-          userId={userId || ''}
+          sendMessage={sendMessage}
+          recipientId={selectedPatient.id}
+          recipientName={selectedPatient.full_name || "Patient"}
         />
-      </CallProvider>
-    </div>
+      </div>
+    </CallProvider>
   );
 };
