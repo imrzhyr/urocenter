@@ -3,8 +3,8 @@ import { useProfile } from '@/hooks/useProfile';
 import { BackButton } from "@/components/BackButton";
 import { CallButton } from "../call/CallButton";
 
-// This would typically come from your environment variables or configuration
-const DOCTOR_ID = "d7c60af5-2927-4b9d-a0b2-4d7dddc8a53c"; // Example UUID for doctor
+// Admin's UUID for the doctor
+const DOCTOR_ID = "8d231b24-7163-4390-8361-4edb6f5f69d3";
 
 export const PatientChatHeader = () => {
   const { t } = useLanguage();
