@@ -106,18 +106,32 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       setIsCallEnded(true);
       stopDurationTimer();
 
-      // Broadcast call end to other participant
-      const { error } = await supabase
-        .from('call_signals')
-        .insert({
-          call_id: currentCallId,
-          from_user: profile.id,
-          to_user: incomingCall?.callerId || currentCallId, // Use appropriate ID based on call direction
-          type: 'end_call',
-          data: { duration: callDuration }
-        });
+      // Get the call details to find the other participant
+      const { data: callData } = await supabase
+        .from('calls')
+        .select('caller_id, receiver_id')
+        .eq('id', currentCallId)
+        .single();
 
-      if (error) throw error;
+      if (callData) {
+        // Determine the other participant's ID
+        const otherParticipantId = callData.caller_id === profile.id 
+          ? callData.receiver_id 
+          : callData.caller_id;
+
+        // Broadcast call end to other participant
+        const { error } = await supabase
+          .from('call_signals')
+          .insert({
+            call_id: currentCallId,
+            from_user: profile.id,
+            to_user: otherParticipantId,
+            type: 'end_call',
+            data: { duration: callDuration }
+          });
+
+        if (error) throw error;
+      }
 
       setTimeout(() => {
         clearCallTimeout();
