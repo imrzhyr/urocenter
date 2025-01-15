@@ -19,23 +19,17 @@ export const CallButton = ({ receiverId, className }: CallButtonProps) => {
       return;
     }
 
+    if (profile.id === receiverId) {
+      toast.error('You cannot call yourself');
+      return;
+    }
+
     try {
-      const { data: doctorProfile } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('role', 'admin')
-        .single();
-
-      if (!doctorProfile?.id) {
-        toast.error('Could not find doctor profile');
-        return;
-      }
-
       const { error } = await supabase
         .from('calls')
         .insert({
           caller_id: profile.id,
-          receiver_id: doctorProfile.id,
+          receiver_id: receiverId,
           status: 'pending'
         });
 
