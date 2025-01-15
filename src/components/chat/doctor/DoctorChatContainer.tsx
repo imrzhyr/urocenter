@@ -34,25 +34,22 @@ export const DoctorChatContainer = () => {
 
   return (
     <div className="flex flex-col h-[100vh] w-full bg-gray-50">
-      <div className="bg-primary sticky top-0 z-50">
-        <CallProvider>
-          <>
+      <CallProvider>
+        <MessageContainer
+          messages={messages}
+          onSendMessage={handleSendMessage}
+          isLoading={isLoading}
+          header={
             <DoctorChatHeader
               patientId={userId || ''}
               patientName={patientProfile.full_name || "Unknown Patient"}
               patientPhone={patientProfile.phone}
               onRefresh={refreshMessages}
             />
-            <MessageContainer
-              messages={messages}
-              onSendMessage={handleSendMessage}
-              isLoading={isLoading}
-              header={<div />}
-              userId={userId || ''}
-            />
-          </>
-        </CallProvider>
-      </div>
+          }
+          userId={userId || ''}
+        />
+      </CallProvider>
     </div>
   );
 };
