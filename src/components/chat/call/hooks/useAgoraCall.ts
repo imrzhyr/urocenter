@@ -11,6 +11,7 @@ interface UseAgoraCallProps {
 export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) => {
   const agoraClient = useRef<IAgoraRTCClient | null>(null);
   const localAudioTrack = useRef<ILocalAudioTrack | null>(null);
+  const audioContext = useRef<AudioContext | null>(null);
 
   const setupAgoraClient = async () => {
     try {
@@ -138,7 +139,6 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
       
       if (isIOS) {
-        // On iOS, we need to use the WebAudio API
         const audioElements = document.querySelectorAll('audio');
         
         // Get current state (assuming first audio element represents current state)
@@ -149,8 +149,10 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
         const newSinkId = isSpeakerActive ? 'default' : 'speaker';
         
         try {
-          // Force audio context creation to ensure audio routing works
-          const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+          // Only create audio context when switching to speaker
+          if (newSinkId === 'speaker' && !audioContext.current) {
+            audioContext.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+          }
           
           // Apply the new sink ID to all audio elements
           await Promise.all(
@@ -163,9 +165,10 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
             })
           );
           
-          // If we successfully switched to default, ensure we release the audio context
-          if (newSinkId === 'default') {
-            await audioContext.close();
+          // If switching back to default, close the audio context
+          if (newSinkId === 'default' && audioContext.current) {
+            await audioContext.current.close();
+            audioContext.current = null;
           }
           
           return !isSpeakerActive; // Return true if speaker is now active
@@ -175,30 +178,22 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
           return false;
         }
       } else {
-        // Desktop/Android behavior
+        // Desktop/Android behavior remains the same
         const audioDevices = await AgoraRTC.getPlaybackDevices();
-        
-        // Find speaker device (usually contains 'speaker' in the name)
         const speakerDevice = audioDevices.find(device => 
           device.label.toLowerCase().includes('speaker')
         );
-        
-        // Find earpiece device (usually the default device or contains 'default' in the name)
         const earpieceDevice = audioDevices.find(device => 
           device.label.toLowerCase().includes('default') || 
           device.label.toLowerCase().includes('earpiece')
         );
 
-        // Get current device
-        const currentDevice = audioDevices[0]; // Default to first device if none selected
-
-        // If current device is speaker, switch to earpiece, otherwise switch to speaker
+        const currentDevice = audioDevices[0];
         const isSpeakerActive = currentDevice?.label.toLowerCase().includes('speaker');
         const targetDevice = isSpeakerActive ? earpieceDevice : speakerDevice;
 
         if (targetDevice) {
           try {
-            // Try using the newer Audio Output Devices API if available
             if ('setSinkId' in HTMLAudioElement.prototype) {
               const audioElements = document.querySelectorAll('audio');
               await Promise.all(
@@ -207,7 +202,7 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
                 )
               );
             }
-            return !isSpeakerActive; // Return true if speaker is now active, false if earpiece
+            return !isSpeakerActive;
           } catch (err) {
             console.error('Error switching audio output:', err);
             toast.error('Failed to switch audio output');
@@ -226,7 +221,11 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
 
   useEffect(() => {
     return () => {
-      leaveChannel();
+      // Cleanup audio context if it exists
+      if (audioContext.current) {
+        audioContext.current.close();
+        audioContext.current = null;
+      }
     };
   }, []);
 

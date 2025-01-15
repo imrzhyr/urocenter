@@ -4,6 +4,7 @@ callingSound.loop = true; // Loop the calling sound
 callingSound.preload = 'auto';
 
 const callSound = new Audio(`${window.location.origin}/call-sound.mp3`);
+callSound.loop = true; // Loop the call sound for incoming calls
 callSound.preload = 'auto';
 
 export const callSoundUtils = {
@@ -23,12 +24,20 @@ export const callSoundUtils = {
       console.error('Error stopping calling sound:', error);
     }
   },
-  playCallSound: async () => {
+  playCallSound: () => {
     try {
       callSound.currentTime = 0;
-      await callSound.play();
+      callSound.play();
     } catch (error) {
       console.error('Error playing call sound:', error);
+    }
+  },
+  stopCallSound: () => {
+    try {
+      callSound.pause();
+      callSound.currentTime = 0;
+    } catch (error) {
+      console.error('Error stopping call sound:', error);
     }
   }
 };
