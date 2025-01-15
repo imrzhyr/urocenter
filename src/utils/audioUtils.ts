@@ -1,5 +1,5 @@
-// Create an audio element for message sounds
-const audio = new Audio('/message-sound.mp3');
+// Create an audio element for message sounds with absolute path
+const audio = new Audio(`${window.location.origin}/message-sound.mp3`);
 audio.preload = 'auto';
 
 // Export the message sound player

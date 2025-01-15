@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { Message, MessageType } from "@/types/profile";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { PanInfo } from "framer-motion";
-import { messageSound } from "@/utils/audioUtils";
 import { useProfile } from "@/hooks/useProfile";
 import { MessageItem } from "./message/MessageItem";
 import { supabase } from "@/integrations/supabase/client";
@@ -35,9 +34,15 @@ export const MessageList = ({ messages, currentUserId, onReply }: MessageListPro
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
   useEffect(() => {
-    // Initialize audio element
-    audioRef.current = new Audio('/message-sound.mp3');
-    audioRef.current.preload = 'auto';
+    // Initialize audio element with absolute path
+    const audio = new Audio(`${window.location.origin}/message-sound.mp3`);
+    audio.preload = 'auto';
+    audioRef.current = audio;
+    
+    // Test if audio can be loaded
+    audio.addEventListener('error', (e) => {
+      console.error('Audio loading error:', e);
+    });
     
     return () => {
       if (audioRef.current) {
@@ -84,6 +89,8 @@ export const MessageList = ({ messages, currentUserId, onReply }: MessageListPro
     }
     
     if (messages.length > prevMessagesLength.current && audioRef.current) {
+      // Reset audio position and play
+      audioRef.current.currentTime = 0;
       audioRef.current.play().catch(error => {
         console.error('Error playing message sound:', error);
       });
