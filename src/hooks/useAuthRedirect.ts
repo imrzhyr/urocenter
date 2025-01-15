@@ -8,26 +8,23 @@ export const useAuthRedirect = () => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        const userPhone = localStorage.getItem('userPhone');
-        if (!userPhone) {
-          toast.error("Please sign in to access the chat");
-          navigate("/signin", { replace: true });
-          return;
-        }
+      const userPhone = localStorage.getItem('userPhone');
+      if (!userPhone) {
+        toast.error("Please sign in to access the chat");
+        navigate("/signin", { replace: true });
+        return;
+      }
 
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('phone', userPhone)
-          .maybeSingle();
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('phone', userPhone)
+        .maybeSingle();
 
-        if (!profile) {
-          localStorage.removeItem('userPhone');
-          toast.error("Please sign in to access the chat");
-          navigate("/signin", { replace: true });
-        }
+      if (!profile) {
+        localStorage.removeItem('userPhone');
+        toast.error("Please sign in to access the chat");
+        navigate("/signin", { replace: true });
       }
     };
 
