@@ -29,7 +29,7 @@ export const OnboardingLayout = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <header className="sticky top-0 z-50 w-full bg-white border-b border-gray-100">
+      <header className="sticky top-0 z-50 w-full bg-white border-b border-gray-100 dark:bg-gray-900 dark:border-gray-800">
         <div className="container max-w-4xl mx-auto p-4 flex justify-between items-center">
           <BackButton />
           <LanguageSelector />
@@ -40,12 +40,12 @@ export const OnboardingLayout = () => {
       </header>
 
       <main className="flex-1 container max-w-4xl mx-auto p-4">
-        <div className="flex-1 h-full bg-white rounded-lg shadow-sm p-6">
+        <div className="flex-1 h-full bg-white rounded-lg shadow-sm p-6 dark:bg-gray-800">
           <Outlet />
         </div>
       </main>
 
-      <footer className="p-4 text-center text-sm text-muted-foreground bg-white">
+      <footer className="p-4 text-center text-sm text-muted-foreground bg-white dark:bg-gray-900">
         {language === 'ar' ? '© 2025 جميع الحقوق محفوظة' : '© 2025 All rights reserved'}
       </footer>
     </div>

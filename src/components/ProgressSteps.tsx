@@ -22,7 +22,7 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
       <div className="relative flex justify-between">
         {/* Progress bar background */}
         <div 
-          className="absolute top-[1.125rem] left-[4%] right-[4%] h-0.5 bg-gray-100" 
+          className="absolute top-[1.125rem] left-[4%] right-[4%] h-0.5 bg-gray-100 dark:bg-gray-700" 
           style={{ zIndex: 0 }}
         />
         
@@ -53,12 +53,12 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
             >
               <div
                 className={cn(
-                  "w-9 h-9 rounded-full flex items-center justify-center border-2 transition-all duration-300 bg-white",
+                  "w-9 h-9 rounded-full flex items-center justify-center border-2 transition-all duration-300 bg-white dark:bg-gray-800",
                   index < currentStep
                     ? "border-primary bg-primary text-white"
                     : index === currentStep
                     ? "border-primary text-primary"
-                    : "border-gray-200 text-gray-400"
+                    : "border-gray-200 text-gray-400 dark:border-gray-600"
                 )}
               >
                 {index < currentStep ? (

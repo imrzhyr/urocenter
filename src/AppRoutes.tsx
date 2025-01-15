@@ -10,6 +10,7 @@ import Payment from "@/pages/Payment";
 import Settings from "@/pages/Settings";
 import AdminDashboard from "@/pages/AdminDashboard";
 import UserChat from "@/pages/UserChat";
+import { OnboardingLayout } from "@/components/layouts/OnboardingLayout";
 
 const router = createBrowserRouter([
   {
@@ -21,8 +22,25 @@ const router = createBrowserRouter([
     element: <SignIn />,
   },
   {
-    path: "/signup",
-    element: <SignUp />,
+    element: <OnboardingLayout />,
+    children: [
+      {
+        path: "/signup",
+        element: <SignUp />,
+      },
+      {
+        path: "/profile",
+        element: <Profile />,
+      },
+      {
+        path: "/medical-information",
+        element: <MedicalInformation />,
+      },
+      {
+        path: "/payment",
+        element: <Payment />,
+      },
+    ],
   },
   {
     path: "/dashboard",
@@ -35,18 +53,6 @@ const router = createBrowserRouter([
   {
     path: "/chat/:userId",
     element: <Chat />,
-  },
-  {
-    path: "/profile",
-    element: <Profile />,
-  },
-  {
-    path: "/medical-information",
-    element: <MedicalInformation />,
-  },
-  {
-    path: "/payment",
-    element: <Payment />,
   },
   {
     path: "/settings",
