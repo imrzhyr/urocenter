@@ -8,6 +8,7 @@ import { useCallNotifications } from './hooks/useCallNotifications';
 import { useAgoraCall } from './hooks/useAgoraCall';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { Portal } from '@/components/ui/portal';
 
 interface CallContextType {
   isInCall: boolean;
@@ -28,7 +29,7 @@ const CallContext = createContext<CallContextType | null>(null);
 export const CallProvider = ({ children }: { children: React.ReactNode }) => {
   const { profile } = useProfile();
   const recipientNameRef = useRef<string>('');
-
+  const notificationRef = useRef<Notification | null>(null);
   const {
     isInCall,
     setIsInCall,
@@ -58,56 +59,39 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     profileId: profile?.id
   });
 
-  const verifyProfile = async (profileId: string) => {
-    try {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', profileId)
-        .maybeSingle();
-      
-      return !!profile;
-    } catch (error) {
-      console.error('Error verifying profile:', error);
-      return false;
+  useEffect(() => {
+    if ('Notification' in window) {
+      Notification.requestPermission();
     }
-  };
+  }, []);
 
   useEffect(() => {
-    if (!currentCallId || !profile?.id) return;
+    if (incomingCall) {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        notificationRef.current = new Notification('Incoming Call', {
+          body: `${incomingCall.callerName} is calling you`,
+          icon: '/favicon.ico',
+          tag: 'call-notification',
+          requireInteraction: true
+        });
 
-    const channel = supabase
-      .channel(`call_status_${currentCallId}`)
-      .on('postgres_changes', {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'calls',
-        filter: `id=eq.${currentCallId}`,
-      }, async (payload) => {
-        const newStatus = payload.new.status;
-        if (newStatus === 'active' && isCalling) {
-          setIsCalling(false);
-          setIsInCall(true);
-          startDurationTimer();
-          toast.success('Call connected');
-        } else if (newStatus === 'ended') {
-          setIsCallEnded(true);
-          stopDurationTimer();
-          setTimeout(() => {
-            clearCallTimeout();
-            setCurrentCallId(null);
-            setIsInCall(false);
-            setIsCalling(false);
-            setIsCallEnded(false);
-          }, 3000);
-        }
-      })
-      .subscribe();
+        notificationRef.current.onclick = () => {
+          window.focus();
+          notificationRef.current?.close();
+        };
+      }
+
+      callSoundUtils.playCallSound();
+    } else {
+      notificationRef.current?.close();
+      callSoundUtils.stopCallSound();
+    }
 
     return () => {
-      supabase.removeChannel(channel);
+      notificationRef.current?.close();
+      callSoundUtils.stopCallSound();
     };
-  }, [currentCallId, profile?.id, isCalling]);
+  }, [incomingCall]);
 
   const acceptCall = async (callId: string) => {
     if (!profile?.id) return;
@@ -258,16 +242,18 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       }}
     >
       {children}
-      {incomingCall && (
-        <CallNotification
-          callerName={incomingCall.callerName}
-          onAccept={() => acceptCall(incomingCall.id)}
-          onReject={() => rejectCall(incomingCall.id)}
-          open={!!incomingCall}
-        />
-      )}
-      {isCalling && <CallingUI recipientName={recipientNameRef.current} />}
-      {isInCall && <ActiveCallUI />}
+      <Portal>
+        {incomingCall && (
+          <CallNotification
+            callerName={incomingCall.callerName}
+            onAccept={() => acceptCall(incomingCall.id)}
+            onReject={() => rejectCall(incomingCall.id)}
+            open={!!incomingCall}
+          />
+        )}
+        {isCalling && <CallingUI recipientName={recipientNameRef.current} />}
+        {isInCall && <ActiveCallUI />}
+      </Portal>
     </CallContext.Provider>
   );
 };
