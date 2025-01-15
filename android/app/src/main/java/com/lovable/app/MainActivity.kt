@@ -14,6 +14,7 @@ import io.github.jan.supabase.gotrue.SessionStatus
 
 class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
+    private lateinit var bottomNav: BottomNavigationView
     private val mainScope = CoroutineScope(Dispatchers.Main)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,11 +24,21 @@ class MainActivity : AppCompatActivity() {
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
+        
+        bottomNav = findViewById(R.id.bottom_navigation)
+        bottomNav.setupWithNavController(navController)
 
-        findViewById<BottomNavigationView>(R.id.bottom_navigation)
-            .setupWithNavController(navController)
-
+        setupNavigation()
         observeAuthState()
+    }
+
+    private fun setupNavigation() {
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.welcomeFragment, R.id.signInFragment -> bottomNav.visibility = android.view.View.GONE
+                else -> bottomNav.visibility = android.view.View.VISIBLE
+            }
+        }
     }
 
     private fun observeAuthState() {
@@ -35,20 +46,16 @@ class MainActivity : AppCompatActivity() {
             LovableApp.supabase.gotrue.sessionStatus.collect { status ->
                 when (status) {
                     is SessionStatus.Authenticated -> {
-                        if (navController.currentDestination?.id == R.id.welcomeFragment) {
-                            val navOptions = NavOptions.Builder()
-                                .setPopUpTo(R.id.welcomeFragment, true)
-                                .build()
-                            navController.navigate(R.id.action_welcome_to_dashboard, null, navOptions)
-                        }
+                        val navOptions = NavOptions.Builder()
+                            .setPopUpTo(R.id.welcomeFragment, true)
+                            .build()
+                        navController.navigate(R.id.action_welcome_to_dashboard, null, navOptions)
                     }
                     else -> {
-                        if (navController.currentDestination?.id != R.id.welcomeFragment) {
-                            val navOptions = NavOptions.Builder()
-                                .setPopUpTo(R.id.nav_graph, true)
-                                .build()
-                            navController.navigate(R.id.welcomeFragment, null, navOptions)
-                        }
+                        val navOptions = NavOptions.Builder()
+                            .setPopUpTo(R.id.dashboardFragment, true)
+                            .build()
+                        navController.navigate(R.id.welcomeFragment, null, navOptions)
                     }
                 }
             }
