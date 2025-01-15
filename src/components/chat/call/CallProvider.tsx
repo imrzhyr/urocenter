@@ -82,6 +82,11 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
         console.log('Connection state:', peerConnection.current?.connectionState);
         if (peerConnection.current?.connectionState === 'connected') {
           console.log('Peers connected!');
+          // Clear the timeout when peers are connected
+          if (callTimeoutRef.current) {
+            clearTimeout(callTimeoutRef.current);
+            callTimeoutRef.current = undefined;
+          }
         }
       };
 
@@ -182,7 +187,9 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
         });
       }
 
+      // Set up call timeout
       callTimeoutRef.current = setTimeout(async () => {
+        // Only trigger timeout if we're still in the calling state
         if (call.id && !isInCall) {
           await endCall();
           toast.error('Call was not answered');
@@ -206,7 +213,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
         return;
       }
 
-      // Clear any existing timeout
+      // Clear any existing timeout immediately when accepting the call
       if (callTimeoutRef.current) {
         clearTimeout(callTimeoutRef.current);
         callTimeoutRef.current = undefined;
@@ -326,6 +333,11 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
           } else if (payload.eventType === 'UPDATE') {
             if (payload.new.status === 'active' && 
                (payload.new.caller_id === profile.id || payload.new.receiver_id === profile.id)) {
+              // Clear timeout when call becomes active
+              if (callTimeoutRef.current) {
+                clearTimeout(callTimeoutRef.current);
+                callTimeoutRef.current = undefined;
+              }
               setIsInCall(true);
               setIsCalling(false);
               startDurationTimer();
@@ -390,7 +402,6 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
 
     return () => {
       supabase.removeChannel(channel);
-      supabase.removeChannel(signalChannel);
     };
   }, [profile?.id]);
 
