@@ -7,6 +7,7 @@ import { CallNotification } from './CallNotification';
 interface CallContextType {
   isInCall: boolean;
   currentCallId: string | null;
+  callDuration: number;
   acceptCall: (callId: string) => Promise<void>;
   rejectCall: (callId: string) => Promise<void>;
   endCall: () => Promise<void>;
@@ -22,9 +23,11 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
   const [isInCall, setIsInCall] = useState(false);
   const [currentCallId, setCurrentCallId] = useState<string | null>(null);
   const [incomingCall, setIncomingCall] = useState<{ id: string; callerName: string } | null>(null);
+  const [callDuration, setCallDuration] = useState(0);
   const peerConnection = useRef<RTCPeerConnection | null>(null);
   const localStream = useRef<MediaStream | null>(null);
   const callTimeoutRef = useRef<NodeJS.Timeout>();
+  const durationIntervalRef = useRef<NodeJS.Timeout>();
 
   const initializePeerConnection = async () => {
     try {
@@ -62,6 +65,16 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       toast.error('Failed to access microphone');
       return false;
     }
+  };
+
+  const startDurationTimer = () => {
+    if (durationIntervalRef.current) {
+      clearInterval(durationIntervalRef.current);
+    }
+    setCallDuration(0);
+    durationIntervalRef.current = setInterval(() => {
+      setCallDuration(prev => prev + 1);
+    }, 1000);
   };
 
   const initiateCall = async (receiverId: string) => {
@@ -109,7 +122,12 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     if (!profile?.id) return;
 
     try {
-      await initializePeerConnection();
+      const success = await initializePeerConnection();
+      if (!success) {
+        toast.error('Failed to initialize call');
+        return;
+      }
+
       setCurrentCallId(callId);
       setIsInCall(true);
       setIncomingCall(null);
@@ -120,6 +138,10 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
         .eq('id', callId);
 
       if (error) throw error;
+
+      // Start duration timer
+      startDurationTimer();
+      toast.success('Call connected');
     } catch (error) {
       console.error('Error accepting call:', error);
       toast.error('Failed to accept call');
@@ -138,6 +160,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (error) throw error;
       setIncomingCall(null);
+      toast.info('Call rejected');
     } catch (error) {
       console.error('Error rejecting call:', error);
       toast.error('Failed to reject call');
@@ -170,9 +193,14 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       if (callTimeoutRef.current) {
         clearTimeout(callTimeoutRef.current);
       }
+      if (durationIntervalRef.current) {
+        clearInterval(durationIntervalRef.current);
+      }
 
       setCurrentCallId(null);
       setIsInCall(false);
+      setCallDuration(0);
+      toast.info('Call ended');
     } catch (error) {
       console.error('Error ending call:', error);
       toast.error('Failed to end call');
@@ -221,7 +249,8 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     <CallContext.Provider 
       value={{ 
         isInCall, 
-        currentCallId, 
+        currentCallId,
+        callDuration,
         acceptCall, 
         rejectCall, 
         endCall,
