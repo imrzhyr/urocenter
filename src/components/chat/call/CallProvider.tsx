@@ -37,6 +37,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
   const remoteStream = useRef<MediaStream | null>(null);
   const callTimeoutRef = useRef<NodeJS.Timeout>();
   const durationIntervalRef = useRef<NodeJS.Timeout>();
+  const callStartTimeRef = useRef<number | null>(null);
 
   const setupWebRTC = async () => {
     try {
@@ -56,17 +57,33 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
 
       peerConnection.current = new RTCPeerConnection(configuration);
 
+      // Add local stream tracks to peer connection
       stream.getTracks().forEach(track => {
         if (peerConnection.current && localStream.current) {
           peerConnection.current.addTrack(track, localStream.current);
         }
       });
 
+      // Handle incoming remote stream
       peerConnection.current.ontrack = (event) => {
+        console.log('Received remote track');
         remoteStream.current = event.streams[0];
         const audio = new Audio();
         audio.srcObject = remoteStream.current;
         audio.play().catch(console.error);
+      };
+
+      // Handle ICE candidates
+      peerConnection.current.onicecandidate = async (event) => {
+        if (event.candidate && currentCallId && profile?.id) {
+          await supabase.from('call_signals').insert({
+            call_id: currentCallId,
+            from_user: profile.id,
+            to_user: event.candidate ? profile.id : null,
+            type: 'ice-candidate',
+            data: { candidate: event.candidate }
+          });
+        }
       };
 
       return true;
@@ -81,10 +98,24 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     if (durationIntervalRef.current) {
       clearInterval(durationIntervalRef.current);
     }
+    callStartTimeRef.current = Date.now();
     setCallDuration(0);
     durationIntervalRef.current = setInterval(() => {
-      setCallDuration(prev => prev + 1);
+      if (callStartTimeRef.current) {
+        const duration = Math.floor((Date.now() - callStartTimeRef.current) / 1000);
+        setCallDuration(duration);
+      }
     }, 1000);
+  };
+
+  const stopDurationTimer = () => {
+    if (durationIntervalRef.current) {
+      clearInterval(durationIntervalRef.current);
+      if (callStartTimeRef.current) {
+        const finalDuration = Math.floor((Date.now() - callStartTimeRef.current) / 1000);
+        setCallDuration(finalDuration);
+      }
+    }
   };
 
   const initiateCall = async (receiverId: string, recipientName: string) => {
@@ -208,6 +239,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       if (error) throw error;
 
       setIsCallEnded(true);
+      stopDurationTimer();
 
       // Cleanup after 2 seconds
       setTimeout(() => {
@@ -226,14 +258,10 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
         if (callTimeoutRef.current) {
           clearTimeout(callTimeoutRef.current);
         }
-        if (durationIntervalRef.current) {
-          clearInterval(durationIntervalRef.current);
-        }
 
         setCurrentCallId(null);
         setIsInCall(false);
         setIsCalling(false);
-        setCallDuration(0);
         setIsCallEnded(false);
       }, 2000);
 
@@ -267,11 +295,21 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
               id: payload.new.id,
               callerName: caller?.full_name || 'Unknown'
             });
-          } else if (payload.eventType === 'UPDATE' && payload.new.status === 'active') {
-            if (payload.new.caller_id === profile.id || payload.new.receiver_id === profile.id) {
+          } else if (payload.eventType === 'UPDATE') {
+            if (payload.new.status === 'active' && 
+               (payload.new.caller_id === profile.id || payload.new.receiver_id === profile.id)) {
               setIsInCall(true);
               setIsCalling(false);
               startDurationTimer();
+            } else if (payload.new.status === 'ended' && 
+                     (payload.new.caller_id === profile.id || payload.new.receiver_id === profile.id)) {
+              setIsCallEnded(true);
+              stopDurationTimer();
+              setTimeout(() => {
+                setIsInCall(false);
+                setIsCalling(false);
+                setCurrentCallId(null);
+              }, 2000);
             }
           }
         }
@@ -292,22 +330,26 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
           const signal = payload.new;
           if (!peerConnection.current) return;
 
-          if (signal.type === 'offer') {
-            await peerConnection.current.setRemoteDescription(new RTCSessionDescription(signal.data.sdp));
-            const answer = await peerConnection.current.createAnswer();
-            await peerConnection.current.setLocalDescription(answer);
+          try {
+            if (signal.type === 'offer') {
+              await peerConnection.current.setRemoteDescription(new RTCSessionDescription(signal.data.sdp));
+              const answer = await peerConnection.current.createAnswer();
+              await peerConnection.current.setLocalDescription(answer);
 
-            await supabase.from('call_signals').insert({
-              call_id: signal.call_id,
-              from_user: profile.id,
-              to_user: signal.from_user,
-              type: 'answer',
-              data: { sdp: answer }
-            });
-          } else if (signal.type === 'answer') {
-            await peerConnection.current.setRemoteDescription(new RTCSessionDescription(signal.data.sdp));
-          } else if (signal.type === 'ice-candidate') {
-            await peerConnection.current.addIceCandidate(new RTCIceCandidate(signal.data.candidate));
+              await supabase.from('call_signals').insert({
+                call_id: signal.call_id,
+                from_user: profile.id,
+                to_user: signal.from_user,
+                type: 'answer',
+                data: { sdp: answer }
+              });
+            } else if (signal.type === 'answer') {
+              await peerConnection.current.setRemoteDescription(new RTCSessionDescription(signal.data.sdp));
+            } else if (signal.type === 'ice-candidate' && signal.data.candidate) {
+              await peerConnection.current.addIceCandidate(new RTCIceCandidate(signal.data.candidate));
+            }
+          } catch (error) {
+            console.error('Error handling WebRTC signal:', error);
           }
         }
       )
