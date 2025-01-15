@@ -40,7 +40,7 @@ export const OnboardingLayout = () => {
       </header>
 
       <main className="flex-1 container max-w-4xl mx-auto p-4">
-        <div className="flex-1 h-full bg-white rounded-lg shadow-sm p-6 dark:bg-gray-800">
+        <div className="flex-1">
           <Outlet />
         </div>
       </main>
