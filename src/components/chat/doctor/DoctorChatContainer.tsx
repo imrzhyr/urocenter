@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useDoctorChat } from "./hooks/useDoctorChat";
 import { useProfile } from "@/hooks/useProfile";
+import { CallProvider } from "@/components/chat/call/CallProvider";
 
 export const DoctorChatContainer = () => {
   const { userId } = useParams();
@@ -33,20 +34,22 @@ export const DoctorChatContainer = () => {
 
   return (
     <div className="flex flex-col h-[100vh] w-full bg-gray-50">
-      <MessageContainer
-        messages={messages}
-        onSendMessage={handleSendMessage}
-        isLoading={isLoading}
-        header={
-          <DoctorChatHeader
-            patientId={userId || ''}
-            patientName={patientProfile.full_name || "Unknown Patient"}
-            patientPhone={patientProfile.phone}
-            onRefresh={refreshMessages}
-          />
-        }
-        userId={userId || ''}
-      />
+      <CallProvider>
+        <MessageContainer
+          messages={messages}
+          onSendMessage={handleSendMessage}
+          isLoading={isLoading}
+          header={
+            <DoctorChatHeader
+              patientId={userId || ''}
+              patientName={patientProfile.full_name || "Unknown Patient"}
+              patientPhone={patientProfile.phone}
+              onRefresh={refreshMessages}
+            />
+          }
+          userId={userId || ''}
+        />
+      </CallProvider>
     </div>
   );
 };
