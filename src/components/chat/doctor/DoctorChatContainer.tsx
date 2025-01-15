@@ -1,49 +1,55 @@
-import { useParams } from "react-router-dom";
-import { useProfile } from "@/hooks/useProfile";
-import { useChat } from "@/hooks/useChat";
-import { useDoctorChat } from "./hooks/useDoctorChat";
+import { MessageContainer } from "../MessageContainer";
 import { DoctorChatHeader } from "./DoctorChatHeader";
-import { MessageContainer } from "@/features/chat/components/MessageContainer/MessageContainer";
-import { CallProvider } from "@/components/chat/call/CallProvider";
+import { useChat } from "@/hooks/useChat";
+import { useParams } from "react-router-dom";
 import { toast } from "sonner";
+import { useDoctorChat } from "./hooks/useDoctorChat";
+import { useProfile } from "@/hooks/useProfile";
+import { CallProvider } from "@/components/chat/call/CallProvider";
 
 export const DoctorChatContainer = () => {
-  const { id } = useParams();
+  const { userId } = useParams();
+  const { messages, sendMessage, isLoading, refreshMessages } = useChat(userId);
+  const { patientProfile } = useDoctorChat(userId);
   const { profile } = useProfile();
-  const { messages, sendMessage, isLoading } = useChat(id);
-  const { patientProfile } = useDoctorChat(id);
 
-  if (!profile) {
+  const handleSendMessage = async (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }) => {
+    if (!userId || !profile?.id) {
+      toast.error("Unable to send message");
+      return;
+    }
+
+    try {
+      await sendMessage(content, fileInfo);
+      refreshMessages();
+    } catch (error) {
+      console.error("Error sending message:", error);
+      toast.error("Failed to send message");
+    }
+  };
+
+  if (!patientProfile) {
     return null;
   }
 
-  if (!patientProfile) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300">Loading patient information...</h2>
-          <p className="text-gray-500 dark:text-gray-400 mt-2">Please wait while we fetch the patient details.</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <CallProvider>
-      <MessageContainer
-        messages={messages}
-        onSendMessage={sendMessage}
-        isLoading={isLoading}
-        header={
-          <DoctorChatHeader 
-            patientId={patientProfile.id}
-            patientName={patientProfile.full_name || "Patient"}
-            patientPhone={patientProfile.phone}
-            onRefresh={() => {}}
-          />
-        }
-        userId={profile.id}
-      />
-    </CallProvider>
+    <div className="flex flex-col h-[100vh] w-full bg-gray-50">
+      <CallProvider>
+        <MessageContainer
+          messages={messages}
+          onSendMessage={handleSendMessage}
+          isLoading={isLoading}
+          header={
+            <DoctorChatHeader
+              patientId={userId || ''}
+              patientName={patientProfile.full_name || "Unknown Patient"}
+              patientPhone={patientProfile.phone}
+              onRefresh={refreshMessages}
+            />
+          }
+          userId={userId || ''}
+        />
+      </CallProvider>
+    </div>
   );
 };

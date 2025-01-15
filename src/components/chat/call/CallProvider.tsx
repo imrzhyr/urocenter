@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect } from 'react';
+import React, { createContext, useContext } from 'react';
 import { useProfile } from '@/hooks/useProfile';
 import { CallNotification } from './CallNotification';
 import { ActiveCallUI } from './ActiveCallUI';
@@ -86,34 +86,10 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       setIsInCall(true);
       setIncomingCall(null);
       setIsCallEnded(false);
-      setIsCalling(false); // Add this line to ensure calling UI is hidden
 
       const joined = await joinChannel(callId);
       if (!joined) {
         throw new Error('Failed to join call');
-      }
-
-      // Send call accepted signal to the caller
-      const { data: callData } = await supabase
-        .from('calls')
-        .select('caller_id')
-        .eq('id', callId)
-        .single();
-
-      if (callData) {
-        const { error: signalError } = await supabase
-          .from('call_signals')
-          .insert({
-            call_id: callId,
-            from_user: profile.id,
-            to_user: callData.caller_id,
-            type: 'call_accepted',
-            data: {}
-          });
-
-        if (signalError) {
-          console.error('Error sending call accepted signal:', signalError);
-        }
       }
 
       await updateCallStatus(callId, 'active');
@@ -236,36 +212,6 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       toast.error('Failed to start call');
     }
   };
-
-  useEffect(() => {
-    if (!profile?.id) return;
-
-    const channel = supabase
-      .channel('call-signals')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'call_signals',
-          filter: `to_user=eq.${profile.id}`,
-        },
-        (payload) => {
-          if (payload.new.type === 'call_accepted' && isCalling) {
-            setIsCalling(false);
-            setIsInCall(true);
-            startDurationTimer();
-          } else if (payload.new.type === 'end_call') {
-            endCall();
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [profile?.id, isCalling]);
 
   return (
     <CallContext.Provider 

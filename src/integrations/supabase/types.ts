@@ -289,13 +289,7 @@ export type Database = {
     }
     Enums: {
       call_status: "pending" | "active" | "ended" | "missed" | "rejected"
-      signal_type:
-        | "offer"
-        | "answer"
-        | "candidate"
-        | "leave"
-        | "end_call"
-        | "call_accepted"
+      signal_type: "offer" | "answer" | "candidate" | "leave" | "end_call"
       user_role: "admin" | "patient"
     }
     CompositeTypes: {
