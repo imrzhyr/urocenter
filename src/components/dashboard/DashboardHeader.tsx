@@ -40,12 +40,12 @@ export const DashboardHeader = () => {
       transition={{ duration: 0.5 }}
       className="p-4 flex justify-between items-center bg-primary/95 dark:bg-primary/80 backdrop-blur-lg border-b border-primary/10 dark:border-primary/20 sticky top-0 z-50 min-h-[4rem] shadow-sm"
     >
-      <div className="flex items-center gap-4">
-        <h1 className="text-xl font-semibold text-white">
+      <div className="flex items-center gap-2">
+        <h1 className="text-lg font-semibold text-white">
           {t('welcome')}{fullName ? `, ${fullName}` : ''}
         </h1>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         <NotificationsPopover />
         <UserMenu />
       </div>

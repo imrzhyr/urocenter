@@ -6,9 +6,9 @@ export const NotificationBell = () => {
     <Button
       variant="ghost"
       size="icon"
-      className="w-10 h-10 p-2 hover:bg-gray-100 rounded-full"
+      className="w-9 h-9 text-white hover:bg-white/10"
     >
-      <Bell className="w-5 h-5 text-primary" />
+      <Bell className="w-5 h-5" />
     </Button>
   );
 };

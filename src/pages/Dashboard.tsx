@@ -68,15 +68,15 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 dark:from-[#1A1F2C] dark:to-[#2D3748] transition-colors duration-300">
       <DashboardHeader />
-      <main className="container mx-auto py-6 px-4">
-        <div className="max-w-7xl mx-auto">
+      <main className="px-4 py-4">
+        <div className="max-w-lg mx-auto">
           <motion.div 
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-center mb-8"
+            className="text-center mb-6"
           >
-            <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-blue-200">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-blue-200">
               {t("virtual_consultation_welcome")}
             </h1>
           </motion.div>
@@ -85,25 +85,19 @@ const Dashboard = () => {
             variants={container}
             initial="hidden"
             animate="show"
-            className="grid gap-6 md:grid-cols-12"
+            className="space-y-4"
           >
-            <motion.div variants={item} className="md:col-span-8 space-y-6">
-              <div className="transform hover:scale-[1.02] transition-transform duration-300">
-                <MessagesCard />
-              </div>
-              <div className="grid gap-6 md:grid-cols-2">
-                <motion.div variants={item} className="transform hover:scale-[1.02] transition-transform duration-300">
-                  <MedicalReportsCard />
-                </motion.div>
-                <motion.div variants={item} className="transform hover:scale-[1.02] transition-transform duration-300">
-                  <HealthTipsCard />
-                </motion.div>
-              </div>
+            <motion.div variants={item} className="transform hover:scale-[1.02] transition-transform duration-300">
+              <MessagesCard />
             </motion.div>
-            <motion.div variants={item} className="md:col-span-4">
-              <div className="sticky top-24 transform hover:scale-[1.02] transition-transform duration-300">
-                <DoctorProfileCard />
-              </div>
+            <motion.div variants={item} className="transform hover:scale-[1.02] transition-transform duration-300">
+              <MedicalReportsCard />
+            </motion.div>
+            <motion.div variants={item} className="transform hover:scale-[1.02] transition-transform duration-300">
+              <HealthTipsCard />
+            </motion.div>
+            <motion.div variants={item} className="transform hover:scale-[1.02] transition-transform duration-300">
+              <DoctorProfileCard />
             </motion.div>
           </motion.div>
         </div>

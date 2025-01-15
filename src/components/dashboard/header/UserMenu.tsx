@@ -23,11 +23,15 @@ export const UserMenu = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="p-2 hover:bg-gray-100 rounded-full w-10 h-10 flex items-center justify-center">
-          <User className="w-5 h-5 text-primary" />
-        </button>
+        <Button 
+          variant="ghost" 
+          size="icon"
+          className="w-9 h-9 text-white hover:bg-white/10"
+        >
+          <User className="w-5 h-5" />
+        </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56 bg-white border shadow-lg">
+      <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-gray-900 border shadow-lg mt-2">
         <DropdownMenuItem onClick={() => navigate('/settings')} className="cursor-pointer">
           <Settings className="w-4 h-4 mr-2" />
           {t('settings')}
