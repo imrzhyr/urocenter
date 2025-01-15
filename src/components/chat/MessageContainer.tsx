@@ -4,7 +4,6 @@ import { MessageInput } from './MessageInput';
 import { Message } from '@/types/profile';
 import { motion } from 'framer-motion';
 import { TypingIndicator } from './TypingIndicator';
-import { CallHistory } from './call/CallHistory';
 
 interface MessageContainerProps {
   messages: Message[];
@@ -44,7 +43,6 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
         transition={{ duration: 0.2 }}
         className="flex-1 overflow-hidden flex flex-col pt-[48px] pb-[64px]"
       >
-        <CallHistory userId={userId} />
         <div className="flex-1 overflow-y-auto h-full">
           <MessageList
             messages={messages}
