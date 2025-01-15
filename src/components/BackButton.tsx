@@ -21,8 +21,10 @@ export const BackButton = ({ onClick, customRoute }: BackButtonProps) => {
       onClick();
     } else if (customRoute) {
       navigate(customRoute);
+    } else if (location.pathname === '/signup') {
+      navigate('/'); // Always navigate to welcome page from signup
     } else {
-      navigate(-1); // This will take the user back to their previous location
+      navigate(-1); // This will take the user back to their previous location for other pages
     }
   };
 
