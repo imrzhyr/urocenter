@@ -32,15 +32,13 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
       </div>
       
       <div className="flex-1 overflow-hidden flex flex-col pt-[56px] pb-[64px]">
-        <div className="flex-1 overflow-y-auto h-full">
-          <MessageList
-            messages={messages}
-            currentUserId={userId}
-            onReply={setReplyingTo}
-            replyingTo={replyingTo}
-          />
-          <TypingIndicator typingUsers={typingUsers} />
-        </div>
+        <MessageList
+          messages={messages}
+          currentUserId={userId}
+          onReply={setReplyingTo}
+          replyingTo={replyingTo}
+        />
+        <TypingIndicator typingUsers={typingUsers} />
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-[#1A1F2C]/80 backdrop-blur-lg border-t border-gray-200 dark:border-gray-700/50">
