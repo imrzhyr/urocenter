@@ -18,8 +18,38 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    const audio = new Audio(audioUrl);
+    const audio = new Audio();
     audioRef.current = audio;
+
+    // Add cache control headers
+    const fetchAudio = async () => {
+      try {
+        const response = await fetch(audioUrl, {
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const blob = await response.blob();
+        const objectUrl = URL.createObjectURL(blob);
+        audio.src = objectUrl;
+        
+        return () => {
+          URL.revokeObjectURL(objectUrl);
+        };
+      } catch (error) {
+        console.error('Error loading audio:', error);
+        toast.error('Unable to load audio message. Please try again.');
+        setIsLoading(false);
+      }
+    };
+
+    fetchAudio();
 
     const handleLoadedMetadata = () => {
       setAudioDuration(audio.duration);
@@ -38,8 +68,8 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
       audio.currentTime = 0;
     };
 
-    const handleError = () => {
-      console.error('Audio playback error:', audioUrl);
+    const handleError = (e: ErrorEvent) => {
+      console.error('Audio playback error:', e);
       toast.error('Unable to play audio message. Please try again.');
       setIsPlaying(false);
       setIsLoading(false);
@@ -48,13 +78,13 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('ended', handleEnded);
-    audio.addEventListener('error', handleError);
+    audio.addEventListener('error', handleError as EventListener);
 
     return () => {
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('ended', handleEnded);
-      audio.removeEventListener('error', handleError);
+      audio.removeEventListener('error', handleError as EventListener);
       audio.pause();
       audioRef.current = null;
     };
