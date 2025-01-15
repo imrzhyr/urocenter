@@ -1,12 +1,12 @@
 import React from 'react';
 import { DoctorChatHeader } from './DoctorChatHeader';
 import { MessageContainer } from '../MessageContainer';
-import { CallProvider } from '../call/CallProvider';
 import { useChat } from "@/hooks/useChat";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useDoctorChat } from "./hooks/useDoctorChat";
 import { useProfile } from "@/hooks/useProfile";
+import { CallProvider } from '../call/CallProvider';
 
 export const DoctorChatContainer = () => {
   const { userId } = useParams();
@@ -34,8 +34,8 @@ export const DoctorChatContainer = () => {
   }
 
   return (
-    <CallProvider>
-      <div className="flex flex-col h-full bg-background">
+    <div className="flex flex-col h-full bg-background">
+      <CallProvider>
         <MessageContainer
           messages={messages}
           onSendMessage={handleSendMessage}
@@ -50,7 +50,7 @@ export const DoctorChatContainer = () => {
           }
           userId={userId || ''}
         />
-      </div>
-    </CallProvider>
+      </CallProvider>
+    </div>
   );
 };
