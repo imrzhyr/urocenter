@@ -13,6 +13,12 @@ serve(async (req) => {
   try {
     const appId = Deno.env.get('AGORA_APP_ID')
     
+    if (!appId) {
+      throw new Error('Agora App ID not configured')
+    }
+
+    console.log('Retrieved Agora credentials successfully')
+    
     return new Response(
       JSON.stringify({ appId }),
       {
@@ -21,6 +27,7 @@ serve(async (req) => {
       },
     )
   } catch (error) {
+    console.error('Error retrieving Agora credentials:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       {

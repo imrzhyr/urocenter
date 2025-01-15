@@ -40,6 +40,8 @@ serve(async (req) => {
       privilegeExpiredTs
     )
 
+    console.log('Generated token for channel:', channelName)
+
     return new Response(
       JSON.stringify({ token }),
       {
@@ -48,6 +50,7 @@ serve(async (req) => {
       },
     )
   } catch (error) {
+    console.error('Error generating token:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       {
