@@ -10,14 +10,14 @@ import { CallProvider } from "../call/CallProvider";
 export const DoctorChatContainer = () => {
   const { id } = useParams();
   const { profile } = useProfile();
-  const { messages, sendMessage } = useChat(id);
-  const { selectedPatient } = useDoctorChat();
+  const { messages, sendMessage, isLoading } = useChat(id);
+  const { patientProfile } = useDoctorChat(id);
 
   if (!profile) {
     return null;
   }
 
-  if (!selectedPatient) {
+  if (!patientProfile) {
     toast.error("No patient selected");
     return null;
   }
@@ -25,12 +25,25 @@ export const DoctorChatContainer = () => {
   return (
     <CallProvider>
       <div className="flex flex-col h-screen bg-background">
-        <DoctorChatHeader patient={selectedPatient} />
+        <DoctorChatHeader 
+          patientId={patientProfile.id}
+          patientName={patientProfile.full_name || "Patient"}
+          patientPhone={patientProfile.phone}
+          onRefresh={() => {}}
+        />
         <MessageContainer
           messages={messages}
-          sendMessage={sendMessage}
-          recipientId={selectedPatient.id}
-          recipientName={selectedPatient.full_name || "Patient"}
+          onSendMessage={sendMessage}
+          isLoading={isLoading}
+          header={
+            <DoctorChatHeader 
+              patientId={patientProfile.id}
+              patientName={patientProfile.full_name || "Patient"}
+              patientPhone={patientProfile.phone}
+              onRefresh={() => {}}
+            />
+          }
+          userId={id || ''}
         />
       </div>
     </CallProvider>
