@@ -24,6 +24,7 @@ export const PhoneInput = ({ value, onChange, isSignUp = false, onSignUpSuccess 
   const { t } = useLanguage();
 
   const passwordsMatch = password === confirmPassword;
+  const isPasswordValid = password.length >= 6;
 
   return (
     <div className="space-y-6">
@@ -39,7 +40,7 @@ export const PhoneInput = ({ value, onChange, isSignUp = false, onSignUpSuccess 
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder={t('enter_password')}
-            className="pr-10"
+            className={`pr-10 ${!isPasswordValid && password.length > 0 ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
             dir="ltr"
           />
           <button
@@ -49,6 +50,9 @@ export const PhoneInput = ({ value, onChange, isSignUp = false, onSignUpSuccess 
           >
             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </button>
+          {!isPasswordValid && password.length > 0 && (
+            <p className="text-sm text-red-500 mt-1">{t('password_min_length')}</p>
+          )}
         </div>
 
         {isSignUp && (
@@ -81,7 +85,7 @@ export const PhoneInput = ({ value, onChange, isSignUp = false, onSignUpSuccess 
             phone={value} 
             password={password}
             onSuccess={onSignUpSuccess}
-            disabled={!passwordsMatch || !password || !confirmPassword}
+            disabled={!passwordsMatch || !password || !confirmPassword || !isPasswordValid}
           />
           <p className="text-center text-sm text-muted-foreground">
             {t('already_have_account')}{" "}
