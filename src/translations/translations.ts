@@ -113,7 +113,8 @@ export const translations = {
     "urologist_surgeon": "Urologist & General Surgeon",
     "sent_message": "sent a message",
     "doctor_sent_message": "Dr. Ali Kamal sent a message",
-    "password_min_length": "Please enter at least 6 characters"
+    "password_min_length": "Please enter at least 6 characters",
+    "confirm_password": "Confirm Password"
   },
   ar: {
     "welcome_back": "مرحباً بعودتك",
@@ -229,6 +230,7 @@ export const translations = {
     "urologist_surgeon": "أخصائي المسالك البولية والجراحة العامة",
     "sent_message": "أرسل رسالة",
     "doctor_sent_message": "د. علي كمال أرسل رسالة",
-    "password_min_length": "الرجاء إدخال 6 أحرف على الأقل"
+    "password_min_length": "الرجاء إدخال 6 أحرف على الأقل",
+    "confirm_password": "تأكيد كلمة المرور"
   }
 };
