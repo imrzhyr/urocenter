@@ -11,6 +11,11 @@ export const PaymentMethods = ({
 }: PaymentMethodsProps) => {
   const paymentMethods = [
     {
+      id: "credit-card",
+      name: "Credit Card",
+      logo: "/lovable-uploads/4feeb68c-1aca-4f05-bba5-447da732b1c3.png",
+    },
+    {
       id: "fastpay",
       name: "FastPay",
       logo: "/lovable-uploads/ea4de526-e37e-4348-acf0-c64cf182a493.png",

@@ -4,6 +4,7 @@ import { Outlet } from "react-router-dom";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { BackButton } from "@/components/BackButton";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { WhatsAppSupport } from "@/components/WhatsAppSupport";
 
 const steps = ["Sign Up", "Profile", "Medical Info", "Payment"];
 
@@ -32,6 +33,7 @@ export const OnboardingLayout = () => {
       <header className="sticky top-0 z-50 w-full bg-white border-b border-gray-100 dark:bg-gray-900 dark:border-gray-800">
         <div className="container max-w-4xl mx-auto p-4 flex justify-between items-center">
           <BackButton />
+          <WhatsAppSupport />
           <LanguageSelector />
         </div>
         <div className="container max-w-4xl mx-auto px-4 pb-6">

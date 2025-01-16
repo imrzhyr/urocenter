@@ -86,7 +86,7 @@ const Payment = () => {
           </div>
           <Button 
             type="submit" 
-            className="w-full h-14 text-lg font-semibold bg-blue-600 hover:bg-blue-700 transform hover:scale-[1.02] transition-all" 
+            className="w-full bg-blue-600 hover:bg-blue-700" 
             disabled={!paymentMethod || isProcessing}
           >
             {isProcessing ? (
