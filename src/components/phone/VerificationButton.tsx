@@ -10,9 +10,10 @@ interface VerificationButtonProps {
   phone: string;
   password: string;
   onSuccess?: () => void;
+  disabled?: boolean;  // Added this prop
 }
 
-export const VerificationButton = ({ phone, password, onSuccess }: VerificationButtonProps) => {
+export const VerificationButton = ({ phone, password, onSuccess, disabled }: VerificationButtonProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { t } = useLanguage();
@@ -106,14 +107,14 @@ export const VerificationButton = ({ phone, password, onSuccess }: VerificationB
 
   return (
     <motion.div
-      whileHover={{ scale: isValid ? 1.02 : 1 }}
-      whileTap={{ scale: isValid ? 0.98 : 1 }}
+      whileHover={{ scale: isValid && !disabled ? 1.02 : 1 }}
+      whileTap={{ scale: isValid && !disabled ? 0.98 : 1 }}
     >
       <Button
         onClick={handleSignUp}
-        disabled={!isValid || isLoading}
+        disabled={!isValid || isLoading || disabled}
         className={`w-full transition-all duration-200 ${
-          isValid 
+          isValid && !disabled
             ? 'bg-primary hover:bg-primary/90 text-white' 
             : 'bg-[#D3E4FD] text-gray-400 cursor-not-allowed'
         }`}
