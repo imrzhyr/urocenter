@@ -55,4 +55,7 @@ export interface Profile {
   password?: string;
   created_at?: string;
   updated_at?: string;
+  payment_status?: string;
+  payment_method?: string;
+  payment_date?: string;
 }

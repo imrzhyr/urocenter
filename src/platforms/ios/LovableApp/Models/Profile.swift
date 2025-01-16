@@ -9,6 +9,9 @@ struct Profile: Codable {
     let complaint: String?
     let role: String
     let password: String
+    let paymentStatus: String?
+    let paymentMethod: String?
+    let paymentDate: String?
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -19,5 +22,8 @@ struct Profile: Codable {
         case complaint
         case role
         case password
+        case paymentStatus = "payment_status"
+        case paymentMethod = "payment_method"
+        case paymentDate = "payment_date"
     }
 }

@@ -13,5 +13,8 @@ data class Profile(
     val role: String = "patient",
     val password: String? = null,
     val createdAt: String? = null,
-    val updatedAt: String? = null
+    val updatedAt: String? = null,
+    val paymentStatus: String? = null,
+    val paymentMethod: String? = null,
+    val paymentDate: String? = null
 )
