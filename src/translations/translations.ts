@@ -114,7 +114,8 @@ export const translations = {
     "sent_message": "sent a message",
     "doctor_sent_message": "Dr. Ali Kamal sent a message",
     "password_min_length": "Please enter at least 6 characters",
-    "confirm_password": "Confirm Password"
+    "confirm_password": "Confirm Password",
+    "complete_payment": "Complete Payment"
   },
   ar: {
     "welcome_back": "مرحباً بعودتك",
@@ -231,6 +232,7 @@ export const translations = {
     "sent_message": "أرسل رسالة",
     "doctor_sent_message": "د. علي كمال أرسل رسالة",
     "password_min_length": "الرجاء إدخال 6 أحرف على الأقل",
-    "confirm_password": "تأكيد كلمة المرور"
+    "confirm_password": "تأكيد كلمة المرور",
+    "complete_payment": "إتمام الدفع"
   }
 };
