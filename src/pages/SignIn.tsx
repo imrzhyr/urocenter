@@ -23,7 +23,6 @@ const SignIn = () => {
         exit={{ opacity: 0, x: 20 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
         className="flex-1 flex flex-col justify-center items-center p-4"
-        style={{ marginTop: "-5%" }}
       >
         <Card className="w-full max-w-md mx-auto border-0 shadow-lg bg-white dark:bg-gray-800">
           <CardHeader className="space-y-2 text-center pb-4">
@@ -65,7 +64,7 @@ const SignIn = () => {
         </Card>
       </motion.div>
       
-      <footer className="p-4 text-center text-sm text-muted-foreground mt-auto">
+      <footer className="p-4 text-center text-sm text-muted-foreground">
         {t('all_rights_reserved')}
       </footer>
     </div>
