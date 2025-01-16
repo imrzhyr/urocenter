@@ -39,7 +39,7 @@ export const OnboardingLayout = () => {
         </div>
       </header>
 
-      <main className="flex-1 container max-w-4xl mx-auto">
+      <main className="flex-1">
         <div className="flex-1">
           <Outlet />
         </div>
