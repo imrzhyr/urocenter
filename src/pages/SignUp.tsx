@@ -20,7 +20,8 @@ const SignUp = () => {
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="flex-1 flex flex-col justify-center items-center p-4 min-h-[600px]"
+      className="flex-1 flex flex-col justify-center items-center p-4"
+      style={{ marginTop: "-5%" }}
     >
       <Card className="w-full max-w-md mx-auto border-0 shadow-lg bg-white dark:bg-gray-800">
         <CardHeader className="space-y-2 text-center pb-4">
