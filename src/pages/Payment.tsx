@@ -11,11 +11,10 @@ const Payment = () => {
   const navigate = useNavigate();
   const [paymentMethod, setPaymentMethod] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isPaid, setIsPaid] = useState(false);
   const { t } = useLanguage();
 
-  const handlePayment = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handlePaymentContinue = async () => {
     if (!paymentMethod) {
       toast.error(t("please_select_payment_method"));
       return;
@@ -60,6 +59,31 @@ const Payment = () => {
     }
   };
 
+  const handleCompletePayment = async () => {
+    if (!isPaid) {
+      toast.error("Please complete the payment first");
+      return;
+    }
+
+    try {
+      const userPhone = localStorage.getItem('userPhone');
+      if (!userPhone) throw new Error('No user phone found');
+
+      await supabase
+        .from('profiles')
+        .update({
+          payment_status: 'paid',
+        })
+        .eq('phone', userPhone);
+
+      toast.success("Payment completed successfully!");
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Error completing payment:', error);
+      toast.error("Failed to complete payment");
+    }
+  };
+
   return (
     <div className="flex-1 flex flex-col items-center">
       <div className="w-full max-w-md space-y-8">
@@ -77,17 +101,19 @@ const Payment = () => {
           <p className="text-2xl font-bold text-blue-700">25,000 IQD</p>
         </div>
 
-        <form onSubmit={handlePayment} className="space-y-6">
+        <div className="space-y-6">
           <div className="bg-white/90 backdrop-blur-sm rounded-lg border border-blue-100 p-4">
             <PaymentMethods
               selectedMethod={paymentMethod}
               onSelectMethod={setPaymentMethod}
+              onContinuePayment={handlePaymentContinue}
+              isPaid={isPaid}
             />
           </div>
           <Button 
-            type="submit" 
+            onClick={handleCompletePayment}
             className="w-full bg-blue-600 hover:bg-blue-700" 
-            disabled={!paymentMethod || isProcessing}
+            disabled={!isPaid || isProcessing}
           >
             {isProcessing ? (
               <div className="flex items-center gap-2">
@@ -98,7 +124,7 @@ const Payment = () => {
               t("complete_payment")
             )}
           </Button>
-        </form>
+        </div>
       </div>
     </div>
   );

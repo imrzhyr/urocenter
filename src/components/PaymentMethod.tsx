@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
-import { Check, CreditCard } from "lucide-react";
+import { Check, CreditCard, ExternalLink } from "lucide-react";
 import { useState } from "react";
+import { Button } from "./ui/button";
 
 interface PaymentMethodProps {
   id: string;
@@ -8,6 +9,8 @@ interface PaymentMethodProps {
   logo: string;
   selected: boolean;
   onSelect: () => void;
+  onContinue: () => void;
+  isPaid?: boolean;
 }
 
 export const PaymentMethod = ({
@@ -16,16 +19,16 @@ export const PaymentMethod = ({
   logo,
   selected,
   onSelect,
+  onContinue,
+  isPaid = false,
 }: PaymentMethodProps) => {
   const [imageError, setImageError] = useState(false);
-
   const isCreditCard = id === "credit-card";
 
   return (
     <div
-      onClick={onSelect}
       className={cn(
-        "p-4 border rounded-lg cursor-pointer transition-all transform hover:scale-105",
+        "p-4 border rounded-lg transition-all",
         selected
           ? "border-primary bg-primary/5 shadow-lg"
           : "border-gray-200 hover:border-primary/50"
@@ -50,7 +53,43 @@ export const PaymentMethod = ({
           </div>
         )}
         <span className="text-sm font-medium">{name}</span>
-        {selected && <Check className="w-4 h-4 text-primary" />}
+        
+        <div className="flex flex-col items-center gap-2 w-full">
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full"
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelect();
+            }}
+          >
+            Select
+          </Button>
+          
+          {selected && (
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                onContinue();
+              }}
+              className="w-full gap-2"
+              size="sm"
+            >
+              Continue to Payment <ExternalLink className="w-4 h-4" />
+            </Button>
+          )}
+        </div>
+
+        {isPaid && <Check className="w-4 h-4 text-green-500" />}
+        
+        <div className="text-xs font-medium">
+          {isPaid ? (
+            <span className="text-green-500">Payment Completed</span>
+          ) : (
+            <span className="text-yellow-600">Not Paid Yet</span>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -3,11 +3,15 @@ import { PaymentMethod } from "./PaymentMethod";
 interface PaymentMethodsProps {
   selectedMethod: string;
   onSelectMethod: (method: string) => void;
+  onContinuePayment: () => void;
+  isPaid?: boolean;
 }
 
 export const PaymentMethods = ({
   selectedMethod,
   onSelectMethod,
+  onContinuePayment,
+  isPaid = false,
 }: PaymentMethodsProps) => {
   const paymentMethods = [
     {
@@ -45,6 +49,8 @@ export const PaymentMethods = ({
           {...method}
           selected={selectedMethod === method.id}
           onSelect={() => onSelectMethod(method.id)}
+          onContinue={onContinuePayment}
+          isPaid={isPaid}
         />
       ))}
     </div>
