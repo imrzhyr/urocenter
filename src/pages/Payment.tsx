@@ -27,7 +27,21 @@ const Payment = () => {
       const userPhone = localStorage.getItem('userPhone');
       if (!userPhone) throw new Error('No user phone found');
 
-      // First update the profile with initial payment status
+      // First check if user already has a payment in progress
+      const { data: profileData, error: fetchError } = await supabase
+        .from('profiles')
+        .select('payment_status')
+        .eq('phone', userPhone)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      // Only proceed if payment status is 'unpaid' or 'failed'
+      if (profileData?.payment_status && !['unpaid', 'failed'].includes(profileData.payment_status)) {
+        throw new Error('Payment already in progress or completed');
+      }
+
+      // Update profile with initial payment status
       const { error: profileError } = await supabase
         .from('profiles')
         .update({
