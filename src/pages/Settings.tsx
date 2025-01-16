@@ -29,14 +29,16 @@ const Settings = () => {
       <div className="container max-w-4xl mx-auto p-4">
         <div className="flex items-center mb-6 justify-between">
           {isRTL ? (
-            <h1 className="text-2xl font-semibold">{t('settings')}</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-semibold">{t('settings')}</h1>
+              <BackButton />
+            </div>
           ) : (
             <div className="flex items-center gap-2">
               <BackButton />
               <h1 className="text-2xl font-semibold">{t('settings')}</h1>
             </div>
           )}
-          {isRTL && <BackButton />}
         </div>
 
         <motion.div
