@@ -3,8 +3,6 @@ import { PhoneInput } from "@/components/PhoneInput";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { LanguageSelector } from "@/components/LanguageSelector";
-import { BackButton } from "@/components/BackButton";
 
 const SignUp = () => {
   const [phone, setPhone] = useState("");
@@ -16,12 +14,7 @@ const SignUp = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-primary/5 via-white to-background dark:from-primary/10 dark:via-gray-900 dark:to-gray-900">
-      <div className={`p-4 flex justify-between items-center relative z-10 ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
-        <BackButton />
-        <LanguageSelector />
-      </div>
-      
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-primary/5 via-white to-background dark:from-primary/10 dark:via-gray-900 dark:to-gray-900">      
       <div className="container max-w-md mx-auto my-auto px-4">
         <div className="text-center mb-8">
           <motion.div 
@@ -65,10 +58,6 @@ const SignUp = () => {
           />
         </motion.div>
       </div>
-      
-      <footer className="p-4 text-center text-sm text-muted-foreground mt-auto">
-        {t('all_rights_reserved')}
-      </footer>
     </div>
   );
 };
