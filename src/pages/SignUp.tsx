@@ -20,13 +20,13 @@ const SignUp = () => {
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="min-h-screen flex flex-col justify-center items-center p-4"
+      className="h-screen flex items-center justify-center px-4 overflow-hidden"
     >
-      <Card className="w-full max-w-md mx-auto border-0 shadow-lg bg-white dark:bg-gray-800">
-        <CardHeader className="space-y-2 text-center pb-4">
-          <div className="mx-auto w-16 h-16 bg-primary rounded-2xl flex items-center justify-center shadow-lg">
+      <Card className="w-full max-w-md border-0 shadow-lg bg-white dark:bg-gray-800">
+        <CardHeader className="space-y-2 text-center py-3">
+          <div className="mx-auto w-14 h-14 bg-primary rounded-2xl flex items-center justify-center shadow-lg">
             <motion.svg
-              className="w-8 h-8 text-white"
+              className="w-7 h-7 text-white"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -42,14 +42,14 @@ const SignUp = () => {
               />
             </motion.svg>
           </div>
-          <CardTitle className="text-2xl font-semibold text-primary">
+          <CardTitle className="text-xl font-semibold text-primary">
             {t('create_account')}
           </CardTitle>
           <p className="text-muted-foreground text-sm">
             {t('sign_up_description')}
           </p>
         </CardHeader>
-        <CardContent className="pt-0">
+        <CardContent className="py-2">
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}

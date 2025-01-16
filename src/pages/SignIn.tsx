@@ -11,8 +11,8 @@ const SignIn = () => {
   const { t, language } = useLanguage();
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-primary/5 via-white to-background dark:from-primary/10 dark:via-gray-900 dark:to-background">
-      <div className={`p-4 flex justify-between items-center relative z-10 ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
+    <div className="h-screen flex flex-col bg-gradient-to-br from-primary/5 via-white to-background dark:from-primary/10 dark:via-gray-900 dark:to-background overflow-hidden">
+      <div className={`p-2 flex justify-between items-center relative z-10 ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
         <BackButton />
         <LanguageSelector />
       </div>
@@ -22,16 +22,16 @@ const SignIn = () => {
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: 20 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
-        className="flex-1 flex flex-col justify-center items-center p-4"
+        className="flex-1 flex items-center justify-center px-4"
       >
-        <Card className="w-full max-w-md mx-auto border-0 shadow-lg bg-white dark:bg-gray-800">
-          <CardHeader className="space-y-2 text-center pb-4">
-            <div className="mx-auto w-16 h-16 bg-primary rounded-2xl flex items-center justify-center shadow-lg">
+        <Card className="w-full max-w-md border-0 shadow-lg bg-white dark:bg-gray-800">
+          <CardHeader className="space-y-2 text-center py-3">
+            <div className="mx-auto w-14 h-14 bg-primary rounded-2xl flex items-center justify-center shadow-lg">
               <motion.svg
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.2 }}
-                className="w-8 h-8 text-white"
+                className="w-7 h-7 text-white"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -44,14 +44,14 @@ const SignIn = () => {
                 />
               </motion.svg>
             </div>
-            <CardTitle className="text-2xl font-semibold text-primary">
+            <CardTitle className="text-xl font-semibold text-primary">
               {t('welcome_back')}
             </CardTitle>
             <p className="text-muted-foreground text-sm">
               {t('sign_in_continue')}
             </p>
           </CardHeader>
-          <CardContent className="pt-0">
+          <CardContent className="py-2">
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -64,7 +64,7 @@ const SignIn = () => {
         </Card>
       </motion.div>
       
-      <footer className="p-4 text-center text-sm text-muted-foreground">
+      <footer className="p-2 text-center text-xs text-muted-foreground">
         {t('all_rights_reserved')}
       </footer>
     </div>
