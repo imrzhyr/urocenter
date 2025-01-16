@@ -26,7 +26,6 @@ const Payment = () => {
 
     checkPaymentStatus();
 
-    // Subscribe to profile changes to detect payment status updates
     const channel = supabase
       .channel('payment_status')
       .on(
@@ -37,7 +36,7 @@ const Payment = () => {
           table: 'profiles',
           filter: `id=eq.${profile?.id}`,
         },
-        async (payload) => {
+        async (payload: any) => {
           if (payload.new.payment_status === 'paid') {
             await refetch();
             toast.success(t("Payment Verified Successfully"));
@@ -120,12 +119,6 @@ const Payment = () => {
                 name: "ZainCash",
                 description: t("Mobile Wallet by Zain Iraq"),
                 logo: "/lovable-uploads/292e06cf-9fcf-475a-9497-a045233f8b4d.png"
-              },
-              {
-                id: "credit-card",
-                name: t("Credit Card"),
-                description: t("International Credit Cards"),
-                logo: "/lovable-uploads/4feeb68c-1aca-4f05-bba5-447da732b1c3.png"
               }
             ].map((method) => (
               <motion.button
