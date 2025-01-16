@@ -4,14 +4,12 @@ interface PaymentMethodsProps {
   selectedMethod: string;
   onSelectMethod: (method: string) => void;
   onContinuePayment: () => void;
-  isPaid?: boolean;
 }
 
 export const PaymentMethods = ({
   selectedMethod,
   onSelectMethod,
   onContinuePayment,
-  isPaid = false,
 }: PaymentMethodsProps) => {
   const paymentMethods = [
     {
@@ -42,7 +40,7 @@ export const PaymentMethods = ({
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-3 animate-fade-in">
+    <div className="space-y-3 animate-fade-in">
       {paymentMethods.map((method) => (
         <PaymentMethod
           key={method.id}
@@ -50,7 +48,6 @@ export const PaymentMethods = ({
           selected={selectedMethod === method.id}
           onSelect={() => onSelectMethod(method.id)}
           onContinue={onContinuePayment}
-          isPaid={isPaid}
         />
       ))}
     </div>
