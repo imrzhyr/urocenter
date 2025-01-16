@@ -11,7 +11,6 @@ import Settings from "@/pages/Settings";
 import AdminDashboard from "@/pages/AdminDashboard";
 import UserChat from "@/pages/UserChat";
 import { OnboardingLayout } from "@/components/layouts/OnboardingLayout";
-import { AnimatePresence } from "framer-motion";
 
 const router = createBrowserRouter([
   {
@@ -66,9 +65,5 @@ const router = createBrowserRouter([
 ]);
 
 export const AppRoutes = () => {
-  return (
-    <AnimatePresence mode="wait">
-      <RouterProvider router={router} />
-    </AnimatePresence>
-  );
+  return <RouterProvider router={router} />;
 };
