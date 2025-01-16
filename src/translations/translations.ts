@@ -119,6 +119,11 @@ export const translations = {
     "enter_email": "Enter your email",
     "or": "Or continue with",
     "already_have_account": "Already have an account?",
+    "invalid_credentials": "Invalid phone number or password",
+    "sign_in_success": "Signed in successfully",
+    "sign_in_error": "An error occurred while signing in",
+    "signing_in": "Signing in...",
+    "signing_up": "Signing up...",
   },
   ar: {
     "welcome_back": "مرحباً بعودتك",
@@ -240,5 +245,10 @@ export const translations = {
     "enter_email": "أدخل بريدك الإلكتروني",
     "or": "أو المتابعة باستخدام",
     "already_have_account": "لديك حساب بالفعل؟",
+    "invalid_credentials": "رقم الهاتف أو كلمة المرور غير صحيحة",
+    "sign_in_success": "تم تسجيل الدخول بنجاح",
+    "sign_in_error": "حدث خطأ أثناء تسجيل الدخول",
+    "signing_in": "جاري تسجيل الدخول...",
+    "signing_up": "جاري إنشاء الحساب...",
   }
 };
