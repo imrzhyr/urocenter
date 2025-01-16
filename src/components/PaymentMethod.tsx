@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Check } from "lucide-react";
+import { Check, CreditCard } from "lucide-react";
 import { useState } from "react";
 
 interface PaymentMethodProps {
@@ -19,6 +19,8 @@ export const PaymentMethod = ({
 }: PaymentMethodProps) => {
   const [imageError, setImageError] = useState(false);
 
+  const isCreditCard = id === "credit-card";
+
   return (
     <div
       onClick={onSelect}
@@ -30,7 +32,11 @@ export const PaymentMethod = ({
       )}
     >
       <div className="flex flex-col items-center space-y-3">
-        {!imageError ? (
+        {isCreditCard ? (
+          <div className="w-16 h-12 flex items-center justify-center">
+            <CreditCard className="w-10 h-10 text-primary" />
+          </div>
+        ) : !imageError ? (
           <img
             src={logo}
             alt={name}
