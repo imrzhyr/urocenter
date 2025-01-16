@@ -50,17 +50,20 @@ export const TestimonialsCarousel = () => {
             stopOnMouseEnter: true,
           }),
         ]}
-        className="w-full max-w-4xl mx-auto"
+        className="w-full max-w-6xl mx-auto px-4"
       >
         <CarouselContent className="-ml-2 md:-ml-4">
           {testimonials.map((testimonial, index) => (
-            <CarouselItem key={index} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
+            <CarouselItem 
+              key={index} 
+              className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
+            >
               <TestimonialCard {...testimonial} />
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className="hidden sm:flex" />
-        <CarouselNext className="hidden sm:flex" />
+        <CarouselPrevious className="hidden sm:flex -left-4 lg:-left-8" />
+        <CarouselNext className="hidden sm:flex -right-4 lg:-right-8" />
       </Carousel>
     </motion.div>
   );
