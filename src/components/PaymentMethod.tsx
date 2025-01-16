@@ -75,7 +75,7 @@ export const PaymentMethod = ({
             e.stopPropagation();
             onContinue();
           }}
-          className="whitespace-nowrap flex items-center justify-center gap-2"
+          className="w-full flex items-center justify-center gap-2 text-sm"
           size="sm"
         >
           Continue to Payment <ExternalLink className="w-4 h-4" />
