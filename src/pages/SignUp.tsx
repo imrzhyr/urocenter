@@ -1,44 +1,16 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { PhoneInput } from "@/components/PhoneInput";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { motion } from "framer-motion";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { GoogleSignIn } from "@/components/GoogleSignIn";
+import { useNavigate } from "react-router-dom";
 
 const SignUp = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [phone, setPhone] = useState("");
   const { t } = useLanguage();
   const navigate = useNavigate();
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !password) {
-      toast.error(t('please_fill_all_fields'));
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-
-      if (error) throw error;
-
-      toast.success(t('signup_success'));
-      navigate("/profile", { replace: true });
-    } catch (error: any) {
-      console.error('Sign up error:', error);
-      toast.error(error.message || t('signup_error'));
-    } finally {
-      setIsLoading(false);
-    }
+  const handleSignUpSuccess = () => {
+    navigate("/profile", { replace: true });
   };
 
   return (
@@ -49,7 +21,7 @@ const SignUp = () => {
       transition={{ duration: 0.3 }}
       className="flex-1 flex flex-col justify-center items-center p-4"
     >
-      <div className="mx-auto w-16 h-16 bg-primary rounded-2xl flex items-center justify-center shadow-lg mb-6">
+      <div className="mx-auto w-16 h-16 bg-primary rounded-2xl flex items-center justify-center shadow-lg">
         <motion.svg
           className="w-8 h-8 text-white"
           fill="none"
@@ -67,60 +39,25 @@ const SignUp = () => {
           />
         </motion.svg>
       </div>
-
-      <h2 className="text-2xl font-semibold text-primary">
+      <h2 className="text-2xl font-semibold text-primary mt-4">
         {t('create_account')}
       </h2>
       <p className="text-muted-foreground text-sm mb-6">
         {t('sign_up_description')}
       </p>
-
-      <form onSubmit={handleSignUp} className="w-full max-w-md space-y-4">
-        <Input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder={t('enter_email')}
-          className="w-full"
+      <motion.div 
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="w-full max-w-md"
+      >
+        <PhoneInput 
+          value={phone} 
+          onChange={setPhone} 
+          isSignUp={true} 
+          onSignUpSuccess={handleSignUpSuccess}
         />
-        <Input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder={t('enter_password')}
-          className="w-full"
-        />
-        <Button 
-          type="submit"
-          className="w-full"
-          disabled={isLoading}
-        >
-          {isLoading ? t('signing_up') : t('sign_up')}
-        </Button>
-
-        <div className="relative my-6">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">
-              {t('or')}
-            </span>
-          </div>
-        </div>
-
-        <GoogleSignIn />
-
-        <p className="text-center text-sm text-muted-foreground">
-          {t('already_have_account')}{" "}
-          <button
-            onClick={() => navigate("/signin")}
-            className="text-primary hover:underline font-medium"
-          >
-            {t('sign_in')}
-          </button>
-        </p>
-      </form>
+      </motion.div>
     </motion.div>
   );
 };
