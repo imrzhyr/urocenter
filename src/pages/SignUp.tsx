@@ -15,12 +15,12 @@ const SignUp = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center px-4">
-      <Card className="w-full max-w-md border-0 shadow-lg bg-white dark:bg-gray-800">
-        <CardHeader className="space-y-2 text-center py-3">
-          <div className="mx-auto w-12 h-12 bg-primary rounded-2xl flex items-center justify-center shadow-lg">
+    <div className="h-screen flex items-center justify-center px-4">
+      <Card className="w-full max-w-md shadow-lg bg-white dark:bg-gray-800">
+        <CardHeader className="space-y-1.5">
+          <div className="mx-auto w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
             <motion.svg
-              className="w-6 h-6 text-white"
+              className="w-5 h-5 text-white"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -36,10 +36,10 @@ const SignUp = () => {
               />
             </motion.svg>
           </div>
-          <CardTitle className="text-lg font-semibold text-primary">
+          <CardTitle className="text-center text-lg font-medium text-primary">
             {t('create_account')}
           </CardTitle>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-center text-sm text-muted-foreground">
             {t('sign_up_description')}
           </p>
         </CardHeader>
