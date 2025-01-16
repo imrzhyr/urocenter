@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PhoneInput } from "@/components/PhoneInput";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { OnboardingLayout } from "@/components/layouts/OnboardingLayout";
 
 const SignUp = () => {
   const [phone, setPhone] = useState("");
@@ -15,15 +15,15 @@ const SignUp = () => {
   };
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3 }}
-      className="flex-1 flex flex-col justify-center items-center p-4"
-    >
-      <Card className="w-full max-w-md mx-auto border-0 shadow-lg bg-white dark:bg-gray-800">
-        <CardHeader className="space-y-2 text-center pb-4">
+    <OnboardingLayout>
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        transition={{ duration: 0.3 }}
+        className="flex-1 flex flex-col justify-center items-center p-4 max-w-md mx-auto w-full"
+      >
+        <div className="text-center space-y-4 mb-8">
           <div className="mx-auto w-16 h-16 bg-primary rounded-2xl flex items-center justify-center shadow-lg">
             <motion.svg
               className="w-8 h-8 text-white"
@@ -42,30 +42,29 @@ const SignUp = () => {
               />
             </motion.svg>
           </div>
-          <CardTitle className="text-2xl font-semibold text-primary">
+          <h1 className="text-2xl font-semibold text-primary">
             {t('create_account')}
-          </CardTitle>
+          </h1>
           <p className="text-muted-foreground text-sm">
             {t('sign_up_description')}
           </p>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="rounded-lg"
-          >
-            <PhoneInput 
-              value={phone} 
-              onChange={setPhone} 
-              isSignUp={true} 
-              onSignUpSuccess={handleSignUpSuccess}
-            />
-          </motion.div>
-        </CardContent>
-      </Card>
-    </motion.div>
+        </div>
+        
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="w-full"
+        >
+          <PhoneInput 
+            value={phone} 
+            onChange={setPhone} 
+            isSignUp={true} 
+            onSignUpSuccess={handleSignUpSuccess}
+          />
+        </motion.div>
+      </motion.div>
+    </OnboardingLayout>
   );
 };
 
