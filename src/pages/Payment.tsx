@@ -5,6 +5,7 @@ import { PaymentMethods } from "@/components/PaymentMethods";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 const Payment = () => {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ const Payment = () => {
     setIsProcessing(true);
 
     try {
+      // Call the process-payment edge function
       const { data, error } = await supabase.functions.invoke('process-payment', {
         body: {
           amount: 25000,
@@ -32,7 +34,21 @@ const Payment = () => {
 
       if (error) throw error;
 
-      if (data.payment_url) {
+      if (data?.payment_url) {
+        // Update profile with payment method before redirecting
+        const userPhone = localStorage.getItem('userPhone');
+        if (!userPhone) throw new Error('No user phone found');
+
+        await supabase
+          .from('profiles')
+          .update({
+            payment_method: paymentMethod,
+            payment_status: 'processing',
+            payment_date: new Date().toISOString()
+          })
+          .eq('phone', userPhone);
+
+        // Redirect to payment gateway
         window.location.href = data.payment_url;
       } else {
         throw new Error('No payment URL received');
@@ -70,10 +86,17 @@ const Payment = () => {
           </div>
           <Button 
             type="submit" 
-            className="w-full bg-blue-600 hover:bg-blue-700" 
+            className="w-full h-14 text-lg font-semibold bg-blue-600 hover:bg-blue-700 transform hover:scale-[1.02] transition-all" 
             disabled={!paymentMethod || isProcessing}
           >
-            {isProcessing ? t("processing_payment") : t("complete_payment")}
+            {isProcessing ? (
+              <div className="flex items-center gap-2">
+                <LoadingSpinner className="w-5 h-5" />
+                {t("processing_payment")}
+              </div>
+            ) : (
+              t("complete_payment")
+            )}
           </Button>
         </form>
       </div>

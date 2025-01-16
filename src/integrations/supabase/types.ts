@@ -226,6 +226,9 @@ export type Database = {
           id: string
           last_login: string | null
           password: string
+          payment_date: string | null
+          payment_method: string | null
+          payment_status: string | null
           phone: string | null
           role: Database["public"]["Enums"]["user_role"]
           updated_at: string | null
@@ -240,6 +243,9 @@ export type Database = {
           id?: string
           last_login?: string | null
           password: string
+          payment_date?: string | null
+          payment_method?: string | null
+          payment_status?: string | null
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string | null
@@ -254,6 +260,9 @@ export type Database = {
           id?: string
           last_login?: string | null
           password?: string
+          payment_date?: string | null
+          payment_method?: string | null
+          payment_status?: string | null
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string | null
