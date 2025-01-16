@@ -6,6 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { cn } from "@/lib/utils";
 
 const Payment = () => {
   const navigate = useNavigate();
