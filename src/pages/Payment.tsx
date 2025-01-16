@@ -24,6 +24,21 @@ const Payment = () => {
     setIsProcessing(true);
 
     try {
+      const userPhone = localStorage.getItem('userPhone');
+      if (!userPhone) throw new Error('No user phone found');
+
+      // First update the profile with initial payment status
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          payment_method: paymentMethod,
+          payment_status: 'processing',
+          payment_date: new Date().toISOString()
+        })
+        .eq('phone', userPhone);
+
+      if (profileError) throw profileError;
+
       // Call the process-payment edge function
       const { data, error } = await supabase.functions.invoke('process-payment', {
         body: {
@@ -35,26 +50,26 @@ const Payment = () => {
       if (error) throw error;
 
       if (data?.payment_url) {
-        // Update profile with payment method before redirecting
-        const userPhone = localStorage.getItem('userPhone');
-        if (!userPhone) throw new Error('No user phone found');
-
-        await supabase
-          .from('profiles')
-          .update({
-            payment_method: paymentMethod,
-            payment_status: 'processing',
-            payment_date: new Date().toISOString()
-          })
-          .eq('phone', userPhone);
-
-        // Redirect to payment gateway
         window.location.href = data.payment_url;
       } else {
         throw new Error('No payment URL received');
       }
     } catch (error) {
       console.error('Payment error:', error);
+      // Update profile to failed status if there's an error
+      try {
+        const userPhone = localStorage.getItem('userPhone');
+        if (userPhone) {
+          await supabase
+            .from('profiles')
+            .update({
+              payment_status: 'failed'
+            })
+            .eq('phone', userPhone);
+        }
+      } catch (updateError) {
+        console.error('Error updating payment status:', updateError);
+      }
       toast.error(t("payment_error"));
       setIsProcessing(false);
     }
@@ -70,12 +85,14 @@ const Payment = () => {
       const userPhone = localStorage.getItem('userPhone');
       if (!userPhone) throw new Error('No user phone found');
 
-      await supabase
+      const { error } = await supabase
         .from('profiles')
         .update({
           payment_status: 'paid',
         })
         .eq('phone', userPhone);
+
+      if (error) throw error;
 
       toast.success("Payment completed successfully!");
       navigate('/dashboard');
