@@ -27,16 +27,16 @@ const Payment = () => {
       <div className="w-full max-w-md space-y-8">
         <div className="space-y-2 text-center">
           <h1 className="text-2xl font-semibold tracking-tight text-blue-900 dark:text-blue-100">
-            {t("payment_title")}
+            {t("Payment")}
           </h1>
           <p className="text-muted-foreground dark:text-gray-400">
-            {t("choose_payment_method")}
+            {t("Choose Payment Method")}
           </p>
         </div>
 
         <div className="p-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg border border-blue-100 dark:border-gray-700">
           <h3 className="font-semibold mb-2 text-blue-900 dark:text-blue-100">
-            {t("consultation_fee_title")}
+            {t("Consultation Fee")}
           </h3>
           <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
             25,000 IQD
@@ -54,7 +54,7 @@ const Payment = () => {
 
           <div className="text-center space-y-4">
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              {t("contact_support_for_payment")}
+              {t("Contact Support For Payment")}
             </p>
             <WhatsAppSupport />
           </div>
