@@ -8,16 +8,19 @@ import {
 import { TestimonialCard } from "./TestimonialCard";
 import { motion } from "framer-motion";
 import { testimonials } from "./testimonials-data";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const TestimonialsCarousel = () => {
+  const { language } = useLanguage();
   const [api] = useEmblaCarousel(
     {
       align: "start",
       loop: true,
       dragFree: true,
+      direction: language === 'ar' ? 'rtl' : 'ltr',
       containScroll: "trimSnaps",
     },
     [
@@ -35,12 +38,14 @@ export const TestimonialsCarousel = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.8 }}
       className="w-full mt-8"
+      dir={language === 'ar' ? 'rtl' : 'ltr'}
     >
       <Carousel
         opts={{
           align: "start",
           loop: true,
           dragFree: true,
+          direction: language === 'ar' ? 'rtl' : 'ltr',
           containScroll: "trimSnaps",
         }}
         plugins={[
