@@ -26,7 +26,8 @@ export const VerificationButton = ({ phone, password, onSuccess }: VerificationB
       const { error } = await supabase.from('profiles').insert({
         phone,
         password,
-        role: 'patient'
+        role: 'patient',
+        payment_status: 'unpaid'
       });
 
       if (error) {
