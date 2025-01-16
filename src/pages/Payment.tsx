@@ -110,20 +110,29 @@ const Payment = () => {
               isPaid={isPaid}
             />
           </div>
-          <Button 
-            onClick={handleCompletePayment}
-            className="w-full bg-blue-600 hover:bg-blue-700" 
-            disabled={!isPaid || isProcessing}
-          >
-            {isProcessing ? (
-              <div className="flex items-center gap-2">
-                <LoadingSpinner className="w-5 h-5" />
-                {t("processing_payment")}
-              </div>
-            ) : (
-              t("complete_payment")
-            )}
-          </Button>
+
+          <div className="text-center">
+            <p className={cn(
+              "font-medium mb-2",
+              isPaid ? "text-green-500" : "text-yellow-600"
+            )}>
+              {isPaid ? "Payment Completed" : "Not Paid Yet"}
+            </p>
+            <Button 
+              onClick={handleCompletePayment}
+              className="w-full bg-blue-600 hover:bg-blue-700" 
+              disabled={!isPaid || isProcessing}
+            >
+              {isProcessing ? (
+                <div className="flex items-center gap-2">
+                  <LoadingSpinner className="w-5 h-5" />
+                  {t("processing_payment")}
+                </div>
+              ) : (
+                t("complete_payment")
+              )}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
