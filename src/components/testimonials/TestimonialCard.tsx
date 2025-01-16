@@ -31,11 +31,11 @@ export const TestimonialCard = ({ name, text, rating, location }: TestimonialCar
   };
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm p-5 rounded-xl shadow-lg border border-primary/10 hover:border-primary/20 transition-all duration-300">
+    <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg border border-primary/10 hover:border-primary/20 transition-all duration-300">
       <div className="flex justify-start mb-2 gap-0.5">
         {renderStars(rating)}
       </div>
-      <p className="text-gray-700 mb-3 text-base font-arabic leading-relaxed text-left">
+      <p className="text-gray-700 dark:text-gray-200 mb-3 text-base font-arabic leading-relaxed text-left">
         {text}
       </p>
       <div className="flex flex-col items-start gap-0.5">
