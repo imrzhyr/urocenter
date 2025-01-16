@@ -15,18 +15,12 @@ const SignUp = () => {
   };
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -20 }}
-      transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="h-screen flex items-center justify-center px-4 overflow-hidden"
-    >
+    <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center px-4">
       <Card className="w-full max-w-md border-0 shadow-lg bg-white dark:bg-gray-800">
         <CardHeader className="space-y-2 text-center py-3">
-          <div className="mx-auto w-14 h-14 bg-primary rounded-2xl flex items-center justify-center shadow-lg">
+          <div className="mx-auto w-12 h-12 bg-primary rounded-2xl flex items-center justify-center shadow-lg">
             <motion.svg
-              className="w-7 h-7 text-white"
+              className="w-6 h-6 text-white"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -42,19 +36,18 @@ const SignUp = () => {
               />
             </motion.svg>
           </div>
-          <CardTitle className="text-xl font-semibold text-primary">
+          <CardTitle className="text-lg font-semibold text-primary">
             {t('create_account')}
           </CardTitle>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-sm text-muted-foreground">
             {t('sign_up_description')}
           </p>
         </CardHeader>
-        <CardContent className="py-2">
+        <CardContent>
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="rounded-lg"
           >
             <PhoneInput 
               value={phone} 
@@ -65,7 +58,7 @@ const SignUp = () => {
           </motion.div>
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   );
 };
 
