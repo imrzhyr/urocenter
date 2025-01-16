@@ -15,13 +15,20 @@ export const useOnboarding = () => {
         navigate("/signin");
         return false;
       }
+
+      if (profile && profile.payment_status !== 'paid' && window.location.pathname !== '/payment') {
+        toast.error("Please complete your payment to continue");
+        navigate("/payment");
+        return false;
+      }
+
       return true;
     };
 
     if (!isLoading) {
       checkAuth();
     }
-  }, [navigate, isLoading]);
+  }, [navigate, isLoading, profile]);
 
   return {
     profile,
