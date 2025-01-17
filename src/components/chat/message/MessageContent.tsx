@@ -1,7 +1,6 @@
 import { Message } from "@/types/profile";
 import { format } from "date-fns";
 import { MessageStatus } from "../MessageStatus";
-import { AudioPlayer } from "../voice/AudioPlayer";
 import { MediaGallery } from "../media/MediaGallery";
 import { ReferencedMessage } from "../ReferencedMessage";
 
@@ -19,16 +18,6 @@ export const MessageContent = ({ message, fromCurrentUser }: MessageContentProps
     }`}>
       {message.referenced_message && (
         <ReferencedMessage message={message.referenced_message} />
-      )}
-      
-      {message.file_url && message.file_type?.startsWith('audio/') && (
-        <div className="flex items-center gap-2">
-          <AudioPlayer
-            audioUrl={message.file_url}
-            messageId={message.id}
-            duration={message.duration}
-          />
-        </div>
       )}
       
       {message.file_url && (message.file_type?.startsWith('image/') || message.file_type?.startsWith('video/')) && (
