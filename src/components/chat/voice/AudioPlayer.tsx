@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Play, Pause } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
@@ -6,10 +6,10 @@ import { toast } from "sonner";
 
 interface AudioPlayerProps {
   audioUrl: string;
-  duration: number;
+  duration?: number;
 }
 
-export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioUrl, duration }) => {
+export const AudioPlayer = ({ audioUrl, duration = 0 }: AudioPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
@@ -20,53 +20,53 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioUrl, duration }) 
     audio.preload = 'metadata';
     audioRef.current = audio;
 
-    audio.addEventListener('loadedmetadata', () => {
-      console.log('Audio metadata loaded:', {
-        duration: audio.duration,
-        src: audio.src
-      });
-    });
+    const handleTimeUpdate = () => {
+      if (audioRef.current) {
+        const current = audioRef.current.currentTime;
+        setCurrentTime(current);
+        setProgress((current / duration) * 100);
+      }
+    };
 
-    audio.addEventListener('error', (e) => {
-      const error = e.currentTarget as HTMLAudioElement;
-      console.error('Audio loading error:', {
-        error: error.error,
-        networkState: error.networkState,
-        readyState: error.readyState,
-        src: error.src
-      });
-      toast.error('Failed to load audio file');
-    });
+    const handleEnded = () => {
+      setIsPlaying(false);
+      setProgress(0);
+      setCurrentTime(0);
+      if (audioRef.current) {
+        audioRef.current.currentTime = 0;
+      }
+    };
+
+    const handleCanPlayThrough = () => {
+      console.log('Audio can play through');
+    };
+
+    const handleError = () => {
+      if (audioRef.current?.error) {
+        console.error('Audio error:', {
+          code: audioRef.current.error.code,
+          message: audioRef.current.error.message,
+          networkState: audioRef.current.networkState,
+          readyState: audioRef.current.readyState
+        });
+        toast.error('Failed to load audio');
+      }
+    };
 
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('canplaythrough', handleCanPlayThrough);
+    audio.addEventListener('error', handleError);
 
     return () => {
-      if (audioRef.current) {
-        audioRef.current.removeEventListener('timeupdate', handleTimeUpdate);
-        audioRef.current.removeEventListener('ended', handleEnded);
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('canplaythrough', handleCanPlayThrough);
+      audio.removeEventListener('error', handleError);
+      audio.pause();
+      audioRef.current = null;
     };
-  }, [audioUrl]);
-
-  const handleTimeUpdate = () => {
-    if (audioRef.current) {
-      const current = audioRef.current.currentTime;
-      setCurrentTime(current);
-      setProgress((current / duration) * 100);
-    }
-  };
-
-  const handleEnded = () => {
-    setIsPlaying(false);
-    setProgress(0);
-    setCurrentTime(0);
-    if (audioRef.current) {
-      audioRef.current.currentTime = 0;
-    }
-  };
+  }, [audioUrl, duration]);
 
   const togglePlayPause = async () => {
     if (!audioRef.current) {
@@ -77,31 +77,17 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioUrl, duration }) 
     try {
       if (isPlaying) {
         await audioRef.current.pause();
+        setIsPlaying(false);
       } else {
-        // Check if the audio is supported
-        if (audioRef.current.error) {
-          console.error('Audio error:', {
-            error: audioRef.current.error,
-            networkState: audioRef.current.networkState,
-            readyState: audioRef.current.readyState,
-            src: audioRef.current.src
-          });
-          toast.error('This audio format is not supported');
-          return;
-        }
-        
         console.log('Attempting to play audio:', {
           src: audioRef.current.src,
           readyState: audioRef.current.readyState,
           networkState: audioRef.current.networkState
         });
         
-        const playPromise = audioRef.current.play();
-        if (playPromise !== undefined) {
-          await playPromise;
-        }
+        await audioRef.current.play();
+        setIsPlaying(true);
       }
-      setIsPlaying(!isPlaying);
     } catch (error) {
       console.error('Error playing audio:', error);
       toast.error('Failed to play audio');
