@@ -1,14 +1,29 @@
 export const translations = {
   en: {
     "Payment Approvals": "Payment Approvals",
-    "No pending payment approvals": "No pending payment approvals",
+    "No pending payment approvals": "No Pending Payment Approvals",
     "Unknown User": "Unknown User",
     "Approve": "Approve",
     "Reject": "Reject",
-    "Payment approved successfully": "Payment approved successfully",
-    "Payment rejected successfully": "Payment rejected successfully",
-    "Failed to approve payment": "Failed to approve payment",
-    "Failed to reject payment": "Failed to reject payment"
+    "Payment approved successfully": "Payment Approved Successfully",
+    "Payment rejected successfully": "Payment Rejected Successfully",
+    "Failed to approve payment": "Failed to Approve Payment",
+    "Failed to reject payment": "Failed to Reject Payment",
+    "Admin Dashboard": "Admin Dashboard",
+    "View Statistics": "View Statistics",
+    "review_patient_inquiries": "Review Patient Inquiries",
+    "connect_with_doctor": "Connect with Doctor",
+    "patient_messages": "Patient Messages",
+    "virtual_consultation": "Virtual Consultation",
+    "Back to Dashboard": "Back to Dashboard",
+    "Activity Overview": "Activity Overview",
+    "New Patients": "New Patients",
+    "Total Messages": "Total Messages",
+    "Total Patients": "Total Patients",
+    "Resolved": "Resolved Cases",
+    "Messages": "Messages",
+    "Statistics": "Statistics",
+    "Payments": "Payments"
   },
   ar: {
     "Payment Approvals": "الموافقة على المدفوعات",
@@ -19,6 +34,21 @@ export const translations = {
     "Payment approved successfully": "تمت الموافقة على الدفع بنجاح",
     "Payment rejected successfully": "تم رفض الدفع بنجاح",
     "Failed to approve payment": "فشل في الموافقة على الدفع",
-    "Failed to reject payment": "فشل في رفض الدفع"
+    "Failed to reject payment": "فشل في رفض الدفع",
+    "Admin Dashboard": "لوحة تحكم المشرف",
+    "View Statistics": "عرض الإحصائيات",
+    "review_patient_inquiries": "مراجعة استفسارات المرضى",
+    "connect_with_doctor": "تواصل مع الطبيب",
+    "patient_messages": "رسائل المرضى",
+    "virtual_consultation": "استشارة افتراضية",
+    "Back to Dashboard": "العودة إلى لوحة التحكم",
+    "Activity Overview": "نظرة عامة على النشاط",
+    "New Patients": "المرضى الجدد",
+    "Total Messages": "إجمالي الرسائل",
+    "Total Patients": "إجمالي المرضى",
+    "Resolved": "الحالات المحلولة",
+    "Messages": "الرسائل",
+    "Statistics": "الإحصائيات",
+    "Payments": "المدفوعات"
   }
 };
