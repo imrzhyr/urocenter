@@ -1,6 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { dashboardTranslations } from '@/translations/dashboardTranslations';
 import { adminTranslations } from '@/translations/adminTranslations';
+import { commonTranslations } from '@/translations/commonTranslations';
+import { authTranslations } from '@/translations/authTranslations';
+import { profileTranslations } from '@/translations/profileTranslations';
+import { chatTranslations } from '@/translations/chatTranslations';
+import { medicalTranslations } from '@/translations/medicalTranslations';
+import { paymentTranslations } from '@/translations/paymentTranslations';
 
 type Language = 'en' | 'ar';
 
@@ -25,11 +31,39 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, []);
 
   const t = (key: string): string => {
-    if (language === 'ar') {
-      const translations = { ...dashboardTranslations.ar, ...adminTranslations.ar };
-      return translations[key] || key;
+    const translations = {
+      ar: {
+        ...commonTranslations.ar,
+        ...authTranslations.ar,
+        ...profileTranslations.ar,
+        ...dashboardTranslations.ar,
+        ...adminTranslations.ar,
+        ...chatTranslations.ar,
+        ...medicalTranslations.ar,
+        ...paymentTranslations.ar,
+      },
+      en: {
+        ...commonTranslations.en,
+        ...authTranslations.en,
+        ...profileTranslations.en,
+        ...dashboardTranslations.en,
+        ...adminTranslations.en,
+        ...chatTranslations.en,
+        ...medicalTranslations.en,
+        ...paymentTranslations.en,
+      }
+    };
+
+    // Get the translation for the current language
+    const translation = translations[language]?.[key];
+    
+    // If translation doesn't exist in current language, try English
+    if (!translation && language !== 'en') {
+      return translations.en[key] || key;
     }
-    return key; // Return the key itself as English text
+    
+    // Return translation or key as fallback
+    return translation || key;
   };
 
   const handleSetLanguage = (lang: Language) => {
