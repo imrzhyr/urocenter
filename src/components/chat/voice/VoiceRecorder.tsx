@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Mic, Square, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { uploadFile } from "@/utils/fileUpload";
+import { logger } from "@/utils/logger";
 
 interface VoiceRecorderProps {
   onRecordingComplete: (audioUrl: string, duration: number) => void;
@@ -22,23 +23,18 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
       const stream = await navigator.mediaDevices.getUserMedia({ 
         audio: {
           channelCount: 1,
-          sampleRate: 48000,
+          sampleRate: 44100,
           echoCancellation: true,
           noiseSuppression: true
         } 
       });
       
-      // Always use WebM format
-      const mimeType = 'audio/webm';
-      
-      if (!MediaRecorder.isTypeSupported(mimeType)) {
-        throw new Error('WebM audio format is not supported in this browser');
-      }
-
-      console.log('Using audio format:', mimeType);
+      // Use MP3 format for maximum compatibility
+      const mimeType = 'audio/mp3';
       
       mediaRecorderRef.current = new MediaRecorder(stream, {
-        mimeType: mimeType
+        mimeType: mimeType,
+        audioBitsPerSecond: 128000 // 128kbps for good quality
       });
       
       chunksRef.current = [];
@@ -56,8 +52,14 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
         setIsUploading(true);
         
         try {
-          const file = new File([audioBlob], `voice-message-${Date.now()}.webm`, { 
+          const file = new File([audioBlob], `voice-message-${Date.now()}.mp3`, { 
             type: mimeType
+          });
+          
+          logger.info('VoiceRecorder', 'Recording completed', {
+            duration: Math.round((Date.now() - startTimeRef.current) / 1000),
+            fileSize: file.size,
+            mimeType: file.type
           });
           
           const fileInfo = await uploadFile(file);
@@ -65,7 +67,7 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
           
           onRecordingComplete(fileInfo.url, audioDuration);
         } catch (error) {
-          console.error('Error uploading voice message:', error);
+          logger.error('VoiceRecorder', 'Failed to upload voice message', error instanceof Error ? error : new Error('Unknown error'));
           toast.error('Failed to upload voice message');
         } finally {
           setIsUploading(false);
@@ -88,7 +90,7 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
         });
       }, 1000);
     } catch (error) {
-      console.error('Error starting recording:', error);
+      logger.error('VoiceRecorder', 'Failed to start recording', error instanceof Error ? error : new Error('Failed to access microphone'));
       toast.error('Failed to access microphone. Please check your browser permissions.');
     }
   };

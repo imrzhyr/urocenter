@@ -14,42 +14,26 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
-  const [isSupported, setIsSupported] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const playPromiseRef = useRef<Promise<void> | null>(null);
 
   useEffect(() => {
-    // Check browser compatibility for OGG Opus
     const audio = new Audio();
-    const isOggOpusSupported = audio.canPlayType('audio/ogg; codecs=opus') !== "";
-    setIsSupported(isOggOpusSupported);
-
-    if (!isOggOpusSupported) {
-      logger.warn('AudioPlayer', 'OGG Opus format not supported', {
-        browser: navigator.userAgent,
-        messageId,
-        audioUrl
-      });
-      toast.error('Your browser may not support this audio format');
-    }
-
-    const newAudio = new Audio();
     
     const handleCanPlay = () => {
       setIsLoading(false);
       logger.info('AudioPlayer', 'Audio ready to play', {
         messageId,
-        duration: newAudio.duration,
-        readyState: newAudio.readyState,
-        networkState: newAudio.networkState,
-        type: 'audio/ogg; codecs=opus',
-        browser: navigator.userAgent,
-        audioUrl
+        duration: audio.duration,
+        readyState: audio.readyState,
+        networkState: audio.networkState,
+        type: audio.type || 'audio/mp3',
+        browser: navigator.userAgent
       });
     };
 
     const handleTimeUpdate = () => {
-      setCurrentTime(newAudio.currentTime);
+      setCurrentTime(audio.currentTime);
     };
 
     const handleEnded = () => {
@@ -58,92 +42,47 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
     };
 
     const handleError = () => {
+      const error = new Error(audio.error?.message || 'Audio playback error');
       const errorDetails = {
         messageId,
-        errorCode: newAudio.error?.code || 0,
-        errorMessage: newAudio.error?.message || 'Unknown error',
-        networkState: newAudio.networkState,
-        readyState: newAudio.readyState,
-        currentSrc: newAudio.currentSrc,
-        type: 'audio/ogg; codecs=opus',
-        browser: navigator.userAgent,
-        audioUrl,
-        timestamp: new Date().toISOString()
+        errorCode: audio.error?.code,
+        errorMessage: audio.error?.message,
+        networkState: audio.networkState,
+        readyState: audio.readyState,
+        currentSrc: audio.currentSrc,
+        browser: navigator.userAgent
       };
 
-      // Create proper Error instance with the error message
-      const error = new Error(newAudio.error?.message || 'Audio playback error');
-      
       setIsLoading(false);
       setIsPlaying(false);
       
-      // Detailed error handling based on specific error types
-      switch (newAudio.error?.code) {
-        case 1:
-          logger.error('AudioPlayer', 'Audio fetch aborted', error, errorDetails);
-          toast.error('Audio loading was interrupted');
-          break;
-        case 2:
-          logger.error('AudioPlayer', 'Network error', error, errorDetails);
-          toast.error('Network error while loading audio');
-          break;
-        case 3:
-          logger.error('AudioPlayer', 'Audio decoding error', error, errorDetails);
-          toast.error('Error processing audio file');
-          break;
-        case 4:
-          logger.error('AudioPlayer', 'Audio format not supported', error, errorDetails);
-          toast.error('Audio format not supported by your browser');
-          break;
-        default:
-          if (newAudio.networkState === 3) {
-            logger.error('AudioPlayer', 'Network resource unavailable', error, errorDetails);
-            toast.error('Unable to load audio file');
-            // Attempt to reload the audio
-            newAudio.load();
-          } else {
-            logger.error('AudioPlayer', 'Unknown audio error', error, errorDetails);
-            toast.error('Unable to play this audio message');
-          }
-      }
+      logger.error('AudioPlayer', 'Audio playback error', error, errorDetails);
+      toast.error('Unable to play audio message');
     };
 
-    newAudio.addEventListener('canplay', handleCanPlay);
-    newAudio.addEventListener('timeupdate', handleTimeUpdate);
-    newAudio.addEventListener('ended', handleEnded);
-    newAudio.addEventListener('error', handleError);
+    audio.addEventListener('canplay', handleCanPlay);
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('error', handleError);
 
-    // Set audio properties
-    newAudio.preload = 'auto';
-    newAudio.src = audioUrl;
+    audio.preload = 'auto';
+    audio.src = audioUrl;
     
-    audioRef.current = newAudio;
-
-    // Attempt initial load
-    try {
-      newAudio.load();
-    } catch (error) {
-      if (error instanceof Error) {
-        logger.error('AudioPlayer', 'Error loading audio', error, {
-          messageId,
-          audioUrl
-        });
-      }
-    }
+    audioRef.current = audio;
 
     return () => {
       if (playPromiseRef.current) {
         playPromiseRef.current.then(() => {
-          newAudio.pause();
+          audio.pause();
         }).catch(() => {});
       } else {
-        newAudio.pause();
+        audio.pause();
       }
-      newAudio.removeEventListener('canplay', handleCanPlay);
-      newAudio.removeEventListener('timeupdate', handleTimeUpdate);
-      newAudio.removeEventListener('ended', handleEnded);
-      newAudio.removeEventListener('error', handleError);
-      newAudio.src = '';
+      audio.removeEventListener('canplay', handleCanPlay);
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('error', handleError);
+      audio.src = '';
       audioRef.current = null;
     };
   }, [audioUrl, messageId]);
@@ -170,24 +109,14 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
           await playPromiseRef.current;
           setIsPlaying(true);
         } catch (error) {
-          if (error instanceof Error) {
-            logger.error('AudioPlayer', 'Error playing audio', error, {
-              messageId,
-              audioUrl
-            });
-          }
+          logger.error('AudioPlayer', 'Failed to play audio', error instanceof Error ? error : new Error('Playback failed'));
           toast.error('Failed to play audio');
           setIsPlaying(false);
         }
         setIsLoading(false);
       }
     } catch (error) {
-      if (error instanceof Error) {
-        logger.error('AudioPlayer', 'Error in togglePlayPause', error, {
-          messageId,
-          audioUrl
-        });
-      }
+      logger.error('AudioPlayer', 'Error in playback control', error instanceof Error ? error : new Error('Playback control failed'));
       setIsPlaying(false);
       setIsLoading(false);
       toast.error('Failed to play audio');
@@ -199,14 +128,6 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
-
-  if (!isSupported) {
-    return (
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        Audio playback not supported in your browser
-      </div>
-    );
-  }
 
   return (
     <div className="flex items-center gap-2 min-w-[120px]">
