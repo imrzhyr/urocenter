@@ -7,6 +7,7 @@ import { LanguageSelector } from "@/components/LanguageSelector";
 import { WhatsAppSupport } from "@/components/WhatsAppSupport";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
+import { toast } from "sonner";
 
 const PaymentVerification = () => {
   const navigate = useNavigate();
@@ -34,6 +35,7 @@ const PaymentVerification = () => {
           if (updatedProfile.payment_status === 'paid' && 
               updatedProfile.payment_approval_status === 'approved') {
             console.log('Payment approved, redirecting to dashboard...');
+            toast.success(t('payment_approved'));
             navigate('/dashboard', { replace: true });
           }
         }
@@ -42,11 +44,18 @@ const PaymentVerification = () => {
         console.log('Subscription status:', status);
       });
 
+    // Check initial status in case it was already approved
+    if (profile.payment_status === 'paid' && 
+        profile.payment_approval_status === 'approved') {
+      console.log('Payment already approved, redirecting to dashboard...');
+      navigate('/dashboard', { replace: true });
+    }
+
     return () => {
       console.log('Cleaning up payment verification subscription...');
       supabase.removeChannel(channel);
     };
-  }, [navigate, profile]);
+  }, [navigate, profile, t]);
 
   return (
     <div className="fixed inset-0 w-full h-full flex flex-col bg-gradient-to-br from-blue-50 to-blue-100 dark:from-[#1A1F2C] dark:to-[#2D3748]">
