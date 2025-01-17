@@ -62,7 +62,18 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
 
       localStorage.setItem('userPhone', formattedPhone);
       toast.success(t('signin_success'));
-      navigate('/dashboard');
+
+      // Check payment status and approval status
+      if (data.payment_status === 'unpaid' && data.payment_approval_status === 'pending') {
+        // If payment is pending approval, redirect to payment page which will show the waiting screen
+        navigate('/payment');
+      } else if (data.payment_status !== 'paid') {
+        // If no payment initiated yet, redirect to payment page to select payment method
+        navigate('/payment');
+      } else {
+        // If payment is approved, redirect to dashboard
+        navigate('/dashboard');
+      }
     } catch (error) {
       console.error('Sign in error:', error);
       toast.error(t('signin_error'));
