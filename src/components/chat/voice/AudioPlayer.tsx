@@ -27,7 +27,7 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
         duration: audio.duration,
         readyState: audio.readyState,
         networkState: audio.networkState,
-        mimeType: 'audio/mp3', // We're explicitly setting MP3 as our format
+        mimeType: audio.src.split('.').pop()?.toLowerCase() === 'webm' ? 'audio/webm' : 'audio/mp3',
         browser: navigator.userAgent
       });
     };
@@ -42,6 +42,13 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
     };
 
     const handleError = () => {
+      // Try to convert WebM to MP3 URL if WebM fails
+      if (audioUrl.toLowerCase().endsWith('.webm')) {
+        const mp3Url = audioUrl.replace('.webm', '.mp3');
+        audio.src = mp3Url;
+        return;
+      }
+
       const error = new Error(audio.error?.message || 'Audio playback error');
       const errorDetails = {
         messageId,
@@ -56,7 +63,7 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
       setIsLoading(false);
       setIsPlaying(false);
       
-      logger.error('AudioPlayer', 'Audio playback error', error, errorDetails);
+      logger.error('AudioPlayer', 'Audio playback error', errorDetails, error);
       toast.error('Unable to play audio message');
     };
 
@@ -65,7 +72,14 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('error', handleError);
 
-    audio.preload = 'auto';
+    // Set proper MIME type based on file extension
+    const fileExtension = audioUrl.split('.').pop()?.toLowerCase();
+    const mimeType = fileExtension === 'webm' ? 'audio/webm' : 'audio/mp3';
+    
+    // Set crossOrigin to allow CORS requests
+    audio.crossOrigin = 'anonymous';
+    
+    // Set audio source with proper MIME type
     audio.src = audioUrl;
     
     audioRef.current = audio;
