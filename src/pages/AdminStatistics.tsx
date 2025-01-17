@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminStatsCard } from "@/components/dashboard/AdminStatsCard";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { AdminNavigation } from "@/components/dashboard/admin/AdminNavigation";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Card } from "@/components/ui/card";
@@ -45,29 +44,23 @@ const AdminStatistics = () => {
     checkAdminAccess();
   }, [navigate]);
 
-  // Sample data for the chart - you can replace this with real data from your backend
+  // More realistic sample data
   const data = [
-    { name: "Jan", patients: 4, messages: 24 },
-    { name: "Feb", patients: 8, messages: 35 },
-    { name: "Mar", patients: 15, messages: 85 },
-    { name: "Apr", patients: 25, messages: 150 },
+    { name: "Jan", patients: 12, messages: 45 },
+    { name: "Feb", patients: 19, messages: 78 },
+    { name: "Mar", patients: 28, messages: 123 },
+    { name: "Apr", patients: 35, messages: 189 },
+    { name: "May", patients: 42, messages: 234 },
+    { name: "Jun", patients: 49, messages: 298 },
   ];
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] dark:bg-gray-900">
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-gray-900 pb-28">
       <DashboardHeader />
       <main className="container mx-auto px-4 py-6 space-y-8 max-w-7xl">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/admin")}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            {t("Back to Dashboard")}
-          </Button>
+        <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-primary dark:text-white">
-            {t("Admin Statistics")}
+            {t("Statistics Overview")}
           </h1>
         </div>
         
@@ -81,7 +74,7 @@ const AdminStatistics = () => {
           
           <Card className="p-6">
             <h2 className="text-xl font-semibold mb-6 dark:text-white">
-              {t("Activity Overview")}
+              {t("Activity Growth")}
             </h2>
             <div className="h-[400px] w-full">
               <ResponsiveContainer width="100%" height="100%">
@@ -108,6 +101,7 @@ const AdminStatistics = () => {
           </Card>
         </motion.div>
       </main>
+      <AdminNavigation />
     </div>
   );
 };
