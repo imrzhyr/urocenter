@@ -41,6 +41,9 @@ const Payment = () => {
 
       if (data.payment_status === 'unpaid' && data.payment_approval_status === 'pending') {
         setIsWaitingForApproval(true);
+      } else if (data.payment_status === 'paid' && data.payment_approval_status === 'approved') {
+        toast.success(t("Payment Approved - You can now chat with Dr. Ali Kamal"));
+        navigate('/dashboard');
       }
     };
 
@@ -58,17 +61,20 @@ const Payment = () => {
           filter: `phone=eq.${localStorage.getItem('userPhone')}`,
         },
         async (payload: any) => {
+          console.log('Payment status changed:', payload);
+          
           // If user is admin, redirect to admin dashboard
           if (payload.new.role === 'admin') {
             navigate('/admin');
             return;
           }
 
+          // Check if payment was just approved
           if (payload.new.payment_status === 'paid' && payload.new.payment_approval_status === 'approved') {
-            await refetch();
             toast.success(t("Payment Approved - You can now chat with Dr. Ali Kamal"));
+            await refetch();
             navigate('/dashboard');
-          } else if (payload.new.payment_approval_status === 'pending') {
+          } else if (payload.new.payment_status === 'unpaid' && payload.new.payment_approval_status === 'pending') {
             setIsWaitingForApproval(true);
           }
         }
