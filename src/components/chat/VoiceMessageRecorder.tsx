@@ -35,7 +35,7 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
       };
 
       mediaRecorderRef.current.onstop = async () => {
-        const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm;codecs=opus' });
         setIsUploading(true);
         try {
           // Get audio duration
@@ -45,9 +45,10 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
           const audioDuration = Math.round(audioBufferRef.current.duration);
 
           const file = new File([audioBlob], `voice-message-${Date.now()}.webm`, { 
-            type: 'audio/webm'
+            type: 'audio/webm;codecs=opus'
           });
           
+          console.log('Created file with type:', file.type);
           const uploadedFile = await uploadFile(file);
           
           onRecordingComplete({

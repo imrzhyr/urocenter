@@ -13,9 +13,11 @@ export const uploadFile = async (file: File) => {
     const filePath = `${crypto.randomUUID()}.${fileExt}`;
 
     // Set correct content type for webm files
-    const contentType = file.type === 'audio/webm' || file.type === 'video/webm' 
-      ? file.type 
+    const contentType = file.type === 'audio/webm;codecs=opus' 
+      ? 'audio/webm' 
       : file.type || 'application/octet-stream';
+
+    console.log('Uploading file with content type:', contentType);
 
     // Upload file to Supabase storage
     const { data, error: uploadError } = await supabase.storage
