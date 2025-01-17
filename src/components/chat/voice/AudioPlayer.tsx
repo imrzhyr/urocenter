@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Play, Pause } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { toast } from "sonner";
 
 interface AudioPlayerProps {
   audioUrl: string;
@@ -16,16 +17,32 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioUrl, duration }) 
 
   useEffect(() => {
     const audio = new Audio(audioUrl);
+    audio.preload = 'metadata';
     audioRef.current = audio;
+
+    audio.addEventListener('loadedmetadata', () => {
+      console.log('Audio metadata loaded:', {
+        duration: audio.duration,
+        src: audio.src,
+        type: audio.type
+      });
+    });
+
+    audio.addEventListener('error', (e) => {
+      console.error('Audio loading error:', e);
+      toast.error('Failed to load audio file');
+    });
 
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('ended', handleEnded);
 
     return () => {
-      audio.removeEventListener('timeupdate', handleTimeUpdate);
-      audio.removeEventListener('ended', handleEnded);
-      audio.pause();
-      audioRef.current = null;
+      if (audioRef.current) {
+        audioRef.current.removeEventListener('timeupdate', handleTimeUpdate);
+        audioRef.current.removeEventListener('ended', handleEnded);
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
     };
   }, [audioUrl]);
 
@@ -46,17 +63,33 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioUrl, duration }) 
     }
   };
 
-  const togglePlayPause = () => {
-    if (!audioRef.current) return;
-
-    if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.play().catch(error => {
-        console.error('Error playing audio:', error);
-      });
+  const togglePlayPause = async () => {
+    if (!audioRef.current) {
+      toast.error('Audio player not initialized');
+      return;
     }
-    setIsPlaying(!isPlaying);
+
+    try {
+      if (isPlaying) {
+        await audioRef.current.pause();
+      } else {
+        // Check if the audio is supported
+        if (audioRef.current.error) {
+          console.error('Audio error:', audioRef.current.error);
+          toast.error('This audio format is not supported');
+          return;
+        }
+        
+        const playPromise = audioRef.current.play();
+        if (playPromise !== undefined) {
+          await playPromise;
+        }
+      }
+      setIsPlaying(!isPlaying);
+    } catch (error) {
+      console.error('Error playing audio:', error);
+      toast.error('Failed to play audio');
+    }
   };
 
   const formatTime = (seconds: number) => {
