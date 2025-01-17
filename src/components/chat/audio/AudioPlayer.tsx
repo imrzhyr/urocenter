@@ -63,10 +63,9 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
     const timestamp = new Date().getTime();
     const urlWithCache = `${audioUrl}?t=${timestamp}`;
     
-    // Set source with proper MIME type
+    // Set source with proper MIME type using source element
     if (audioUrl.endsWith('.webm')) {
       audio.src = urlWithCache;
-      audio.type = 'audio/webm; codecs="opus"';
     } else {
       audio.src = urlWithCache;
     }
