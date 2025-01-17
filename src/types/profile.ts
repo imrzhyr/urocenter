@@ -16,6 +16,7 @@ export interface Message {
   seen_at?: string;
   is_resolved?: boolean;
   sender_name?: string;
+  duration?: number;  // Added this field
   replyTo?: {
     content: string;
     file_type?: string | null;
