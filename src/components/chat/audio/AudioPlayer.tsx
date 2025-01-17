@@ -44,15 +44,29 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
       console.error('Audio loading error:', e);
       setIsPlaying(false);
       setIsLoading(false);
-      toast.error('Unable to play voice message. Please try again.');
+      
+      // Check if the audio format is supported
+      const audioFormat = audioUrl.split('.').pop()?.toLowerCase();
+      if (audioFormat === 'webm' && !audio.canPlayType('audio/webm')) {
+        toast.error('This audio format is not supported by your browser. Please try using a different browser.');
+      } else {
+        toast.error('Unable to play voice message. Please try again.');
+      }
     };
 
-    // Add cache busting to prevent stale audio files
+    // Add cache busting and handle CORS
     const timestamp = new Date().getTime();
     const urlWithCache = `${audioUrl}?t=${timestamp}`;
     
     // Configure audio
     audio.preload = 'auto';
+    audio.crossOrigin = 'anonymous'; // Handle CORS issues
+    
+    // Set MIME type for WebM audio
+    if (audioUrl.endsWith('.webm')) {
+      audio.type = 'audio/webm';
+    }
+    
     audio.src = urlWithCache;
     
     // Add event listeners
@@ -87,12 +101,24 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
         audioRef.current.pause();
         setIsPlaying(false);
       } else {
-        await audioRef.current.play();
+        // Check if the audio format is supported before playing
+        const audioFormat = audioUrl.split('.').pop()?.toLowerCase();
+        const audio = audioRef.current;
+        
+        if (audioFormat === 'webm' && !audio.canPlayType('audio/webm')) {
+          throw new Error('Unsupported audio format');
+        }
+        
+        await audio.play();
         setIsPlaying(true);
       }
     } catch (error) {
       console.error('Playback error:', error);
-      toast.error('Unable to play voice message. Please try again.');
+      if (error instanceof Error && error.message === 'Unsupported audio format') {
+        toast.error('This audio format is not supported by your browser. Please try using a different browser.');
+      } else {
+        toast.error('Unable to play voice message. Please try again.');
+      }
       setIsPlaying(false);
     }
   };
