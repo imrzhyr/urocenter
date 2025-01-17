@@ -22,14 +22,14 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
       const stream = await navigator.mediaDevices.getUserMedia({ 
         audio: {
           channelCount: 1,
-          sampleRate: 44100,
+          sampleRate: 48000,
           echoCancellation: true,
           noiseSuppression: true
         } 
       });
       
       mediaRecorderRef.current = new MediaRecorder(stream, {
-        mimeType: 'audio/mp3'
+        mimeType: 'audio/ogg;codecs=opus'
       });
       
       chunksRef.current = [];
@@ -43,14 +43,14 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
 
       mediaRecorderRef.current.onstop = async () => {
         const audioBlob = new Blob(chunksRef.current, { 
-          type: 'audio/mp3' 
+          type: 'audio/ogg;codecs=opus' 
         });
         
         setIsUploading(true);
         
         try {
-          const file = new File([audioBlob], `voice-message-${Date.now()}.mp3`, { 
-            type: 'audio/mp3'
+          const file = new File([audioBlob], `voice-message-${Date.now()}.ogg`, { 
+            type: 'audio/ogg;codecs=opus'
           });
           
           const fileInfo = await uploadFile(file);
@@ -109,7 +109,7 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
             onClick={stopRecording}
             variant="ghost"
             size="icon"
-            className="h-10 w-10 bg-red-50 hover:bg-red-100"
+            className="h-10 w-10 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30"
           >
             <Square className="h-5 w-5 text-red-500" />
           </Button>
