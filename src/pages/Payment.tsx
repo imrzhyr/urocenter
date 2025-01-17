@@ -13,9 +13,9 @@ const Payment = () => {
   const navigate = useNavigate();
   const [selectedMethod, setSelectedMethod] = useState("");
   const [isContactingSupport, setIsContactingSupport] = useState(false);
-  const [isWaitingForApproval, setIsWaitingForApproval] = useState(false);
   const { t } = useLanguage();
   const { profile, refetch } = useProfile();
+  const [isWaitingForApproval, setIsWaitingForApproval] = useState(false);
 
   useEffect(() => {
     const checkPaymentStatus = async () => {
@@ -27,6 +27,7 @@ const Payment = () => {
         return;
       }
 
+      // Show waiting screen if payment is pending approval
       if (profile.payment_status === 'unpaid' && profile.payment_approval_status === 'pending') {
         setIsWaitingForApproval(true);
       }
@@ -59,34 +60,7 @@ const Payment = () => {
     };
   }, [profile?.id, profile?.payment_status, profile?.payment_approval_status, navigate, refetch, t]);
 
-  const handlePaymentMethodSelect = (method: string) => {
-    setSelectedMethod(method);
-  };
-
-  const handleSupportContact = async () => {
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          payment_status: 'unpaid',
-          payment_approval_status: 'pending'
-        })
-        .eq('id', profile?.id);
-
-      if (error) throw error;
-
-      setIsContactingSupport(true);
-      setIsWaitingForApproval(true);
-      const message = encodeURIComponent(
-        `Hello, I would like to pay for UroCenter consultation using ${selectedMethod}. Please guide me through the payment process.`
-      );
-      window.open(`https://wa.me/9647702428154?text=${message}`, '_blank');
-    } catch (error) {
-      console.error('Error updating payment status:', error);
-      toast.error(t("Error updating payment status"));
-    }
-  };
-
+  // If waiting for approval, show the waiting screen
   if (isWaitingForApproval) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800">
@@ -109,10 +83,6 @@ const Payment = () => {
         </motion.div>
       </div>
     );
-  }
-
-  if (isContactingSupport) {
-    return <PaymentLoadingScreen />;
   }
 
   return (
@@ -171,7 +141,7 @@ const Payment = () => {
             ].map((method) => (
               <motion.button
                 key={method.id}
-                onClick={() => handlePaymentMethodSelect(method.id)}
+                onClick={() => setSelectedMethod(method.id)}
                 className={`w-full flex items-center justify-between p-4 rounded-lg border ${
                   selectedMethod === method.id
                     ? "border-primary bg-primary/5"
