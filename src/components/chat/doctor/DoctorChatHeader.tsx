@@ -84,7 +84,7 @@ export const DoctorChatHeader = ({
         .from('messages')
         .insert({
           user_id: patientId,
-          content: `Chat ${isResolved ? 'unresolved' : 'resolved'} by Dr. Ali Kamal`,
+          content: `Chat ${!isResolved ? 'resolved' : 'unresolved'} by Dr. Ali Kamal`,
           is_from_doctor: true,
           is_read: true,
           status: 'seen',
@@ -94,7 +94,7 @@ export const DoctorChatHeader = ({
 
       if (insertError) throw insertError;
 
-      toast.success(isResolved ? "Chat marked as unresolved" : "Chat marked as resolved");
+      toast.success(!isResolved ? "Chat marked as resolved" : "Chat marked as unresolved");
       onRefresh();
     } catch (error) {
       console.error('Error resolving chat:', error);
