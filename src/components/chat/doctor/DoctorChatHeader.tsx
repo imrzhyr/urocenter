@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Phone, CheckCircle, FileText } from "lucide-react";
+import { Phone, FileText } from "lucide-react";
 import { useCall } from "../call/CallProvider";
 import { BackButton } from "@/components/BackButton";
 import { useState } from "react";
@@ -144,7 +144,10 @@ export const DoctorChatHeader = ({
             )}
             onClick={handleResolve}
           >
-            <CheckCircle className="h-5 w-5" />
+            <div className={cn(
+              "h-3 w-3 rounded-full",
+              isResolved ? "bg-purple-400" : "bg-red-400"
+            )} />
           </Button>
         </div>
       </div>
