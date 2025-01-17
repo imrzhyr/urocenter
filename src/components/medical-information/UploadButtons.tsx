@@ -16,10 +16,10 @@ export const UploadButtons = ({
   const { t } = useLanguage();
   
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full max-w-md mx-auto">
       <Button 
         variant="outline" 
-        className="flex items-center justify-center gap-2 bg-primary/5 hover:bg-primary/10 text-primary border-primary/20"
+        className="flex-1 w-full sm:w-auto items-center justify-center gap-2 bg-primary/5 hover:bg-primary/10 text-primary border-primary/20"
         onClick={onCameraCapture}
         disabled={isUploading}
       >
@@ -29,7 +29,7 @@ export const UploadButtons = ({
       
       <Button 
         variant="outline" 
-        className="flex items-center justify-center gap-2 bg-secondary/5 hover:bg-secondary/10 text-secondary border-secondary/20"
+        className="flex-1 w-full sm:w-auto items-center justify-center gap-2 bg-secondary/5 hover:bg-secondary/10 text-secondary border-secondary/20"
         onClick={onFileSelect}
         disabled={isUploading}
       >

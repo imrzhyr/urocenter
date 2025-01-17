@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Lovable",
-    "slug": "lovable",
+    "name": "UroCenter",
+    "slug": "urocenter",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -16,7 +16,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.lovable.app",
+      "bundleIdentifier": "com.urocenter.app",
       "buildNumber": "1.0.0"
     },
     "android": {
@@ -24,7 +24,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.lovable.app",
+      "package": "com.urocenter.app",
       "versionCode": 1
     },
     "extra": {
