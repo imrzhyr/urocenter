@@ -1,81 +1,141 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Dashboard from "@/pages/Dashboard";
-import Chat from "@/pages/Chat";
-import Profile from "@/pages/Profile";
-import SignIn from "@/pages/SignIn";
-import SignUp from "@/pages/SignUp";
-import Welcome from "@/pages/Welcome";
-import MedicalInformation from "@/pages/MedicalInformation";
-import Payment from "@/pages/Payment";
-import PaymentVerification from "@/pages/PaymentVerification";
-import Settings from "@/pages/Settings";
-import AdminDashboard from "@/pages/AdminDashboard";
-import AdminStatistics from "@/pages/AdminStatistics";
-import AdminPayments from "@/pages/AdminPayments";
-import UserChat from "@/pages/UserChat";
+import { lazy, Suspense } from "react";
+import { LoadingScreen } from "@/components/LoadingScreen";
 import { OnboardingLayout } from "@/components/layouts/OnboardingLayout";
+
+// Lazy load components
+const Welcome = lazy(() => import("@/pages/Welcome"));
+const SignIn = lazy(() => import("@/pages/SignIn"));
+const SignUp = lazy(() => import("@/pages/SignUp"));
+const Profile = lazy(() => import("@/pages/Profile"));
+const MedicalInformation = lazy(() => import("@/pages/MedicalInformation"));
+const Payment = lazy(() => import("@/pages/Payment"));
+const PaymentVerification = lazy(() => import("@/pages/PaymentVerification"));
+const Dashboard = lazy(() => import("@/pages/Dashboard"));
+const UserChat = lazy(() => import("@/pages/UserChat"));
+const Chat = lazy(() => import("@/pages/Chat"));
+const Settings = lazy(() => import("@/pages/Settings"));
+const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"));
+const AdminStatistics = lazy(() => import("@/pages/AdminStatistics"));
+const AdminPayments = lazy(() => import("@/pages/AdminPayments"));
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Welcome />,
+    element: (
+      <Suspense fallback={<LoadingScreen />}>
+        <Welcome />
+      </Suspense>
+    ),
   },
   {
     path: "/signin",
-    element: <SignIn />,
+    element: (
+      <Suspense fallback={<LoadingScreen />}>
+        <SignIn />
+      </Suspense>
+    ),
   },
   {
     element: <OnboardingLayout />,
     children: [
       {
         path: "/signup",
-        element: <SignUp />,
+        element: (
+          <Suspense fallback={<LoadingScreen />}>
+            <SignUp />
+          </Suspense>
+        ),
       },
       {
         path: "/profile",
-        element: <Profile />,
+        element: (
+          <Suspense fallback={<LoadingScreen />}>
+            <Profile />
+          </Suspense>
+        ),
       },
       {
         path: "/medical-information",
-        element: <MedicalInformation />,
+        element: (
+          <Suspense fallback={<LoadingScreen />}>
+            <MedicalInformation />
+          </Suspense>
+        ),
       },
       {
         path: "/payment",
-        element: <Payment />,
+        element: (
+          <Suspense fallback={<LoadingScreen />}>
+            <Payment />
+          </Suspense>
+        ),
       },
     ],
   },
   {
     path: "/payment-verification",
-    element: <PaymentVerification />,
+    element: (
+      <Suspense fallback={<LoadingScreen />}>
+        <PaymentVerification />
+      </Suspense>
+    ),
   },
   {
     path: "/dashboard",
-    element: <Dashboard />,
+    element: (
+      <Suspense fallback={<LoadingScreen />}>
+        <Dashboard />
+      </Suspense>
+    ),
   },
   {
     path: "/chat",
-    element: <UserChat />,
+    element: (
+      <Suspense fallback={<LoadingScreen />}>
+        <UserChat />
+      </Suspense>
+    ),
   },
   {
     path: "/chat/:userId",
-    element: <Chat />,
+    element: (
+      <Suspense fallback={<LoadingScreen />}>
+        <Chat />
+      </Suspense>
+    ),
   },
   {
     path: "/settings",
-    element: <Settings />,
+    element: (
+      <Suspense fallback={<LoadingScreen />}>
+        <Settings />
+      </Suspense>
+    ),
   },
   {
     path: "/admin",
-    element: <AdminDashboard />,
+    element: (
+      <Suspense fallback={<LoadingScreen />}>
+        <AdminDashboard />
+      </Suspense>
+    ),
   },
   {
     path: "/admin/statistics",
-    element: <AdminStatistics />,
+    element: (
+      <Suspense fallback={<LoadingScreen />}>
+        <AdminStatistics />
+      </Suspense>
+    ),
   },
   {
     path: "/admin/payments",
-    element: <AdminPayments />,
+    element: (
+      <Suspense fallback={<LoadingScreen />}>
+        <AdminPayments />
+      </Suspense>
+    ),
   },
 ]);
 
