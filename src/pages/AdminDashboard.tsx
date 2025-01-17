@@ -35,14 +35,14 @@ const AdminDashboard = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] dark:bg-gray-900 pb-28">
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-gray-900">
       <DashboardHeader />
-      <main className="container mx-auto px-4 py-6 space-y-8 max-w-7xl">
+      <main className="h-[calc(100vh-64px)] overflow-y-auto pt-6 px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="space-y-8"
+          className="max-w-7xl mx-auto space-y-8 pb-28"
         >
           <MessagesCard />
         </motion.div>
