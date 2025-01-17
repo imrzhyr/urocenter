@@ -25,14 +25,19 @@ const getStepFromPath = (pathname: string) => {
 export const OnboardingLayout = () => {
   const location = useLocation();
   const currentStep = getStepFromPath(location.pathname);
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const { profile } = useProfile();
 
-  const steps = [
-    t('sign_up'),
-    t('profile'),
-    t('medical_information'),
-    t('payment')
+  const steps = language === 'ar' ? [
+    "إنشاء حساب",
+    "الملف الشخصي",
+    "المعلومات الطبية",
+    "الدفع"
+  ] : [
+    "Sign Up",
+    "Profile",
+    "Medical Information",
+    "Payment"
   ];
 
   const getCompletedStep = () => {
@@ -67,7 +72,7 @@ export const OnboardingLayout = () => {
       </main>
 
       <footer className="p-4 text-center text-sm text-muted-foreground bg-white dark:bg-gray-900">
-        {t('copyright')}
+        {language === 'ar' ? '© 2025 جميع الحقوق محفوظة' : '© 2025 All rights reserved'}
       </footer>
     </div>
   );

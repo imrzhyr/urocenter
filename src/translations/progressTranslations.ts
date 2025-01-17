@@ -15,11 +15,7 @@ export const progressTranslations = {
     "continue": "Continue",
     "back": "Back",
     "skip": "Skip",
-    "finish": "Finish",
-    "leave_onboarding": "Leave Onboarding?",
-    "leave_onboarding_warning": "You will lose your progress if you leave. Are you sure?",
-    "cancel": "Cancel",
-    "confirm": "Confirm"
+    "finish": "Finish"
   },
   ar: {
     "sign_up": "إنشاء حساب",
@@ -37,10 +33,6 @@ export const progressTranslations = {
     "continue": "متابعة",
     "back": "رجوع",
     "skip": "تخطي",
-    "finish": "إنهاء",
-    "leave_onboarding": "مغادرة التسجيل؟",
-    "leave_onboarding_warning": "ستفقد تقدمك إذا غادرت. هل أنت متأكد؟",
-    "cancel": "إلغاء",
-    "confirm": "تأكيد"
+    "finish": "إنهاء"
   }
 };
