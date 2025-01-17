@@ -50,7 +50,7 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
       localStorage.setItem('userPhone', formattedPhone);
       toast.success(t('signin_success'));
 
-      // Check payment status and redirect accordingly
+      // Check role and payment status for redirection
       if (data.role === 'admin') {
         navigate('/admin');
       } else if (data.payment_status === 'paid' && data.payment_approval_status === 'approved') {

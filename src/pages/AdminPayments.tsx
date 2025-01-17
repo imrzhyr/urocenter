@@ -36,13 +36,14 @@ const AdminPayments = () => {
     checkAdminAccess();
   }, [navigate]);
 
-  const { data: paymentStats } = useQuery({
+  const { data: paymentStats, refetch } = useQuery({
     queryKey: ['paymentStats'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')
         .select('payment_status, payment_date')
         .eq('payment_status', 'paid')
+        .eq('payment_approval_status', 'approved')
         .gte('payment_date', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString());
 
       if (error) throw error;
@@ -56,6 +57,29 @@ const AdminPayments = () => {
       };
     }
   });
+
+  // Subscribe to real-time updates
+  useEffect(() => {
+    const channel = supabase
+      .channel('payment_updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'profiles',
+          filter: `payment_status=eq.paid`
+        },
+        () => {
+          refetch();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [refetch]);
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-gray-900 pb-28">

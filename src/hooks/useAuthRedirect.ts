@@ -25,6 +25,13 @@ export const useAuthRedirect = () => {
         localStorage.removeItem('userPhone');
         toast.error("Please sign in to access the chat");
         navigate("/signin", { replace: true });
+        return;
+      }
+
+      // Check if user is unpaid and redirect to payment page
+      if (profile.payment_status !== 'paid' || profile.payment_approval_status !== 'approved') {
+        navigate("/payment", { replace: true });
+        return;
       }
     };
 
