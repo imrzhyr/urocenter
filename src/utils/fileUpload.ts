@@ -12,14 +12,15 @@ export const uploadFile = async (file: File) => {
     const fileExt = file.name.split('.').pop();
     const filePath = `${crypto.randomUUID()}.${fileExt}`;
 
-    // Set correct content type for webm files
-    const contentType = file.type === 'audio/webm;codecs=opus' 
-      ? 'audio/webm' 
-      : file.type || 'application/octet-stream';
+    // Handle WebM audio files specifically
+    let contentType = file.type;
+    if (file.type.includes('audio/webm')) {
+      contentType = 'audio/webm';
+    }
 
     console.log('Uploading file with content type:', contentType);
 
-    // Upload file to Supabase storage
+    // Upload file to Supabase storage with explicit content type
     const { data, error: uploadError } = await supabase.storage
       .from('chat_attachments')
       .upload(filePath, file, {
