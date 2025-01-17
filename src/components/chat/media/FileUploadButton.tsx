@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
-import { Image, FileVideo, Loader2 } from "lucide-react";
+import { ImagePlus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { uploadFile } from "@/utils/fileUpload";
 
@@ -42,20 +42,17 @@ export const FileUploadButton = ({ onFileUpload }: FileUploadButtonProps) => {
         className="hidden"
       />
       {isUploading ? (
-        <Button disabled variant="ghost" size="icon" className="h-10 w-10">
+        <Button disabled variant="secondary" size="icon" className="h-10 w-10">
           <Loader2 className="h-5 w-5 animate-spin" />
         </Button>
       ) : (
         <Button
           onClick={() => fileInputRef.current?.click()}
-          variant="ghost"
+          variant="secondary"
           size="icon"
-          className="h-10 w-10"
+          className="h-10 w-10 bg-green-500 hover:bg-green-600 text-white"
         >
-          <div className="relative">
-            <Image className="h-5 w-5 text-primary absolute -left-3" />
-            <FileVideo className="h-5 w-5 text-primary absolute left-0" />
-          </div>
+          <ImagePlus className="h-5 w-5" />
         </Button>
       )}
     </div>

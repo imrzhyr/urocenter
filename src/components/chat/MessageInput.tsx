@@ -4,8 +4,8 @@ import { TextArea } from "./input/TextArea";
 import { SendButton } from "./input/SendButton";
 import { ReplyPreview } from "./reply/ReplyPreview";
 import { Message } from "@/types/profile";
-import { FileUploadButton } from "./FileUploadButton";
-import { VoiceMessageButton } from "./VoiceMessageButton";
+import { FileUploadButton } from "./media/FileUploadButton";
+import { VoiceMessageButton } from "./media/VoiceMessageButton";
 
 export interface MessageInputProps {
   onSendMessage: (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }, replyTo?: Message) => void;

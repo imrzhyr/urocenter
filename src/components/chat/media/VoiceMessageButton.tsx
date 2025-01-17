@@ -88,7 +88,7 @@ export const VoiceMessageButton = ({ onVoiceMessage }: VoiceMessageButtonProps) 
   return (
     <div className="flex items-center gap-2">
       {isUploading ? (
-        <Button disabled variant="ghost" size="icon" className="h-10 w-10">
+        <Button disabled variant="secondary" size="icon" className="h-10 w-10">
           <Loader2 className="h-5 w-5 animate-spin" />
         </Button>
       ) : isRecording ? (
@@ -98,21 +98,21 @@ export const VoiceMessageButton = ({ onVoiceMessage }: VoiceMessageButtonProps) 
           </span>
           <Button
             onClick={stopRecording}
-            variant="ghost"
+            variant="secondary"
             size="icon"
-            className="h-10 w-10 bg-red-50 hover:bg-red-100 dark:bg-red-900/10 dark:hover:bg-red-900/20"
+            className="h-10 w-10 bg-red-500 hover:bg-red-600 text-white"
           >
-            <Square className="h-5 w-5 text-red-500" />
+            <Square className="h-5 w-5" />
           </Button>
         </>
       ) : (
         <Button
           onClick={startRecording}
-          variant="ghost"
+          variant="secondary"
           size="icon"
-          className="h-10 w-10"
+          className="h-10 w-10 bg-green-500 hover:bg-green-600 text-white"
         >
-          <Mic className="h-5 w-5 text-primary" />
+          <Mic className="h-5 w-5" />
         </Button>
       )}
     </div>
