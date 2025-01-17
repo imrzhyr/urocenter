@@ -39,6 +39,7 @@ const AdminPayments = () => {
   const { data: paymentStats, refetch } = useQuery({
     queryKey: ['paymentStats'],
     queryFn: async () => {
+      console.log('Fetching payment stats...');
       const { data, error } = await supabase
         .from('profiles')
         .select('payment_status, payment_date')
@@ -51,6 +52,7 @@ const AdminPayments = () => {
       const totalAmount = (data?.length || 0) * 25000;
       const paidUsers = data?.length || 0;
       
+      console.log('Payment stats:', { totalAmount, paidUsers });
       return {
         totalAmount,
         paidUsers
@@ -58,8 +60,9 @@ const AdminPayments = () => {
     }
   });
 
-  // Subscribe to real-time updates
+  // Subscribe to real-time updates for payment status changes
   useEffect(() => {
+    console.log('Setting up real-time subscription for payment updates...');
     const channel = supabase
       .channel('payment_updates')
       .on(
@@ -68,15 +71,20 @@ const AdminPayments = () => {
           event: '*',
           schema: 'public',
           table: 'profiles',
-          filter: `payment_status=eq.paid`
+          filter: "payment_status=eq.paid"
         },
-        () => {
+        (payload) => {
+          console.log('Payment update received:', payload);
+          // Refetch payment stats when any payment status changes
           refetch();
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Subscription status:', status);
+      });
 
     return () => {
+      console.log('Cleaning up payment updates subscription');
       supabase.removeChannel(channel);
     };
   }, [refetch]);
