@@ -40,11 +40,7 @@ export const PaymentApprovalsCard = () => {
   };
 
   useEffect(() => {
-    // Initial fetch
-    fetchPendingPayments();
-
-    // Subscribe to ALL changes in the profiles table where payment_status is unpaid
-    // and payment_approval_status is pending
+    // Enable real-time updates for the profiles table
     console.log('Setting up real-time subscription for payment approvals...');
     const channel = supabase
       .channel('payment_approvals')
@@ -54,17 +50,30 @@ export const PaymentApprovalsCard = () => {
           event: '*',
           schema: 'public',
           table: 'profiles',
-          filter: "payment_status=eq.unpaid AND payment_approval_status=eq.pending"
+          filter: "payment_status=eq.unpaid AND payment_approval_status=eq.pending AND role=eq.patient"
         },
         (payload) => {
           console.log('Payment approval change received:', payload);
-          // Fetch the latest data whenever there's a relevant change
-          fetchPendingPayments();
+          
+          // Handle different types of changes
+          if (payload.eventType === 'INSERT') {
+            // Add new pending payment to the list
+            const newPayment = payload.new as PendingPayment;
+            setPendingPayments(prev => [newPayment, ...prev]);
+          } else if (payload.eventType === 'DELETE' || payload.eventType === 'UPDATE') {
+            // Remove or update the payment in the list
+            setPendingPayments(prev => 
+              prev.filter(payment => payment.id !== payload.old.id)
+            );
+          }
         }
       )
       .subscribe((status) => {
         console.log('Subscription status:', status);
       });
+
+    // Initial fetch
+    fetchPendingPayments();
 
     return () => {
       console.log('Cleaning up payment approvals subscription');
@@ -96,7 +105,7 @@ export const PaymentApprovalsCard = () => {
       description: t("Payment approved successfully"),
     });
 
-    // No need to manually fetch here as the real-time subscription will handle it
+    // The real-time subscription will handle removing this item from the list
   };
 
   return (
