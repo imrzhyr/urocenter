@@ -30,6 +30,7 @@ export const commonTranslations = {
     "show_less": "Show Less",
     "not_found": "Not Found",
     "coming_soon": "Coming Soon",
+    "copyright": "© 2025 All rights reserved",
 
     // Welcome Page
     "uro_center": "Uro Center",
@@ -53,7 +54,11 @@ export const commonTranslations = {
     "push_notifications": "Push Notifications",
     "help": "Help & Support",
     "about": "About",
-    "logout": "Logout"
+    "logout": "Logout",
+
+    // Onboarding
+    "leave_onboarding": "Leave Onboarding?",
+    "leave_onboarding_warning": "You will lose your progress if you leave. Are you sure?"
   },
   ar: {
     "please_sign_in_first": "الرجاء تسجيل الدخول للمتابعة",
@@ -86,6 +91,7 @@ export const commonTranslations = {
     "show_less": "عرض أقل",
     "not_found": "غير موجود",
     "coming_soon": "قريباً",
+    "copyright": "© 2025 جميع الحقوق محفوظة",
 
     // Welcome Page
     "uro_center": "مركز المسالك البولية",
@@ -109,6 +115,10 @@ export const commonTranslations = {
     "push_notifications": "إشعارات الدفع",
     "help": "المساعدة والدعم",
     "about": "حول التطبيق",
-    "logout": "تسجيل الخروج"
+    "logout": "تسجيل الخروج",
+
+    // Onboarding
+    "leave_onboarding": "مغادرة التسجيل؟",
+    "leave_onboarding_warning": "ستفقد تقدمك إذا غادرت. هل أنت متأكد؟"
   }
 };
