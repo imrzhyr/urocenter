@@ -29,10 +29,10 @@ export const OnboardingLayout = () => {
   const { profile } = useProfile();
 
   const steps = [
-    t("sign_up"),
-    t("profile"),
-    t("medical_info"),
-    t("payment")
+    "sign_up",
+    "profile_step",
+    "medical_info_step", 
+    "payment"
   ];
 
   // Calculate completed step based on profile data and current path
