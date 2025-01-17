@@ -49,7 +49,15 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
 
       localStorage.setItem('userPhone', formattedPhone);
       toast.success(t('signin_success'));
-      navigate('/dashboard');
+
+      // Check payment status and redirect accordingly
+      if (data.role === 'admin') {
+        navigate('/admin');
+      } else if (data.payment_status === 'paid' && data.payment_approval_status === 'approved') {
+        navigate('/dashboard');
+      } else {
+        navigate('/payment');
+      }
     } catch (error) {
       console.error('Sign in error:', error);
       toast.error(t('signin_error'));

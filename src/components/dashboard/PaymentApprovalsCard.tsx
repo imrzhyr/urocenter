@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
-import { Check, X } from "lucide-react";
+import { Check } from "lucide-react";
 
 interface PendingPayment {
   id: string;
@@ -88,32 +88,6 @@ export const PaymentApprovalsCard = () => {
     fetchPendingPayments();
   };
 
-  const handleRejectPayment = async (userId: string) => {
-    const { error } = await supabase
-      .from('profiles')
-      .update({ 
-        payment_status: 'rejected',
-        payment_approval_status: 'rejected'
-      })
-      .eq('id', userId);
-
-    if (error) {
-      toast({
-        title: t("Error"),
-        description: t("Failed to reject payment"),
-        variant: "destructive",
-      });
-      return;
-    }
-
-    toast({
-      title: t("Success"),
-      description: t("Payment rejected successfully"),
-    });
-
-    fetchPendingPayments();
-  };
-
   return (
     <Card className="w-full">
       <CardHeader>
@@ -138,24 +112,14 @@ export const PaymentApprovalsCard = () => {
                     <p className="font-medium">{payment.full_name || t("Unknown User")}</p>
                     <p className="text-sm text-muted-foreground">{payment.phone}</p>
                   </div>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      onClick={() => handleApprovePayment(payment.id)}
-                      className="bg-green-500 hover:bg-green-600 text-white"
-                    >
-                      <Check className="w-4 h-4 mr-1" />
-                      {t("Approve")}
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => handleRejectPayment(payment.id)}
-                    >
-                      <X className="w-4 h-4 mr-1" />
-                      {t("Reject")}
-                    </Button>
-                  </div>
+                  <Button
+                    size="sm"
+                    onClick={() => handleApprovePayment(payment.id)}
+                    className="bg-green-500 hover:bg-green-600 text-white"
+                  >
+                    <Check className="w-4 h-4 mr-1" />
+                    {t("Approve")}
+                  </Button>
                 </motion.div>
               ))}
             </div>

@@ -25,7 +25,7 @@ export const useAuth = () => {
       // Fetch profile with formatted phone
       const { data: profiles, error: profileError } = await supabase
         .from('profiles')
-        .select('id, phone, password, role')
+        .select('id, phone, password, role, payment_status, payment_approval_status')
         .eq('phone', formattedPhone)
         .eq('password', password)
         .order('created_at', { ascending: false })

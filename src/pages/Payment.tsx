@@ -13,14 +13,22 @@ const Payment = () => {
   const navigate = useNavigate();
   const [selectedMethod, setSelectedMethod] = useState("");
   const [isContactingSupport, setIsContactingSupport] = useState(false);
+  const [isWaitingForApproval, setIsWaitingForApproval] = useState(false);
   const { t } = useLanguage();
   const { profile, refetch } = useProfile();
 
   useEffect(() => {
     const checkPaymentStatus = async () => {
-      if (profile?.payment_status === 'paid') {
-        toast.success(t("Payment Verified Successfully"));
+      if (!profile) return;
+
+      if (profile.payment_status === 'paid' && profile.payment_approval_status === 'approved') {
+        toast.success(t("Payment Approved"));
         navigate('/dashboard');
+        return;
+      }
+
+      if (profile.payment_status === 'unpaid' && profile.payment_approval_status === 'pending') {
+        setIsWaitingForApproval(true);
       }
     };
 
@@ -37,9 +45,9 @@ const Payment = () => {
           filter: `id=eq.${profile?.id}`,
         },
         async (payload: any) => {
-          if (payload.new.payment_status === 'paid') {
+          if (payload.new.payment_status === 'paid' && payload.new.payment_approval_status === 'approved') {
             await refetch();
-            toast.success(t("Payment Verified Successfully"));
+            toast.success(t("Payment Approved - You can now chat with Dr. Ali Kamal"));
             navigate('/dashboard');
           }
         }
@@ -49,19 +57,59 @@ const Payment = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [profile?.id, profile?.payment_status, navigate, refetch, t]);
+  }, [profile?.id, profile?.payment_status, profile?.payment_approval_status, navigate, refetch, t]);
 
   const handlePaymentMethodSelect = (method: string) => {
     setSelectedMethod(method);
   };
 
   const handleSupportContact = async () => {
-    setIsContactingSupport(true);
-    const message = encodeURIComponent(
-      `Hello, I would like to pay for UroCenter consultation using ${selectedMethod}. Please guide me through the payment process.`
-    );
-    window.open(`https://wa.me/9647702428154?text=${message}`, '_blank');
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          payment_status: 'unpaid',
+          payment_approval_status: 'pending'
+        })
+        .eq('id', profile?.id);
+
+      if (error) throw error;
+
+      setIsContactingSupport(true);
+      setIsWaitingForApproval(true);
+      const message = encodeURIComponent(
+        `Hello, I would like to pay for UroCenter consultation using ${selectedMethod}. Please guide me through the payment process.`
+      );
+      window.open(`https://wa.me/9647702428154?text=${message}`, '_blank');
+    } catch (error) {
+      console.error('Error updating payment status:', error);
+      toast.error(t("Error updating payment status"));
+    }
   };
+
+  if (isWaitingForApproval) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center space-y-6 max-w-md"
+        >
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            {t("Waiting for Payment Approval")}
+          </h1>
+          <p className="text-gray-600 dark:text-gray-300">
+            {t("Your payment is being reviewed by our team. Once approved, you'll be able to access the dashboard and chat with Dr. Ali Kamal.")}
+          </p>
+          <div className="animate-pulse flex justify-center">
+            <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-blue-500/40 rounded-full" />
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   if (isContactingSupport) {
     return <PaymentLoadingScreen />;
