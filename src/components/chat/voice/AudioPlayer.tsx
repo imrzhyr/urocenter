@@ -11,32 +11,17 @@ interface AudioPlayerProps {
 
 export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const playPromiseRef = useRef<Promise<void> | null>(null);
 
   useEffect(() => {
     const audio = new Audio();
     
-    // Set CORS policy
-    audio.crossOrigin = "anonymous";
-    
-    // Add multiple sources for better browser compatibility
-    const sourceWebm = document.createElement('source');
-    sourceWebm.src = audioUrl;
-    sourceWebm.type = 'audio/webm;codecs=opus';
-    
-    const sourceMp3 = document.createElement('source');
-    sourceMp3.src = audioUrl.replace('.webm', '.mp3');
-    sourceMp3.type = 'audio/mpeg';
-    
-    audio.appendChild(sourceWebm);
-    audio.appendChild(sourceMp3);
-    
-    // Preload metadata
-    audio.preload = 'metadata';
-    
-    const handleCanPlayThrough = () => {
-      console.log('Audio can play through:', {
+    const handleCanPlay = () => {
+      setIsLoading(false);
+      console.log('Audio ready to play:', {
         duration: audio.duration,
         readyState: audio.readyState,
         networkState: audio.networkState
@@ -59,60 +44,72 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
         readyState: audio.readyState,
         currentSrc: audio.currentSrc
       });
-      
+      setIsLoading(false);
+      setIsPlaying(false);
       toast.error('Failed to load audio. Please try again.');
     };
 
-    audio.addEventListener('canplaythrough', handleCanPlayThrough);
+    audio.addEventListener('canplay', handleCanPlay);
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('error', handleError);
 
+    // Set audio properties
+    audio.preload = 'auto';
+    audio.src = audioUrl;
     audioRef.current = audio;
 
     return () => {
-      audio.removeEventListener('canplaythrough', handleCanPlayThrough);
+      if (playPromiseRef.current) {
+        playPromiseRef.current.then(() => {
+          audio.pause();
+        }).catch(() => {});
+      } else {
+        audio.pause();
+      }
+      audio.removeEventListener('canplay', handleCanPlay);
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('error', handleError);
-      audio.pause();
+      audio.src = '';
       audioRef.current = null;
     };
   }, [audioUrl]);
 
   const togglePlayPause = async () => {
-    if (!audioRef.current) {
-      console.error('Audio element not initialized');
-      return;
-    }
+    if (!audioRef.current || isLoading) return;
 
     try {
       if (isPlaying) {
-        await audioRef.current.pause();
-        setIsPlaying(false);
-      } else {
-        // Force reload the audio before playing
-        audioRef.current.currentTime = 0;
-        await audioRef.current.load();
-        const playPromise = audioRef.current.play();
-        
-        if (playPromise !== undefined) {
-          playPromise
-            .then(() => {
-              console.log('Audio started playing successfully');
-              setIsPlaying(true);
-            })
-            .catch(error => {
-              console.error('Error playing audio:', error);
-              toast.error('Failed to play audio. Please try again.');
-              setIsPlaying(false);
-            });
+        if (playPromiseRef.current) {
+          await playPromiseRef.current;
         }
+        audioRef.current.pause();
+        setIsPlaying(false);
+        playPromiseRef.current = null;
+      } else {
+        setIsLoading(true);
+        // Reset audio position if it ended
+        if (audioRef.current.ended) {
+          audioRef.current.currentTime = 0;
+        }
+        
+        playPromiseRef.current = audioRef.current.play();
+        try {
+          await playPromiseRef.current;
+          setIsPlaying(true);
+        } catch (error) {
+          console.error('Error playing audio:', error);
+          toast.error('Failed to play audio. Please try again.');
+          setIsPlaying(false);
+        }
+        setIsLoading(false);
       }
     } catch (error) {
       console.error('Error in togglePlayPause:', error);
-      toast.error('Failed to play audio. Please try again.');
       setIsPlaying(false);
+      setIsLoading(false);
+      toast.error('Failed to play audio. Please try again.');
     }
   };
 
@@ -129,6 +126,7 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
         size="icon"
         className="h-8 w-8"
         onClick={togglePlayPause}
+        disabled={isLoading}
       >
         {isPlaying ? (
           <Pause className="h-4 w-4" />
