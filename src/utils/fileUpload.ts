@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const uploadFile = async (file: File) => {
   try {
@@ -29,6 +30,7 @@ export const uploadFile = async (file: File) => {
     };
   } catch (error) {
     console.error('File upload error:', error);
+    toast.error('Failed to upload file');
     throw error;
   }
 };
