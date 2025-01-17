@@ -1,6 +1,7 @@
 import { Headset } from "lucide-react";
 import { Button } from "./ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { cn } from "@/lib/utils";
 
 export const WhatsAppSupport = () => {
   const { t, isRTL } = useLanguage();
