@@ -38,24 +38,26 @@ const Payment = () => {
         return;
       }
 
+      // Only show waiting screen if payment_approval_status is pending AND payment_status is unpaid
+      // This ensures new users don't see the waiting screen immediately
+      if (data.payment_approval_status === 'pending' && data.payment_status === 'unpaid') {
+        console.log('User has contacted support, showing waiting screen');
+        setIsWaitingForApproval(true);
+      }
+
       // If payment is approved, redirect to dashboard
       if (data.payment_status === 'paid' && data.payment_approval_status === 'approved') {
         console.log('Payment approved, redirecting to dashboard');
         navigate('/dashboard', { replace: true });
         return;
       }
-
-      // Show waiting screen if payment_approval_status is pending
-      if (data.payment_approval_status === 'pending') {
-        setIsWaitingForApproval(true);
-      }
     };
 
     checkPaymentStatus();
 
-    // Subscribe to real-time updates
+    // Subscribe to real-time updates with improved error handling
     const channel = supabase
-      .channel('payment_status')
+      .channel('payment_status_changes')
       .on(
         'postgres_changes',
         {
@@ -79,14 +81,17 @@ const Payment = () => {
             toast.success(t("Payment Approved - You can now chat with Dr. Ali Kamal"));
             await refetch();
             navigate('/dashboard', { replace: true });
-          } else if (payload.new.payment_approval_status === 'pending') {
+          } else if (payload.new.payment_approval_status === 'pending' && payload.new.payment_status === 'unpaid') {
             setIsWaitingForApproval(true);
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Subscription status:', status);
+      });
 
     return () => {
+      console.log('Cleaning up subscription');
       supabase.removeChannel(channel);
     };
   }, [navigate, refetch, t]);
