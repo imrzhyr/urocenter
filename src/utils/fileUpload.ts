@@ -18,9 +18,19 @@ export const uploadFile = async (file: File) => {
       });
     }
 
+    // For images, ensure proper MIME type
+    if (file.type.startsWith('image/')) {
+      const imageBlob = new Blob([await file.arrayBuffer()], { 
+        type: file.type 
+      });
+      uploadFile = new File([imageBlob], file.name, { 
+        type: file.type
+      });
+    }
+
     console.log('Uploading file with type:', uploadFile.type);
 
-    // Upload file to Supabase storage
+    // Upload file to Supabase storage with explicit content type
     const { data, error: uploadError } = await supabase.storage
       .from('chat_attachments')
       .upload(filePath, uploadFile, {
