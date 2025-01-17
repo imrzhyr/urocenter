@@ -9,10 +9,52 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { WhatsAppSupport } from "@/components/WhatsAppSupport";
+import { toast } from "sonner";
 
 export const PaymentVerification = () => {
   const { t, isRTL } = useLanguage();
   const navigate = useNavigate();
+
+  const checkPaymentStatus = async () => {
+    try {
+      const userPhone = localStorage.getItem('userPhone');
+      if (!userPhone) {
+        toast.error(t("please_sign_in_first"));
+        navigate("/signin", { replace: true });
+        return;
+      }
+
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('phone', userPhone)
+        .single();
+
+      if (error) {
+        console.error('Error fetching profile:', error);
+        return;
+      }
+
+      if (profile?.payment_status === 'paid' && profile?.payment_approval_status === 'approved') {
+        toast.success(t("payment_approved"));
+        navigate("/dashboard", { replace: true });
+      }
+    } catch (error) {
+      console.error('Error checking payment status:', error);
+    }
+  };
+
+  useEffect(() => {
+    // Initial check
+    checkPaymentStatus();
+
+    // Set up polling interval
+    const pollingInterval = setInterval(checkPaymentStatus, 3000); // Check every 3 seconds
+
+    return () => {
+      clearInterval(pollingInterval);
+    };
+  }, [navigate]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
