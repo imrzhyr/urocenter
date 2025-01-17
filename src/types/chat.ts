@@ -1,3 +1,5 @@
+import { Message } from "@/types/profile";
+
 export interface MessageInputProps {
   onSendMessage: (content: string, fileInfo?: FileInfo) => void;
   isLoading?: boolean;
@@ -10,9 +12,8 @@ export interface FileInfo {
   duration?: number;
 }
 
-export interface MessageState {
+export interface ChatState {
   messages: Message[];
   isLoading: boolean;
-  sendMessage: (content: string, fileInfo?: FileInfo) => Promise<void>;
-  fetchMessages: () => Promise<void>;
+  error: string | null;
 }

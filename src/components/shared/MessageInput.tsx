@@ -77,7 +77,7 @@ export const MessageInput = ({ onSendMessage, isLoading }: MessageInputProps) =>
         />
         <Button 
           type="submit"
-          variant="primary"
+          variant="default"
           size="icon"
           disabled={isLoading || !message.trim()}
         >
