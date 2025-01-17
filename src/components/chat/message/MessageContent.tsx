@@ -21,19 +21,23 @@ export const MessageContent = ({ message, fromCurrentUser }: MessageContentProps
         <ReferencedMessage message={message.referenced_message} />
       )}
       
-      {message.file_url && message.file_type?.startsWith('audio/') ? (
-        <AudioPlayer
-          audioUrl={message.file_url}
-          duration={message.duration || 0}
-          messageId={message.id}
-        />
-      ) : message.file_url && (message.file_type?.startsWith('image/') || message.file_type?.startsWith('video/')) ? (
+      {message.file_url && message.file_type?.startsWith('audio/') && (
+        <div className="flex items-center gap-2">
+          <AudioPlayer
+            audioUrl={message.file_url}
+            messageId={message.id}
+            duration={message.duration}
+          />
+        </div>
+      )}
+      
+      {message.file_url && (message.file_type?.startsWith('image/') || message.file_type?.startsWith('video/')) && (
         <MediaGallery
           url={message.file_url}
           type={message.file_type}
           name={message.file_name || ''}
         />
-      ) : null}
+      )}
       
       {message.content && (
         <p className="text-sm whitespace-pre-wrap break-words overflow-wrap-anywhere">

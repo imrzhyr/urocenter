@@ -57,21 +57,11 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('error', handleError);
 
-    // Set audio properties
     audio.preload = 'auto';
-    
-    // Set CORS and type hints
     audio.crossOrigin = "anonymous";
-    
-    // Create source element with explicit MIME type
-    const source = document.createElement('source');
-    source.src = audioUrl;
-    source.type = 'audio/webm;codecs=opus';
-    audio.appendChild(source);
+    audio.src = audioUrl;
     
     audioRef.current = audio;
-
-    // Start loading the audio
     audio.load();
 
     return () => {
@@ -86,9 +76,6 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('error', handleError);
-      while (audio.firstChild) {
-        audio.removeChild(audio.firstChild);
-      }
       audio.src = '';
       audioRef.current = null;
     };
@@ -107,7 +94,6 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
         playPromiseRef.current = null;
       } else {
         setIsLoading(true);
-        // Reset audio position if it ended
         if (audioRef.current.ended) {
           audioRef.current.currentTime = 0;
         }
@@ -138,11 +124,11 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
   };
 
   return (
-    <div className="flex items-center gap-2 min-w-[200px]">
+    <div className="flex items-center gap-2 min-w-[120px]">
       <Button
         variant="ghost"
         size="icon"
-        className="h-8 w-8"
+        className="h-8 w-8 hover:bg-black/10 dark:hover:bg-white/10"
         onClick={togglePlayPause}
         disabled={isLoading}
       >
