@@ -1,9 +1,9 @@
 export const progressTranslations = {
   en: {
-    "onboarding_signup": "Sign Up",
-    "onboarding_profile": "Profile",
-    "onboarding_medical_info": "Medical Info",
-    "onboarding_payment": "Payment",
+    "sign_up": "Sign Up",
+    "profile": "Profile",
+    "medical_info": "Medical Info",
+    "payment": "Payment",
     "step_complete": "Step Complete",
     "step_incomplete": "Step Incomplete",
     "next_step": "Next Step",
@@ -19,10 +19,10 @@ export const progressTranslations = {
     "finish": "Finish"
   },
   ar: {
-    "onboarding_signup": "إنشاء حساب",
-    "onboarding_profile": "الملف الشخصي",
-    "onboarding_medical_info": "المعلومات الطبية",
-    "onboarding_payment": "الدفع",
+    "sign_up": "إنشاء حساب",
+    "profile": "الملف الشخصي",
+    "medical_info": "المعلومات الطبية",
+    "payment": "الدفع",
     "step_complete": "الخطوة مكتملة",
     "step_incomplete": "الخطوة غير مكتملة",
     "next_step": "الخطوة التالية",
@@ -35,10 +35,6 @@ export const progressTranslations = {
     "continue": "متابعة",
     "back": "رجوع",
     "skip": "تخطي",
-    "finish": "إنهاء",
-    "sign_up": "إنشاء حساب",
-    "profile": "الملف الشخصي",
-    "medical_info": "المعلومات الطبية",
-    "payment": "الدفع"
+    "finish": "إنهاء"
   }
 };

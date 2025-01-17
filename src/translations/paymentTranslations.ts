@@ -32,7 +32,16 @@ export const paymentTranslations = {
     "help_center": "Help Center",
     "select": "Select",
     "selected": "Selected",
-    "contact_support": "Contact Support"
+    "contact_support": "Contact Support",
+    "amount_to_pay": "Amount to Pay",
+    "medical_consultation_fee": "Medical Consultation Fee",
+    "choose_payment_method": "Choose Your Preferred Payment Method",
+    "iraqi_electronic_payment": "Iraqi Electronic Payment Card",
+    "fast_digital_payments": "Fast Digital Payments",
+    "first_iraqi_bank": "First Iraqi Bank",
+    "mobile_wallet_zain": "Mobile Wallet by Zain Iraq",
+    "support_available": "Our Support Team Is Available 24/7",
+    "contact_for_payment": "Contact Support For Payment"
   },
   ar: {
     "payment": "الدفع",
