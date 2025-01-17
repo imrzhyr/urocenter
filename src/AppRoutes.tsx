@@ -10,6 +10,7 @@ import Payment from "@/pages/Payment";
 import Settings from "@/pages/Settings";
 import AdminDashboard from "@/pages/AdminDashboard";
 import AdminStatistics from "@/pages/AdminStatistics";
+import AdminPayments from "@/pages/AdminPayments";
 import UserChat from "@/pages/UserChat";
 import { OnboardingLayout } from "@/components/layouts/OnboardingLayout";
 
@@ -66,6 +67,10 @@ const router = createBrowserRouter([
   {
     path: "/admin/statistics",
     element: <AdminStatistics />,
+  },
+  {
+    path: "/admin/payments",
+    element: <AdminPayments />,
   },
 ]);
 
