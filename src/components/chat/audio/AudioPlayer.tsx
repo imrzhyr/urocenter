@@ -39,46 +39,25 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
     };
 
     const handleError = () => {
-      console.error('Audio playback error:', audioUrl);
-      toast.error('Unable to play audio message');
       setIsPlaying(false);
       setIsLoading(false);
+      toast.error('Unable to play audio message');
     };
 
-    // Add cache control headers
-    const fetchAudio = async () => {
-      try {
-        const response = await fetch(audioUrl, {
-          headers: {
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const blob = await response.blob();
-        const objectUrl = URL.createObjectURL(blob);
-        audio.src = objectUrl;
-        
-        return () => {
-          URL.revokeObjectURL(objectUrl);
-        };
-      } catch (error) {
-        console.error('Error loading audio:', error);
-        toast.error('Unable to load audio message');
-        setIsLoading(false);
-      }
-    };
-
-    fetchAudio();
-
+    // Preload the audio file
+    audio.preload = 'auto';
+    
+    // Set audio source with cache busting
+    const timestamp = new Date().getTime();
+    audio.src = `${audioUrl}?t=${timestamp}`;
+    
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('error', handleError);
+
+    // Load the audio
+    audio.load();
 
     return () => {
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
@@ -86,6 +65,7 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('error', handleError);
       audio.pause();
+      audio.src = '';
       audioRef.current = null;
     };
   }, [audioUrl]);
@@ -95,13 +75,15 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
 
     if (isPlaying) {
       audioRef.current.pause();
+      setIsPlaying(false);
     } else {
-      audioRef.current.play().catch((error) => {
-        console.error('Playback failed:', error);
-        toast.error('Unable to play audio message');
-      });
+      audioRef.current.play()
+        .catch(() => {
+          toast.error('Unable to play audio message');
+          setIsPlaying(false);
+        });
+      setIsPlaying(true);
     }
-    setIsPlaying(!isPlaying);
   };
 
   return (
