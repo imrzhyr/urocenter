@@ -108,8 +108,8 @@ export const PatientInfoCard = ({
           }
         }}>
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="complaint">Complaint</TabsTrigger>
-            <TabsTrigger value="reports">Medical Reports</TabsTrigger>
+            <TabsTrigger value="complaint">{t('medical_complaint')}</TabsTrigger>
+            <TabsTrigger value="reports">{t('medical_reports')}</TabsTrigger>
           </TabsList>
           <TabsContent value="complaint" className="space-y-1">
             <h3 className="font-medium">Complaint</h3>
