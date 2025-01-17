@@ -12,7 +12,8 @@ export const useProfileQuery = () => {
 
   const fetchProfile = async () => {
     try {
-      if (location.pathname === '/signup') {
+      // Don't fetch profile on signup or signin pages
+      if (location.pathname === '/signup' || location.pathname === '/signin' || location.pathname === '/') {
         setIsLoading(false);
         return;
       }
