@@ -1,15 +1,12 @@
 import { Lightbulb } from "lucide-react";
 import { motion } from "framer-motion";
-import { useLanguage } from "@/contexts/LanguageContext";
 
 export const HealthTipsCard = () => {
-  const { t } = useLanguage();
-  
   const tips = [
-    t("stay_hydrated"),
-    t("regular_exercise"),
-    t("schedule_checkups"),
-    t("monitor_habits"),
+    "Maintain optimal hydration by drinking adequate water throughout the day",
+    "Engage in regular physical activity for better urological health",
+    "Schedule regular check-ups for preventive care",
+    "Monitor and maintain healthy lifestyle habits"
   ];
 
   return (
@@ -24,8 +21,8 @@ export const HealthTipsCard = () => {
           <Lightbulb className="h-6 w-6 text-primary" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">{t("health_tips")}</h2>
-          <p className="text-sm text-gray-600">{t("from_doctor")}</p>
+          <h2 className="text-lg font-semibold text-gray-900">Healthcare Recommendations</h2>
+          <p className="text-sm text-gray-600">Expert advice from your healthcare provider</p>
         </div>
       </div>
 

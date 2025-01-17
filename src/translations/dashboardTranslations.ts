@@ -55,22 +55,6 @@ export const dashboardTranslations = {
     "resolved_status": "تم الحل",
     "last_message": "آخر رسالة",
     "unread_messages": "الرسائل غير المقروءة",
-    "active_chats": "المحادثات النشطة",
-
-    // Settings
-    "settings": "الإعدادات",
-    "appearance": "المظهر",
-    "dark_mode": "الوضع الداكن",
-    "language": "اللغة",
-    "select_language": "اختر اللغة",
-    "notifications": "الإشعارات",
-    "push_notifications": "إشعارات الدفع",
-    "account": "الحساب",
-    "profile": "الملف الشخصي",
-    "security": "الأمان",
-    "privacy": "الخصوصية",
-    "help": "المساعدة",
-    "about": "حول",
-    "logout": "تسجيل الخروج"
+    "active_chats": "المحادثات النشطة"
   }
 };
