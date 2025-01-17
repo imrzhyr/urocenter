@@ -34,9 +34,11 @@ const Dashboard = () => {
 
         // Only check payment status once when component mounts
         if (!hasCheckedPayment && profile) {
-          console.log("Checking payment status:", {
+          console.log("Profile data:", profile);
+          console.log("Payment status check:", {
             payment_status: profile.payment_status,
-            payment_approval_status: profile.payment_approval_status
+            payment_approval_status: profile.payment_approval_status,
+            role: profile.role
           });
 
           if (profile.role === 'admin') {
@@ -45,9 +47,12 @@ const Dashboard = () => {
             return;
           }
 
+          // Direct string comparison without optional chaining
           const isPaid = profile.payment_status === 'paid';
           const isApproved = profile.payment_approval_status === 'approved';
           
+          console.log("Payment verification:", { isPaid, isApproved });
+
           if (!isPaid || !isApproved) {
             console.log("User not paid or approved, redirecting to payment");
             navigate("/payment", { replace: true });
