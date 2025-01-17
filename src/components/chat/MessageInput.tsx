@@ -4,9 +4,14 @@ import { TextArea } from "./input/TextArea";
 import { AttachmentButton } from "./input/AttachmentButton";
 import { Message } from "@/types/profile";
 import { ReplyPreview } from "./reply/ReplyPreview";
+import { VoiceRecorder } from "./voice/VoiceRecorder";
+import { Mic } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { uploadFile } from "@/utils/fileUpload";
+import { toast } from "sonner";
 
 interface MessageInputProps {
-  onSendMessage: (content: string, fileInfo?: { url: string; name: string; type: string }, replyTo?: Message) => void;
+  onSendMessage: (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }, replyTo?: Message) => void;
   isLoading?: boolean;
   replyingTo?: Message | null;
   onCancelReply?: () => void;
@@ -23,6 +28,7 @@ export const MessageInput = ({
   userId
 }: MessageInputProps) => {
   const [message, setMessage] = useState("");
+  const [isRecording, setIsRecording] = useState(false);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
 
@@ -51,39 +57,72 @@ export const MessageInput = ({
     onCancelReply?.();
   };
 
+  const handleVoiceMessage = async (audioBlob: Blob, duration: number) => {
+    try {
+      const file = new File([audioBlob], `voice-message-${Date.now()}.webm`, {
+        type: 'audio/webm'
+      });
+
+      const fileInfo = await uploadFile(file);
+      onSendMessage("", { ...fileInfo, duration }, replyingTo || undefined);
+      setIsRecording(false);
+    } catch (error) {
+      console.error('Error uploading voice message:', error);
+      toast.error('Failed to send voice message');
+    }
+  };
+
   return (
     <div className="p-4 space-y-4">
       {replyingTo && (
         <ReplyPreview message={replyingTo} onCancelReply={onCancelReply} />
       )}
       
-      <div className="flex items-end gap-2">
-        <AttachmentButton
-          onClick={() => {}}
-          onFileSelect={handleFileSelect}
-          isLoading={isLoading}
+      {isRecording ? (
+        <VoiceRecorder
+          onSendVoice={handleVoiceMessage}
+          onCancel={() => setIsRecording(false)}
         />
-        
-        <TextArea
-          ref={textAreaRef}
-          value={message}
-          onChange={(e) => handleTyping(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              handleSend();
-            }
-          }}
-          className="flex-1"
-          placeholder="Type a message..."
-        />
-        
-        <SendButton
-          onClick={handleSend}
-          isLoading={isLoading}
-          disabled={isLoading || !message.trim()}
-        />
-      </div>
+      ) : (
+        <div className="flex items-end gap-2">
+          <AttachmentButton
+            onClick={() => {}}
+            onFileSelect={handleFileSelect}
+            isLoading={isLoading}
+          />
+          
+          <TextArea
+            ref={textAreaRef}
+            value={message}
+            onChange={(e) => handleTyping(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+              }
+            }}
+            className="flex-1"
+            placeholder="Type a message..."
+          />
+          
+          {message.trim() ? (
+            <SendButton
+              onClick={handleSend}
+              isLoading={isLoading}
+              disabled={isLoading || !message.trim()}
+            />
+          ) : (
+            <Button
+              variant="secondary"
+              size="icon"
+              className="h-10 w-10"
+              onClick={() => setIsRecording(true)}
+            >
+              <Mic className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+      )}
     </div>
   );
 };

@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import { MessageStatus } from "./MessageStatus";
 import { MediaGallery } from "./media/MediaGallery";
 import { ReferencedMessage } from "./ReferencedMessage";
+import { VoicePlayer } from "./voice/VoicePlayer";
 
 interface MessageContentProps {
   message: Message;
@@ -10,6 +11,8 @@ interface MessageContentProps {
 }
 
 export const MessageContent = ({ message, fromCurrentUser }: MessageContentProps) => {
+  const isVoiceMessage = message.file_type === 'audio/webm';
+
   return (
     <div className={`max-w-[85%] sm:max-w-[70%] md:max-w-[60%] rounded-lg p-3 space-y-1 shadow-sm break-words ${
       fromCurrentUser
@@ -20,11 +23,19 @@ export const MessageContent = ({ message, fromCurrentUser }: MessageContentProps
         <ReferencedMessage message={message.referenced_message} />
       )}
       
-      {message.file_url && (message.file_type?.startsWith('image/') || message.file_type?.startsWith('video/')) && (
+      {message.file_url && !isVoiceMessage && (message.file_type?.startsWith('image/') || message.file_type?.startsWith('video/')) && (
         <MediaGallery
           url={message.file_url}
           type={message.file_type}
           name={message.file_name || ''}
+        />
+      )}
+
+      {isVoiceMessage && message.file_url && (
+        <VoicePlayer
+          url={message.file_url}
+          duration={message.duration || 0}
+          className={fromCurrentUser ? "bg-[#0055AA]" : ""}
         />
       )}
       
