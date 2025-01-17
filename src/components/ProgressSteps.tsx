@@ -12,9 +12,19 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
   const isRTL = language === 'ar';
 
   const getTranslationKey = (step: string) => {
-    // Convert "Medical Info" to "medical_information" for translation key
-    if (step === "Medical Info") return "medical_information";
-    return step.toLowerCase().replace(" ", "_");
+    // Map the step text to the corresponding translation key
+    switch (step) {
+      case "Sign Up":
+        return "signup";
+      case "Profile":
+        return "profile";
+      case "Medical Info":
+        return "medical_info";
+      case "Payment":
+        return "payment";
+      default:
+        return step.toLowerCase();
+    }
   };
 
   return (
