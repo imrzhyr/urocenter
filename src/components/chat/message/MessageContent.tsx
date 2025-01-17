@@ -25,6 +25,7 @@ export const MessageContent = ({ message, fromCurrentUser }: MessageContentProps
         <AudioPlayer
           audioUrl={message.file_url}
           duration={message.duration || 0}
+          messageId={message.id}
         />
       ) : message.file_url && (message.file_type?.startsWith('image/') || message.file_type?.startsWith('video/')) ? (
         <MediaGallery
