@@ -57,7 +57,7 @@ export const MessageList = ({ messages, currentUserId, onReply }: MessageListPro
       const { data, error } = await supabase
         .from('calls')
         .select('*')
-        .or(`caller_id.eq.${profile?.id},receiver_id.eq.${profile?.id}`)
+        .or(`caller_id.eq.${currentUserId},receiver_id.eq.${currentUserId}`)
         .order('created_at', { ascending: true });
 
       if (!error && data) {
@@ -73,15 +73,19 @@ export const MessageList = ({ messages, currentUserId, onReply }: MessageListPro
         event: '*', 
         schema: 'public', 
         table: 'calls' 
-      }, () => {
-        fetchCalls();
+      }, (payload) => {
+        // Only update if the call involves the current user
+        const call = payload.new as Call;
+        if (call.caller_id === currentUserId || call.receiver_id === currentUserId) {
+          fetchCalls();
+        }
       })
       .subscribe();
 
     return () => {
       channel.unsubscribe();
     };
-  }, [profile?.id]);
+  }, [currentUserId]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -113,7 +117,7 @@ export const MessageList = ({ messages, currentUserId, onReply }: MessageListPro
   };
 
   const getCallIcon = (call: Call) => {
-    const isCaller = call.caller_id === profile?.id;
+    const isCaller = call.caller_id === currentUserId;
     
     if (call.status === 'missed') {
       return <PhoneMissed className="h-4 w-4 text-red-500" />;
