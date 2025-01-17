@@ -63,6 +63,7 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
           isLoading={isLoading}
           replyingTo={replyingTo}
           onCancelReply={() => setReplyingTo(null)}
+          userId={userId}
         />
       </motion.div>
     </motion.div>
