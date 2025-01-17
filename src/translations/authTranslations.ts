@@ -7,6 +7,9 @@ export const authTranslations = {
     "reset_password": "Reset Password",
     "verify_phone": "Verify Phone Number",
     "enter_phone": "Enter your phone number",
+    "enter_password": "Enter password",
+    "confirm_password": "Confirm password",
+    "password_min_length": "Password must be at least 6 characters",
     "enter_code": "Enter verification code",
     "resend_code": "Resend Code",
     "verification_sent": "Verification code sent",
@@ -20,7 +23,17 @@ export const authTranslations = {
     "auth_success": "Authentication Successful",
     "logout_success": "Logged out successfully",
     "verification_error": "Verification Error",
-    "invalid_phone": "Invalid phone number"
+    "invalid_phone": "Invalid phone number",
+    "phone_already_exists": "Phone number already exists",
+    "signup_error": "Error during sign up",
+    "signup_success": "Sign up successful",
+    "signing_up": "Signing up...",
+    "creating_account": "Creating account...",
+    "create_account": "Create Account",
+    "sign_up_description": "Join us to get expert urological care",
+    "please_fill_all_fields": "Please fill all fields",
+    "dont_have_account": "Don't have an account?",
+    "already_have_account": "Already have an account?"
   },
   ar: {
     "sign_in": "تسجيل الدخول",
@@ -30,6 +43,9 @@ export const authTranslations = {
     "reset_password": "إعادة تعيين كلمة المرور",
     "verify_phone": "تأكيد رقم الهاتف",
     "enter_phone": "أدخل رقم هاتفك",
+    "enter_password": "أدخل كلمة المرور",
+    "confirm_password": "تأكيد كلمة المرور",
+    "password_min_length": "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
     "enter_code": "أدخل رمز التحقق",
     "resend_code": "إعادة إرسال الرمز",
     "verification_sent": "تم إرسال رمز التحقق",
@@ -43,6 +59,16 @@ export const authTranslations = {
     "auth_success": "تم تسجيل الدخول بنجاح",
     "logout_success": "تم تسجيل الخروج بنجاح",
     "verification_error": "خطأ في التحقق",
-    "invalid_phone": "رقم الهاتف غير صحيح"
+    "invalid_phone": "رقم الهاتف غير صحيح",
+    "phone_already_exists": "رقم الهاتف مسجل بالفعل",
+    "signup_error": "حدث خطأ أثناء التسجيل",
+    "signup_success": "تم التسجيل بنجاح",
+    "signing_up": "جاري التسجيل...",
+    "creating_account": "جاري إنشاء الحساب...",
+    "create_account": "إنشاء حساب",
+    "sign_up_description": "انضم إلينا للحصول على رعاية متخصصة للمسالك البولية",
+    "please_fill_all_fields": "يرجى ملء جميع الحقول",
+    "dont_have_account": "ليس لديك حساب؟",
+    "already_have_account": "لديك حساب بالفعل؟"
   }
 };

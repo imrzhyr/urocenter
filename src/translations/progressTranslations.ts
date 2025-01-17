@@ -12,7 +12,11 @@ export const progressTranslations = {
     "progress": "Progress",
     "completion_status": "Completion Status",
     "required_step": "Required Step",
-    "optional_step": "Optional Step"
+    "optional_step": "Optional Step",
+    "continue": "Continue",
+    "back": "Back",
+    "skip": "Skip",
+    "finish": "Finish"
   },
   ar: {
     "signup": "إنشاء حساب",
@@ -27,6 +31,10 @@ export const progressTranslations = {
     "progress": "التقدم",
     "completion_status": "حالة الإكمال",
     "required_step": "خطوة مطلوبة",
-    "optional_step": "خطوة اختيارية"
+    "optional_step": "خطوة اختيارية",
+    "continue": "متابعة",
+    "back": "رجوع",
+    "skip": "تخطي",
+    "finish": "إنهاء"
   }
 };
