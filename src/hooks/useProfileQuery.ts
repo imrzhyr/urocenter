@@ -42,7 +42,6 @@ export const useProfileQuery = () => {
           complaint: profileData.complaint || "",
           phone: profileData.phone || "",
           role: profileData.role || "patient",
-          password: profileData.password || "", // Added password field
           payment_status: profileData.payment_status || "unpaid",
           payment_approval_status: profileData.payment_approval_status || "pending",
           payment_method: profileData.payment_method,

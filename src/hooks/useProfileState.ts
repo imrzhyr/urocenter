@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Profile } from "@/types/profile";
+import { toast } from "sonner";
 
 let profileState: Profile = {
   id: "",
@@ -9,9 +10,6 @@ let profileState: Profile = {
   complaint: "",
   phone: "",
   role: "patient",
-  password: "", // Added default password
-  payment_status: "unpaid",
-  payment_approval_status: "pending"
 };
 
 let listeners: ((profile: Profile) => void)[] = [];
@@ -27,11 +25,8 @@ export const useProfileState = () => {
   }, []);
 
   const setState = (newState: { profile: Profile }) => {
-    profileState = {
-      ...profileState,
-      ...newState.profile
-    };
-    listeners.forEach(listener => listener(profileState));
+    profileState = newState.profile;
+    listeners.forEach(listener => listener(newState.profile));
   };
 
   return {

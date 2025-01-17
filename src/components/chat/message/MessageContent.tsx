@@ -1,6 +1,7 @@
 import { Message } from "@/types/profile";
 import { format } from "date-fns";
 import { MessageStatus } from "../MessageStatus";
+import { AudioPlayer } from "../audio/AudioPlayer";
 import { MediaGallery } from "../media/MediaGallery";
 import { ReferencedMessage } from "../ReferencedMessage";
 
@@ -20,13 +21,19 @@ export const MessageContent = ({ message, fromCurrentUser }: MessageContentProps
         <ReferencedMessage message={message.referenced_message} />
       )}
       
-      {message.file_url && (message.file_type?.startsWith('image/') || message.file_type?.startsWith('video/')) && (
+      {message.file_url && message.file_type?.startsWith('audio/') ? (
+        <AudioPlayer
+          audioUrl={message.file_url}
+          messageId={message.id}
+          duration={message.duration}
+        />
+      ) : message.file_url && (message.file_type?.startsWith('image/') || message.file_type?.startsWith('video/')) ? (
         <MediaGallery
           url={message.file_url}
           type={message.file_type}
           name={message.file_name || ''}
         />
-      )}
+      ) : null}
       
       {message.content && (
         <p className="text-sm whitespace-pre-wrap break-words overflow-wrap-anywhere">

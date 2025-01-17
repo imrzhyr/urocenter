@@ -14,6 +14,7 @@ export const ReferencedMessage: React.FC<ReferencedMessageProps> = ({ message })
       <div className="text-gray-700 dark:text-gray-300 truncate">
         {message.file_type?.startsWith('image/') ? '📷 Photo' :
          message.file_type?.startsWith('video/') ? '🎥 Video' :
+         message.file_type?.startsWith('audio/') ? '🎵 Voice message' :
          message.content}
       </div>
     </div>

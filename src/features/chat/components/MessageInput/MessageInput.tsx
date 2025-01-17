@@ -1,89 +1,100 @@
 import { useState, useRef } from "react";
-import { SendButton } from "../SendButton/SendButton";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { TextArea } from "../TextArea/TextArea";
 import { AttachmentButton } from "../AttachmentButton/AttachmentButton";
-import { Message } from "@/types/profile";
+import { SendButton } from "../SendButton/SendButton";
 import { ReplyPreview } from "../ReplyPreview/ReplyPreview";
+import { Message } from "@/types/profile";
+import { VoiceMessageRecorder } from "../VoiceMessageRecorder/VoiceMessageRecorder";
+import { uploadFile } from "@/utils/fileUpload";
+import { toast } from "sonner";
 
-interface MessageInputProps {
+export interface MessageInputProps {
   onSendMessage: (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }, replyTo?: Message) => void;
   isLoading?: boolean;
   replyingTo?: Message | null;
   onCancelReply?: () => void;
-  onTyping?: (isTyping: boolean) => void;
-  userId: string;
 }
 
 export const MessageInput = ({
   onSendMessage,
   isLoading,
   replyingTo,
-  onCancelReply,
-  onTyping,
-  userId
+  onCancelReply
 }: MessageInputProps) => {
   const [message, setMessage] = useState("");
-  const textAreaRef = useRef<HTMLTextAreaElement>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout>();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { t } = useLanguage();
 
-  const handleSend = () => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     if (message.trim()) {
-      onSendMessage(message, undefined, replyingTo || undefined);
+      onSendMessage(message.trim(), undefined, replyingTo || undefined);
       setMessage("");
-      onCancelReply?.();
+      if (onCancelReply) {
+        onCancelReply();
+      }
+      if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto';
+      }
     }
   };
 
-  const handleTyping = (value: string) => {
-    setMessage(value);
-    
-    if (onTyping) {
-      onTyping(true);
-      clearTimeout(typingTimeoutRef.current);
-      typingTimeoutRef.current = setTimeout(() => {
-        onTyping(false);
-      }, 1000);
-    }
-  };
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  const handleFileSelect = (fileInfo: { url: string; name: string; type: string }) => {
-    onSendMessage("", fileInfo, replyingTo || undefined);
-    onCancelReply?.();
+    try {
+      const fileInfo = await uploadFile(file);
+      onSendMessage("", fileInfo, replyingTo || undefined);
+      if (onCancelReply) {
+        onCancelReply();
+      }
+    } catch (error) {
+      console.error('File upload error:', error);
+      toast.error('Failed to upload file');
+    }
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   return (
-    <div className="p-4 space-y-4">
+    <form onSubmit={handleSubmit} className="fixed bottom-0 left-0 right-0 bg-background border-t">
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileUpload}
+        className="hidden"
+        accept="image/*,video/*,audio/*,.pdf,.doc,.docx"
+      />
       {replyingTo && (
-        <ReplyPreview message={replyingTo} onCancelReply={onCancelReply} />
+        <ReplyPreview
+          message={replyingTo}
+          onCancelReply={onCancelReply || (() => {})}
+        />
       )}
-      
-      <div className="flex items-end gap-2">
-        <AttachmentButton
-          onClick={() => {}}
-          onFileSelect={handleFileSelect}
-          isLoading={isLoading}
-        />
-        
+      <div className="relative flex items-center gap-2 p-4 max-w-7xl mx-auto">
+        <div className="flex items-center gap-2">
+          <AttachmentButton 
+            onClick={() => fileInputRef.current?.click()} 
+            isLoading={isLoading} 
+          />
+          <VoiceMessageRecorder onRecordingComplete={(fileInfo) => onSendMessage("", fileInfo)} />
+        </div>
         <TextArea
-          ref={textAreaRef}
+          ref={textareaRef}
           value={message}
-          onChange={(e) => handleTyping(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              handleSend();
-            }
-          }}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder={t("type_message")}
+          rows={1}
           className="flex-1"
-          placeholder="Type a message..."
         />
-        
-        <SendButton
-          onClick={handleSend}
-          isLoading={isLoading}
-          disabled={isLoading || !message.trim()}
-        />
+        <SendButton isLoading={isLoading} />
       </div>
-    </div>
+    </form>
   );
 };

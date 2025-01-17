@@ -3,11 +3,10 @@ import { Button } from "@/components/ui/button";
 
 interface AttachmentButtonProps {
   onClick: () => void;
-  onFileSelect: (fileInfo: { url: string; name: string; type: string }) => void;
   isLoading?: boolean;
 }
 
-export const AttachmentButton = ({ onClick, onFileSelect, isLoading }: AttachmentButtonProps) => {
+export const AttachmentButton = ({ onClick, isLoading }: AttachmentButtonProps) => {
   return (
     <Button
       type="button"

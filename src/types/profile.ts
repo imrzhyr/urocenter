@@ -3,20 +3,33 @@ export type MessageType = 'message' | 'call';
 export interface Message {
   id: string;
   content: string;
+  created_at: string;
+  updated_at: string;
   user_id: string;
   is_from_doctor: boolean;
   is_read: boolean;
-  created_at: string;
-  updated_at: string;
-  file_url?: string | null;
-  file_name?: string | null;
-  file_type?: string | null;
+  file_url?: string;
+  file_name?: string;
+  file_type?: string;
   status: string;
-  delivered_at?: string | null;
-  seen_at?: string | null;
+  delivered_at?: string;
+  seen_at?: string;
+  duration?: number;
   is_resolved?: boolean;
   sender_name?: string;
-  duration?: number | null;
+  replyTo?: {
+    content: string;
+    file_type?: string | null;
+    file_url?: string | null;
+    sender_name?: string;
+  } | null;
+  typing_users?: string[];
+  referenced_message?: {
+    id: string;
+    content: string;
+    sender_name?: string;
+    file_type?: string;
+  } | null;
   type?: MessageType;
   call?: {
     id: string;
@@ -27,34 +40,21 @@ export interface Message {
     ended_at: string | null;
     created_at: string;
   };
-  replyTo?: {
-    content: string;
-    file_type?: string | null;
-    file_url?: string | null;
-    sender_name?: string | null;
-  } | null;
-  referenced_message?: {
-    id: string;
-    content: string;
-    sender_name?: string;
-    file_type?: string;
-  } | null;
-  typing_users?: string[];
 }
 
 export interface Profile {
   id: string;
-  full_name?: string;
-  phone?: string;
-  gender?: string;
-  age?: string;
-  complaint?: string;
-  created_at?: string;
-  updated_at?: string;
+  full_name: string;
+  gender: string;
+  age: string;
+  complaint: string;
+  phone: string;
+  role: "admin" | "patient";
   auth_method?: string;
   last_login?: string;
-  password?: string; // Made optional since it's not always needed in the UI
-  role: 'admin' | 'patient';
+  password?: string;
+  created_at?: string;
+  updated_at?: string;
   payment_status?: string;
   payment_method?: string;
   payment_date?: string;

@@ -5,7 +5,6 @@ import { formatPhoneNumber } from "@/utils/phoneUtils";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { useProfileState } from "@/hooks/useProfileState";
 
 interface SignInButtonProps {
   phone: string;
@@ -16,7 +15,6 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { setState } = useProfileState();
 
   const handleSignIn = async () => {
     if (!phone || !password) {
@@ -58,9 +56,6 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
         return;
       }
 
-      // Update the profile state
-      setState({ profile });
-      
       localStorage.setItem('userPhone', formattedPhone);
       toast.success(t('signin_success'));
 
@@ -70,15 +65,12 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
         return;
       }
 
-      // Handle patient role based on payment status
+      // Handle patient role
       if (profile.payment_status === 'paid' && profile.payment_approval_status === 'approved') {
-        console.log('User is paid and approved, redirecting to dashboard');
         navigate('/dashboard', { replace: true });
       } else if (profile.payment_method && profile.payment_status === 'unpaid') {
-        console.log('User has payment method but is unpaid, redirecting to payment verification');
         navigate('/payment-verification', { replace: true });
       } else {
-        console.log('User needs to select payment method, redirecting to payment');
         navigate('/payment', { replace: true });
       }
 

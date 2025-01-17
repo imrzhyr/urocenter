@@ -1,42 +1,35 @@
 import { supabase } from "@/integrations/supabase/client";
-import { logger } from "./logger";
+import { toast } from "sonner";
 
 export const uploadFile = async (file: File) => {
+  const userPhone = localStorage.getItem('userPhone');
+  if (!userPhone) {
+    throw new Error('Authentication required');
+  }
+
   try {
     // Generate a unique file path
     const fileExt = file.name.split('.').pop();
     const filePath = `${crypto.randomUUID()}.${fileExt}`;
 
-    logger.info('FileUpload', 'Uploading file', {
-      originalName: file.name,
-      type: file.type,
-      size: file.size,
-      filePath
-    });
-
     // Upload file to Supabase storage
-    const { data, error } = await supabase.storage
+    const { data, error: uploadError } = await supabase.storage
       .from('chat_attachments')
       .upload(filePath, file, {
-        contentType: file.type,
         upsert: false,
-        cacheControl: '3600'
+        contentType: file.type
       });
 
-    if (error) {
-      logger.error('FileUpload', 'Error uploading file:', error);
-      throw error;
+    if (uploadError) {
+      console.error('Upload error:', uploadError);
+      toast.error('Failed to upload file');
+      throw uploadError;
     }
 
-    // Get the public URL
+    // Get the public URL for the uploaded file
     const { data: { publicUrl } } = supabase.storage
       .from('chat_attachments')
       .getPublicUrl(filePath);
-
-    logger.info('FileUpload', 'Upload successful', {
-      publicUrl,
-      filePath
-    });
 
     return {
       url: publicUrl,
@@ -44,7 +37,7 @@ export const uploadFile = async (file: File) => {
       type: file.type
     };
   } catch (error) {
-    logger.error('FileUpload', 'Error uploading file:', error);
+    console.error('File upload error:', error);
     throw error;
   }
 };

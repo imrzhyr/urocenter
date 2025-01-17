@@ -10,12 +10,6 @@ export const useMessagesList = () => {
   const { profile } = useProfile();
 
   const fetchMessages = async () => {
-    if (!profile?.id) {
-      console.log('No profile ID found, skipping fetch');
-      setIsLoading(false);
-      return;
-    }
-
     try {
       console.log('Fetching messages for admin list');
       
@@ -30,7 +24,7 @@ export const useMessagesList = () => {
           user_id,
           is_from_doctor,
           is_resolved,
-          profiles!messages_user_id_fkey (
+          profiles (
             id,
             full_name
           )
@@ -49,7 +43,6 @@ export const useMessagesList = () => {
         return;
       }
 
-      // Group messages by user and get the latest message for each user
       const userMessages = messagesData.reduce((acc: { [key: string]: PatientMessage }, message: any) => {
         const userId = message.user_id;
         if (userId === profile?.id) {
@@ -88,31 +81,27 @@ export const useMessagesList = () => {
   };
 
   useEffect(() => {
-    if (profile?.id) {
-      fetchMessages();
+    fetchMessages();
 
-      // Subscribe to message updates
-      const channel = supabase
-        .channel('messages_changes')
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'messages'
-          },
-          () => {
-            console.log('Messages updated, refetching...');
-            fetchMessages();
-          }
-        )
-        .subscribe();
+    const channel = supabase
+      .channel('messages_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'messages'
+        },
+        () => {
+          fetchMessages();
+        }
+      )
+      .subscribe();
 
-      return () => {
-        console.log('Cleaning up subscription');
-        supabase.removeChannel(channel);
-      };
-    }
+    return () => {
+      console.log('Cleaning up subscription');
+      supabase.removeChannel(channel);
+    };
   }, [profile?.id]);
 
   return {

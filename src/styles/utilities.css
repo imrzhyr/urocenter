@@ -29,13 +29,14 @@
 
 /* Chat background patterns */
 .chat-background {
-  @apply bg-[#f0f7ff] dark:bg-[#1A2433];
+  background-color: #f0f7ff;
   background-image: radial-gradient(#0066CC15 2px, transparent 2px);
   background-size: 30px 30px;
 }
 
 .dark .chat-background {
-  background-image: radial-gradient(rgba(0, 102, 204, 0.1) 2px, transparent 2px);
+  background-color: #1A2433;
+  background-image: radial-gradient(#0066CC15 2px, transparent 2px);
 }
 
 /* Text wrapping for chat */

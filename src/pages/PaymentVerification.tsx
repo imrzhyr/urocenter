@@ -9,87 +9,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { WhatsAppSupport } from "@/components/WhatsAppSupport";
-import { toast } from "sonner";
-import { useProfileState } from "@/hooks/useProfileState";
 
 export const PaymentVerification = () => {
   const { t, isRTL } = useLanguage();
   const navigate = useNavigate();
-  const { profile, setState } = useProfileState();
 
   const handleLogout = async () => {
-    localStorage.removeItem('userPhone');
+    await supabase.auth.signOut();
     navigate('/', { replace: true });
   };
-
-  useEffect(() => {
-    const checkPaymentStatus = async () => {
-      try {
-        const userPhone = localStorage.getItem('userPhone');
-        if (!userPhone) {
-          console.error('No user phone found');
-          return;
-        }
-
-        const { data: profileData, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('phone', userPhone)
-          .single();
-
-        if (error) {
-          throw error;
-        }
-
-        if (profileData) {
-          setState({ profile: profileData });
-          console.log('Latest profile data:', profileData);
-
-          const isPaid = profileData.payment_status === 'paid';
-          const isApproved = profileData.payment_approval_status === 'approved';
-          
-          console.log('Payment verification:', { isPaid, isApproved });
-
-          if (isPaid && isApproved) {
-            console.log('Payment approved, redirecting to dashboard');
-            toast.success(t('payment_approved'));
-            navigate('/dashboard', { replace: true });
-          }
-        }
-      } catch (error) {
-        console.error('Error checking payment status:', error);
-      }
-    };
-
-    // Initial check
-    checkPaymentStatus();
-
-    // Set up polling interval
-    const pollingInterval = setInterval(checkPaymentStatus, 3000);
-
-    // Set up real-time subscription
-    const channel = supabase
-      .channel('payment_verification')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'profiles',
-          filter: `phone=eq.${localStorage.getItem('userPhone')}`
-        },
-        async (payload) => {
-          console.log('Profile update received:', payload);
-          await checkPaymentStatus();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      clearInterval(pollingInterval);
-      supabase.removeChannel(channel);
-    };
-  }, [navigate, t, setState]);
 
   return (
     <div className="fixed inset-0 w-full h-full flex flex-col bg-gradient-to-br from-blue-50 to-blue-100 dark:from-[#1A1F2C] dark:to-[#2D3748]">

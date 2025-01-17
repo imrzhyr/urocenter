@@ -13,6 +13,7 @@ data class Message(
     val fileUrl: String? = null,
     val fileName: String? = null,
     val fileType: String? = null,
+    val duration: Int? = null,
     val status: String = "not_seen",
     val deliveredAt: String? = null,
     val seenAt: String? = null,

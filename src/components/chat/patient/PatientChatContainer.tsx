@@ -30,7 +30,6 @@ export const PatientChatContainer = () => {
       <MessageInput 
         onSendMessage={handleSendMessage} 
         isLoading={isLoading}
-        userId={profile.id}
       />
     </div>
   );

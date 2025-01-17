@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Message } from "@/types/profile";
 import { toast } from "sonner";
-import { useProfile } from "@/hooks/useProfile";
+import { useProfile } from "./useProfile";
 import { useNavigate } from "react-router-dom";
 
 export const useChat = (userId?: string) => {
@@ -120,10 +120,29 @@ export const useChat = (userId?: string) => {
     }
   };
 
+  const updateTypingStatus = async (isTyping: boolean) => {
+    if (!userId || !profile?.id) return;
+
+    try {
+      const channel = supabase.channel(`typing_${userId}`);
+      
+      if (isTyping) {
+        await channel.track({
+          user: profile.full_name || 'Unknown User',
+          typing: true
+        });
+      } else {
+        await channel.untrack();
+      }
+    } catch (error) {
+      console.error('Error updating typing status:', error);
+    }
+  };
+
   useEffect(() => {
     fetchMessages();
 
-    // Subscribe to message updates
+    // Subscribe to message updates and typing indicators
     const messageChannel = supabase
       .channel(`messages_${userId}`)
       .on(
@@ -139,6 +158,19 @@ export const useChat = (userId?: string) => {
           await fetchMessages();
         }
       )
+      .on('presence', { event: 'sync' }, () => {
+        const state = messageChannel.presenceState();
+        const typingUsers = Object.values(state)
+          .flat()
+          .filter((presence: any) => presence.typing)
+          .map((presence: any) => presence.user);
+        
+        // Update messages with typing users
+        setMessages(prev => prev.map(msg => ({
+          ...msg,
+          typing_users: typingUsers
+        })));
+      })
       .subscribe();
 
     return () => {
@@ -151,6 +183,7 @@ export const useChat = (userId?: string) => {
     messages,
     isLoading,
     sendMessage,
+    updateTypingStatus,
     refreshMessages: fetchMessages
   };
 };
