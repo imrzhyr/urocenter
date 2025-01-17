@@ -29,13 +29,12 @@ export const OnboardingLayout = () => {
   const { profile } = useProfile();
 
   const steps = [
-    t("create_account"),
-    t("complete_profile"),
+    t("sign_up"),
+    t("profile"),
     t("medical_information"),
-    t("payment_details")
+    t("payment")
   ];
 
-  // Calculate completed step based on profile data and current path
   const getCompletedStep = () => {
     if (!profile || location.pathname === '/signup') return 0;
     
