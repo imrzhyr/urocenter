@@ -1,0 +1,52 @@
+/* Dark mode specific styles */
+.dark .bg-white {
+  @apply bg-[#1A1F2C];
+}
+
+.dark .text-gray-900 {
+  @apply text-gray-100;
+}
+
+.dark .text-gray-600 {
+  @apply text-gray-300;
+}
+
+.dark .bg-gray-50 {
+  @apply bg-[#1A1F2C];
+}
+
+.dark .bg-primary\/10 {
+  @apply bg-primary/20;
+}
+
+.dark .hover\:bg-gray-50:hover {
+  @apply hover:bg-[#222632];
+}
+
+.dark .border {
+  @apply border-gray-700;
+}
+
+.dark .shadow-lg {
+  @apply shadow-[#0006];
+}
+
+.dark .shadow-sm {
+  @apply shadow-[#2226];
+}
+
+.dark .hover\:shadow-md:hover {
+  @apply hover:shadow-[#3336];
+}
+
+.dark .bg-blue-50 {
+  @apply bg-blue-900/20;
+}
+
+.dark .text-blue-600 {
+  @apply text-blue-400;
+}
+
+.dark .bg-[#F8FAFC] {
+  @apply bg-[#1A1F2C];
+}

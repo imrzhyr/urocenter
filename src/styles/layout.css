@@ -1,0 +1,49 @@
+/* Mobile-first responsive containers */
+.container {
+  width: 100%;
+  padding-right: 1rem;
+  padding-left: 1rem;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+@media (min-width: 640px) {
+  .container {
+    max-width: 640px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 768px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1024px;
+  }
+}
+
+/* Responsive grid */
+.responsive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+}
+
+/* Mobile-friendly spacing */
+.mobile-padding {
+  padding: 1rem;
+}
+
+.mobile-gap {
+  gap: 1rem;
+}
+
+/* Auto-sized buttons */
+button {
+  min-width: fit-content;
+  padding: 0.5rem 1rem;
+}

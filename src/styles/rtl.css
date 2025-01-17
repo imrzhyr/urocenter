@@ -1,0 +1,25 @@
+/* RTL Support */
+[dir="rtl"] * {
+  font-family: "Noto Sans Arabic", sans-serif !important;
+  letter-spacing: 0;
+}
+
+/* RTL text alignment utilities */
+[dir="rtl"] .text-right {
+  text-align: left;
+}
+
+[dir="rtl"] .text-left {
+  text-align: right;
+}
+
+/* RTL margins and paddings */
+[dir="rtl"] .ml-auto {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+[dir="rtl"] .mr-auto {
+  margin-right: 0;
+  margin-left: auto;
+}

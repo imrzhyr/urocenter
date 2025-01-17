@@ -1,0 +1,25 @@
+@layer base {
+  body {
+    @apply bg-background text-foreground antialiased font-sans;
+  }
+}
+
+/* Arabic text support */
+[dir="rtl"] * {
+  font-family: "Noto Sans Arabic", sans-serif !important;
+  letter-spacing: 0;
+}
+
+/* Arabic text alignment */
+[dir="rtl"] .text-right {
+  text-align: left;
+}
+
+[dir="rtl"] .text-left {
+  text-align: right;
+}
+
+/* Gradient text utility */
+.gradient-text {
+  @apply bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent;
+}
