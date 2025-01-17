@@ -144,6 +144,9 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       await leaveChannel();
       setIsCallEnded(true);
       stopDurationTimer();
+      callSoundUtils.stopCallSound(); // Stop any ongoing call sounds
+      setIsInCall(false); // Hide the call UI
+      setIsCalling(false); // Ensure calling UI is also hidden
 
       const { data: callData } = await supabase
         .from('calls')
@@ -254,7 +257,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
           />
         )}
         {isCalling && <CallingUI recipientName={recipientNameRef.current} />}
-        {isInCall && <ActiveCallUI />}
+        {isInCall && !isCallEnded && <ActiveCallUI />}
       </Portal>
     </CallContext.Provider>
   );
