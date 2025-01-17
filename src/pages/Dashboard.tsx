@@ -11,6 +11,8 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useProfile } from "@/hooks/useProfile";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
+import { Profile } from "@/types/profile";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -61,8 +63,8 @@ const Dashboard = () => {
           table: 'profiles',
           filter: `phone=eq.${localStorage.getItem('userPhone')}`
         },
-        (payload) => {
-          const updatedProfile = payload.new;
+        (payload: RealtimePostgresChangesPayload<Profile>) => {
+          const updatedProfile = payload.new as Profile;
           if (updatedProfile.payment_status !== 'paid' || updatedProfile.payment_approval_status !== 'approved') {
             toast.info(t('payment_approval_pending'));
             navigate("/payment", { replace: true });
