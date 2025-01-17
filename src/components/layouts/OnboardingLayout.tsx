@@ -28,7 +28,12 @@ export const OnboardingLayout = () => {
   const { language, t } = useLanguage();
   const { profile } = useProfile();
 
-  const steps = [
+  const steps = language === 'ar' ? [
+    "إنشاء حساب",
+    "الملف الشخصي",
+    "المعلومات الطبية",
+    "الدفع"
+  ] : [
     "Sign Up",
     "Profile",
     "Medical Information",
