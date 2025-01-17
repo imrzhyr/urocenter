@@ -8,7 +8,7 @@ interface ProgressStepsProps {
 }
 
 export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
-  const { language, t } = useLanguage();
+  const { language } = useLanguage();
   const isRTL = language === 'ar';
 
   return (
@@ -63,7 +63,7 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
               </div>
               <span
                 className={cn(
-                  "mt-2 text-xs font-medium transition-colors duration-300",
+                  "mt-2 text-xs font-medium text-center transition-colors duration-300",
                   index <= currentStep ? "text-primary" : "text-gray-400"
                 )}
               >
