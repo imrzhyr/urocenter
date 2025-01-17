@@ -2,28 +2,23 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const uploadFile = async (file: File) => {
-  const userPhone = localStorage.getItem('userPhone');
-  if (!userPhone) {
-    throw new Error('Authentication required');
-  }
-
   try {
     // Generate a unique file path
     const fileExt = file.name.split('.').pop();
     const filePath = `${crypto.randomUUID()}.${fileExt}`;
 
-    // Handle WebM audio files
+    // Handle WebM audio files specifically
     let uploadFile = file;
     if (file.type.includes('webm')) {
-      const blob = new Blob([await file.arrayBuffer()], { 
+      const audioBlob = new Blob([await file.arrayBuffer()], { 
         type: 'audio/webm' 
       });
-      uploadFile = new File([blob], file.name, { 
+      uploadFile = new File([audioBlob], file.name, { 
         type: 'audio/webm'
       });
     }
 
-    console.log('Uploading file with content type:', uploadFile.type);
+    console.log('Uploading file with type:', uploadFile.type);
 
     // Upload file to Supabase storage
     const { data, error: uploadError } = await supabase.storage
@@ -40,7 +35,7 @@ export const uploadFile = async (file: File) => {
       throw uploadError;
     }
 
-    // Get the public URL for the uploaded file
+    // Get the public URL
     const { data: { publicUrl } } = supabase.storage
       .from('chat_attachments')
       .getPublicUrl(filePath);

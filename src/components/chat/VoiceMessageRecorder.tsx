@@ -15,17 +15,19 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout>();
-  const startTimeRef = useRef<number>(0);
   const audioContextRef = useRef<AudioContext>();
-  const audioBufferRef = useRef<AudioBuffer>();
 
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
+      
+      // Initialize MediaRecorder with specific MIME type
+      mediaRecorderRef.current = new MediaRecorder(stream, {
+        mimeType: 'audio/webm'
+      });
+      
       chunksRef.current = [];
-      startTimeRef.current = Date.now();
-
+      
       mediaRecorderRef.current.ondataavailable = (e) => {
         if (e.data.size > 0) {
           chunksRef.current.push(e.data);
@@ -34,18 +36,24 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
 
       mediaRecorderRef.current.onstop = async () => {
         try {
-          const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
-          
+          const audioBlob = new Blob(chunksRef.current, { 
+            type: 'audio/webm'
+          });
+
           // Get audio duration
           const arrayBuffer = await audioBlob.arrayBuffer();
           audioContextRef.current = new AudioContext();
-          audioBufferRef.current = await audioContextRef.current.decodeAudioData(arrayBuffer);
-          const audioDuration = Math.round(audioBufferRef.current.duration);
+          const audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
+          const audioDuration = Math.round(audioBuffer.duration);
 
           setIsUploading(true);
+          
+          // Create file with proper MIME type
           const file = new File([audioBlob], `voice-message-${Date.now()}.webm`, { 
             type: 'audio/webm'
           });
+
+          console.log('Uploading voice message with type:', file.type);
           
           const uploadedFile = await uploadFile(file);
           
@@ -55,6 +63,7 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
             type: uploadedFile.type,
             duration: audioDuration
           });
+
         } catch (error) {
           console.error('Error uploading voice message:', error);
           toast.error('Failed to upload voice message');
@@ -65,6 +74,8 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
             audioContextRef.current.close();
           }
         }
+        
+        // Cleanup
         stream.getTracks().forEach(track => track.stop());
       };
 
