@@ -5,7 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { usePatientProfile } from "@/hooks/usePatientProfile";
-import { useChatStatus } from "../hooks/useChatStatus";
+import { useChatStatus } from "@/components/chat/hooks/useChatStatus";
 import { useCallActions } from "../call/hooks/useCallActions";
 
 interface DoctorChatHeaderProps {
@@ -36,43 +36,41 @@ export const DoctorChatHeader: React.FC<DoctorChatHeaderProps> = ({
 
   const handleResolve = async () => {
     try {
-      // Update all messages for this user
       const { error: updateError } = await supabase
-        .from('messages')
+        .from("messages")
         .update({ is_resolved: !chatStatus })
-        .eq('user_id', patientId);
+        .eq("user_id", patientId);
 
       if (updateError) throw updateError;
 
-      // Update the last message to include the resolution status
       const { data: lastMessage } = await supabase
-        .from('messages')
-        .select('id')
-        .eq('user_id', patientId)
-        .order('created_at', { ascending: false })
+        .from("messages")
+        .select("id")
+        .eq("user_id", patientId)
+        .order("created_at", { ascending: false })
         .limit(1)
         .single();
 
       if (lastMessage) {
         const { error: referenceError } = await supabase
-          .from('messages')
+          .from("messages")
           .update({
             referenced_message: {
-              type: 'status',
-              content: !chatStatus ? 'Chat marked as resolved' : 'Chat marked as unresolved',
+              type: "status",
+              content: !chatStatus ? "Chat marked as resolved" : "Chat marked as unresolved",
               timestamp: new Date().toISOString()
             }
           })
-          .eq('id', lastMessage.id);
+          .eq("id", lastMessage.id);
 
         if (referenceError) throw referenceError;
       }
 
       toast.success(!chatStatus ? "Chat marked as resolved" : "Chat marked as unresolved");
-      queryClient.invalidateQueries({ queryKey: ['chat-status', patientId] });
+      queryClient.invalidateQueries({ queryKey: ["chat-status", patientId] });
       onRefresh();
     } catch (error) {
-      console.error('Error updating resolution status:', error);
+      console.error("Error updating resolution status:", error);
       toast.error("Failed to update chat status");
     }
   };
@@ -101,7 +99,7 @@ export const DoctorChatHeader: React.FC<DoctorChatHeaderProps> = ({
             variant="ghost"
             size="icon"
             className={`text-white h-8 w-8 ${
-              chatStatus ? 'bg-purple-500 hover:bg-purple-600' : 'bg-red-500 hover:bg-red-600'
+              chatStatus ? "bg-purple-500 hover:bg-purple-600" : "bg-red-500 hover:bg-red-600"
             }`}
             onClick={handleResolve}
           >
