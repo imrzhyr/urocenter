@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
+import { formatPhoneNumber } from "@/utils/phoneUtils";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -23,20 +24,30 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
 
     try {
       setIsLoading(true);
+      
+      // Format the phone number to ensure it has the correct format
+      const formattedPhone = formatPhoneNumber(phone);
+      
+      console.log("Attempting sign in with:", {
+        formattedPhone,
+        phone,
+        password
+      });
 
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('phone', phone)
+        .eq('phone', formattedPhone)
         .eq('password', password)
         .single();
 
       if (error || !data) {
+        console.error("Sign in error:", error);
         toast.error(t('invalid_credentials'));
         return;
       }
 
-      localStorage.setItem('userPhone', phone);
+      localStorage.setItem('userPhone', formattedPhone);
       toast.success(t('signin_success'));
       navigate('/dashboard');
     } catch (error) {
