@@ -11,22 +11,6 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
   const { language, t } = useLanguage();
   const isRTL = language === 'ar';
 
-  const getTranslationKey = (step: string) => {
-    // Map the step text to the corresponding translation key
-    switch (step) {
-      case "Sign Up":
-        return "onboarding_signup";
-      case "Profile":
-        return "onboarding_profile";
-      case "Medical Info":
-        return "onboarding_medical_info";
-      case "Payment":
-        return "onboarding_payment";
-      default:
-        return step.toLowerCase();
-    }
-  };
-
   return (
     <div className="w-full px-4">
       <div className="relative flex justify-between">
@@ -83,7 +67,7 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
                   index <= currentStep ? "text-primary" : "text-gray-400"
                 )}
               >
-                {t(getTranslationKey(step))}
+                {step}
               </span>
             </div>
           ))}
