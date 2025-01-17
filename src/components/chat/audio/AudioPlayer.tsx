@@ -1,7 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { toast } from 'sonner';
-import { AudioControls } from './AudioControls';
-import { AudioProgress } from './AudioProgress';
+import { useState, useRef, useEffect } from 'react';
+import { Button } from "@/components/ui/button";
+import { Play, Pause, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { formatTime } from '@/utils/audioUtils';
 
 interface AudioPlayerProps {
   audioUrl: string;
@@ -22,7 +23,11 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
     audioRef.current = audio;
 
     const handleLoadedMetadata = () => {
-      setAudioDuration(audio.duration);
+      if (audio.duration && !isNaN(audio.duration)) {
+        setAudioDuration(audio.duration);
+      } else {
+        setAudioDuration(duration);
+      }
       setIsLoading(false);
     };
 
@@ -40,12 +45,12 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
       audio.currentTime = 0;
     };
 
-    const handleError = () => {
-      console.error('Audio loading error');
+    const handleError = (e: ErrorEvent) => {
+      console.error('Audio loading error:', e);
       setIsPlaying(false);
       setIsLoading(false);
       
-      // Check if WebM is supported
+      // Check WebM support
       const canPlayWebm = audio.canPlayType('audio/webm; codecs="opus"');
       if (audioUrl.endsWith('.webm') && !canPlayWebm) {
         toast.error('Your browser does not support WebM audio. Please try using Chrome or Firefox.');
@@ -55,20 +60,14 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
       toast.error('Unable to play voice message. Please try again.');
     };
 
-    // Configure audio with proper MIME type and CORS settings
-    audio.preload = 'auto';
+    // Configure audio
+    audio.preload = 'metadata';
     audio.crossOrigin = 'anonymous';
 
     // Add timestamp to prevent caching
     const timestamp = new Date().getTime();
     const urlWithCache = `${audioUrl}?t=${timestamp}`;
-    
-    // Set source with proper MIME type using source element
-    if (audioUrl.endsWith('.webm')) {
-      audio.src = urlWithCache;
-    } else {
-      audio.src = urlWithCache;
-    }
+    audio.src = urlWithCache;
 
     // Add event listeners
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
@@ -77,7 +76,6 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
     audio.addEventListener('error', handleError);
 
     return () => {
-      // Cleanup
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('ended', handleEnded);
@@ -91,7 +89,7 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
         audioRef.current = null;
       }
     };
-  }, [audioUrl]);
+  }, [audioUrl, duration]);
 
   const handlePlayPause = async () => {
     if (!audioRef.current) return;
@@ -132,16 +130,35 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
 
   return (
     <div className="flex items-center gap-3 w-full max-w-[300px] bg-white dark:bg-gray-800 rounded-xl p-3 shadow-sm">
-      <AudioControls 
-        isPlaying={isPlaying} 
-        onPlayPause={handlePlayPause}
-        isLoading={isLoading}
-      />
-      <AudioProgress 
-        currentTime={currentTime}
-        duration={audioDuration}
-        progress={progress}
-      />
+      {isLoading ? (
+        <Button disabled variant="ghost" size="icon" className="h-8 w-8">
+          <Loader2 className="h-4 w-4 animate-spin" />
+        </Button>
+      ) : (
+        <Button
+          onClick={handlePlayPause}
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+        >
+          {isPlaying ? (
+            <Pause className="h-4 w-4" />
+          ) : (
+            <Play className="h-4 w-4" />
+          )}
+        </Button>
+      )}
+      <div className="flex flex-col gap-1 flex-1">
+        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1">
+          <div
+            className="bg-primary h-1 rounded-full transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        <div className="text-xs text-gray-500 dark:text-gray-400">
+          {formatTime(currentTime)} / {formatTime(audioDuration)}
+        </div>
+      </div>
     </div>
   );
 };
