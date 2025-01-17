@@ -21,6 +21,7 @@ export const PaymentApprovalsCard = () => {
   const { toast } = useToast();
 
   const fetchPendingPayments = async () => {
+    console.log('Fetching pending payments...');
     const { data, error } = await supabase
       .from('profiles')
       .select('id, full_name, phone, payment_status, payment_approval_status')
@@ -34,12 +35,17 @@ export const PaymentApprovalsCard = () => {
       return;
     }
 
+    console.log('Pending payments fetched:', data);
     setPendingPayments(data || []);
   };
 
   useEffect(() => {
+    // Initial fetch
     fetchPendingPayments();
 
+    // Subscribe to ALL changes in the profiles table where payment_status is unpaid
+    // and payment_approval_status is pending
+    console.log('Setting up real-time subscription for payment approvals...');
     const channel = supabase
       .channel('payment_approvals')
       .on(
@@ -48,15 +54,20 @@ export const PaymentApprovalsCard = () => {
           event: '*',
           schema: 'public',
           table: 'profiles',
-          filter: "payment_status=eq.unpaid",
+          filter: "payment_status=eq.unpaid AND payment_approval_status=eq.pending"
         },
-        () => {
+        (payload) => {
+          console.log('Payment approval change received:', payload);
+          // Fetch the latest data whenever there's a relevant change
           fetchPendingPayments();
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Subscription status:', status);
+      });
 
     return () => {
+      console.log('Cleaning up payment approvals subscription');
       supabase.removeChannel(channel);
     };
   }, []);
@@ -85,7 +96,7 @@ export const PaymentApprovalsCard = () => {
       description: t("Payment approved successfully"),
     });
 
-    fetchPendingPayments();
+    // No need to manually fetch here as the real-time subscription will handle it
   };
 
   return (
