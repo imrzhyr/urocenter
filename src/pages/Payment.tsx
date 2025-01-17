@@ -19,22 +19,28 @@ const Payment = () => {
 
   useEffect(() => {
     const checkPaymentStatus = async () => {
-      if (!profile) return;
+      const userPhone = localStorage.getItem('userPhone');
+      if (!userPhone) return;
 
-      if (profile.payment_status === 'paid' && profile.payment_approval_status === 'approved') {
-        toast.success(t("Payment Approved"));
-        navigate('/dashboard');
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('payment_status, payment_approval_status')
+        .eq('phone', userPhone)
+        .single();
+
+      if (error) {
+        console.error('Error checking payment status:', error);
         return;
       }
 
-      // Show waiting screen if payment is pending approval
-      if (profile.payment_status === 'unpaid' && profile.payment_approval_status === 'pending') {
+      if (data.payment_status === 'unpaid' && data.payment_approval_status === 'pending') {
         setIsWaitingForApproval(true);
       }
     };
 
     checkPaymentStatus();
 
+    // Subscribe to real-time updates
     const channel = supabase
       .channel('payment_status')
       .on(
@@ -43,13 +49,15 @@ const Payment = () => {
           event: '*',
           schema: 'public',
           table: 'profiles',
-          filter: `id=eq.${profile?.id}`,
+          filter: `phone=eq.${localStorage.getItem('userPhone')}`,
         },
         async (payload: any) => {
           if (payload.new.payment_status === 'paid' && payload.new.payment_approval_status === 'approved') {
             await refetch();
             toast.success(t("Payment Approved - You can now chat with Dr. Ali Kamal"));
             navigate('/dashboard');
+          } else if (payload.new.payment_approval_status === 'pending') {
+            setIsWaitingForApproval(true);
           }
         }
       )
@@ -58,7 +66,7 @@ const Payment = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [profile?.id, profile?.payment_status, profile?.payment_approval_status, navigate, refetch, t]);
+  }, [navigate, refetch, t]);
 
   const handleSupportContact = async () => {
     try {
