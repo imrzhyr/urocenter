@@ -22,9 +22,7 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream, {
-        mimeType: 'audio/webm;codecs=opus'
-      });
+      mediaRecorderRef.current = new MediaRecorder(stream);
       chunksRef.current = [];
       startTimeRef.current = Date.now();
 
@@ -36,9 +34,7 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
 
       mediaRecorderRef.current.onstop = async () => {
         try {
-          const audioBlob = new Blob(chunksRef.current, { 
-            type: 'audio/webm;codecs=opus' 
-          });
+          const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
           
           // Get audio duration
           const arrayBuffer = await audioBlob.arrayBuffer();
@@ -48,7 +44,7 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
 
           setIsUploading(true);
           const file = new File([audioBlob], `voice-message-${Date.now()}.webm`, { 
-            type: 'audio/webm;codecs=opus'
+            type: 'audio/webm'
           });
           
           const uploadedFile = await uploadFile(file);
