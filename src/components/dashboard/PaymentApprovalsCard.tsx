@@ -12,6 +12,7 @@ interface PendingPayment {
   full_name: string | null;
   phone: string | null;
   payment_status: string | null;
+  payment_approval_status: string | null;
 }
 
 export const PaymentApprovalsCard = () => {
@@ -22,8 +23,10 @@ export const PaymentApprovalsCard = () => {
   const fetchPendingPayments = async () => {
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, full_name, phone, payment_status')
-      .eq('payment_status', 'pending')
+      .select('id, full_name, phone, payment_status, payment_approval_status')
+      .eq('payment_status', 'unpaid')
+      .eq('payment_approval_status', 'pending')
+      .eq('role', 'patient')
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -45,7 +48,7 @@ export const PaymentApprovalsCard = () => {
           event: '*',
           schema: 'public',
           table: 'profiles',
-          filter: "payment_status=eq.pending",
+          filter: "payment_status=eq.unpaid",
         },
         () => {
           fetchPendingPayments();
@@ -63,6 +66,7 @@ export const PaymentApprovalsCard = () => {
       .from('profiles')
       .update({ 
         payment_status: 'paid',
+        payment_approval_status: 'approved',
         payment_date: new Date().toISOString()
       })
       .eq('id', userId);
@@ -87,7 +91,10 @@ export const PaymentApprovalsCard = () => {
   const handleRejectPayment = async (userId: string) => {
     const { error } = await supabase
       .from('profiles')
-      .update({ payment_status: 'rejected' })
+      .update({ 
+        payment_status: 'rejected',
+        payment_approval_status: 'rejected'
+      })
       .eq('id', userId);
 
     if (error) {

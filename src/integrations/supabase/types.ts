@@ -226,6 +226,7 @@ export type Database = {
           id: string
           last_login: string | null
           password: string
+          payment_approval_status: string | null
           payment_date: string | null
           payment_method: string | null
           payment_status: string | null
@@ -243,6 +244,7 @@ export type Database = {
           id?: string
           last_login?: string | null
           password: string
+          payment_approval_status?: string | null
           payment_date?: string | null
           payment_method?: string | null
           payment_status?: string | null
@@ -260,6 +262,7 @@ export type Database = {
           id?: string
           last_login?: string | null
           password?: string
+          payment_approval_status?: string | null
           payment_date?: string | null
           payment_method?: string | null
           payment_status?: string | null
