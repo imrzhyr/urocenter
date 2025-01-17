@@ -9,6 +9,8 @@ import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useProfile } from "@/hooks/useProfile";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -26,6 +28,14 @@ const Dashboard = () => {
           return;
         }
 
+        // Check if user is unpaid or pending approval
+        if (profile) {
+          if (profile.payment_status !== 'paid' || profile.payment_approval_status !== 'approved') {
+            navigate("/payment", { replace: true });
+            return;
+          }
+        }
+
         if (profile?.role === 'admin' && window.location.pathname === '/dashboard') {
           navigate("/admin", { replace: true });
           return;
@@ -39,7 +49,32 @@ const Dashboard = () => {
     };
 
     checkAuth();
-  }, [navigate, profile]);
+
+    // Subscribe to profile changes
+    const channel = supabase
+      .channel('profile_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'profiles',
+          filter: `phone=eq.${localStorage.getItem('userPhone')}`
+        },
+        (payload) => {
+          const updatedProfile = payload.new;
+          if (updatedProfile.payment_status !== 'paid' || updatedProfile.payment_approval_status !== 'approved') {
+            toast.info(t('payment_approval_pending'));
+            navigate("/payment", { replace: true });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [navigate, profile, t]);
 
   if (isLoading) {
     return (
