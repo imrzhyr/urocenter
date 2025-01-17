@@ -25,10 +25,8 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
     try {
       setIsLoading(true);
       
-      // Format the phone number to ensure it has the correct format
       let formattedPhone = phone;
       
-      // Handle special admin cases first
       if (phone === '7705449905' || phone === '7702428154') {
         formattedPhone = `+964${phone}`;
       } else {
@@ -37,11 +35,10 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
       
       console.log("Attempting sign in with:", {
         formattedPhone,
-        phone,
-        password
+        phone
       });
 
-      const { data, error } = await supabase
+      const { data: profile, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('phone', formattedPhone)
@@ -54,8 +51,7 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
         return;
       }
 
-      if (!data) {
-        console.log("No user found with credentials");
+      if (!profile) {
         toast.error(t('invalid_credentials'));
         return;
       }
@@ -63,19 +59,21 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
       localStorage.setItem('userPhone', formattedPhone);
       toast.success(t('signin_success'));
 
-      // Check payment status and approval status
-      if (data.payment_status === 'unpaid' || 
-          (data.payment_status === 'unpaid' && data.payment_approval_status === 'pending') ||
-          (data.payment_method && data.payment_status === 'unpaid')) {
-        // If payment is pending approval or unpaid with a selected method, redirect to verification page
-        navigate('/payment-verification');
-      } else if (data.payment_status !== 'paid') {
-        // If no payment initiated yet, redirect to payment page to select payment method
-        navigate('/payment');
-      } else {
-        // If payment is approved, redirect to dashboard
-        navigate('/dashboard');
+      // Handle admin role first
+      if (profile.role === 'admin') {
+        navigate('/admin', { replace: true });
+        return;
       }
+
+      // Handle patient role
+      if (profile.payment_status === 'paid' && profile.payment_approval_status === 'approved') {
+        navigate('/dashboard', { replace: true });
+      } else if (profile.payment_method && profile.payment_status === 'unpaid') {
+        navigate('/payment-verification', { replace: true });
+      } else {
+        navigate('/payment', { replace: true });
+      }
+
     } catch (error) {
       console.error('Sign in error:', error);
       toast.error(t('signin_error'));
