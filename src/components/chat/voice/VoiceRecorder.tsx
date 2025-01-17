@@ -1,8 +1,8 @@
 import { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
-import { Mic, Square } from "lucide-react";
+import { Mic, Square, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { uploadFile } from "@/utils/fileUpload";
 
 interface VoiceRecorderProps {
   onRecordingComplete: (audioUrl: string, duration: number) => void;
@@ -11,73 +11,79 @@ interface VoiceRecorderProps {
 export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
   const [isRecording, setIsRecording] = useState(false);
   const [duration, setDuration] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout>();
+  const startTimeRef = useRef<number>(0);
+  const audioContextRef = useRef<AudioContext>();
 
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'audio/webm'
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          channelCount: 1,
+          sampleRate: 44100,
+          echoCancellation: true,
+          noiseSuppression: true
+        } 
       });
-
-      mediaRecorderRef.current = mediaRecorder;
+      
+      mediaRecorderRef.current = new MediaRecorder(stream, {
+        mimeType: 'audio/webm;codecs=opus'
+      });
+      
       chunksRef.current = [];
+      startTimeRef.current = Date.now();
 
-      mediaRecorder.ondataavailable = (e) => {
+      mediaRecorderRef.current.ondataavailable = (e) => {
         if (e.data.size > 0) {
           chunksRef.current.push(e.data);
         }
       };
 
-      mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
+      mediaRecorderRef.current.onstop = async () => {
+        const audioBlob = new Blob(chunksRef.current, { 
+          type: 'audio/webm;codecs=opus' 
+        });
+        
+        setIsUploading(true);
         
         try {
-          // Upload to Supabase
-          const fileName = `${crypto.randomUUID()}.webm`;
-          const { data, error: uploadError } = await supabase.storage
-            .from('chat_attachments')
-            .upload(fileName, audioBlob, {
-              contentType: 'audio/webm',
-              upsert: false
-            });
-
-          if (uploadError) {
-            console.error('Upload error:', uploadError);
-            toast.error('Failed to upload voice message');
-            return;
-          }
-
-          const { data: { publicUrl } } = supabase.storage
-            .from('chat_attachments')
-            .getPublicUrl(fileName);
-
-          onRecordingComplete(publicUrl, duration);
-          setDuration(0);
+          const file = new File([audioBlob], `voice-message-${Date.now()}.webm`, { 
+            type: 'audio/webm;codecs=opus'
+          });
+          
+          const fileInfo = await uploadFile(file);
+          const audioDuration = Math.round((Date.now() - startTimeRef.current) / 1000);
+          
+          onRecordingComplete(fileInfo.url, audioDuration);
         } catch (error) {
-          console.error('Error processing recording:', error);
-          toast.error('Failed to process voice message');
+          console.error('Error uploading voice message:', error);
+          toast.error('Failed to upload voice message');
+        } finally {
+          setIsUploading(false);
+          setDuration(0);
         }
 
-        // Stop all tracks
         stream.getTracks().forEach(track => track.stop());
       };
 
-      mediaRecorder.start();
+      mediaRecorderRef.current.start();
       setIsRecording(true);
-
-      // Start duration timer
-      let seconds = 0;
+      
       timerRef.current = setInterval(() => {
-        seconds++;
-        setDuration(seconds);
+        setDuration(prev => {
+          if (prev >= 60) {
+            stopRecording();
+            return prev;
+          }
+          return prev + 1;
+        });
       }, 1000);
-
     } catch (error) {
       console.error('Error starting recording:', error);
-      toast.error('Failed to start recording');
+      toast.error('Failed to access microphone');
     }
   };
 
@@ -85,32 +91,40 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    }
-  };
-
-  const toggleRecording = () => {
-    if (isRecording) {
-      stopRecording();
-    } else {
-      startRecording();
+      clearInterval(timerRef.current);
     }
   };
 
   return (
-    <Button
-      variant="ghost"
-      size="icon"
-      className="h-9 w-9"
-      onClick={toggleRecording}
-    >
-      {isRecording ? (
-        <Square className="h-5 w-5 text-red-500" />
+    <div className="flex items-center gap-2">
+      {isUploading ? (
+        <Button disabled variant="ghost" size="icon" className="h-10 w-10">
+          <Loader2 className="h-5 w-5 animate-spin" />
+        </Button>
+      ) : isRecording ? (
+        <>
+          <span className="text-sm text-red-500 animate-pulse">
+            {Math.floor(duration / 60)}:{(duration % 60).toString().padStart(2, '0')}
+          </span>
+          <Button
+            onClick={stopRecording}
+            variant="ghost"
+            size="icon"
+            className="h-10 w-10 bg-red-50 hover:bg-red-100"
+          >
+            <Square className="h-5 w-5 text-red-500" />
+          </Button>
+        </>
       ) : (
-        <Mic className="h-5 w-5" />
+        <Button
+          onClick={startRecording}
+          variant="ghost"
+          size="icon"
+          className="h-10 w-10"
+        >
+          <Mic className="h-5 w-5 text-primary" />
+        </Button>
       )}
-    </Button>
+    </div>
   );
 };

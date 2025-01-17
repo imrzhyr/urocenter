@@ -1,76 +1,88 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Play, Pause } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 
 interface AudioPlayerProps {
   audioUrl: string;
+  messageId: string;
   duration?: number;
 }
 
-export const AudioPlayer = ({ audioUrl, duration = 0 }: AudioPlayerProps) => {
+export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    const audio = new Audio(audioUrl);
+    const audio = new Audio();
+    
+    // Set CORS policy
+    audio.crossOrigin = "anonymous";
+    
+    // Add multiple sources for better browser compatibility
+    const sourceWebm = document.createElement('source');
+    sourceWebm.src = audioUrl;
+    sourceWebm.type = 'audio/webm;codecs=opus';
+    
+    const sourceMp3 = document.createElement('source');
+    sourceMp3.src = audioUrl.replace('.webm', '.mp3');
+    sourceMp3.type = 'audio/mpeg';
+    
+    audio.appendChild(sourceWebm);
+    audio.appendChild(sourceMp3);
+    
+    // Preload metadata
     audio.preload = 'metadata';
-    audioRef.current = audio;
+    
+    const handleCanPlayThrough = () => {
+      console.log('Audio can play through:', {
+        duration: audio.duration,
+        readyState: audio.readyState,
+        networkState: audio.networkState
+      });
+    };
 
     const handleTimeUpdate = () => {
-      if (audioRef.current) {
-        const current = audioRef.current.currentTime;
-        setCurrentTime(current);
-        setProgress((current / duration) * 100);
-      }
+      setCurrentTime(audio.currentTime);
     };
 
     const handleEnded = () => {
       setIsPlaying(false);
-      setProgress(0);
       setCurrentTime(0);
-      if (audioRef.current) {
-        audioRef.current.currentTime = 0;
-      }
     };
 
-    const handleCanPlayThrough = () => {
-      console.log('Audio can play through');
+    const handleError = (e: ErrorEvent) => {
+      console.error('Audio error:', {
+        error: audio.error,
+        networkState: audio.networkState,
+        readyState: audio.readyState,
+        currentSrc: audio.currentSrc
+      });
+      
+      toast.error('Failed to load audio. Please try again.');
     };
 
-    const handleError = () => {
-      if (audioRef.current?.error) {
-        console.error('Audio error:', {
-          code: audioRef.current.error.code,
-          message: audioRef.current.error.message,
-          networkState: audioRef.current.networkState,
-          readyState: audioRef.current.readyState
-        });
-        toast.error('Failed to load audio');
-      }
-    };
-
+    audio.addEventListener('canplaythrough', handleCanPlayThrough);
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('ended', handleEnded);
-    audio.addEventListener('canplaythrough', handleCanPlayThrough);
     audio.addEventListener('error', handleError);
 
+    audioRef.current = audio;
+
     return () => {
+      audio.removeEventListener('canplaythrough', handleCanPlayThrough);
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('ended', handleEnded);
-      audio.removeEventListener('canplaythrough', handleCanPlayThrough);
       audio.removeEventListener('error', handleError);
       audio.pause();
       audioRef.current = null;
     };
-  }, [audioUrl, duration]);
+  }, [audioUrl]);
 
   const togglePlayPause = async () => {
     if (!audioRef.current) {
-      toast.error('Audio player not initialized');
+      console.error('Audio element not initialized');
       return;
     }
 
@@ -79,29 +91,39 @@ export const AudioPlayer = ({ audioUrl, duration = 0 }: AudioPlayerProps) => {
         await audioRef.current.pause();
         setIsPlaying(false);
       } else {
-        console.log('Attempting to play audio:', {
-          src: audioRef.current.src,
-          readyState: audioRef.current.readyState,
-          networkState: audioRef.current.networkState
-        });
+        // Force reload the audio before playing
+        audioRef.current.currentTime = 0;
+        await audioRef.current.load();
+        const playPromise = audioRef.current.play();
         
-        await audioRef.current.play();
-        setIsPlaying(true);
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              console.log('Audio started playing successfully');
+              setIsPlaying(true);
+            })
+            .catch(error => {
+              console.error('Error playing audio:', error);
+              toast.error('Failed to play audio. Please try again.');
+              setIsPlaying(false);
+            });
+        }
       }
     } catch (error) {
-      console.error('Error playing audio:', error);
-      toast.error('Failed to play audio');
+      console.error('Error in togglePlayPause:', error);
+      toast.error('Failed to play audio. Please try again.');
+      setIsPlaying(false);
     }
   };
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
   return (
-    <div className="flex items-center gap-3 min-w-[200px] max-w-[300px] bg-white dark:bg-gray-800 rounded-xl p-3">
+    <div className="flex items-center gap-2 min-w-[200px]">
       <Button
         variant="ghost"
         size="icon"
@@ -114,12 +136,8 @@ export const AudioPlayer = ({ audioUrl, duration = 0 }: AudioPlayerProps) => {
           <Play className="h-4 w-4" />
         )}
       </Button>
-      <div className="flex-1">
-        <Progress value={progress} className="h-2" />
-        <div className="flex justify-between mt-1 text-xs text-gray-500">
-          <span>{formatTime(currentTime)}</span>
-          <span>{formatTime(duration)}</span>
-        </div>
+      <div className="text-xs">
+        {formatTime(currentTime)} / {formatTime(duration || 0)}
       </div>
     </div>
   );
