@@ -27,7 +27,7 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
         duration: audio.duration,
         readyState: audio.readyState,
         networkState: audio.networkState,
-        type: audio.type || 'audio/mp3',
+        mimeType: 'audio/mp3', // We're explicitly setting MP3 as our format
         browser: navigator.userAgent
       });
     };
