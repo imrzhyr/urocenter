@@ -24,7 +24,7 @@ export const useMessagesList = () => {
           user_id,
           is_from_doctor,
           is_resolved,
-          profiles (
+          profiles!messages_user_id_fkey (
             id,
             full_name
           )
@@ -43,6 +43,7 @@ export const useMessagesList = () => {
         return;
       }
 
+      // Group messages by user and get the latest message for each user
       const userMessages = messagesData.reduce((acc: { [key: string]: PatientMessage }, message: any) => {
         const userId = message.user_id;
         if (userId === profile?.id) {
@@ -83,6 +84,7 @@ export const useMessagesList = () => {
   useEffect(() => {
     fetchMessages();
 
+    // Subscribe to message updates
     const channel = supabase
       .channel('messages_changes')
       .on(
@@ -93,6 +95,7 @@ export const useMessagesList = () => {
           table: 'messages'
         },
         () => {
+          console.log('Messages updated, refetching...');
           fetchMessages();
         }
       )
