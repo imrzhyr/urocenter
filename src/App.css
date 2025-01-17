@@ -18,7 +18,7 @@ body {
 
 /* RTL Support */
 [dir="rtl"] * {
-  font-family: 'Noto Sans Arabic', sans-serif !important;
+  font-family: "Noto Sans Arabic", sans-serif !important;
   letter-spacing: 0;
 }
 
