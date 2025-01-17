@@ -58,4 +58,5 @@ export interface Profile {
   payment_status?: string;
   payment_method?: string;
   payment_date?: string;
+  payment_approval_status?: string;  // Added this field
 }
