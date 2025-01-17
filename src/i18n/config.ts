@@ -10,18 +10,6 @@ import { chatTranslations } from '@/translations/chatTranslations';
 import { medicalTranslations } from '@/translations/medicalTranslations';
 
 const resources = {
-  en: {
-    translation: {
-      ...authTranslations.en,
-      ...profileTranslations.en,
-      ...dashboardTranslations.en,
-      ...progressTranslations.en,
-      ...commonTranslations.en,
-      ...paymentTranslations.en,
-      ...chatTranslations.en,
-      ...medicalTranslations.en,
-    },
-  },
   ar: {
     translation: {
       ...authTranslations.ar,
@@ -33,7 +21,7 @@ const resources = {
       ...chatTranslations.ar,
       ...medicalTranslations.ar,
     },
-  },
+  }
 };
 
 i18n
@@ -48,6 +36,10 @@ i18n
     react: {
       useSuspense: false,
     },
+    returnNull: false,
+    returnEmptyString: false,
+    keySeparator: false,
+    nsSeparator: false,
   });
 
 export default i18n;
