@@ -57,7 +57,10 @@ const AdminPayments = () => {
         totalAmount,
         paidUsers
       };
-    }
+    },
+    // Enable automatic background refetching
+    refetchInterval: 1000, // Refetch every second
+    refetchIntervalInBackground: true,
   });
 
   // Subscribe to real-time updates for payment status changes
@@ -71,11 +74,11 @@ const AdminPayments = () => {
           event: '*',
           schema: 'public',
           table: 'profiles',
-          filter: "payment_status=eq.paid"
+          filter: "payment_status=eq.paid AND payment_approval_status=eq.approved"
         },
         (payload) => {
           console.log('Payment update received:', payload);
-          // Refetch payment stats when any payment status changes
+          // Force an immediate refetch when we receive an update
           refetch();
         }
       )
