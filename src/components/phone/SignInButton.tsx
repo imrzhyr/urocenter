@@ -25,25 +25,16 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
     try {
       setIsLoading(true);
       
-      let formattedPhone = phone;
+      let formattedPhone = formatPhoneNumber(phone);
       
-      if (phone === '7705449905' || phone === '7702428154') {
-        formattedPhone = `+964${phone}`;
-      } else {
-        formattedPhone = formatPhoneNumber(phone);
-      }
-      
-      console.log("Attempting sign in with:", {
-        formattedPhone,
-        phone
-      });
+      console.log("Attempting sign in with formatted phone:", formattedPhone);
 
       const { data: profile, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('phone', formattedPhone)
         .eq('password', password)
-        .maybeSingle();
+        .single();
 
       if (error) {
         console.error("Sign in error:", error);
@@ -56,21 +47,25 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
         return;
       }
 
+      console.log("Found profile:", profile);
+
       localStorage.setItem('userPhone', formattedPhone);
       toast.success(t('signin_success'));
 
-      // Handle admin role first
       if (profile.role === 'admin') {
         navigate('/admin', { replace: true });
         return;
       }
 
-      // Handle patient role
+      // Check payment status
       if (profile.payment_status === 'paid' && profile.payment_approval_status === 'approved') {
+        console.log("User is paid and approved, navigating to dashboard");
         navigate('/dashboard', { replace: true });
       } else if (profile.payment_method && profile.payment_status === 'unpaid') {
+        console.log("User has payment method but is unpaid, navigating to verification");
         navigate('/payment-verification', { replace: true });
       } else {
+        console.log("User needs to complete payment, navigating to payment");
         navigate('/payment', { replace: true });
       }
 
