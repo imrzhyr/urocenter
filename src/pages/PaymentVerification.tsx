@@ -17,8 +17,21 @@ const PaymentVerification = () => {
   useEffect(() => {
     if (!profile) return;
 
-    console.log('Setting up payment verification subscription...');
+    console.log('Setting up payment verification polling and subscription...');
     
+    // Set up polling interval
+    const pollingInterval = setInterval(async () => {
+      console.log('Polling for payment status...');
+      await refetch();
+      
+      if (profile.payment_status === 'paid' && 
+          profile.payment_approval_status === 'approved') {
+        console.log('Payment approved (via polling), redirecting to dashboard...');
+        toast.success(t('payment_approved'));
+        navigate('/dashboard', { replace: true });
+      }
+    }, 3000); // Poll every 3 seconds
+
     // Set up real-time subscription for profile updates
     const channel = supabase
       .channel(`payment_verification_${profile.id}`)
@@ -36,8 +49,8 @@ const PaymentVerification = () => {
           
           if (updatedProfile.payment_status === 'paid' && 
               updatedProfile.payment_approval_status === 'approved') {
-            console.log('Payment approved, redirecting to dashboard...');
-            await refetch(); // Refresh profile data
+            console.log('Payment approved (via subscription), redirecting to dashboard...');
+            await refetch();
             toast.success(t('payment_approved'));
             navigate('/dashboard', { replace: true });
           }
@@ -49,7 +62,7 @@ const PaymentVerification = () => {
 
     // Check initial status
     const checkInitialStatus = async () => {
-      await refetch(); // Ensure we have the latest profile data
+      await refetch();
       
       if (profile.payment_status === 'paid' && 
           profile.payment_approval_status === 'approved') {
@@ -62,10 +75,11 @@ const PaymentVerification = () => {
     checkInitialStatus();
 
     return () => {
-      console.log('Cleaning up payment verification subscription...');
+      console.log('Cleaning up payment verification subscription and polling...');
+      clearInterval(pollingInterval);
       supabase.removeChannel(channel);
     };
-  }, [navigate, profile?.id, refetch, t]);
+  }, [navigate, profile?.id, refetch, t, profile?.payment_status, profile?.payment_approval_status]);
 
   return (
     <div className="fixed inset-0 w-full h-full flex flex-col bg-gradient-to-br from-blue-50 to-blue-100 dark:from-[#1A1F2C] dark:to-[#2D3748]">

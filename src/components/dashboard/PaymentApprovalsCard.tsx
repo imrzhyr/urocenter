@@ -60,8 +60,15 @@ export const PaymentApprovalsCard = () => {
   };
 
   useEffect(() => {
-    fetchPendingPayments();
+    fetchPendingPayments(); // Initial fetch
 
+    // Set up polling interval
+    const pollingInterval = setInterval(() => {
+      console.log('Polling for new pending payments...');
+      fetchPendingPayments();
+    }, 3000); // Poll every 3 seconds
+
+    // Set up real-time subscription
     const channel = supabase
       .channel('payment_approvals')
       .on(
@@ -82,6 +89,8 @@ export const PaymentApprovalsCard = () => {
       });
 
     return () => {
+      console.log('Cleaning up payment approvals subscription and polling...');
+      clearInterval(pollingInterval);
       supabase.removeChannel(channel);
     };
   }, []);
