@@ -25,10 +25,8 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
     try {
       setIsLoading(true);
       
-      // Format the phone number to ensure it has the correct format
       let formattedPhone = phone;
       
-      // Handle special admin cases first
       if (phone === '7705449905' || phone === '7702428154') {
         formattedPhone = `+964${phone}`;
       } else {
@@ -41,7 +39,6 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
         password
       });
 
-      // Store the phone number first
       localStorage.setItem('userPhone', formattedPhone);
 
       const { data, error } = await supabase
@@ -58,47 +55,40 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
         return;
       }
 
-      toast.success(t('signin_success'));
-
       console.log("Sign in successful, user data:", {
         role: data.role,
         payment_status: data.payment_status,
         payment_approval_status: data.payment_approval_status
       });
 
-      // Check role first
       if (data.role === 'admin') {
         console.log("User is admin, redirecting to admin dashboard");
         navigate('/admin', { replace: true });
         return;
       }
 
-      // Check payment status
       const isPaid = data.payment_status === 'paid';
       const isApproved = data.payment_approval_status === 'approved';
-      const isPending = data.payment_approval_status === 'pending';
 
       console.log("Payment status check:", {
         isPaid,
         isApproved,
-        isPending,
         shouldGoToDashboard: isPaid && isApproved
       });
 
       if (isPaid && isApproved) {
         console.log("User is paid and approved, redirecting to dashboard");
+        localStorage.setItem('userPaymentStatus', 'approved');
         navigate('/dashboard', { replace: true });
         return;
       }
 
-      // If payment is pending approval, show waiting screen
-      if (isPending) {
+      if (data.payment_approval_status === 'pending') {
         console.log("Payment is pending approval, showing waiting screen");
         navigate('/payment', { replace: true });
         return;
       }
 
-      // For all other cases (unpaid, not pending), go to payment page
       console.log("User needs to complete payment, redirecting to payment page");
       navigate('/payment', { replace: true });
 

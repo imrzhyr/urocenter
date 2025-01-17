@@ -24,26 +24,38 @@ const Dashboard = () => {
     const checkAuth = async () => {
       try {
         const userPhone = localStorage.getItem('userPhone');
+        const paymentStatus = localStorage.getItem('userPaymentStatus');
         
         if (!userPhone) {
+          console.log("No user phone found, redirecting to signin");
           navigate("/signin", { replace: true });
           return;
         }
 
-        // Only check payment status on initial load
-        if (profile) {
+        // Only check payment status if we haven't verified it yet
+        if (!paymentStatus && profile) {
+          console.log("Checking payment status:", {
+            payment_status: profile.payment_status,
+            payment_approval_status: profile.payment_approval_status
+          });
+
           const isPaid = profile.payment_status === 'paid';
           const isApproved = profile.payment_approval_status === 'approved';
           
           if (!isPaid || !isApproved) {
+            console.log("User not paid or approved, redirecting to payment");
             navigate("/payment", { replace: true });
             return;
           }
 
           if (profile.role === 'admin') {
+            console.log("User is admin, redirecting to admin dashboard");
             navigate("/admin", { replace: true });
             return;
           }
+
+          // Mark as verified to prevent future checks
+          localStorage.setItem('userPaymentStatus', 'approved');
         }
 
         setIsLoading(false);
