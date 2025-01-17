@@ -29,10 +29,10 @@ export const OnboardingLayout = () => {
   const { profile } = useProfile();
 
   const steps = [
-    t("sign_up"),
-    t("profile"),
-    t("medical_information"),
-    t("payment")
+    "Sign Up",
+    "Profile",
+    "Medical Information",
+    "Payment"
   ];
 
   const getCompletedStep = () => {
