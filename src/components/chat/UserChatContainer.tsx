@@ -3,7 +3,6 @@ import { MessageContainer } from "./MessageContainer";
 import { PatientChatHeader } from "./patient/PatientChatHeader";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useChat } from "@/hooks/useChat";
-import { CallProvider } from "@/components/chat/call/CallProvider";
 
 export const UserChatContainer = () => {
   const { profile } = useProfile();
@@ -24,14 +23,12 @@ export const UserChatContainer = () => {
   }
 
   return (
-    <CallProvider>
-      <MessageContainer
-        messages={messages}
-        onSendMessage={handleSendMessage}
-        isLoading={isLoading}
-        header={<PatientChatHeader />}
-        userId={profile.id}
-      />
-    </CallProvider>
+    <MessageContainer
+      messages={messages}
+      onSendMessage={handleSendMessage}
+      isLoading={isLoading}
+      header={<PatientChatHeader />}
+      userId={profile.id}
+    />
   );
 };
