@@ -7,26 +7,24 @@ export const uploadFile = async (file: File) => {
     const fileExt = file.name.split('.').pop();
     const filePath = `${crypto.randomUUID()}.${fileExt}`;
 
-    let uploadFile = file;
-
+    // Create a new File object with the correct MIME type
+    let uploadFile: File;
+    
     // Handle WebM audio files specifically
     if (file.type.includes('webm')) {
-      const audioBlob = new Blob([await file.arrayBuffer()], { 
-        type: 'audio/webm' 
-      });
-      uploadFile = new File([audioBlob], file.name, { 
-        type: 'audio/webm'
-      });
-    }
-
+      const arrayBuffer = await file.arrayBuffer();
+      const blob = new Blob([arrayBuffer], { type: 'audio/webm' });
+      uploadFile = new File([blob], file.name, { type: 'audio/webm' });
+    } 
     // Handle images specifically
-    if (file.type.startsWith('image/')) {
-      const imageBlob = new Blob([await file.arrayBuffer()], { 
-        type: file.type 
-      });
-      uploadFile = new File([imageBlob], file.name, { 
-        type: file.type
-      });
+    else if (file.type.startsWith('image/')) {
+      const arrayBuffer = await file.arrayBuffer();
+      const blob = new Blob([arrayBuffer], { type: file.type });
+      uploadFile = new File([blob], file.name, { type: file.type });
+    } 
+    // Handle other file types
+    else {
+      uploadFile = file;
     }
 
     console.log('Uploading file with type:', uploadFile.type);
@@ -42,7 +40,6 @@ export const uploadFile = async (file: File) => {
 
     if (uploadError) {
       console.error('Upload error:', uploadError);
-      toast.error('Failed to upload file');
       throw uploadError;
     }
 
