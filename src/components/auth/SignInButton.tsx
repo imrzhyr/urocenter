@@ -44,44 +44,46 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
         .select('*')
         .eq('phone', formattedPhone)
         .eq('password', password)
-        .single();
+        .maybeSingle();
 
-      if (error || !data) {
+      if (error) {
         console.error("Sign in error:", error);
+        toast.error(t('auth_error'));
+        return;
+      }
+
+      if (!data) {
+        console.log("No user found with credentials");
         toast.error(t('invalid_credentials'));
         return;
       }
 
+      // Ensure payment_status and payment_approval_status have default values
+      const paymentStatus = data.payment_status || 'unpaid';
+      const approvalStatus = data.payment_approval_status || 'pending';
+
       console.log("Sign in successful, user data:", {
         role: data.role,
-        payment_status: data.payment_status,
-        payment_approval_status: data.payment_approval_status
+        payment_status: paymentStatus,
+        payment_approval_status: approvalStatus
       });
 
       localStorage.setItem('userPhone', formattedPhone);
+      toast.success(t('signin_success'));
 
       if (data.role === 'admin') {
-        console.log("User is admin, redirecting to admin dashboard");
         navigate('/admin', { replace: true });
         return;
       }
 
-      // Check if user has paid and payment is approved
-      const isPaid = data.payment_status === 'paid';
-      const isApproved = data.payment_approval_status === 'approved';
-
-      if (isPaid && isApproved) {
-        localStorage.setItem('userPaymentStatus', 'approved');
-        console.log("User is paid and approved, redirecting to dashboard");
+      // Check payment status and approval status
+      if (paymentStatus === 'paid' && approvalStatus === 'approved') {
         navigate('/dashboard', { replace: true });
-      } else if (data.payment_method && data.payment_status === 'unpaid') {
+      } else if (data.payment_method && paymentStatus === 'unpaid') {
         // If payment method selected but payment pending
-        console.log("Payment pending verification");
         navigate('/payment-verification', { replace: true });
       } else {
         // If no payment initiated yet
-        console.log("User needs to make payment");
-        localStorage.removeItem('userPaymentStatus');
         navigate('/payment', { replace: true });
       }
 

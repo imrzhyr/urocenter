@@ -34,10 +34,15 @@ const Dashboard = () => {
 
         // Only check payment status once when component mounts
         if (!hasCheckedPayment && profile) {
-          console.log("Profile data:", profile);
+          console.log("Full profile data:", profile);
+
+          // Ensure payment_status and payment_approval_status have default values
+          const paymentStatus = profile.payment_status || 'unpaid';
+          const approvalStatus = profile.payment_approval_status || 'pending';
+
           console.log("Payment status check:", {
-            payment_status: profile.payment_status,
-            payment_approval_status: profile.payment_approval_status,
+            payment_status: paymentStatus,
+            payment_approval_status: approvalStatus,
             role: profile.role
           });
 
@@ -47,9 +52,8 @@ const Dashboard = () => {
             return;
           }
 
-          // Direct string comparison without optional chaining
-          const isPaid = profile.payment_status === 'paid';
-          const isApproved = profile.payment_approval_status === 'approved';
+          const isPaid = paymentStatus === 'paid';
+          const isApproved = approvalStatus === 'approved';
           
           console.log("Payment verification:", { isPaid, isApproved });
 
@@ -84,7 +88,10 @@ const Dashboard = () => {
         },
         (payload: RealtimePostgresChangesPayload<Profile>) => {
           const updatedProfile = payload.new as Profile;
-          if (updatedProfile.payment_status !== 'paid' || updatedProfile.payment_approval_status !== 'approved') {
+          const paymentStatus = updatedProfile.payment_status || 'unpaid';
+          const approvalStatus = updatedProfile.payment_approval_status || 'pending';
+          
+          if (paymentStatus !== 'paid' || approvalStatus !== 'approved') {
             toast.info(t('payment_approval_pending'));
             navigate("/payment", { replace: true });
           }
