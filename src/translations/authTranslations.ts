@@ -33,7 +33,10 @@ export const authTranslations = {
     "sign_up_description": "Join us to get expert urological care",
     "please_fill_all_fields": "Please fill all fields",
     "dont_have_account": "Don't have an account?",
-    "already_have_account": "Already have an account?"
+    "already_have_account": "Already have an account?",
+    "sign_in_continue": "Sign in to continue",
+    "signing_in": "Signing in...",
+    "invalid_credentials": "Invalid credentials"
   },
   ar: {
     "sign_in": "تسجيل الدخول",
@@ -69,6 +72,9 @@ export const authTranslations = {
     "sign_up_description": "انضم إلينا للحصول على رعاية متخصصة للمسالك البولية",
     "please_fill_all_fields": "يرجى ملء جميع الحقول",
     "dont_have_account": "ليس لديك حساب؟",
-    "already_have_account": "لديك حساب بالفعل؟"
+    "already_have_account": "لديك حساب بالفعل؟",
+    "sign_in_continue": "سجل دخول للمتابعة",
+    "signing_in": "جاري تسجيل الدخول...",
+    "invalid_credentials": "بيانات الدخول غير صحيحة"
   }
 };

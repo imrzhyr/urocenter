@@ -9,7 +9,7 @@ const SignIn = () => {
   const { t, language } = useLanguage();
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-primary/5 via-white to-background">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-primary/5 via-white to-background dark:from-primary/20 dark:via-[#1A1F2C] dark:to-[#1A1F2C]">
       <div className={`p-4 flex justify-between items-center relative z-10 ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
         <BackButton />
         <LanguageSelector />
@@ -42,10 +42,6 @@ const SignIn = () => {
         
         <PhoneInput value={phone} onChange={setPhone} />
       </div>
-      
-      <footer className="p-4 text-center text-sm text-muted-foreground mt-auto">
-        {t('all_rights_reserved')}
-      </footer>
     </div>
   );
 };

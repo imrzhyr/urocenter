@@ -1,6 +1,8 @@
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 interface SignInButtonProps {
@@ -9,38 +11,49 @@ interface SignInButtonProps {
 }
 
 export const SignInButton = ({ phone, password }: SignInButtonProps) => {
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { signIn, isLoading } = useAuth();
-
-  const isValid = phone.length > 0 && password.length >= 6;
+  const { t } = useLanguage();
 
   const handleSignIn = async () => {
-    if (!isValid) {
-      toast.error("Please enter a valid phone number and password");
+    if (!phone || !password) {
+      toast.error(t('please_fill_all_fields'));
       return;
     }
 
-    const profile = await signIn(phone, password);
-    
-    if (profile) {
-      localStorage.setItem('userPhone', profile.phone);
-      toast.success("Signed in successfully!");
-      
-      if (profile.role === 'admin') {
-        navigate("/admin");
-      } else {
-        navigate("/dashboard");
+    try {
+      setIsLoading(true);
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('phone', phone)
+        .eq('password', password)
+        .single();
+
+      if (error || !data) {
+        toast.error(t('invalid_credentials'));
+        return;
       }
+
+      localStorage.setItem('userPhone', phone);
+      toast.success(t('auth_success'));
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Sign in error:', error);
+      toast.error(t('auth_error'));
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <Button
-      onClick={handleSignIn}
       className="w-full"
-      disabled={!isValid || isLoading}
+      onClick={handleSignIn}
+      disabled={isLoading}
     >
-      {isLoading ? "Signing in..." : "Sign in"}
+      {isLoading ? t('signing_in') : t('sign_in')}
     </Button>
   );
 };
