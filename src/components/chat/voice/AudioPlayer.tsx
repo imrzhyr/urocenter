@@ -13,24 +13,35 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
+  const [isSupported, setIsSupported] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const playPromiseRef = useRef<Promise<void> | null>(null);
 
   useEffect(() => {
+    // Check browser compatibility
     const audio = new Audio();
+    const isWebmSupported = audio.canPlayType('audio/webm; codecs="opus"') !== "";
+    setIsSupported(isWebmSupported);
+
+    if (!isWebmSupported) {
+      console.warn('WebM audio format is not supported in this browser');
+      toast.error('Your browser may not support this audio format');
+    }
+
+    const newAudio = new Audio();
     
     const handleCanPlay = () => {
       setIsLoading(false);
       console.log('Audio ready to play:', {
-        duration: audio.duration,
-        readyState: audio.readyState,
-        networkState: audio.networkState,
+        duration: newAudio.duration,
+        readyState: newAudio.readyState,
+        networkState: newAudio.networkState,
         type: 'audio/webm'
       });
     };
 
     const handleTimeUpdate = () => {
-      setCurrentTime(audio.currentTime);
+      setCurrentTime(newAudio.currentTime);
     };
 
     const handleEnded = () => {
@@ -40,41 +51,58 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
 
     const handleError = (e: ErrorEvent) => {
       console.error('Audio error:', {
-        error: audio.error,
-        networkState: audio.networkState,
-        readyState: audio.readyState,
-        currentSrc: audio.currentSrc,
+        error: newAudio.error,
+        networkState: newAudio.networkState,
+        readyState: newAudio.readyState,
+        currentSrc: newAudio.currentSrc,
         type: 'webm'
       });
       setIsLoading(false);
       setIsPlaying(false);
-      toast.error('Unable to play this audio message');
+      
+      // Check specific error types
+      if (newAudio.error?.code === 4) {
+        toast.error('Audio format not supported by your browser');
+      } else if (newAudio.networkState === 3) {
+        toast.error('Unable to load audio file');
+        // Attempt to reload the audio
+        newAudio.load();
+      } else {
+        toast.error('Unable to play this audio message');
+      }
     };
 
-    audio.addEventListener('canplay', handleCanPlay);
-    audio.addEventListener('timeupdate', handleTimeUpdate);
-    audio.addEventListener('ended', handleEnded);
-    audio.addEventListener('error', handleError);
+    newAudio.addEventListener('canplay', handleCanPlay);
+    newAudio.addEventListener('timeupdate', handleTimeUpdate);
+    newAudio.addEventListener('ended', handleEnded);
+    newAudio.addEventListener('error', handleError);
 
     // Set audio properties
-    audio.preload = 'auto';
-    audio.src = audioUrl;
+    newAudio.preload = 'auto';
+    newAudio.src = audioUrl;
     
-    audioRef.current = audio;
+    audioRef.current = newAudio;
+
+    // Attempt initial load
+    try {
+      newAudio.load();
+    } catch (error) {
+      console.error('Error loading audio:', error);
+    }
 
     return () => {
       if (playPromiseRef.current) {
         playPromiseRef.current.then(() => {
-          audio.pause();
+          newAudio.pause();
         }).catch(() => {});
       } else {
-        audio.pause();
+        newAudio.pause();
       }
-      audio.removeEventListener('canplay', handleCanPlay);
-      audio.removeEventListener('timeupdate', handleTimeUpdate);
-      audio.removeEventListener('ended', handleEnded);
-      audio.removeEventListener('error', handleError);
-      audio.src = '';
+      newAudio.removeEventListener('canplay', handleCanPlay);
+      newAudio.removeEventListener('timeupdate', handleTimeUpdate);
+      newAudio.removeEventListener('ended', handleEnded);
+      newAudio.removeEventListener('error', handleError);
+      newAudio.src = '';
       audioRef.current = null;
     };
   }, [audioUrl]);
@@ -120,6 +148,14 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
+
+  if (!isSupported) {
+    return (
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        Audio playback not supported in your browser
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center gap-2 min-w-[120px]">
