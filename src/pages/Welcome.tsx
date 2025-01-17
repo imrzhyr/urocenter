@@ -33,9 +33,9 @@ const Welcome = () => {
       <div className="p-4 flex justify-between items-center bg-white/80 dark:bg-[#1A1F2C]/80 backdrop-blur-sm border-b border-gray-100 dark:border-gray-800">
         <div className="flex items-center">
           <img 
-            src="/lovable-uploads/466753c2-d80c-49a2-9f60-a14d495396fd.png" 
+            src="/lovable-uploads/15e20ff0-66a5-4888-b578-9c94d3d5f851.png" 
             alt="UroCenter"
-            className="h-8 w-auto"
+            className="h-12 w-auto" // Increased from h-8 to h-12 for a larger size
           />
         </div>
         <LanguageSelector />
