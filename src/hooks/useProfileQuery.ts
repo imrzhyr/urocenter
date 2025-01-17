@@ -12,7 +12,6 @@ export const useProfileQuery = () => {
 
   const fetchProfile = async () => {
     try {
-      // Don't fetch profile during signup process
       if (location.pathname === '/signup') {
         setIsLoading(false);
         return;
@@ -29,7 +28,7 @@ export const useProfileQuery = () => {
 
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('*')
+        .select('*, payment_status, payment_approval_status')
         .eq('phone', userPhone)
         .maybeSingle();
 
@@ -48,6 +47,10 @@ export const useProfileQuery = () => {
           complaint: profileData.complaint || "",
           phone: profileData.phone || "",
           role: profileData.role || "patient",
+          payment_status: profileData.payment_status,
+          payment_approval_status: profileData.payment_approval_status,
+          payment_method: profileData.payment_method,
+          payment_date: profileData.payment_date
         };
         setState({ profile: newProfile });
       } else {
@@ -58,7 +61,9 @@ export const useProfileQuery = () => {
             {
               phone: userPhone,
               role: 'patient',
-              password: localStorage.getItem('userPassword') || ''
+              password: localStorage.getItem('userPassword') || '',
+              payment_status: 'unpaid',
+              payment_approval_status: 'pending'
             }
           ])
           .select()
@@ -78,6 +83,10 @@ export const useProfileQuery = () => {
             complaint: "",
             phone: userPhone,
             role: "patient",
+            payment_status: newProfileData.payment_status,
+            payment_approval_status: newProfileData.payment_approval_status,
+            payment_method: newProfileData.payment_method,
+            payment_date: newProfileData.payment_date
           };
           setState({ profile: newProfile });
         }
