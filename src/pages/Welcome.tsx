@@ -31,7 +31,13 @@ const Welcome = () => {
       className="min-h-screen flex flex-col bg-gradient-to-br from-primary/5 via-background to-background dark:from-primary/20 dark:via-[#1A1F2C] dark:to-[#1A1F2C]"
     >
       <div className="p-4 flex justify-between items-center bg-white/80 dark:bg-[#1A1F2C]/80 backdrop-blur-sm border-b border-gray-100 dark:border-gray-800">
-        <h1 className="text-xl font-bold text-primary dark:text-white">{t("uro_center")}</h1>
+        <div className="flex items-center">
+          <img 
+            src="/lovable-uploads/466753c2-d80c-49a2-9f60-a14d495396fd.png" 
+            alt="UroCenter"
+            className="h-8 w-auto"
+          />
+        </div>
         <LanguageSelector />
       </div>
       
