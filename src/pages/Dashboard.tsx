@@ -30,17 +30,20 @@ const Dashboard = () => {
           return;
         }
 
-        // Check if user is unpaid or pending approval
+        // Only check payment status on initial load
         if (profile) {
-          if (profile.payment_status !== 'paid' || profile.payment_approval_status !== 'approved') {
+          const isPaid = profile.payment_status === 'paid';
+          const isApproved = profile.payment_approval_status === 'approved';
+          
+          if (!isPaid || !isApproved) {
             navigate("/payment", { replace: true });
             return;
           }
-        }
 
-        if (profile?.role === 'admin' && window.location.pathname === '/dashboard') {
-          navigate("/admin", { replace: true });
-          return;
+          if (profile.role === 'admin') {
+            navigate("/admin", { replace: true });
+            return;
+          }
         }
 
         setIsLoading(false);

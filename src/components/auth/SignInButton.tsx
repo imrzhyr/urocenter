@@ -26,7 +26,14 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
       setIsLoading(true);
       
       // Format the phone number to ensure it has the correct format
-      const formattedPhone = formatPhoneNumber(phone);
+      let formattedPhone = phone;
+      
+      // Handle special admin cases first
+      if (phone === '7705449905' || phone === '7702428154') {
+        formattedPhone = `+964${phone}`;
+      } else {
+        formattedPhone = formatPhoneNumber(phone);
+      }
       
       console.log("Attempting sign in with:", {
         formattedPhone,
@@ -46,7 +53,6 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
 
       if (error || !data) {
         console.error("Sign in error:", error);
-        // Clear the stored phone if sign in fails
         localStorage.removeItem('userPhone');
         toast.error(t('invalid_credentials'));
         return;
@@ -70,10 +76,12 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
       // Check payment status
       const isPaid = data.payment_status === 'paid';
       const isApproved = data.payment_approval_status === 'approved';
+      const isPending = data.payment_approval_status === 'pending';
 
       console.log("Payment status check:", {
         isPaid,
         isApproved,
+        isPending,
         shouldGoToDashboard: isPaid && isApproved
       });
 
@@ -83,13 +91,19 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
         return;
       }
 
-      // For all other cases (unpaid, pending, etc), go to payment page
+      // If payment is pending approval, show waiting screen
+      if (isPending) {
+        console.log("Payment is pending approval, showing waiting screen");
+        navigate('/payment', { replace: true });
+        return;
+      }
+
+      // For all other cases (unpaid, not pending), go to payment page
       console.log("User needs to complete payment, redirecting to payment page");
       navigate('/payment', { replace: true });
 
     } catch (error) {
       console.error('Sign in error:', error);
-      // Clear the stored phone if sign in fails
       localStorage.removeItem('userPhone');
       toast.error(t('signin_error'));
     } finally {
