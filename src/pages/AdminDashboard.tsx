@@ -5,9 +5,11 @@ import { MessagesCard } from "@/components/dashboard/MessagesCard";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { AdminNavigation } from "@/components/dashboard/admin/AdminNavigation";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   useEffect(() => {
     const checkAdminAccess = async () => {
