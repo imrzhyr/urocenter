@@ -27,8 +27,10 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
     };
 
     const handleTimeUpdate = () => {
-      setCurrentTime(audio.currentTime);
-      setProgress((audio.currentTime / audio.duration) * 100);
+      if (audio.currentTime && audio.duration) {
+        setCurrentTime(audio.currentTime);
+        setProgress((audio.currentTime / audio.duration) * 100);
+      }
     };
 
     const handleEnded = () => {
@@ -38,19 +40,22 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
       audio.currentTime = 0;
     };
 
-    const handleError = () => {
+    const handleError = (e: ErrorEvent) => {
+      console.error('Audio loading error:', e);
       setIsPlaying(false);
       setIsLoading(false);
-      toast.error('Unable to play audio message');
+      toast.error('Unable to play voice message. Please try again.');
     };
 
-    // Preload the audio file
-    audio.preload = 'auto';
-    
-    // Set audio source with cache busting
+    // Add cache busting to prevent stale audio files
     const timestamp = new Date().getTime();
-    audio.src = `${audioUrl}?t=${timestamp}`;
+    const urlWithCache = `${audioUrl}?t=${timestamp}`;
     
+    // Configure audio
+    audio.preload = 'auto';
+    audio.src = urlWithCache;
+    
+    // Add event listeners
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('ended', handleEnded);
@@ -60,29 +65,35 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
     audio.load();
 
     return () => {
+      // Cleanup
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('error', handleError);
-      audio.pause();
-      audio.src = '';
-      audioRef.current = null;
+      
+      if (audio) {
+        audio.pause();
+        audio.src = '';
+        audioRef.current = null;
+      }
     };
   }, [audioUrl]);
 
-  const handlePlayPause = () => {
+  const handlePlayPause = async () => {
     if (!audioRef.current) return;
 
-    if (isPlaying) {
-      audioRef.current.pause();
+    try {
+      if (isPlaying) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      } else {
+        await audioRef.current.play();
+        setIsPlaying(true);
+      }
+    } catch (error) {
+      console.error('Playback error:', error);
+      toast.error('Unable to play voice message. Please try again.');
       setIsPlaying(false);
-    } else {
-      audioRef.current.play()
-        .catch(() => {
-          toast.error('Unable to play audio message');
-          setIsPlaying(false);
-        });
-      setIsPlaying(true);
     }
   };
 
