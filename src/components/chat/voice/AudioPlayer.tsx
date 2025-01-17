@@ -24,7 +24,9 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
       console.log('Audio ready to play:', {
         duration: audio.duration,
         readyState: audio.readyState,
-        networkState: audio.networkState
+        networkState: audio.networkState,
+        type: audio.currentSrc ? audio.currentSrc.split('.').pop() : 'unknown',
+        mimeType: audio instanceof HTMLAudioElement ? audio.mozCurrentSampleOffset ? 'audio/webm' : 'audio/mpeg' : 'unknown'
       });
     };
 
@@ -42,7 +44,8 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
         error: audio.error,
         networkState: audio.networkState,
         readyState: audio.readyState,
-        currentSrc: audio.currentSrc
+        currentSrc: audio.currentSrc,
+        type: audio.currentSrc ? audio.currentSrc.split('.').pop() : 'unknown'
       });
       setIsLoading(false);
       setIsPlaying(false);
@@ -56,8 +59,20 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
 
     // Set audio properties
     audio.preload = 'auto';
-    audio.src = audioUrl;
+    
+    // Set CORS and type hints
+    audio.crossOrigin = "anonymous";
+    
+    // Create source element with explicit MIME type
+    const source = document.createElement('source');
+    source.src = audioUrl;
+    source.type = 'audio/webm;codecs=opus';
+    audio.appendChild(source);
+    
     audioRef.current = audio;
+
+    // Start loading the audio
+    audio.load();
 
     return () => {
       if (playPromiseRef.current) {
@@ -71,6 +86,9 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('error', handleError);
+      while (audio.firstChild) {
+        audio.removeChild(audio.firstChild);
+      }
       audio.src = '';
       audioRef.current = null;
     };
