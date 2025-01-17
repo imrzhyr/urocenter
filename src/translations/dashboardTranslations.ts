@@ -10,6 +10,8 @@ export const dashboardTranslations = {
     view_health_tips: "View health tips and recommendations",
     doctor_profile: "Doctor Profile",
     view_doctor_profile: "View doctor's profile and qualifications",
+    start_consultation: "Start Your Consultation",
+    doctor_surgery: "Connect with Dr. Ali Kamal, our expert urologist",
   },
   ar: {
     welcome: "مرحباً",
@@ -22,5 +24,7 @@ export const dashboardTranslations = {
     view_health_tips: "عرض النصائح والتوصيات الصحية",
     doctor_profile: "الملف الشخصي للطبيب",
     view_doctor_profile: "عرض الملف الشخصي ومؤهلات الطبيب",
+    start_consultation: "ابدأ استشارتك",
+    doctor_surgery: "تواصل مع د. علي كمال، أخصائي المسالك البولية",
   }
 };
