@@ -30,9 +30,10 @@ export const OnboardingLayout = () => {
   const { language } = useLanguage();
   const { profile } = useProfile();
 
-  // Calculate completed steps based on profile data
+  // Calculate completed step based on profile data and current path
   const getCompletedStep = () => {
-    if (!profile) return 0;
+    // If no profile exists or we're starting a new journey from signup, return 0
+    if (!profile || location.pathname === '/signup') return 0;
     
     if (profile.payment_status === 'paid') return 3;
     if (profile.full_name && profile.gender && profile.age) return 2;
