@@ -12,14 +12,16 @@ import { toast } from "sonner";
 const PaymentVerification = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { profile } = useProfile();
+  const { profile, refetch } = useProfile();
 
   useEffect(() => {
     if (!profile) return;
 
     console.log('Setting up payment verification subscription...');
+    
+    // Set up real-time subscription for profile updates
     const channel = supabase
-      .channel('payment_verification')
+      .channel(`payment_verification_${profile.id}`)
       .on(
         'postgres_changes',
         {
@@ -28,13 +30,14 @@ const PaymentVerification = () => {
           table: 'profiles',
           filter: `id=eq.${profile.id}`,
         },
-        (payload) => {
+        async (payload) => {
           console.log('Payment status change received:', payload);
           const updatedProfile = payload.new;
           
           if (updatedProfile.payment_status === 'paid' && 
               updatedProfile.payment_approval_status === 'approved') {
             console.log('Payment approved, redirecting to dashboard...');
+            await refetch(); // Refresh profile data
             toast.success(t('payment_approved'));
             navigate('/dashboard', { replace: true });
           }
@@ -44,18 +47,25 @@ const PaymentVerification = () => {
         console.log('Subscription status:', status);
       });
 
-    // Check initial status in case it was already approved
-    if (profile.payment_status === 'paid' && 
-        profile.payment_approval_status === 'approved') {
-      console.log('Payment already approved, redirecting to dashboard...');
-      navigate('/dashboard', { replace: true });
-    }
+    // Check initial status
+    const checkInitialStatus = async () => {
+      await refetch(); // Ensure we have the latest profile data
+      
+      if (profile.payment_status === 'paid' && 
+          profile.payment_approval_status === 'approved') {
+        console.log('Payment already approved, redirecting to dashboard...');
+        toast.success(t('payment_approved'));
+        navigate('/dashboard', { replace: true });
+      }
+    };
+
+    checkInitialStatus();
 
     return () => {
       console.log('Cleaning up payment verification subscription...');
       supabase.removeChannel(channel);
     };
-  }, [navigate, profile, t]);
+  }, [navigate, profile?.id, refetch, t]);
 
   return (
     <div className="fixed inset-0 w-full h-full flex flex-col bg-gradient-to-br from-blue-50 to-blue-100 dark:from-[#1A1F2C] dark:to-[#2D3748]">
