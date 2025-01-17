@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { CreditCard } from "lucide-react";
 import { useState } from "react";
 import { Button } from "./ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface PaymentMethodProps {
   id: string;
@@ -22,6 +23,7 @@ export const PaymentMethod = ({
 }: PaymentMethodProps) => {
   const [imageError, setImageError] = useState(false);
   const isCreditCard = id === "credit-card";
+  const { t, isRTL } = useLanguage();
 
   return (
     <div
@@ -32,7 +34,7 @@ export const PaymentMethod = ({
           : "border-gray-200 hover:border-primary/50 dark:border-gray-700"
       )}
     >
-      <div className="flex items-center gap-4">
+      <div className={cn("flex items-center gap-4", isRTL && "flex-row-reverse")}>
         {isCreditCard ? (
           <div className="w-12 h-12 flex items-center justify-center">
             <CreditCard className="w-8 h-8 text-primary" />
@@ -53,7 +55,7 @@ export const PaymentMethod = ({
         <span className="text-sm font-medium dark:text-gray-200">{name}</span>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
         <Button
           variant={selected ? "default" : "outline"}
           size="sm"
@@ -63,7 +65,7 @@ export const PaymentMethod = ({
             selected && "bg-primary hover:bg-primary/90"
           )}
         >
-          {selected ? "Selected" : "Select"}
+          {selected ? t("selected") : t("select")}
         </Button>
         {selected && (
           <Button
@@ -71,7 +73,7 @@ export const PaymentMethod = ({
             size="sm"
             className="bg-green-600 hover:bg-green-700"
           >
-            Contact Support
+            {t("contact_support")}
           </Button>
         )}
       </div>

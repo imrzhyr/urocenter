@@ -25,6 +25,14 @@ export const paymentTranslations = {
     "complete_payment": "Please complete the payment to continue",
     "payment_approved": "Your payment has been approved successfully!",
     "payment_message": "Hello, I would like to pay for UroCenter consultation using {method}. Please guide me through the payment process.",
+    "waiting_for_payment": "Waiting For Payment Verification",
+    "support_processing": "Our Support Team Is Processing Your Payment",
+    "redirect_confirmation": "You Will Be Redirected Once Payment Is Confirmed",
+    "sign_out": "Sign Out",
+    "help_center": "Help Center",
+    "select": "Select",
+    "selected": "Selected",
+    "contact_support": "Contact Support"
   },
   ar: {
     "payment": "الدفع",
@@ -52,5 +60,13 @@ export const paymentTranslations = {
     "complete_payment": "يرجى إكمال عملية الدفع للمتابعة",
     "payment_approved": "تمت الموافقة على دفعتك بنجاح!",
     "payment_message": "مرحباً، أود الدفع مقابل استشارة مركز المسالك البولية باستخدام {method}. يرجى إرشادي خلال عملية الدفع.",
+    "waiting_for_payment": "في انتظار التحقق من الدفع",
+    "support_processing": "فريق الدعم لدينا يعالج دفعتك",
+    "redirect_confirmation": "سيتم إعادة توجيهك بمجرد تأكيد الدفع",
+    "sign_out": "تسجيل الخروج",
+    "help_center": "مركز المساعدة",
+    "select": "اختيار",
+    "selected": "تم الاختيار",
+    "contact_support": "تواصل مع الدعم"
   }
 };
