@@ -25,13 +25,13 @@ const getStepFromPath = (pathname: string) => {
 export const OnboardingLayout = () => {
   const location = useLocation();
   const currentStep = getStepFromPath(location.pathname);
-  const { language, t } = useLanguage();
+  const { language } = useLanguage();
   const { profile } = useProfile();
 
   const steps = [
-    "sign_up",
-    "profile_step",
-    "medical_info_step", 
+    "signup",
+    "profile",
+    "medical_information",
     "payment"
   ];
 
