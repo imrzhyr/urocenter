@@ -25,12 +25,18 @@ export const uploadFile = async (file: File) => {
       const audioBuffer = await file.arrayBuffer();
       const blob = new Blob([audioBuffer], { type: 'audio/mpeg' });
       
-      // Create a new File object from the Blob
+      // Create a new File object from the Blob with proper metadata
       fileToUpload = new File([blob], file.name, {
         type: 'audio/mpeg',
         lastModified: file.lastModified
       });
       contentType = 'audio/mpeg';
+      
+      logger.info('FileUpload', 'Converted audio file', {
+        originalType: file.type,
+        newType: contentType,
+        size: fileToUpload.size
+      });
     }
 
     // Upload file to Supabase storage with proper content type
