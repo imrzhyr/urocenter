@@ -14,42 +14,12 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
   const [currentTime, setCurrentTime] = useState(0);
   const [audioDuration, setAudioDuration] = useState(duration);
   const [progress, setProgress] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     const audio = new Audio();
     audioRef.current = audio;
-
-    // Add cache control headers
-    const fetchAudio = async () => {
-      try {
-        const response = await fetch(audioUrl, {
-          headers: {
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const blob = await response.blob();
-        const objectUrl = URL.createObjectURL(blob);
-        audio.src = objectUrl;
-        
-        return () => {
-          URL.revokeObjectURL(objectUrl);
-        };
-      } catch (error) {
-        console.error('Error loading audio:', error);
-        toast.error('Unable to load audio message. Please try again.');
-        setIsLoading(false);
-      }
-    };
-
-    fetchAudio();
 
     const handleLoadedMetadata = () => {
       setAudioDuration(audio.duration);
@@ -57,8 +27,10 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
     };
 
     const handleTimeUpdate = () => {
-      setCurrentTime(audio.currentTime);
-      setProgress((audio.currentTime / audio.duration) * 100);
+      if (audio.currentTime && audio.duration) {
+        setCurrentTime(audio.currentTime);
+        setProgress((audio.currentTime / audio.duration) * 100);
+      }
     };
 
     const handleEnded = () => {
@@ -68,40 +40,94 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
       audio.currentTime = 0;
     };
 
-    const handleError = (e: ErrorEvent) => {
-      console.error('Audio playback error:', e);
-      toast.error('Unable to play audio message. Please try again.');
+    const handleError = () => {
+      console.error('Audio loading error');
       setIsPlaying(false);
       setIsLoading(false);
+      
+      // Check if WebM is supported
+      const canPlayWebm = audio.canPlayType('audio/webm; codecs="opus"');
+      if (audioUrl.endsWith('.webm') && !canPlayWebm) {
+        toast.error('Your browser does not support WebM audio. Please try using Chrome or Firefox.');
+        return;
+      }
+      
+      toast.error('Unable to play voice message. Please try again.');
     };
 
+    // Configure audio with proper MIME type and CORS settings
+    audio.preload = 'auto';
+    audio.crossOrigin = 'anonymous';
+
+    // Add timestamp to prevent caching
+    const timestamp = new Date().getTime();
+    const urlWithCache = `${audioUrl}?t=${timestamp}`;
+    
+    // Set source with proper MIME type using source element
+    if (audioUrl.endsWith('.webm')) {
+      audio.src = urlWithCache;
+    } else {
+      audio.src = urlWithCache;
+    }
+
+    // Add event listeners
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('ended', handleEnded);
-    audio.addEventListener('error', handleError as EventListener);
+    audio.addEventListener('error', handleError);
 
     return () => {
+      // Cleanup
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('ended', handleEnded);
-      audio.removeEventListener('error', handleError as EventListener);
-      audio.pause();
-      audioRef.current = null;
+      audio.removeEventListener('error', handleError);
+      
+      if (audio) {
+        audio.pause();
+        setIsPlaying(false);
+        setIsLoading(false);
+        audio.src = '';
+        audioRef.current = null;
+      }
     };
   }, [audioUrl]);
 
-  const handlePlayPause = () => {
+  const handlePlayPause = async () => {
     if (!audioRef.current) return;
 
-    if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.play().catch((error) => {
-        console.error('Playback failed:', error);
-        toast.error('Unable to play audio message. Please try again.');
-      });
+    try {
+      if (isPlaying) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      } else {
+        const audio = audioRef.current;
+        
+        // Check WebM support before playing
+        const canPlayWebm = audio.canPlayType('audio/webm; codecs="opus"');
+        if (audioUrl.endsWith('.webm') && !canPlayWebm) {
+          toast.error('Your browser does not support WebM audio. Please try using Chrome or Firefox.');
+          return;
+        }
+
+        setIsLoading(true);
+        try {
+          await audio.play();
+          setIsPlaying(true);
+        } catch (error) {
+          console.error('Playback error:', error);
+          toast.error('Unable to play voice message. Please try again.');
+          setIsPlaying(false);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    } catch (error) {
+      console.error('Playback error:', error);
+      toast.error('Unable to play voice message. Please try again.');
+      setIsPlaying(false);
+      setIsLoading(false);
     }
-    setIsPlaying(!isPlaying);
   };
 
   return (

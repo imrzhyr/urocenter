@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @import './styles/base.css';
 @import './styles/typography.css';
 @import './styles/layout.css';
@@ -6,10 +10,6 @@
 @import './styles/rtl.css';
 @import './styles/utilities.css';
 @import './styles/components.css';
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 @layer base {
   :root {

@@ -41,16 +41,13 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
           audioBufferRef.current = await audioContextRef.current.decodeAudioData(arrayBuffer);
           const audioDuration = Math.round(audioBufferRef.current.duration);
 
-          const file = new File([audioBlob], `voice-message-${Date.now()}.webm`, { 
-            type: 'audio/webm'
-          });
-
+          const file = new File([audioBlob], `voice-message-${Date.now()}.webm`, { type: 'audio/webm' });
           const uploadedFile = await uploadFile(file);
           
           onRecordingComplete({
             url: uploadedFile.url,
             name: uploadedFile.name,
-            type: 'audio/webm',
+            type: uploadedFile.type,
             duration: audioDuration
           });
         } catch (error) {
