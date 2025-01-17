@@ -14,35 +14,6 @@ export const PaymentVerification = () => {
   const { t, isRTL } = useLanguage();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate('/', { replace: true });
-        return;
-      }
-
-      // Check if user has a profile and fetch payment status
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('payment_approval_status, payment_status')
-        .single();
-
-      if (!profile) {
-        navigate('/signup', { replace: true });
-        return;
-      }
-
-      // If payment is already approved, redirect to dashboard
-      if (profile.payment_approval_status === 'approved') {
-        navigate('/dashboard', { replace: true });
-        return;
-      }
-    };
-
-    checkAuth();
-  }, [navigate]);
-
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate('/', { replace: true });

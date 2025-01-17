@@ -66,18 +66,31 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
         return;
       }
 
-      // Check payment status and approval status
-      if (data.payment_status === 'unpaid' || 
-          (data.payment_status === 'paid' && data.payment_approval_status === 'pending')) {
-        console.log("Payment pending or needs verification, redirecting to verification page");
-        navigate('/payment-verification', { replace: true });
-      } else if (data.payment_status === 'paid' && data.payment_approval_status === 'approved') {
-        console.log("Payment approved, redirecting to dashboard");
-        navigate('/dashboard', { replace: true });
+      // Store payment status in localStorage for future reference
+      if (data.payment_status === 'paid' && data.payment_approval_status === 'approved') {
+        localStorage.setItem('userPaymentStatus', 'approved');
       } else {
-        console.log("No payment initiated, redirecting to payment page");
-        navigate('/payment', { replace: true });
+        localStorage.removeItem('userPaymentStatus');
       }
+
+      const isPaid = data.payment_status?.toLowerCase() === 'paid';
+      const isApproved = data.payment_approval_status?.toLowerCase() === 'approved';
+
+      console.log("Payment status check:", {
+        isPaid,
+        isApproved,
+        payment_status: data.payment_status,
+        payment_approval_status: data.payment_approval_status
+      });
+
+      if (isPaid && isApproved) {
+        console.log("User is paid and approved, redirecting to dashboard");
+        navigate('/dashboard', { replace: true });
+        return;
+      }
+
+      console.log("User needs approval or payment, redirecting to payment page");
+      navigate('/payment', { replace: true });
 
     } catch (error) {
       console.error('Sign in error:', error);
