@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useProfile } from "./useProfile";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { supabase } from "@/integrations/supabase/client";
 
 export const useOnboarding = () => {
   const navigate = useNavigate();
@@ -18,11 +19,31 @@ export const useOnboarding = () => {
         return false;
       }
 
-      if (!profile) {
+      // Fetch the latest profile data directly from Supabase
+      const { data: latestProfile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('phone', userPhone)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error fetching profile:', error);
         return false;
       }
 
+      if (!latestProfile) {
+        return false;
+      }
+
+      console.log('Latest profile data:', latestProfile);
+
       const currentPath = window.location.pathname;
+
+      // If user is paid and approved, redirect to dashboard unless they're already there
+      if (latestProfile.payment_status === 'paid' && latestProfile.payment_approval_status === 'approved' && currentPath !== '/dashboard') {
+        navigate("/dashboard");
+        return true;
+      }
 
       // Define the onboarding steps and their validation rules
       const steps = [
@@ -32,19 +53,19 @@ export const useOnboarding = () => {
         },
         {
           path: "/profile",
-          isComplete: () => Boolean(profile.full_name && profile.gender && profile.age),
+          isComplete: () => Boolean(latestProfile.full_name && latestProfile.gender && latestProfile.age),
           redirectTo: "/signup",
           message: t("complete_signup_first")
         },
         {
           path: "/medical-information",
-          isComplete: () => Boolean(profile.full_name && profile.gender && profile.age),
+          isComplete: () => Boolean(latestProfile.full_name && latestProfile.gender && latestProfile.age),
           redirectTo: "/profile",
           message: t("complete_profile_first")
         },
         {
           path: "/payment",
-          isComplete: () => Boolean(profile.full_name && profile.gender && profile.age),
+          isComplete: () => Boolean(latestProfile.full_name && latestProfile.gender && latestProfile.age),
           redirectTo: "/medical-information",
           message: t("complete_medical_info_first")
         }
@@ -63,12 +84,6 @@ export const useOnboarding = () => {
           navigate(steps[i].redirectTo);
           return false;
         }
-      }
-
-      // Special case for payment page
-      if (currentPath !== '/payment' && profile.payment_status === 'paid') {
-        navigate("/dashboard");
-        return true;
       }
 
       return true;

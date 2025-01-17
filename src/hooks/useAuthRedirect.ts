@@ -15,11 +15,16 @@ export const useAuthRedirect = () => {
         return;
       }
 
-      const { data: profile } = await supabase
+      const { data: profile, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('phone', userPhone)
         .maybeSingle();
+
+      if (error) {
+        console.error('Error fetching profile:', error);
+        return;
+      }
 
       if (!profile) {
         localStorage.removeItem('userPhone');
@@ -32,6 +37,16 @@ export const useAuthRedirect = () => {
       if (profile.payment_status !== 'paid' || profile.payment_approval_status !== 'approved') {
         navigate("/payment", { replace: true });
         return;
+      }
+
+      // If we're already on the dashboard, don't redirect
+      if (window.location.pathname === '/dashboard') {
+        return;
+      }
+
+      // If user is paid and approved, redirect to dashboard
+      if (profile.payment_status === 'paid' && profile.payment_approval_status === 'approved') {
+        navigate("/dashboard", { replace: true });
       }
     };
 
