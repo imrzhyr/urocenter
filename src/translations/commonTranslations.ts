@@ -33,7 +33,7 @@ export const commonTranslations = {
 
     // Welcome Page
     "uro_center": "Uro Center",
-    "doctor_name": "Dr. Ahmed Hassan",
+    "doctor_name": "Dr. Ali Kamal",
     "doctor_title": "Consultant Urologist",
     "expert_care": "Expert Care",
     "specialized_treatment": "Specialized treatment for urological conditions",
@@ -41,8 +41,7 @@ export const commonTranslations = {
     "connect_with_doctor": "Connect directly with your doctor",
     "start_journey": "Start Your Journey",
     "already_have_account": "Already have an account?",
-    "sign_in": "Sign In",
-    "all_rights_reserved": "© 2024 Uro Center. All rights reserved"
+    "sign_in": "Sign In"
   },
   ar: {
     "please_sign_in_first": "الرجاء تسجيل الدخول أولاً",
@@ -78,7 +77,7 @@ export const commonTranslations = {
 
     // Welcome Page
     "uro_center": "مركز المسالك البولية",
-    "doctor_name": "د. أحمد حسن",
+    "doctor_name": "د. علي كمال",
     "doctor_title": "استشاري المسالك البولية",
     "expert_care": "رعاية متخصصة",
     "specialized_treatment": "علاج متخصص لأمراض المسالك البولية",
@@ -86,7 +85,6 @@ export const commonTranslations = {
     "connect_with_doctor": "تواصل مباشرة مع طبيبك",
     "start_journey": "ابدأ رحلتك",
     "already_have_account": "لديك حساب بالفعل؟",
-    "sign_in": "تسجيل الدخول",
-    "all_rights_reserved": "© 2024 مركز المسالك البولية. جميع الحقوق محفوظة"
+    "sign_in": "تسجيل الدخول"
   }
 };

@@ -99,9 +99,7 @@ const Welcome = () => {
         </div>
       </div>
       
-      <footer className="p-3 text-center text-xs text-muted-foreground dark:text-gray-400">
-        {t("all_rights_reserved")}
-      </footer>
+      <footer className="p-3 text-center text-xs text-muted-foreground dark:text-gray-400" />
     </motion.div>
   );
 };
