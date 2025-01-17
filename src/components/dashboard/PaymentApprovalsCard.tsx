@@ -40,7 +40,6 @@ export const PaymentApprovalsCard = () => {
   };
 
   useEffect(() => {
-    // Enable real-time updates for the profiles table
     console.log('Setting up real-time subscription for payment approvals...');
     const channel = supabase
       .channel('payment_approvals')
@@ -55,13 +54,17 @@ export const PaymentApprovalsCard = () => {
         (payload) => {
           console.log('Payment approval change received:', payload);
           
-          // Handle different types of changes
           if (payload.eventType === 'INSERT') {
-            // Add new pending payment to the list
             const newPayment = payload.new as PendingPayment;
             setPendingPayments(prev => [newPayment, ...prev]);
-          } else if (payload.eventType === 'DELETE' || payload.eventType === 'UPDATE') {
-            // Remove or update the payment in the list
+          } else if (payload.eventType === 'UPDATE') {
+            // Remove the payment if it's no longer pending or unpaid
+            if (payload.new.payment_status === 'paid' || payload.new.payment_approval_status === 'approved') {
+              setPendingPayments(prev => 
+                prev.filter(payment => payment.id !== payload.old.id)
+              );
+            }
+          } else if (payload.eventType === 'DELETE') {
             setPendingPayments(prev => 
               prev.filter(payment => payment.id !== payload.old.id)
             );
@@ -105,7 +108,10 @@ export const PaymentApprovalsCard = () => {
       description: t("Payment approved successfully"),
     });
 
-    // The real-time subscription will handle removing this item from the list
+    // Optimistically remove the payment from the list
+    setPendingPayments(prev => 
+      prev.filter(payment => payment.id !== userId)
+    );
   };
 
   return (
