@@ -9,6 +9,7 @@ let profileState: Profile = {
   complaint: "",
   phone: "",
   role: "patient",
+  password: "", // Added default password
   payment_status: "unpaid",
   payment_approval_status: "pending"
 };

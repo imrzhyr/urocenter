@@ -1,3 +1,5 @@
+export type MessageType = 'message' | 'call';
+
 export interface Message {
   id: string;
   content: string;
@@ -14,7 +16,17 @@ export interface Message {
   seen_at?: string | null;
   is_resolved?: boolean;
   sender_name?: string;
-  duration?: number | null;  // Made nullable to maintain compatibility
+  duration?: number | null;
+  type?: MessageType;
+  call?: {
+    id: string;
+    caller_id: string;
+    receiver_id: string;
+    status: string;
+    started_at: string;
+    ended_at: string | null;
+    created_at: string;
+  };
   replyTo?: {
     content: string;
     file_type?: string | null;
@@ -41,7 +53,7 @@ export interface Profile {
   updated_at?: string;
   auth_method?: string;
   last_login?: string;
-  password: string;
+  password?: string; // Made optional since it's not always needed in the UI
   role: 'admin' | 'patient';
   payment_status?: string;
   payment_method?: string;
