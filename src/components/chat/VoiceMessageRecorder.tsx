@@ -22,7 +22,9 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
+      mediaRecorderRef.current = new MediaRecorder(stream, {
+        mimeType: 'audio/webm;codecs=opus'
+      });
       chunksRef.current = [];
       startTimeRef.current = Date.now();
 
@@ -42,7 +44,10 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
           audioBufferRef.current = await audioContextRef.current.decodeAudioData(arrayBuffer);
           const audioDuration = Math.round(audioBufferRef.current.duration);
 
-          const file = new File([audioBlob], `voice-message-${Date.now()}.webm`, { type: 'audio/webm' });
+          const file = new File([audioBlob], `voice-message-${Date.now()}.webm`, { 
+            type: 'audio/webm'
+          });
+          
           const uploadedFile = await uploadFile(file);
           
           onRecordingComplete({
@@ -105,7 +110,7 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
             onClick={stopRecording}
             variant="ghost"
             size="icon"
-            className="h-10 w-10 bg-red-50 hover:bg-red-100"
+            className="h-10 w-10 bg-red-50 hover:bg-red-100 dark:bg-red-900/10 dark:hover:bg-red-900/20"
           >
             <Square className="h-5 w-5 text-red-500" />
           </Button>

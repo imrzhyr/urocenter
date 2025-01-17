@@ -12,12 +12,17 @@ export const uploadFile = async (file: File) => {
     const fileExt = file.name.split('.').pop();
     const filePath = `${crypto.randomUUID()}.${fileExt}`;
 
+    // Set correct content type for webm files
+    const contentType = file.type === 'audio/webm' || file.type === 'video/webm' 
+      ? file.type 
+      : file.type || 'application/octet-stream';
+
     // Upload file to Supabase storage
     const { data, error: uploadError } = await supabase.storage
       .from('chat_attachments')
       .upload(filePath, file, {
-        upsert: false,
-        contentType: file.type
+        contentType,
+        upsert: false
       });
 
     if (uploadError) {
@@ -34,7 +39,7 @@ export const uploadFile = async (file: File) => {
     return {
       url: publicUrl,
       name: file.name,
-      type: file.type
+      type: contentType
     };
   } catch (error) {
     console.error('File upload error:', error);
