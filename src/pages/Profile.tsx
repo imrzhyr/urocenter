@@ -48,7 +48,7 @@ export const ProfilePage = () => {
 
   const handleSubmit = async () => {
     if (!isFormValid()) {
-      toast.error("Please fill in all required fields correctly");
+      toast.error(t('please_fill_all_fields'));
       return;
     }
 
@@ -58,18 +58,18 @@ export const ProfilePage = () => {
       if (success) {
         await refetch();
         navigate("/medical-information");
-        toast.success("Profile updated successfully");
+        toast.success(t('profile_updated'));
       }
     } catch (error) {
       console.error("Error:", error);
-      toast.error("An error occurred while saving your profile");
+      toast.error(t('profile_update_error'));
     } finally {
       setIsSubmitting(false);
     }
   };
 
   if (isLoading) {
-    return <LoadingScreen message="Loading your profile..." />;
+    return <LoadingScreen message={t('loading')} />;
   }
 
   return (
