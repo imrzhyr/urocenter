@@ -31,39 +31,18 @@ export const commonTranslations = {
     "not_found": "Not Found",
     "coming_soon": "Coming Soon",
 
-    // Form Fields
-    "full_name": "Full Name",
-    "phone": "Phone Number",
-    "email": "Email",
-    "password": "Password",
-    "age": "Age",
-    "gender": "Gender",
-    "male": "Male",
-    "female": "Female",
-    "enter_full_name": "Please enter your full name",
-    "enter_age": "Enter your age",
-    "not_provided": "Not provided",
-
-    // Navigation
-    "home": "Home",
-    "profile": "Profile",
-    "settings": "Settings",
-    "messages": "Messages",
-    "notifications": "Notifications",
-
-    // Footer
-    "all_rights_reserved": "© 2024 Uro Center. All rights reserved",
-    "get_support": "Get Support",
-    "help_center": "Help Center",
-    "contact_us": "Contact Us",
-
-    // Theme & Language
-    "language": "Language",
-    "theme": "Theme",
-    "dark_mode": "Dark Mode",
-    "light_mode": "Light Mode",
-    "rtl_mode": "Right to Left Mode",
-    "ltr_mode": "Left to Right Mode"
+    // Welcome Page
+    "uro_center": "Uro Center",
+    "doctor_name": "Dr. Ahmed Hassan",
+    "doctor_title": "Consultant Urologist",
+    "expert_care": "Expert Care",
+    "specialized_treatment": "Specialized treatment for urological conditions",
+    "direct_communication": "Direct Communication",
+    "connect_with_doctor": "Connect directly with your doctor",
+    "start_journey": "Start Your Journey",
+    "already_have_account": "Already have an account?",
+    "sign_in": "Sign In",
+    "all_rights_reserved": "© 2024 Uro Center. All rights reserved"
   },
   ar: {
     "please_sign_in_first": "الرجاء تسجيل الدخول أولاً",
@@ -97,38 +76,17 @@ export const commonTranslations = {
     "not_found": "غير موجود",
     "coming_soon": "قريباً",
 
-    // Form Fields
-    "full_name": "الاسم الكامل",
-    "phone": "رقم الهاتف",
-    "email": "البريد الإلكتروني",
-    "password": "كلمة المرور",
-    "age": "العمر",
-    "gender": "الجنس",
-    "male": "ذكر",
-    "female": "أنثى",
-    "enter_full_name": "الرجاء إدخال اسمك الكامل",
-    "enter_age": "أدخل عمرك",
-    "not_provided": "غير متوفر",
-
-    // Navigation
-    "home": "الرئيسية",
-    "profile": "الملف الشخصي",
-    "settings": "الإعدادات",
-    "messages": "الرسائل",
-    "notifications": "الإشعارات",
-
-    // Footer
-    "all_rights_reserved": "© 2024 مركز المسالك البولية. جميع الحقوق محفوظة",
-    "get_support": "الحصول على الدعم",
-    "help_center": "مركز المساعدة",
-    "contact_us": "اتصل بنا",
-
-    // Theme & Language
-    "language": "اللغة",
-    "theme": "المظهر",
-    "dark_mode": "الوضع الداكن",
-    "light_mode": "الوضع الفاتح",
-    "rtl_mode": "وضع اليمين لليسار",
-    "ltr_mode": "وضع اليسار لليمين"
+    // Welcome Page
+    "uro_center": "مركز المسالك البولية",
+    "doctor_name": "د. أحمد حسن",
+    "doctor_title": "استشاري المسالك البولية",
+    "expert_care": "رعاية متخصصة",
+    "specialized_treatment": "علاج متخصص لأمراض المسالك البولية",
+    "direct_communication": "تواصل مباشر",
+    "connect_with_doctor": "تواصل مباشرة مع طبيبك",
+    "start_journey": "ابدأ رحلتك",
+    "already_have_account": "لديك حساب بالفعل؟",
+    "sign_in": "تسجيل الدخول",
+    "all_rights_reserved": "© 2024 مركز المسالك البولية. جميع الحقوق محفوظة"
   }
 };
