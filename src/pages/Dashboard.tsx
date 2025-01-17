@@ -19,12 +19,12 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { t } = useLanguage();
   const { profile } = useProfile();
+  const [hasCheckedPayment, setHasCheckedPayment] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const userPhone = localStorage.getItem('userPhone');
-        const paymentStatus = localStorage.getItem('userPaymentStatus');
         
         if (!userPhone) {
           console.log("No user phone found, redirecting to signin");
@@ -32,15 +32,15 @@ const Dashboard = () => {
           return;
         }
 
-        // Only check payment status if we haven't verified it yet
-        if (!paymentStatus && profile) {
+        // Only check payment status once when component mounts
+        if (!hasCheckedPayment && profile) {
           console.log("Checking payment status:", {
             payment_status: profile.payment_status,
             payment_approval_status: profile.payment_approval_status
           });
 
-          const isPaid = profile.payment_status === 'paid';
-          const isApproved = profile.payment_approval_status === 'approved';
+          const isPaid = profile.payment_status?.toLowerCase() === 'paid';
+          const isApproved = profile.payment_approval_status?.toLowerCase() === 'approved';
           
           if (!isPaid || !isApproved) {
             console.log("User not paid or approved, redirecting to payment");
@@ -54,8 +54,7 @@ const Dashboard = () => {
             return;
           }
 
-          // Mark as verified to prevent future checks
-          localStorage.setItem('userPaymentStatus', 'approved');
+          setHasCheckedPayment(true);
         }
 
         setIsLoading(false);
@@ -91,7 +90,7 @@ const Dashboard = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [navigate, profile, t]);
+  }, [navigate, profile, t, hasCheckedPayment]);
 
   if (isLoading) {
     return (

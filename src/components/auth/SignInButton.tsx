@@ -39,8 +39,6 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
         password
       });
 
-      localStorage.setItem('userPhone', formattedPhone);
-
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -50,7 +48,6 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
 
       if (error || !data) {
         console.error("Sign in error:", error);
-        localStorage.removeItem('userPhone');
         toast.error(t('invalid_credentials'));
         return;
       }
@@ -61,40 +58,42 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
         payment_approval_status: data.payment_approval_status
       });
 
+      localStorage.setItem('userPhone', formattedPhone);
+
       if (data.role === 'admin') {
         console.log("User is admin, redirecting to admin dashboard");
         navigate('/admin', { replace: true });
         return;
       }
 
-      const isPaid = data.payment_status === 'paid';
-      const isApproved = data.payment_approval_status === 'approved';
+      // Store payment status in localStorage for future reference
+      if (data.payment_status === 'paid' && data.payment_approval_status === 'approved') {
+        localStorage.setItem('userPaymentStatus', 'approved');
+      } else {
+        localStorage.removeItem('userPaymentStatus');
+      }
+
+      const isPaid = data.payment_status?.toLowerCase() === 'paid';
+      const isApproved = data.payment_approval_status?.toLowerCase() === 'approved';
 
       console.log("Payment status check:", {
         isPaid,
         isApproved,
-        shouldGoToDashboard: isPaid && isApproved
+        payment_status: data.payment_status,
+        payment_approval_status: data.payment_approval_status
       });
 
       if (isPaid && isApproved) {
         console.log("User is paid and approved, redirecting to dashboard");
-        localStorage.setItem('userPaymentStatus', 'approved');
         navigate('/dashboard', { replace: true });
         return;
       }
 
-      if (data.payment_approval_status === 'pending') {
-        console.log("Payment is pending approval, showing waiting screen");
-        navigate('/payment', { replace: true });
-        return;
-      }
-
-      console.log("User needs to complete payment, redirecting to payment page");
+      console.log("User needs approval or payment, redirecting to payment page");
       navigate('/payment', { replace: true });
 
     } catch (error) {
       console.error('Sign in error:', error);
-      localStorage.removeItem('userPhone');
       toast.error(t('signin_error'));
     } finally {
       setIsLoading(false);
