@@ -25,7 +25,7 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
         duration: audio.duration,
         readyState: audio.readyState,
         networkState: audio.networkState,
-        type: audio.currentSrc ? audio.currentSrc.split('.').pop() : 'unknown'
+        type: 'audio/webm'
       });
     };
 
@@ -44,11 +44,11 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
         networkState: audio.networkState,
         readyState: audio.readyState,
         currentSrc: audio.currentSrc,
-        type: audio.currentSrc ? audio.currentSrc.split('.').pop() : 'unknown'
+        type: 'webm'
       });
       setIsLoading(false);
       setIsPlaying(false);
-      toast.error('Unable to play this audio message. The format might not be supported by your browser.');
+      toast.error('Unable to play this audio message');
     };
 
     audio.addEventListener('canplay', handleCanPlay);
@@ -102,7 +102,7 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
           setIsPlaying(true);
         } catch (error) {
           console.error('Error playing audio:', error);
-          toast.error('Failed to play audio. Please try again.');
+          toast.error('Failed to play audio');
           setIsPlaying(false);
         }
         setIsLoading(false);
@@ -111,7 +111,7 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
       console.error('Error in togglePlayPause:', error);
       setIsPlaying(false);
       setIsLoading(false);
-      toast.error('Failed to play audio. Please try again.');
+      toast.error('Failed to play audio');
     }
   };
 

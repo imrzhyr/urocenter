@@ -28,31 +28,17 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
         } 
       });
       
-      // Try to use webm first, then fall back to mp4, then to other formats
-      const mimeTypes = [
-        'audio/webm',
-        'audio/webm;codecs=opus',
-        'audio/mp4',
-        'audio/mpeg',
-        'audio/aac'
-      ];
-
-      let selectedMimeType = '';
-      for (const mimeType of mimeTypes) {
-        if (MediaRecorder.isTypeSupported(mimeType)) {
-          selectedMimeType = mimeType;
-          break;
-        }
+      // Always use WebM format
+      const mimeType = 'audio/webm';
+      
+      if (!MediaRecorder.isTypeSupported(mimeType)) {
+        throw new Error('WebM audio format is not supported in this browser');
       }
 
-      if (!selectedMimeType) {
-        throw new Error('No supported audio recording format found');
-      }
-
-      console.log('Using audio format:', selectedMimeType);
+      console.log('Using audio format:', mimeType);
       
       mediaRecorderRef.current = new MediaRecorder(stream, {
-        mimeType: selectedMimeType
+        mimeType: mimeType
       });
       
       chunksRef.current = [];
@@ -65,16 +51,13 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
       };
 
       mediaRecorderRef.current.onstop = async () => {
-        const audioBlob = new Blob(chunksRef.current, { 
-          type: selectedMimeType
-        });
+        const audioBlob = new Blob(chunksRef.current, { type: mimeType });
         
         setIsUploading(true);
         
         try {
-          const fileExtension = selectedMimeType.split('/')[1].split(';')[0];
-          const file = new File([audioBlob], `voice-message-${Date.now()}.${fileExtension}`, { 
-            type: selectedMimeType
+          const file = new File([audioBlob], `voice-message-${Date.now()}.webm`, { 
+            type: mimeType
           });
           
           const fileInfo = await uploadFile(file);

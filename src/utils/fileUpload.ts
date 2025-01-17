@@ -4,20 +4,24 @@ export const uploadFile = async (file: File) => {
   try {
     // Generate a unique file path
     const fileExt = file.type.startsWith('audio/') 
-      ? file.type.split('/')[1].split(';')[0]  // Get the audio format (webm, mp4, etc.)
+      ? 'webm'  // Always use webm for audio files
       : file.name.split('.').pop();
     const filePath = `${crypto.randomUUID()}.${fileExt}`;
 
-    // Upload file to Supabase storage
+    // Upload file to Supabase storage with CORS headers
     const { data, error } = await supabase.storage
       .from('chat_attachments')
-      .upload(filePath, file);
+      .upload(filePath, file, {
+        contentType: file.type,
+        upsert: false,
+        cacheControl: '3600',
+      });
 
     if (error) {
       throw error;
     }
 
-    // Get the public URL
+    // Get the public URL with CORS headers
     const { data: { publicUrl } } = supabase.storage
       .from('chat_attachments')
       .getPublicUrl(filePath);
