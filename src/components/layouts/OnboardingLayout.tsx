@@ -28,11 +28,12 @@ export const OnboardingLayout = () => {
   const { language, t } = useLanguage();
   const { profile } = useProfile();
 
+  // Updated to use the correct translation keys from progressTranslations
   const steps = [
-    t("sign_up"),
-    t("profile"),
-    t("medical_info"),
-    t("payment")
+    t("create_account"),
+    t("complete_profile"),
+    t("medical_information"),
+    t("payment_details")
   ];
 
   // Calculate completed step based on profile data and current path
