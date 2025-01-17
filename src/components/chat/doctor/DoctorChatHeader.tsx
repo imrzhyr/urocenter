@@ -22,7 +22,17 @@ export const DoctorChatHeader: React.FC<DoctorChatHeaderProps> = ({
   onRefresh
 }) => {
   const queryClient = useQueryClient();
-  const { initiateCall } = useCallActions();
+  const { initiateCall } = useCallActions({
+    profileId: patientId,
+    setupAgoraClient: async () => true, // This should be properly implemented
+    clearCallTimeout: () => {},
+    setCurrentCallId: () => {},
+    setIsInCall: () => {},
+    setIncomingCall: () => {},
+    setIsCallEnded: () => {},
+    startDurationTimer: () => {},
+    updateCallStatus: async () => {},
+  });
   const { profile: patientProfile } = usePatientProfile(patientId);
   const { chatStatus } = useChatStatus(patientId);
 
@@ -31,7 +41,7 @@ export const DoctorChatHeader: React.FC<DoctorChatHeaderProps> = ({
       toast.error("Cannot initiate call: Patient profile not found");
       return;
     }
-    await initiateCall(patientProfile);
+    await initiateCall(patientProfile.id, patientProfile.full_name);
   };
 
   const handleResolve = async () => {
