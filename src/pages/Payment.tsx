@@ -40,6 +40,7 @@ const Payment = () => {
 
       // If payment is approved, redirect to dashboard
       if (data.payment_status === 'paid' && data.payment_approval_status === 'approved') {
+        console.log('Payment approved, redirecting to dashboard');
         navigate('/dashboard', { replace: true });
         return;
       }
@@ -74,6 +75,7 @@ const Payment = () => {
 
           // Check if payment was just approved
           if (payload.new.payment_status === 'paid' && payload.new.payment_approval_status === 'approved') {
+            console.log('Payment just approved, redirecting to dashboard');
             toast.success(t("Payment Approved - You can now chat with Dr. Ali Kamal"));
             await refetch();
             navigate('/dashboard', { replace: true });
