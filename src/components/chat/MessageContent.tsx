@@ -1,8 +1,8 @@
 import { Message } from "@/types/profile";
 import { format } from "date-fns";
-import { MessageStatus } from "../MessageStatus";
-import { MediaGallery } from "../media/MediaGallery";
-import { ReferencedMessage } from "../ReferencedMessage";
+import { MessageStatus } from "./MessageStatus";
+import { MediaGallery } from "./media/MediaGallery";
+import { ReferencedMessage } from "./ReferencedMessage";
 
 interface MessageContentProps {
   message: Message;
