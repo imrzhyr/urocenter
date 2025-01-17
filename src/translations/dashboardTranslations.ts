@@ -13,7 +13,7 @@ export const dashboardTranslations = {
     "virtual_consultation": "الاستشارة الافتراضية",
     "virtual_consultation_welcome": "مرحباً بك في الاستشارة الافتراضية",
     "doctor_name": "د. علي كمال",
-    "doctor_title": "طبيب المسالك البولية وأمراض الذكورة",
+    "doctor_title": "استشاري المسالك البولية وأمراض الذكورة",
     "doctor_surgery": "جراح المسالك البولية وأمراض الذكورة",
     "years_experience": "سنوات الخبرة",
     "rating": "التقييم",
@@ -33,28 +33,6 @@ export const dashboardTranslations = {
     "schedule_consultation": "جدول موعد استشارتك",
     "today": "اليوم",
     "tomorrow": "غداً",
-    "view_all_slots": "عرض جميع المواعيد",
-
-    // Admin Dashboard
-    "total_patients": "إجمالي المرضى",
-    "total_messages": "إجمالي الرسائل",
-    "new_patients": "المرضى الجدد",
-    "resolved": "تم الحل",
-    "monthly_revenue": "الإيرادات الشهرية",
-    "total_revenue_month": "إجمالي الإيرادات هذا الشهر",
-    "paid_users_month": "المستخدمون الذين دفعوا هذا الشهر",
-    "message_activity": "نشاط الرسائل",
-    "patient_messages": "رسائل المرضى",
-    "review_inquiries": "مراجعة استفسارات المرضى",
-    "no_messages": "لا توجد رسائل",
-    "search_messages": "البحث في الرسائل",
-    "filter_status": "تصفية حسب الحالة",
-    "all": "الكل",
-    "not_seen": "غير مرئي",
-    "in_progress": "قيد التنفيذ",
-    "resolved_status": "تم الحل",
-    "last_message": "آخر رسالة",
-    "unread_messages": "الرسائل غير المقروءة",
-    "active_chats": "المحادثات النشطة"
+    "view_all_slots": "عرض جميع المواعيد"
   }
 };
