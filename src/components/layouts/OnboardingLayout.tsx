@@ -25,14 +25,14 @@ const getStepFromPath = (pathname: string) => {
 export const OnboardingLayout = () => {
   const location = useLocation();
   const currentStep = getStepFromPath(location.pathname);
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const { profile } = useProfile();
 
   const steps = [
-    "signup",
-    "profile",
-    "medical_information",
-    "payment"
+    t("sign_up"),
+    t("profile"),
+    t("medical_info"),
+    t("payment")
   ];
 
   // Calculate completed step based on profile data and current path

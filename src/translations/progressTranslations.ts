@@ -1,8 +1,8 @@
 export const progressTranslations = {
   en: {
-    "signup": "Sign Up",
+    "sign_up": "Sign Up",
     "profile": "Profile",
-    "medical_information": "Medical Information",
+    "medical_info": "Medical Info",
     "payment": "Payment",
     "step_complete": "Step Complete",
     "step_incomplete": "Step Incomplete",
@@ -19,9 +19,9 @@ export const progressTranslations = {
     "finish": "Finish"
   },
   ar: {
-    "signup": "إنشاء حساب",
+    "sign_up": "إنشاء حساب",
     "profile": "الملف الشخصي",
-    "medical_information": "المعلومات الطبية",
+    "medical_info": "المعلومات الطبية",
     "payment": "الدفع",
     "step_complete": "الخطوة مكتملة",
     "step_incomplete": "الخطوة غير مكتملة",

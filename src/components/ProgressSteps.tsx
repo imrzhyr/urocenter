@@ -67,7 +67,7 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
                   index <= currentStep ? "text-primary" : "text-gray-400"
                 )}
               >
-                {t(step)}
+                {step}
               </span>
             </div>
           ))}
