@@ -63,7 +63,7 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
               </div>
               <span
                 className={cn(
-                  "mt-2 text-xs font-medium text-center transition-colors duration-300",
+                  "mt-2 text-xs font-medium text-center transition-colors duration-300 whitespace-nowrap px-1",
                   index <= currentStep ? "text-primary" : "text-gray-400"
                 )}
               >

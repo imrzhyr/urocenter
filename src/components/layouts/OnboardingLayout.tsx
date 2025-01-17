@@ -28,7 +28,7 @@ export const OnboardingLayout = () => {
   const { language, t } = useLanguage();
   const { profile } = useProfile();
 
-  // Updated to use the correct translation keys from progressTranslations
+  // Define the steps using the translation function
   const steps = [
     t("create_account"),
     t("complete_profile"),
