@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { LanguageSelector } from "@/components/LanguageSelector";
+import { WhatsAppSupport } from "@/components/WhatsAppSupport";
 
 export const PaymentVerification = () => {
   const { t, isRTL } = useLanguage();
@@ -31,6 +33,10 @@ export const PaymentVerification = () => {
           <LogOut className={cn("h-5 w-5", isRTL ? "ml-2" : "mr-2")} />
           {t("sign_out")}
         </Button>
+        <div className="flex items-center gap-4">
+          <WhatsAppSupport />
+          <LanguageSelector />
+        </div>
       </div>
 
       <motion.div
