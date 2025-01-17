@@ -7,8 +7,9 @@ export const uploadFile = async (file: File) => {
     const fileExt = file.name.split('.').pop();
     const filePath = `${crypto.randomUUID()}.${fileExt}`;
 
-    // Handle WebM audio files specifically
     let uploadFile = file;
+
+    // Handle WebM audio files specifically
     if (file.type.includes('webm')) {
       const audioBlob = new Blob([await file.arrayBuffer()], { 
         type: 'audio/webm' 
@@ -18,7 +19,7 @@ export const uploadFile = async (file: File) => {
       });
     }
 
-    // For images, ensure proper MIME type
+    // Handle images specifically
     if (file.type.startsWith('image/')) {
       const imageBlob = new Blob([await file.arrayBuffer()], { 
         type: file.type 
