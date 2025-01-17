@@ -26,7 +26,7 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
         readyState: audio.readyState,
         networkState: audio.networkState,
         type: audio.currentSrc ? audio.currentSrc.split('.').pop() : 'unknown',
-        mimeType: audio instanceof HTMLAudioElement ? audio.mozCurrentSampleOffset ? 'audio/webm' : 'audio/mpeg' : 'unknown'
+        mimeType: 'audio/webm' // We know we're using WebM format for voice messages
       });
     };
 
