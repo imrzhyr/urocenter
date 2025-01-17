@@ -40,35 +40,39 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
       audio.currentTime = 0;
     };
 
-    const handleError = (e: ErrorEvent) => {
-      console.error('Audio loading error:', e);
+    const handleError = () => {
+      console.error('Audio loading error');
       setIsPlaying(false);
       setIsLoading(false);
       
-      // Check if the audio format is supported
-      const audioFormat = audioUrl.split('.').pop()?.toLowerCase();
-      if (audioFormat === 'webm' && !audio.canPlayType('audio/webm')) {
-        toast.error('This audio format is not supported by your browser. Please try using a different browser.');
-      } else {
-        toast.error('Unable to play voice message. Please try again.');
+      // Check if WebM is supported
+      const canPlayWebm = audio.canPlayType('audio/webm; codecs="opus"');
+      if (audioUrl.endsWith('.webm') && !canPlayWebm) {
+        toast.error('Your browser does not support WebM audio. Please try using Chrome or Firefox.');
+        return;
       }
+      
+      toast.error('Unable to play voice message. Please try again.');
     };
 
-    // Add cache busting and handle CORS
+    // Configure audio with proper MIME type and CORS settings
+    audio.preload = 'auto';
+    audio.crossOrigin = 'anonymous';
+
+    // Add timestamp to prevent caching
     const timestamp = new Date().getTime();
     const urlWithCache = `${audioUrl}?t=${timestamp}`;
     
-    // Configure audio
-    audio.preload = 'auto';
-    audio.crossOrigin = 'anonymous'; // Handle CORS issues
-    
-    // Set MIME type for WebM audio
+    // Set source with proper MIME type
     if (audioUrl.endsWith('.webm')) {
-      audio.type = 'audio/webm';
+      const source = document.createElement('source');
+      source.src = urlWithCache;
+      source.type = 'audio/webm; codecs="opus"';
+      audio.appendChild(source);
+    } else {
+      audio.src = urlWithCache;
     }
-    
-    audio.src = urlWithCache;
-    
+
     // Add event listeners
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
     audio.addEventListener('timeupdate', handleTimeUpdate);
@@ -101,24 +105,21 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
         audioRef.current.pause();
         setIsPlaying(false);
       } else {
-        // Check if the audio format is supported before playing
-        const audioFormat = audioUrl.split('.').pop()?.toLowerCase();
         const audio = audioRef.current;
         
-        if (audioFormat === 'webm' && !audio.canPlayType('audio/webm')) {
-          throw new Error('Unsupported audio format');
+        // Check WebM support before playing
+        const canPlayWebm = audio.canPlayType('audio/webm; codecs="opus"');
+        if (audioUrl.endsWith('.webm') && !canPlayWebm) {
+          toast.error('Your browser does not support WebM audio. Please try using Chrome or Firefox.');
+          return;
         }
-        
+
         await audio.play();
         setIsPlaying(true);
       }
     } catch (error) {
       console.error('Playback error:', error);
-      if (error instanceof Error && error.message === 'Unsupported audio format') {
-        toast.error('This audio format is not supported by your browser. Please try using a different browser.');
-      } else {
-        toast.error('Unable to play voice message. Please try again.');
-      }
+      toast.error('Unable to play voice message. Please try again.');
       setIsPlaying(false);
     }
   };
