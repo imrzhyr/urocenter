@@ -4,10 +4,11 @@ import { useCall } from "../call/CallProvider";
 import { BackButton } from "@/components/BackButton";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ImageViewer } from "../media/ImageViewer";
 import { toast } from "sonner";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface DoctorChatHeaderProps {
   patientId: string;
@@ -25,6 +26,8 @@ export const DoctorChatHeader = ({
   const { initiateCall } = useCall();
   const [showInfo, setShowInfo] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const { t } = useLanguage();
+  const queryClient = useQueryClient();
 
   const { data: patientInfo } = useQuery({
     queryKey: ['patient', patientId],
@@ -35,6 +38,20 @@ export const DoctorChatHeader = ({
         .eq('id', patientId)
         .single();
       return profile;
+    }
+  });
+
+  const { data: chatStatus } = useQuery({
+    queryKey: ['chat-status', patientId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('messages')
+        .select('is_resolved')
+        .eq('user_id', patientId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+      return data?.is_resolved || false;
     }
   });
 
@@ -58,15 +75,29 @@ export const DoctorChatHeader = ({
     try {
       const { error } = await supabase
         .from('messages')
-        .update({ is_resolved: true })
+        .update({ is_resolved: !chatStatus })
         .eq('user_id', patientId);
 
       if (error) throw error;
-      toast.success("Chat marked as resolved");
+
+      // Send a system message about the resolution status
+      const statusMessage = !chatStatus ? "Chat marked as resolved" : "Chat marked as unresolved";
+      await supabase
+        .from('messages')
+        .insert({
+          content: statusMessage,
+          user_id: patientId,
+          is_from_doctor: true,
+          status: 'seen',
+          sender_name: 'System'
+        });
+
+      toast.success(statusMessage);
+      queryClient.invalidateQueries({ queryKey: ['chat-status', patientId] });
       onRefresh();
     } catch (error) {
-      console.error('Error resolving chat:', error);
-      toast.error("Failed to resolve chat");
+      console.error('Error updating resolution status:', error);
+      toast.error("Failed to update chat status");
     }
   };
 
