@@ -146,7 +146,6 @@ export type Database = {
           content: string
           created_at: string | null
           delivered_at: string | null
-          duration: number | null
           file_name: string | null
           file_type: string | null
           file_url: string | null
@@ -167,7 +166,6 @@ export type Database = {
           content: string
           created_at?: string | null
           delivered_at?: string | null
-          duration?: number | null
           file_name?: string | null
           file_type?: string | null
           file_url?: string | null
@@ -188,7 +186,6 @@ export type Database = {
           content?: string
           created_at?: string | null
           delivered_at?: string | null
-          duration?: number | null
           file_name?: string | null
           file_type?: string | null
           file_url?: string | null

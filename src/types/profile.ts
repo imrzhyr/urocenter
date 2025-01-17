@@ -14,7 +14,6 @@ export interface Message {
   status: string;
   delivered_at?: string;
   seen_at?: string;
-  duration?: number;
   is_resolved?: boolean;
   sender_name?: string;
   replyTo?: {
