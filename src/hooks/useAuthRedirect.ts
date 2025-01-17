@@ -17,7 +17,7 @@ export const useAuthRedirect = () => {
 
       const { data: profile, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select('payment_status, payment_approval_status, role')
         .eq('phone', userPhone)
         .maybeSingle();
 
@@ -33,11 +33,11 @@ export const useAuthRedirect = () => {
         return;
       }
 
-      // Check if user is unpaid and redirect to payment page
-      if (profile.payment_status !== 'paid' || profile.payment_approval_status !== 'approved') {
-        navigate("/payment", { replace: true });
-        return;
-      }
+      console.log('Profile payment status:', {
+        payment_status: profile.payment_status,
+        payment_approval_status: profile.payment_approval_status,
+        role: profile.role
+      });
 
       // If we're already on the dashboard, don't redirect
       if (window.location.pathname === '/dashboard') {
@@ -47,6 +47,12 @@ export const useAuthRedirect = () => {
       // If user is paid and approved, redirect to dashboard
       if (profile.payment_status === 'paid' && profile.payment_approval_status === 'approved') {
         navigate("/dashboard", { replace: true });
+        return;
+      }
+
+      // Check if user is unpaid and redirect to payment page
+      if (profile.payment_status !== 'paid' || profile.payment_approval_status !== 'approved') {
+        navigate("/payment", { replace: true });
       }
     };
 

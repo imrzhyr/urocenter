@@ -40,8 +40,10 @@ export const useOnboarding = () => {
       const currentPath = window.location.pathname;
 
       // If user is paid and approved, redirect to dashboard unless they're already there
-      if (latestProfile.payment_status === 'paid' && latestProfile.payment_approval_status === 'approved' && currentPath !== '/dashboard') {
-        navigate("/dashboard");
+      if (latestProfile.payment_status === 'paid' && latestProfile.payment_approval_status === 'approved') {
+        if (currentPath !== '/dashboard') {
+          navigate("/dashboard");
+        }
         return true;
       }
 
