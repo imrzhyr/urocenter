@@ -50,7 +50,12 @@ export const MessageInput = ({
 
     try {
       const fileInfo = await uploadFile(file);
-      onSendMessage("", fileInfo, replyingTo || undefined);
+      onSendMessage("", {
+        url: fileInfo.url,
+        name: fileInfo.name,
+        type: fileInfo.type,
+        duration: fileInfo.duration
+      }, replyingTo || undefined);
       if (onCancelReply) {
         onCancelReply();
       }
