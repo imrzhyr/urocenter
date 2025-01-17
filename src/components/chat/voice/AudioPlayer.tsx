@@ -71,7 +71,8 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
         timestamp: new Date().toISOString()
       };
 
-      logger.error('AudioPlayer', 'Audio playback error', errorDetails);
+      // Create proper Error instance with the error message
+      const error = new Error(newAudio.error?.message || 'Audio playback error');
       
       setIsLoading(false);
       setIsPlaying(false);
@@ -79,29 +80,29 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
       // Detailed error handling based on specific error types
       switch (newAudio.error?.code) {
         case 1:
-          logger.error('AudioPlayer', 'Audio fetch aborted', errorDetails);
+          logger.error('AudioPlayer', 'Audio fetch aborted', error, errorDetails);
           toast.error('Audio loading was interrupted');
           break;
         case 2:
-          logger.error('AudioPlayer', 'Network error', errorDetails);
+          logger.error('AudioPlayer', 'Network error', error, errorDetails);
           toast.error('Network error while loading audio');
           break;
         case 3:
-          logger.error('AudioPlayer', 'Audio decoding error', errorDetails);
+          logger.error('AudioPlayer', 'Audio decoding error', error, errorDetails);
           toast.error('Error processing audio file');
           break;
         case 4:
-          logger.error('AudioPlayer', 'Audio format not supported', errorDetails);
+          logger.error('AudioPlayer', 'Audio format not supported', error, errorDetails);
           toast.error('Audio format not supported by your browser');
           break;
         default:
           if (newAudio.networkState === 3) {
-            logger.error('AudioPlayer', 'Network resource unavailable', errorDetails);
+            logger.error('AudioPlayer', 'Network resource unavailable', error, errorDetails);
             toast.error('Unable to load audio file');
             // Attempt to reload the audio
             newAudio.load();
           } else {
-            logger.error('AudioPlayer', 'Unknown audio error', errorDetails);
+            logger.error('AudioPlayer', 'Unknown audio error', error, errorDetails);
             toast.error('Unable to play this audio message');
           }
       }
@@ -122,11 +123,12 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
     try {
       newAudio.load();
     } catch (error) {
-      logger.error('AudioPlayer', 'Error loading audio', {
-        messageId,
-        error,
-        audioUrl
-      });
+      if (error instanceof Error) {
+        logger.error('AudioPlayer', 'Error loading audio', error, {
+          messageId,
+          audioUrl
+        });
+      }
     }
 
     return () => {
@@ -168,22 +170,24 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
           await playPromiseRef.current;
           setIsPlaying(true);
         } catch (error) {
-          logger.error('AudioPlayer', 'Error playing audio', {
-            messageId,
-            error,
-            audioUrl
-          });
+          if (error instanceof Error) {
+            logger.error('AudioPlayer', 'Error playing audio', error, {
+              messageId,
+              audioUrl
+            });
+          }
           toast.error('Failed to play audio');
           setIsPlaying(false);
         }
         setIsLoading(false);
       }
     } catch (error) {
-      logger.error('AudioPlayer', 'Error in togglePlayPause', {
-        messageId,
-        error,
-        audioUrl
-      });
+      if (error instanceof Error) {
+        logger.error('AudioPlayer', 'Error in togglePlayPause', error, {
+          messageId,
+          audioUrl
+        });
+      }
       setIsPlaying(false);
       setIsLoading(false);
       toast.error('Failed to play audio');
