@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { ImageViewer } from "../chat/media/ImageViewer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface PatientInfoCardProps {
   complaint: string;
@@ -36,6 +37,7 @@ export const PatientInfoCard = ({
   const [isResolvedState, setIsResolvedState] = useState(isResolved);
   const [reports, setReports] = useState<any[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   const handleResolveToggle = async () => {
     try {
@@ -47,10 +49,10 @@ export const PatientInfoCard = ({
       if (error) throw error;
 
       setIsResolvedState(!isResolvedState);
-      toast.success(isResolvedState ? "Chat marked as unresolved" : "Chat marked as resolved");
+      toast.success(isResolvedState ? t('chat_unresolved') : t('chat_resolved'));
     } catch (error) {
       console.error('Error updating resolution status:', error);
-      toast.error("Failed to update chat status");
+      toast.error(t('failed_resolve'));
     }
   };
 
@@ -81,24 +83,24 @@ export const PatientInfoCard = ({
       <CardContent className="space-y-4">
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <h3 className="font-medium">Full Name</h3>
-            <p>{fullName || "Not provided"}</p>
+            <h3 className="font-medium">{t('full_name')}</h3>
+            <p>{fullName || t('not_provided')}</p>
           </div>
           <div className="flex justify-between items-center">
-            <h3 className="font-medium">Age</h3>
-            <p>{age || "Not provided"}</p>
+            <h3 className="font-medium">{t('age')}</h3>
+            <p>{age || t('not_provided')}</p>
           </div>
           <div className="flex justify-between items-center">
-            <h3 className="font-medium">Gender</h3>
-            <p>{gender || "Not provided"}</p>
+            <h3 className="font-medium">{t('gender')}</h3>
+            <p>{gender || t('not_provided')}</p>
           </div>
           <div className="flex justify-between items-center">
-            <h3 className="font-medium">Phone</h3>
-            <p>{phone || "Not provided"}</p>
+            <h3 className="font-medium">{t('phone')}</h3>
+            <p>{phone || t('not_provided')}</p>
           </div>
           <div className="flex justify-between items-center">
-            <h3 className="font-medium">Member Since</h3>
-            <p>{createdAt ? format(new Date(createdAt), 'MMM d, yyyy') : "Not available"}</p>
+            <h3 className="font-medium">{t('member_since')}</h3>
+            <p>{createdAt ? format(new Date(createdAt), 'MMM d, yyyy') : t('not_provided')}</p>
           </div>
         </div>
 
@@ -112,8 +114,8 @@ export const PatientInfoCard = ({
             <TabsTrigger value="reports">{t('medical_reports')}</TabsTrigger>
           </TabsList>
           <TabsContent value="complaint" className="space-y-1">
-            <h3 className="font-medium">Complaint</h3>
-            <p className="text-sm text-muted-foreground">{complaint || "No complaint provided"}</p>
+            <h3 className="font-medium">{t('medical_complaint')}</h3>
+            <p className="text-sm text-muted-foreground">{complaint || t('no_complaint')}</p>
           </TabsContent>
           <TabsContent value="reports" className="space-y-4">
             {reports.length > 0 ? (
@@ -162,7 +164,7 @@ export const PatientInfoCard = ({
             ) : (
               <div className="text-center py-8 text-muted-foreground">
                 <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>No medical reports uploaded yet</p>
+                <p>{t('no_reports')}</p>
               </div>
             )}
           </TabsContent>
@@ -178,14 +180,14 @@ export const PatientInfoCard = ({
             }}
           >
             <FileText className="h-4 w-4" />
-            View Medical Reports ({reportsCount})
+            {t('view_reports')} ({reportsCount})
           </Button>
           <Button
             variant={isResolvedState ? "destructive" : "default"}
             className="w-full"
             onClick={handleResolveToggle}
           >
-            {isResolvedState ? "Mark as Unresolved" : "Mark as Resolved"}
+            {isResolvedState ? t('mark_unresolved') : t('mark_resolved')}
           </Button>
         </div>
 
