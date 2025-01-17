@@ -11,9 +11,6 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
   const { language, t } = useLanguage();
   const isRTL = language === 'ar';
 
-  // Ensure each step is properly translated
-  const translatedSteps = steps.map(step => t(step));
-
   return (
     <div className="w-full px-4">
       <div className="relative flex justify-between">
@@ -43,20 +40,19 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
 
         {/* Steps */}
         <div className="relative flex justify-between w-full" style={{ zIndex: 2 }}>
-          {translatedSteps.map((step, index) => (
+          {steps.map((step, index) => (
             <div
-              key={index}
-              className={cn(
-                "flex flex-col items-center",
-                isRTL ? "font-noto-sans-arabic" : ""
-              )}
+              key={step}
+              className="flex flex-col items-center"
             >
               <div
                 className={cn(
-                  "w-9 h-9 rounded-full flex items-center justify-center border-2 transition-colors duration-200",
-                  index <= currentStep
-                    ? "bg-primary border-primary text-white"
-                    : "bg-white border-gray-300 dark:bg-gray-900 dark:border-gray-700"
+                  "w-9 h-9 rounded-full flex items-center justify-center border-2 transition-all duration-300 bg-white dark:bg-gray-800",
+                  index < currentStep
+                    ? "border-primary bg-primary text-white"
+                    : index === currentStep
+                    ? "border-primary text-primary"
+                    : "border-gray-200 text-gray-400 dark:border-gray-600"
                 )}
               >
                 {index < currentStep ? (
@@ -67,10 +63,8 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
               </div>
               <span
                 className={cn(
-                  "mt-2 text-sm font-medium",
-                  index <= currentStep
-                    ? "text-primary"
-                    : "text-gray-500 dark:text-gray-400"
+                  "mt-2 text-xs font-medium transition-colors duration-300",
+                  index <= currentStep ? "text-primary" : "text-gray-400"
                 )}
               >
                 {step}
