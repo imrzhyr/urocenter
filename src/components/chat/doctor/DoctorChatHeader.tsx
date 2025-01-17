@@ -73,26 +73,33 @@ export const DoctorChatHeader = ({
 
   const handleResolve = async () => {
     try {
-      const { error } = await supabase
+      // First, update all messages for this user
+      const { error: updateError } = await supabase
         .from('messages')
         .update({ is_resolved: !chatStatus })
         .eq('user_id', patientId);
 
-      if (error) throw error;
+      if (updateError) throw updateError;
 
-      // Send a system message about the resolution status
-      const statusMessage = !chatStatus ? "Chat marked as resolved" : "Chat marked as unresolved";
-      await supabase
+      // Add a system message about the resolution status
+      const { error: insertError } = await supabase
         .from('messages')
         .insert({
-          content: statusMessage,
+          content: '',
           user_id: patientId,
           is_from_doctor: true,
           status: 'seen',
-          sender_name: 'System'
+          sender_name: 'System',
+          is_resolved: !chatStatus,
+          referenced_message: {
+            type: 'status',
+            content: !chatStatus ? 'Chat marked as resolved' : 'Chat marked as unresolved'
+          }
         });
 
-      toast.success(statusMessage);
+      if (insertError) throw insertError;
+
+      toast.success(!chatStatus ? "Chat marked as resolved" : "Chat marked as unresolved");
       queryClient.invalidateQueries({ queryKey: ['chat-status', patientId] });
       onRefresh();
     } catch (error) {
@@ -135,7 +142,9 @@ export const DoctorChatHeader = ({
           <Button
             variant="ghost"
             size="icon"
-            className="text-white hover:bg-white/20 h-8 w-8"
+            className={`text-white hover:bg-white/20 h-8 w-8 ${
+              chatStatus ? 'bg-purple-500 hover:bg-purple-600' : 'bg-red-500 hover:bg-red-600'
+            }`}
             onClick={handleResolve}
           >
             <CheckCircle className="h-5 w-5" />
