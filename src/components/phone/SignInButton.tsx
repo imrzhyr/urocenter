@@ -64,9 +64,11 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
       toast.success(t('signin_success'));
 
       // Check payment status and approval status
-      if (data.payment_status === 'unpaid' && data.payment_approval_status === 'pending') {
-        // If payment is pending approval, redirect to payment page which will show the waiting screen
-        navigate('/payment');
+      if (data.payment_status === 'unpaid' || 
+          (data.payment_status === 'unpaid' && data.payment_approval_status === 'pending') ||
+          (data.payment_method && data.payment_status === 'unpaid')) {
+        // If payment is pending approval or unpaid with a selected method, redirect to verification page
+        navigate('/payment-verification');
       } else if (data.payment_status !== 'paid') {
         // If no payment initiated yet, redirect to payment page to select payment method
         navigate('/payment');
