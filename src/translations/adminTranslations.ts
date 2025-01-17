@@ -20,6 +20,15 @@ export const adminTranslations = {
     "Resolved": "Resolved",
     "Last Message": "Last Message",
     "Unread Messages": "Unread Messages",
+    "Total Patients": "Total Patients",
+    "Total Messages": "Total Messages",
+    "Active Chats": "Active Chats",
+    "Payment Status": "Payment Status",
+    "Payment Method": "Payment Method",
+    "Payment Date": "Payment Date",
+    "Approve Payment": "Approve Payment",
+    "Reject Payment": "Reject Payment",
+    "View Details": "View Details"
   },
   ar: {
     "Statistics": "الإحصائيات",
@@ -42,5 +51,14 @@ export const adminTranslations = {
     "Resolved": "تم الحل",
     "Last Message": "آخر رسالة",
     "Unread Messages": "الرسائل غير المقروءة",
+    "Total Patients": "إجمالي المرضى",
+    "Total Messages": "إجمالي الرسائل",
+    "Active Chats": "المحادثات النشطة",
+    "Payment Status": "حالة الدفع",
+    "Payment Method": "طريقة الدفع",
+    "Payment Date": "تاريخ الدفع",
+    "Approve Payment": "الموافقة على الدفع",
+    "Reject Payment": "رفض الدفع",
+    "View Details": "عرض التفاصيل"
   }
 };
