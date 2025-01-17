@@ -42,14 +42,14 @@ export const uploadFile = async (file: File) => {
     // Upload file to Supabase storage with proper content type
     const { data, error } = await supabase.storage
       .from('chat_attachments')
-      .upload(filePath, fileToUpload, {
+      .upload(filePath, fileToUpload.slice(), {
         contentType: contentType,
         upsert: false,
         cacheControl: '3600'
       });
 
     if (error) {
-      logger.error('FileUpload', 'Upload error', error);
+      logger.error('FileUpload', 'Error uploading file:', error);
       throw error;
     }
 
