@@ -33,11 +33,8 @@ export const CallButton = ({ receiverId, recipientName, className }: CallButtonP
       return;
     }
 
-    console.log('Initiating call to:', receiverId, 'with name:', recipientName);
-
     try {
       await initiateCall(receiverId, recipientName);
-      console.log('Call initiated successfully');
     } catch (error) {
       console.error('Error initiating call:', error);
       toast.error('Failed to initiate call');
@@ -50,7 +47,6 @@ export const CallButton = ({ receiverId, recipientName, className }: CallButtonP
       className={className}
       variant="ghost"
       size="icon"
-      title="Start call"
     >
       <Phone className="h-4 w-4" />
     </Button>

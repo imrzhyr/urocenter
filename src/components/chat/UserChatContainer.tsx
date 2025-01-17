@@ -3,6 +3,7 @@ import { MessageContainer } from "./MessageContainer";
 import { PatientChatHeader } from "./patient/PatientChatHeader";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useChat } from "@/hooks/useChat";
+import { CallProvider } from "@/components/chat/call/CallProvider";
 
 export const UserChatContainer = () => {
   const { profile } = useProfile();
