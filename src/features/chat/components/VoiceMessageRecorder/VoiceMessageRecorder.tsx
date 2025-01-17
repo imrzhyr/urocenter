@@ -3,12 +3,15 @@ import { Button } from "@/components/ui/button";
 import { Mic, Square, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { uploadFile } from "@/utils/fileUpload";
+import { supabase } from "@/integrations/supabase/client";
+import { useProfile } from "@/hooks/useProfile";
 
 interface VoiceMessageRecorderProps {
-  onRecordingComplete: (fileInfo: { url: string; name: string; type: string; duration: number }) => void;
+  userId: string;
+  onRecordingComplete?: () => void;
 }
 
-export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecorderProps) => {
+export const VoiceMessageRecorder = ({ userId, onRecordingComplete }: VoiceMessageRecorderProps) => {
   const [isRecording, setIsRecording] = useState(false);
   const [duration, setDuration] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
@@ -18,6 +21,7 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
   const startTimeRef = useRef<number>(0);
   const audioContextRef = useRef<AudioContext>();
   const audioBufferRef = useRef<AudioBuffer>();
+  const { profile } = useProfile();
 
   const startRecording = async () => {
     try {
@@ -35,6 +39,7 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
       mediaRecorderRef.current.onstop = async () => {
         const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
         setIsUploading(true);
+        
         try {
           const arrayBuffer = await audioBlob.arrayBuffer();
           audioContextRef.current = new AudioContext();
@@ -43,16 +48,31 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
 
           const file = new File([audioBlob], `voice-message-${Date.now()}.webm`, { type: 'audio/webm' });
           const uploadedFile = await uploadFile(file);
-          
-          onRecordingComplete({
-            url: uploadedFile.url,
-            name: uploadedFile.name,
-            type: uploadedFile.type,
-            duration: audioDuration
-          });
+
+          // Create a new message in the messages table
+          const { error: messageError } = await supabase
+            .from('messages')
+            .insert({
+              content: 'Voice message',
+              user_id: userId,
+              is_from_doctor: profile?.role === 'admin',
+              file_url: uploadedFile.url,
+              file_name: uploadedFile.name,
+              file_type: 'audio/webm',
+              duration: audioDuration,
+              status: 'not_seen',
+              sender_name: profile?.full_name || 'Unknown User'
+            });
+
+          if (messageError) {
+            throw messageError;
+          }
+
+          onRecordingComplete?.();
+          toast.success('Voice message sent');
         } catch (error) {
           console.error('Error uploading voice message:', error);
-          toast.error('Failed to upload voice message');
+          toast.error('Failed to send voice message');
         } finally {
           setIsUploading(false);
           setDuration(0);
@@ -104,7 +124,7 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
             onClick={stopRecording}
             variant="ghost"
             size="icon"
-            className="h-10 w-10 bg-red-50 hover:bg-red-100"
+            className="h-10 w-10 bg-red-50 hover:bg-red-100 dark:bg-red-900/10 dark:hover:bg-red-900/20"
           >
             <Square className="h-5 w-5 text-red-500" />
           </Button>
