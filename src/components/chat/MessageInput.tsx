@@ -54,12 +54,12 @@ export const MessageInput = ({
   };
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="p-2 space-y-2">
       {replyingTo && (
         <ReplyPreview message={replyingTo} onCancelReply={onCancelReply} />
       )}
       
-      <div className="flex items-end gap-2">
+      <div className="flex items-end gap-1.5">
         <AttachmentButton
           onClick={() => {}}
           onFileSelect={(fileInfo) => {
