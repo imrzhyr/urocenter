@@ -21,7 +21,6 @@ export default {
       fontFamily: {
         sans: ["Nunito Sans", "sans-serif"],
         arabic: ["IBM Plex Sans Arabic", "sans-serif"],
-        round: ["Varela Round", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
