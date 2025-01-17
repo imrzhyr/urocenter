@@ -60,6 +60,30 @@ const Payment = () => {
     };
   }, [profile?.id, profile?.payment_status, profile?.payment_approval_status, navigate, refetch, t]);
 
+  const handleSupportContact = async () => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          payment_status: 'unpaid',
+          payment_approval_status: 'pending'
+        })
+        .eq('id', profile?.id);
+
+      if (error) throw error;
+
+      setIsContactingSupport(true);
+      setIsWaitingForApproval(true);
+      const message = encodeURIComponent(
+        `Hello, I would like to pay for UroCenter consultation using ${selectedMethod}. Please guide me through the payment process.`
+      );
+      window.open(`https://wa.me/9647702428154?text=${message}`, '_blank');
+    } catch (error) {
+      console.error('Error updating payment status:', error);
+      toast.error(t("Error updating payment status"));
+    }
+  };
+
   // If waiting for approval, show the waiting screen
   if (isWaitingForApproval) {
     return (
@@ -83,6 +107,10 @@ const Payment = () => {
         </motion.div>
       </div>
     );
+  }
+
+  if (isContactingSupport) {
+    return <PaymentLoadingScreen />;
   }
 
   return (
