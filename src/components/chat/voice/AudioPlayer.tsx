@@ -48,7 +48,7 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
       });
       setIsLoading(false);
       setIsPlaying(false);
-      toast.error('Failed to load audio. Please try again.');
+      toast.error('Unable to play this audio message. The format might not be supported by your browser.');
     };
 
     audio.addEventListener('canplay', handleCanPlay);
@@ -56,9 +56,15 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('error', handleError);
 
+    // Set audio properties
     audio.preload = 'auto';
     audio.crossOrigin = "anonymous";
-    audio.src = audioUrl;
+    
+    // Add source with type for better browser compatibility
+    const sourceElement = document.createElement('source');
+    sourceElement.src = audioUrl;
+    sourceElement.type = audioUrl.endsWith('webm') ? 'audio/webm' : 'audio/mpeg';
+    audio.appendChild(sourceElement);
     
     audioRef.current = audio;
     audio.load();
