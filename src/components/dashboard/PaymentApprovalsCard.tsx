@@ -1,46 +1,57 @@
 import { useEffect, useState } from "react";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { motion } from "framer-motion";
-import { Check } from "lucide-react";
-
-interface PendingPayment {
-  id: string;
-  full_name: string | null;
-  phone: string | null;
-  payment_status: string | null;
-  payment_approval_status: string | null;
-}
+import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { toast } from "sonner";
+import { Profile } from "@/types/profile";
 
 export const PaymentApprovalsCard = () => {
-  const [pendingPayments, setPendingPayments] = useState<PendingPayment[]>([]);
+  const [pendingPayments, setPendingPayments] = useState<Profile[]>([]);
   const { t } = useLanguage();
-  const { toast } = useToast();
 
   const fetchPendingPayments = async () => {
-    console.log('Fetching pending payments...');
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('id, full_name, phone, payment_status, payment_approval_status')
-      .eq('payment_status', 'unpaid')
-      .eq('payment_approval_status', 'pending')
-      .eq('role', 'patient')
-      .order('created_at', { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('payment_status', 'unpaid')
+        .eq('payment_approval_status', 'pending')
+        .not('payment_method', 'is', null) // Only include users who have selected a payment method
+        .order('created_at', { ascending: false });
 
-    if (error) {
+      if (error) throw error;
+      setPendingPayments(data || []);
+    } catch (error) {
       console.error('Error fetching pending payments:', error);
-      return;
+      toast.error(t('error_fetching_payments'));
     }
+  };
 
-    console.log('Pending payments fetched:', data);
-    setPendingPayments(data || []);
+  const handleApprovePayment = async (userId: string) => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          payment_status: 'paid',
+          payment_approval_status: 'approved',
+          payment_date: new Date().toISOString()
+        })
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      setPendingPayments(prev => prev.filter(payment => payment.id !== userId));
+      toast.success(t('payment_approved'));
+    } catch (error) {
+      console.error('Error approving payment:', error);
+      toast.error(t('error_approving_payment'));
+    }
   };
 
   useEffect(() => {
-    console.log('Setting up real-time subscription for payment approvals...');
+    fetchPendingPayments();
+
     const channel = supabase
       .channel('payment_approvals')
       .on(
@@ -49,109 +60,63 @@ export const PaymentApprovalsCard = () => {
           event: '*',
           schema: 'public',
           table: 'profiles',
-          filter: "payment_status=eq.unpaid AND payment_approval_status=eq.pending AND role=eq.patient"
+          filter: "payment_status=eq.unpaid AND payment_approval_status=eq.pending"
         },
         (payload) => {
-          console.log('Payment approval change received:', payload);
-          
-          if (payload.eventType === 'INSERT') {
-            const newPayment = payload.new as PendingPayment;
-            setPendingPayments(prev => [newPayment, ...prev]);
-          } else if (payload.eventType === 'UPDATE') {
-            // Remove the payment if it's no longer pending or unpaid
-            if (payload.new.payment_status === 'paid' || payload.new.payment_approval_status === 'approved') {
-              setPendingPayments(prev => 
-                prev.filter(payment => payment.id !== payload.old.id)
-              );
-            }
-          } else if (payload.eventType === 'DELETE') {
-            setPendingPayments(prev => 
-              prev.filter(payment => payment.id !== payload.old.id)
-            );
-          }
+          console.log('Payment status change received:', payload);
+          fetchPendingPayments();
         }
       )
       .subscribe((status) => {
         console.log('Subscription status:', status);
       });
 
-    // Initial fetch
-    fetchPendingPayments();
-
     return () => {
-      console.log('Cleaning up payment approvals subscription');
       supabase.removeChannel(channel);
     };
   }, []);
 
-  const handleApprovePayment = async (userId: string) => {
-    const { error } = await supabase
-      .from('profiles')
-      .update({ 
-        payment_status: 'paid',
-        payment_approval_status: 'approved',
-        payment_date: new Date().toISOString()
-      })
-      .eq('id', userId);
-
-    if (error) {
-      toast({
-        title: t("Error"),
-        description: t("Failed to approve payment"),
-        variant: "destructive",
-      });
-      return;
-    }
-
-    toast({
-      title: t("Success"),
-      description: t("Payment approved successfully"),
-    });
-
-    // Optimistically remove the payment from the list
-    setPendingPayments(prev => 
-      prev.filter(payment => payment.id !== userId)
+  if (pendingPayments.length === 0) {
+    return (
+      <Card className="p-6">
+        <h2 className="text-xl font-semibold mb-4 dark:text-white">
+          {t("Payment Approvals")}
+        </h2>
+        <p className="text-gray-600 dark:text-gray-400">
+          {t("No pending payment approvals")}
+        </p>
+      </Card>
     );
-  };
+  }
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle>{t("Payment Approvals")}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {pendingPayments.length === 0 ? (
-            <p className="text-center text-muted-foreground">
-              {t("No pending payment approvals")}
-            </p>
-          ) : (
-            <div className="grid gap-4">
-              {pendingPayments.map((payment) => (
-                <motion.div
-                  key={payment.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center justify-between p-4 bg-card rounded-lg border dark:border-gray-800"
-                >
-                  <div>
-                    <p className="font-medium">{payment.full_name || t("Unknown User")}</p>
-                    <p className="text-sm text-muted-foreground">{payment.phone}</p>
-                  </div>
-                  <Button
-                    size="sm"
-                    onClick={() => handleApprovePayment(payment.id)}
-                    className="bg-green-500 hover:bg-green-600 text-white"
-                  >
-                    <Check className="w-4 h-4 mr-1" />
-                    {t("Approve")}
-                  </Button>
-                </motion.div>
-              ))}
+    <Card className="p-6">
+      <h2 className="text-xl font-semibold mb-4 dark:text-white">
+        {t("Payment Approvals")}
+      </h2>
+      <div className="space-y-4">
+        {pendingPayments.map((payment) => (
+          <div
+            key={payment.id}
+            className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg"
+          >
+            <div>
+              <p className="font-medium dark:text-white">
+                {payment.full_name || payment.phone}
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {t("Payment Method")}: {payment.payment_method}
+              </p>
             </div>
-          )}
-        </div>
-      </CardContent>
+            <Button
+              onClick={() => handleApprovePayment(payment.id)}
+              variant="default"
+            >
+              {t("Approve")}
+            </Button>
+          </div>
+        ))}
+      </div>
     </Card>
   );
 };
