@@ -45,7 +45,7 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
         .select('*')
         .eq('phone', formattedPhone)
         .eq('password', password)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Sign in error:", error);
@@ -57,6 +57,8 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
         toast.error(t('invalid_credentials'));
         return;
       }
+
+      console.log("Fetched profile:", profile);
 
       // Update the profile state with all the data
       setState({ 
