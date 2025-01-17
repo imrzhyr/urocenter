@@ -3,8 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Mic, Square, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { uploadFile } from "@/utils/fileUpload";
-import { supabase } from "@/integrations/supabase/client";
-import { useProfile } from "@/hooks/useProfile";
+import { logger } from "@/utils/logger";
 
 interface VoiceMessageRecorderProps {
   userId: string;
@@ -19,33 +18,46 @@ export const VoiceMessageRecorder = ({ userId, onRecordingComplete }: VoiceMessa
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout>();
   const startTimeRef = useRef<number>(0);
-  const audioContextRef = useRef<AudioContext>();
-  const audioBufferRef = useRef<AudioBuffer>();
-  const { profile } = useProfile();
 
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
         audio: {
           channelCount: 1,
-          sampleRate: 48000,
+          sampleRate: 44100,
           echoCancellation: true,
           noiseSuppression: true
         } 
       });
       
-      // Use OGG container with Opus codec
-      const mimeType = 'audio/ogg; codecs=opus';
+      // Try different audio formats in order of preference
+      const mimeTypes = [
+        'audio/mp3',
+        'audio/mpeg',
+        'audio/webm',
+        'audio/wav'
+      ];
       
-      if (!MediaRecorder.isTypeSupported(mimeType)) {
-        throw new Error('OGG audio format with Opus codec is not supported in this browser');
+      let selectedMimeType = '';
+      for (const mimeType of mimeTypes) {
+        if (MediaRecorder.isTypeSupported(mimeType)) {
+          selectedMimeType = mimeType;
+          break;
+        }
+      }
+      
+      if (!selectedMimeType) {
+        throw new Error('No supported audio format found');
       }
 
-      console.log('Using audio format:', mimeType);
+      logger.info('VoiceRecorder', 'Starting recording with format', {
+        selectedFormat: selectedMimeType,
+        browser: navigator.userAgent
+      });
       
       mediaRecorderRef.current = new MediaRecorder(stream, {
-        mimeType: mimeType,
-        audioBitsPerSecond: 128000 // Set bitrate to 128kbps for good quality
+        mimeType: selectedMimeType,
+        audioBitsPerSecond: 128000 // 128kbps for good quality
       });
       
       chunksRef.current = [];
@@ -58,49 +70,34 @@ export const VoiceMessageRecorder = ({ userId, onRecordingComplete }: VoiceMessa
       };
 
       mediaRecorderRef.current.onstop = async () => {
-        const audioBlob = new Blob(chunksRef.current, { type: mimeType });
+        const audioBlob = new Blob(chunksRef.current, { type: selectedMimeType });
         
         setIsUploading(true);
         
         try {
-          const file = new File([audioBlob], `voice-message-${Date.now()}.ogg`, { 
-            type: mimeType
+          const fileExtension = selectedMimeType.split('/')[1];
+          const file = new File([audioBlob], `voice-message-${Date.now()}.${fileExtension}`, { 
+            type: selectedMimeType
           });
           
-          const uploadedFile = await uploadFile(file);
+          logger.info('VoiceRecorder', 'Recording completed', {
+            duration: Math.round((Date.now() - startTimeRef.current) / 1000),
+            fileSize: file.size,
+            mimeType: file.type
+          });
+          
+          const fileInfo = await uploadFile(file);
           const audioDuration = Math.round((Date.now() - startTimeRef.current) / 1000);
           
-          // Create a new message in the messages table
-          const { error: messageError } = await supabase
-            .from('messages')
-            .insert({
-              content: 'Voice message',
-              user_id: userId,
-              is_from_doctor: profile?.role === 'admin',
-              file_url: uploadedFile.url,
-              file_name: uploadedFile.name,
-              file_type: mimeType,
-              duration: audioDuration,
-              status: 'not_seen',
-              sender_name: profile?.full_name || 'Unknown User'
-            });
-
-          if (messageError) {
-            throw messageError;
-          }
-
           onRecordingComplete?.();
-          toast.success('Voice message sent');
         } catch (error) {
-          console.error('Error uploading voice message:', error);
-          toast.error('Failed to send voice message');
+          logger.error('VoiceRecorder', 'Failed to upload voice message', error instanceof Error ? error : new Error('Unknown error'));
+          toast.error('Failed to upload voice message');
         } finally {
           setIsUploading(false);
           setDuration(0);
-          if (audioContextRef.current) {
-            audioContextRef.current.close();
-          }
         }
+
         stream.getTracks().forEach(track => track.stop());
       };
 
@@ -117,8 +114,8 @@ export const VoiceMessageRecorder = ({ userId, onRecordingComplete }: VoiceMessa
         });
       }, 1000);
     } catch (error) {
-      console.error('Error starting recording:', error);
-      toast.error('Failed to access microphone');
+      logger.error('VoiceRecorder', 'Failed to start recording', error instanceof Error ? error : new Error('Failed to access microphone'));
+      toast.error('Failed to access microphone. Please check your browser permissions.');
     }
   };
 
@@ -145,7 +142,7 @@ export const VoiceMessageRecorder = ({ userId, onRecordingComplete }: VoiceMessa
             onClick={stopRecording}
             variant="ghost"
             size="icon"
-            className="h-10 w-10 bg-red-50 hover:bg-red-100 dark:bg-red-900/10 dark:hover:bg-red-900/20"
+            className="h-10 w-10 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30"
           >
             <Square className="h-5 w-5 text-red-500" />
           </Button>
