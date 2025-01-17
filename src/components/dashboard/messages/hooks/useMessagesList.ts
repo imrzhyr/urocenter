@@ -10,6 +10,12 @@ export const useMessagesList = () => {
   const { profile } = useProfile();
 
   const fetchMessages = async () => {
+    if (!profile?.id) {
+      console.log('No profile ID found, skipping fetch');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       console.log('Fetching messages for admin list');
       
@@ -82,29 +88,31 @@ export const useMessagesList = () => {
   };
 
   useEffect(() => {
-    fetchMessages();
+    if (profile?.id) {
+      fetchMessages();
 
-    // Subscribe to message updates
-    const channel = supabase
-      .channel('messages_changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'messages'
-        },
-        () => {
-          console.log('Messages updated, refetching...');
-          fetchMessages();
-        }
-      )
-      .subscribe();
+      // Subscribe to message updates
+      const channel = supabase
+        .channel('messages_changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'messages'
+          },
+          () => {
+            console.log('Messages updated, refetching...');
+            fetchMessages();
+          }
+        )
+        .subscribe();
 
-    return () => {
-      console.log('Cleaning up subscription');
-      supabase.removeChannel(channel);
-    };
+      return () => {
+        console.log('Cleaning up subscription');
+        supabase.removeChannel(channel);
+      };
+    }
   }, [profile?.id]);
 
   return {
