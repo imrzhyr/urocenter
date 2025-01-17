@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PhoneInput } from "@/components/PhoneInput";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { motion } from "framer-motion";
@@ -8,6 +8,12 @@ const SignUp = () => {
   const [phone, setPhone] = useState("");
   const { t } = useLanguage();
   const navigate = useNavigate();
+
+  // Clear any existing user data when entering signup
+  useEffect(() => {
+    localStorage.removeItem('userPhone');
+    localStorage.removeItem('userPassword');
+  }, []);
 
   const handleSignUpSuccess = () => {
     navigate("/profile", { replace: true });
