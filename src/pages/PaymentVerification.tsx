@@ -33,10 +33,10 @@ export const PaymentVerification = () => {
           <LogOut className={cn("h-5 w-5", isRTL ? "ml-2" : "mr-2")} />
           {t("sign_out")}
         </Button>
-        <div className="flex items-center gap-4">
+        <div className="flex-1 flex justify-center items-center">
           <WhatsAppSupport />
-          <LanguageSelector />
         </div>
+        <LanguageSelector />
       </div>
 
       <motion.div

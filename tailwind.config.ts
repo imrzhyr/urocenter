@@ -20,7 +20,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ["Nunito Sans", "sans-serif"],
-        arabic: ["IBM Plex Sans Arabic", "sans-serif"],
+        arabic: ["Noto Sans Arabic", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
