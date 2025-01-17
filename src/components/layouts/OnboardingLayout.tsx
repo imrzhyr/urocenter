@@ -28,7 +28,6 @@ export const OnboardingLayout = () => {
   const { language, t } = useLanguage();
   const { profile } = useProfile();
 
-  // Updated to use the correct translation keys from progressTranslations
   const steps = [
     t("create_account"),
     t("complete_profile"),
@@ -38,7 +37,6 @@ export const OnboardingLayout = () => {
 
   // Calculate completed step based on profile data and current path
   const getCompletedStep = () => {
-    // If no profile exists or we're starting a new journey from signup, return 0
     if (!profile || location.pathname === '/signup') return 0;
     
     if (profile.payment_status === 'paid') return 3;
