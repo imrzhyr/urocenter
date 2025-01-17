@@ -49,7 +49,8 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
         return;
       }
 
-      const error = new Error(audio.error?.message || 'Audio playback error');
+      const errorMessage = audio.error?.message || 'Audio playback error';
+      const error = new Error(errorMessage);
       const errorDetails = {
         messageId,
         errorCode: audio.error?.code,
@@ -63,7 +64,7 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
       setIsLoading(false);
       setIsPlaying(false);
       
-      logger.error('AudioPlayer', 'Audio playback error', errorDetails, error);
+      logger.error('AudioPlayer', errorMessage, error, errorDetails);
       toast.error('Unable to play audio message');
     };
 
