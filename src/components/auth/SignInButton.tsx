@@ -55,7 +55,11 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
         navigate('/admin');
       } else if (data.payment_status === 'paid' && data.payment_approval_status === 'approved') {
         navigate('/dashboard');
+      } else if (data.payment_status === 'unpaid' && data.payment_approval_status === 'pending') {
+        // If payment is pending approval, redirect to payment page which will show the waiting screen
+        navigate('/payment');
       } else {
+        // If no payment initiated yet, redirect to payment page to select payment method
         navigate('/payment');
       }
     } catch (error) {
