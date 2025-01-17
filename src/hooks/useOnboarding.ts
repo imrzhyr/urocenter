@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { useProfile } from "./useProfile";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
+import { formatPhoneNumber } from "@/utils/phoneUtils";
 
 export const useOnboarding = () => {
   const navigate = useNavigate();
@@ -19,11 +20,14 @@ export const useOnboarding = () => {
         return false;
       }
 
+      // Format the phone number consistently
+      const formattedPhone = formatPhoneNumber(userPhone);
+
       // Fetch the latest profile data directly from Supabase
       const { data: latestProfile, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('phone', userPhone)
+        .eq('phone', formattedPhone)
         .maybeSingle();
 
       if (error) {
@@ -32,6 +36,7 @@ export const useOnboarding = () => {
       }
 
       if (!latestProfile) {
+        console.log('No profile found');
         return false;
       }
 
@@ -41,6 +46,7 @@ export const useOnboarding = () => {
 
       // If user is paid and approved, redirect to dashboard unless they're already there
       if (latestProfile.payment_status === 'paid' && latestProfile.payment_approval_status === 'approved') {
+        console.log('User is paid and approved');
         if (currentPath !== '/dashboard') {
           navigate("/dashboard");
         }
