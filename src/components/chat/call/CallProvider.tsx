@@ -32,6 +32,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
   const { profile } = useProfile();
   const recipientNameRef = useRef<string>('');
   const notificationRef = useRef<Notification | null>(null);
+  
   const {
     isInCall,
     setIsInCall,
@@ -55,10 +56,23 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     joinChannel,
     leaveChannel,
     toggleMute,
-    toggleSpeaker
+    toggleSpeaker,
+    isConnected
   } = useAgoraCall({
     currentCallId,
-    profileId: profile?.id
+    profileId: profile?.id,
+    onConnectionStateChange: (state) => {
+      console.log('Connection state changed:', state);
+      if (state === 'CONNECTED') {
+        setIsInCall(true);
+        setIsCalling(false);
+        startDurationTimer();
+      } else if (state === 'DISCONNECTED') {
+        setIsInCall(false);
+        setIsCalling(false);
+        stopDurationTimer();
+      }
+    }
   });
 
   useEffect(() => {
@@ -107,7 +121,6 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
 
       clearCallTimeout();
       setCurrentCallId(callId);
-      setIsInCall(true);
       setIncomingCall(null);
       setIsCallEnded(false);
 
@@ -117,8 +130,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       await updateCallStatus(callId, 'active');
-      startDurationTimer();
-      toast.success('Call connected');
+      console.log('Call accepted and active');
     } catch (error) {
       console.error('Error accepting call:', error);
       toast.error('Failed to accept call');
@@ -144,6 +156,8 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       await leaveChannel();
       setIsCallEnded(true);
       stopDurationTimer();
+      setIsInCall(false);
+      setIsCalling(false);
 
       const { data: callData } = await supabase
         .from('calls')
@@ -216,6 +230,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       setCurrentCallId(call.id);
       recipientNameRef.current = recipientName;
       setIsCalling(true);
+      setIsCallEnded(false);
 
       const joined = await joinChannel(call.id);
       if (!joined) {
@@ -224,6 +239,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error) {
       console.error('Error in initiateCall:', error);
       toast.error('Failed to start call');
+      setIsCalling(false);
     }
   };
 
@@ -253,7 +269,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
             open={!!incomingCall}
           />
         )}
-        {isCalling && <CallingUI recipientName={recipientNameRef.current} />}
+        {isCalling && !isInCall && <CallingUI recipientName={recipientNameRef.current} />}
         {isInCall && <ActiveCallUI />}
       </Portal>
     </CallContext.Provider>
