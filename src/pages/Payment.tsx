@@ -15,6 +15,7 @@ const Payment = () => {
   const { t } = useLanguage();
   const { profile, refetch } = useProfile();
   const [isWaitingForApproval, setIsWaitingForApproval] = useState(false);
+  const [hasContactedSupport, setHasContactedSupport] = useState(false);
 
   useEffect(() => {
     const checkPaymentStatus = async () => {
@@ -38,10 +39,9 @@ const Payment = () => {
         return;
       }
 
-      // Only show waiting screen if payment_approval_status is pending AND payment_status is unpaid
-      // This ensures new users don't see the waiting screen immediately
-      if (data.payment_approval_status === 'pending' && data.payment_status === 'unpaid') {
-        console.log('User has contacted support, showing waiting screen');
+      // Only show waiting screen if user has contacted support AND payment is pending
+      if (hasContactedSupport && data.payment_approval_status === 'pending' && data.payment_status === 'unpaid') {
+        console.log('User has contacted support and payment is pending, showing waiting screen');
         setIsWaitingForApproval(true);
       }
 
@@ -81,8 +81,6 @@ const Payment = () => {
             toast.success(t("Payment Approved - You can now chat with Dr. Ali Kamal"));
             await refetch();
             navigate('/dashboard', { replace: true });
-          } else if (payload.new.payment_approval_status === 'pending' && payload.new.payment_status === 'unpaid') {
-            setIsWaitingForApproval(true);
           }
         }
       )
@@ -94,7 +92,7 @@ const Payment = () => {
       console.log('Cleaning up subscription');
       supabase.removeChannel(channel);
     };
-  }, [navigate, refetch, t]);
+  }, [navigate, refetch, t, hasContactedSupport]);
 
   const handleSupportContact = async () => {
     try {
@@ -108,6 +106,7 @@ const Payment = () => {
 
       if (error) throw error;
 
+      setHasContactedSupport(true);
       setIsWaitingForApproval(true);
       const message = encodeURIComponent(
         `Hello, I would like to pay for UroCenter consultation using ${selectedMethod}. Please guide me through the payment process.`
@@ -119,8 +118,8 @@ const Payment = () => {
     }
   };
 
-  // If waiting for approval, show the waiting screen
-  if (isWaitingForApproval) {
+  // If waiting for approval AND has contacted support, show the waiting screen
+  if (isWaitingForApproval && hasContactedSupport) {
     return <PaymentLoadingScreen />;
   }
 
