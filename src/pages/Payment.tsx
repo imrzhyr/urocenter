@@ -39,11 +39,15 @@ const Payment = () => {
         return;
       }
 
+      // If payment is approved, redirect to dashboard
+      if (data.payment_status === 'paid' && data.payment_approval_status === 'approved') {
+        navigate('/dashboard', { replace: true }); // Use replace to prevent back navigation
+        return;
+      }
+
+      // If payment is pending, show waiting screen
       if (data.payment_status === 'unpaid' && data.payment_approval_status === 'pending') {
         setIsWaitingForApproval(true);
-      } else if (data.payment_status === 'paid' && data.payment_approval_status === 'approved') {
-        toast.success(t("Payment Approved - You can now chat with Dr. Ali Kamal"));
-        navigate('/dashboard');
       }
     };
 
@@ -65,7 +69,7 @@ const Payment = () => {
           
           // If user is admin, redirect to admin dashboard
           if (payload.new.role === 'admin') {
-            navigate('/admin');
+            navigate('/admin', { replace: true });
             return;
           }
 
@@ -73,7 +77,7 @@ const Payment = () => {
           if (payload.new.payment_status === 'paid' && payload.new.payment_approval_status === 'approved') {
             toast.success(t("Payment Approved - You can now chat with Dr. Ali Kamal"));
             await refetch();
-            navigate('/dashboard');
+            navigate('/dashboard', { replace: true }); // Use replace to prevent back navigation
           } else if (payload.new.payment_status === 'unpaid' && payload.new.payment_approval_status === 'pending') {
             setIsWaitingForApproval(true);
           }
