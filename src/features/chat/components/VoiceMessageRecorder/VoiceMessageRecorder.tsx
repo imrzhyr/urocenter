@@ -25,8 +25,29 @@ export const VoiceMessageRecorder = ({ userId, onRecordingComplete }: VoiceMessa
 
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          channelCount: 1,
+          sampleRate: 48000,
+          echoCancellation: true,
+          noiseSuppression: true
+        } 
+      });
+      
+      // Use OGG container with Opus codec
+      const mimeType = 'audio/ogg; codecs=opus';
+      
+      if (!MediaRecorder.isTypeSupported(mimeType)) {
+        throw new Error('OGG audio format with Opus codec is not supported in this browser');
+      }
+
+      console.log('Using audio format:', mimeType);
+      
+      mediaRecorderRef.current = new MediaRecorder(stream, {
+        mimeType: mimeType,
+        audioBitsPerSecond: 128000 // Set bitrate to 128kbps for good quality
+      });
+      
       chunksRef.current = [];
       startTimeRef.current = Date.now();
 
@@ -37,18 +58,18 @@ export const VoiceMessageRecorder = ({ userId, onRecordingComplete }: VoiceMessa
       };
 
       mediaRecorderRef.current.onstop = async () => {
-        const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        const audioBlob = new Blob(chunksRef.current, { type: mimeType });
+        
         setIsUploading(true);
         
         try {
-          const arrayBuffer = await audioBlob.arrayBuffer();
-          audioContextRef.current = new AudioContext();
-          audioBufferRef.current = await audioContextRef.current.decodeAudioData(arrayBuffer);
-          const audioDuration = Math.round(audioBufferRef.current.duration);
-
-          const file = new File([audioBlob], `voice-message-${Date.now()}.webm`, { type: 'audio/webm' });
+          const file = new File([audioBlob], `voice-message-${Date.now()}.ogg`, { 
+            type: mimeType
+          });
+          
           const uploadedFile = await uploadFile(file);
-
+          const audioDuration = Math.round((Date.now() - startTimeRef.current) / 1000);
+          
           // Create a new message in the messages table
           const { error: messageError } = await supabase
             .from('messages')
@@ -58,7 +79,7 @@ export const VoiceMessageRecorder = ({ userId, onRecordingComplete }: VoiceMessa
               is_from_doctor: profile?.role === 'admin',
               file_url: uploadedFile.url,
               file_name: uploadedFile.name,
-              file_type: 'audio/webm',
+              file_type: mimeType,
               duration: audioDuration,
               status: 'not_seen',
               sender_name: profile?.full_name || 'Unknown User'

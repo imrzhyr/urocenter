@@ -19,13 +19,13 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
   const playPromiseRef = useRef<Promise<void> | null>(null);
 
   useEffect(() => {
-    // Check browser compatibility
+    // Check browser compatibility for OGG Opus
     const audio = new Audio();
-    const isWebmSupported = audio.canPlayType('audio/webm; codecs="opus"') !== "";
-    setIsSupported(isWebmSupported);
+    const isOggOpusSupported = audio.canPlayType('audio/ogg; codecs=opus') !== "";
+    setIsSupported(isOggOpusSupported);
 
-    if (!isWebmSupported) {
-      logger.warn('AudioPlayer', 'WebM audio format not supported', {
+    if (!isOggOpusSupported) {
+      logger.warn('AudioPlayer', 'OGG Opus format not supported', {
         browser: navigator.userAgent,
         messageId,
         audioUrl
@@ -42,7 +42,7 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
         duration: newAudio.duration,
         readyState: newAudio.readyState,
         networkState: newAudio.networkState,
-        type: 'audio/webm',
+        type: 'audio/ogg; codecs=opus',
         browser: navigator.userAgent,
         audioUrl
       });
@@ -57,15 +57,15 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
       setCurrentTime(0);
     };
 
-    const handleError = (e: ErrorEvent) => {
+    const handleError = () => {
       const errorDetails = {
         messageId,
-        errorCode: newAudio.error?.code,
-        errorMessage: newAudio.error?.message,
+        errorCode: newAudio.error?.code || 0,
+        errorMessage: newAudio.error?.message || 'Unknown error',
         networkState: newAudio.networkState,
         readyState: newAudio.readyState,
         currentSrc: newAudio.currentSrc,
-        type: 'audio/webm',
+        type: 'audio/ogg; codecs=opus',
         browser: navigator.userAgent,
         audioUrl,
         timestamp: new Date().toISOString()
