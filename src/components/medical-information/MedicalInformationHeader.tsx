@@ -8,7 +8,7 @@ export const MedicalInformationHeader = ({ uploadCount }: MedicalInformationHead
   const { t } = useLanguage();
   
   return (
-    <div className="space-y-2 bg-white">
+    <div className="space-y-2 bg-white dark:bg-gray-800">
       <h1 className="text-2xl font-semibold tracking-tight">
         {t("medical_information_title")}
       </h1>

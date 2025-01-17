@@ -18,7 +18,7 @@ const MedicalInformation = () => {
 
   const handleCameraCapture = () => {
     if (!profile?.id) {
-      toast.error("Please complete your profile first");
+      toast.error(t("complete_profile_first"));
       return;
     }
 
@@ -38,7 +38,7 @@ const MedicalInformation = () => {
 
   const handleFileSelect = () => {
     if (!profile?.id) {
-      toast.error("Please complete your profile first");
+      toast.error(t("complete_profile_first"));
       return;
     }
 
