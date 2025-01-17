@@ -14,7 +14,7 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
   const [currentTime, setCurrentTime] = useState(0);
   const [audioDuration, setAudioDuration] = useState(duration);
   const [progress, setProgress] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -114,13 +114,16 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
           return;
         }
 
+        setIsLoading(true);
         await audio.play();
         setIsPlaying(true);
+        setIsLoading(false);
       }
     } catch (error) {
       console.error('Playback error:', error);
       toast.error('Unable to play voice message. Please try again.');
       setIsPlaying(false);
+      setIsLoading(false);
     }
   };
 
