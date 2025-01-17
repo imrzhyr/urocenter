@@ -5,6 +5,7 @@ import { LanguageSelector } from "@/components/LanguageSelector";
 import { BackButton } from "@/components/BackButton";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { WhatsAppSupport } from "@/components/WhatsAppSupport";
+import { useProfile } from "@/hooks/useProfile";
 
 const steps = ["Sign Up", "Profile", "Medical Info", "Payment"];
 
@@ -27,6 +28,17 @@ export const OnboardingLayout = () => {
   const location = useLocation();
   const currentStep = getStepFromPath(location.pathname);
   const { language } = useLanguage();
+  const { profile } = useProfile();
+
+  // Calculate completed steps based on profile data
+  const getCompletedStep = () => {
+    if (!profile) return 0;
+    
+    if (profile.payment_status === 'paid') return 3;
+    if (profile.full_name && profile.gender && profile.age) return 2;
+    if (profile.phone) return 1;
+    return 0;
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -37,7 +49,10 @@ export const OnboardingLayout = () => {
           <LanguageSelector />
         </div>
         <div className="container max-w-4xl mx-auto px-4 pb-6">
-          <ProgressSteps steps={steps} currentStep={currentStep} />
+          <ProgressSteps 
+            steps={steps} 
+            currentStep={Math.max(currentStep, getCompletedStep())} 
+          />
         </div>
       </header>
 

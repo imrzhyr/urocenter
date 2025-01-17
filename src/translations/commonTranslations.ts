@@ -1,6 +1,10 @@
 export const commonTranslations = {
   en: {
-    // General Actions
+    "please_sign_in_first": "Please sign in first",
+    "complete_signup_first": "Please complete the sign up process first",
+    "complete_profile_first": "Please complete your profile information first",
+    "complete_medical_info_first": "Please complete your medical information first",
+    "complete_payment_first": "Please complete your payment first",
     "loading": "Loading...",
     "error": "Error",
     "success": "Success",
@@ -62,7 +66,11 @@ export const commonTranslations = {
     "ltr_mode": "Left to Right Mode"
   },
   ar: {
-    // General Actions
+    "please_sign_in_first": "الرجاء تسجيل الدخول أولاً",
+    "complete_signup_first": "الرجاء إكمال عملية التسجيل أولاً",
+    "complete_profile_first": "الرجاء إكمال معلومات ملفك الشخصي أولاً",
+    "complete_medical_info_first": "الرجاء إكمال معلوماتك الطبية أولاً",
+    "complete_payment_first": "الرجاء إكمال عملية الدفع أولاً",
     "loading": "جاري التحميل...",
     "error": "خطأ",
     "success": "نجاح",
