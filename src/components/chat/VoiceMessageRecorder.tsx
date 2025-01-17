@@ -23,7 +23,7 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaRecorderRef.current = new MediaRecorder(stream, {
-        mimeType: 'audio/webm'
+        mimeType: 'audio/webm;codecs=opus'
       });
       chunksRef.current = [];
       startTimeRef.current = Date.now();
@@ -35,20 +35,22 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
       };
 
       mediaRecorderRef.current.onstop = async () => {
-        const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
-        setIsUploading(true);
         try {
+          const audioBlob = new Blob(chunksRef.current, { 
+            type: 'audio/webm;codecs=opus' 
+          });
+          
           // Get audio duration
           const arrayBuffer = await audioBlob.arrayBuffer();
           audioContextRef.current = new AudioContext();
           audioBufferRef.current = await audioContextRef.current.decodeAudioData(arrayBuffer);
           const audioDuration = Math.round(audioBufferRef.current.duration);
 
+          setIsUploading(true);
           const file = new File([audioBlob], `voice-message-${Date.now()}.webm`, { 
-            type: 'audio/webm'
+            type: 'audio/webm;codecs=opus'
           });
           
-          console.log('Created file with type:', file.type);
           const uploadedFile = await uploadFile(file);
           
           onRecordingComplete({

@@ -15,8 +15,12 @@ export const uploadFile = async (file: File) => {
     // Create a new File object with explicit MIME type for WebM audio
     let uploadFile = file;
     if (file.name.endsWith('.webm')) {
-      const audioBlob = new Blob([await file.arrayBuffer()], { type: 'audio/webm' });
-      uploadFile = new File([audioBlob], file.name, { type: 'audio/webm' });
+      const audioBlob = new Blob([await file.arrayBuffer()], { 
+        type: 'audio/webm;codecs=opus'
+      });
+      uploadFile = new File([audioBlob], file.name, { 
+        type: 'audio/webm;codecs=opus'
+      });
     }
 
     console.log('Uploading file with content type:', uploadFile.type);
@@ -26,6 +30,7 @@ export const uploadFile = async (file: File) => {
       .from('chat_attachments')
       .upload(filePath, uploadFile, {
         contentType: uploadFile.type,
+        duplex: 'half',
         upsert: false
       });
 
