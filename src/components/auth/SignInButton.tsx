@@ -52,16 +52,22 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
 
       // Check role and payment status for redirection
       if (data.role === 'admin') {
-        navigate('/admin');
-      } else if (data.payment_status === 'paid' && data.payment_approval_status === 'approved') {
-        navigate('/dashboard');
-      } else if (data.payment_status === 'unpaid' && data.payment_approval_status === 'pending') {
-        // If payment is pending approval, redirect to payment page which will show the waiting screen
-        navigate('/payment');
-      } else {
-        // If no payment initiated yet, redirect to payment page to select payment method
-        navigate('/payment');
+        navigate('/admin', { replace: true });
+        return;
       }
+
+      // If payment is approved, go directly to dashboard
+      if (data.payment_status === 'paid' && data.payment_approval_status === 'approved') {
+        navigate('/dashboard', { replace: true });
+        return;
+      }
+
+      // Only redirect to payment if not paid or pending approval
+      if (data.payment_status !== 'paid') {
+        navigate('/payment', { replace: true });
+        return;
+      }
+
     } catch (error) {
       console.error('Sign in error:', error);
       toast.error(t('signin_error'));
