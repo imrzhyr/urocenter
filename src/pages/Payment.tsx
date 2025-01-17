@@ -45,8 +45,8 @@ const Payment = () => {
         return;
       }
 
-      // Show waiting screen if payment is pending OR if payment status is unpaid but approval status is pending
-      if (data.payment_approval_status === 'pending') {
+      // Only show waiting screen if user has contacted support
+      if (isContactingSupport && data.payment_approval_status === 'pending') {
         setIsWaitingForApproval(true);
       }
     };
@@ -78,7 +78,7 @@ const Payment = () => {
             toast.success(t("Payment Approved - You can now chat with Dr. Ali Kamal"));
             await refetch();
             navigate('/dashboard', { replace: true });
-          } else if (payload.new.payment_approval_status === 'pending') {
+          } else if (isContactingSupport && payload.new.payment_approval_status === 'pending') {
             setIsWaitingForApproval(true);
           }
         }
@@ -88,7 +88,7 @@ const Payment = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [navigate, refetch, t]);
+  }, [navigate, refetch, t, isContactingSupport]);
 
   const handleSupportContact = async () => {
     try {
