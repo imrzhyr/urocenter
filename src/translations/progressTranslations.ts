@@ -35,6 +35,10 @@ export const progressTranslations = {
     "continue": "متابعة",
     "back": "رجوع",
     "skip": "تخطي",
-    "finish": "إنهاء"
+    "finish": "إنهاء",
+    "sign_up": "إنشاء حساب",
+    "profile": "الملف الشخصي",
+    "medical_info": "المعلومات الطبية",
+    "payment": "الدفع"
   }
 };

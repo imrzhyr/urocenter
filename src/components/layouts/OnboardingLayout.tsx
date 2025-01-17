@@ -7,8 +7,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { WhatsAppSupport } from "@/components/WhatsAppSupport";
 import { useProfile } from "@/hooks/useProfile";
 
-const steps = ["Sign Up", "Profile", "Medical Info", "Payment"];
-
 const getStepFromPath = (pathname: string) => {
   switch (pathname) {
     case "/signup":
@@ -27,8 +25,15 @@ const getStepFromPath = (pathname: string) => {
 export const OnboardingLayout = () => {
   const location = useLocation();
   const currentStep = getStepFromPath(location.pathname);
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const { profile } = useProfile();
+
+  const steps = [
+    t("sign_up"),
+    t("profile"),
+    t("medical_info"),
+    t("payment")
+  ];
 
   // Calculate completed step based on profile data and current path
   const getCompletedStep = () => {

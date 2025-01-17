@@ -67,6 +67,15 @@ export const paymentTranslations = {
     "help_center": "مركز المساعدة",
     "select": "اختيار",
     "selected": "تم الاختيار",
-    "contact_support": "تواصل مع الدعم"
+    "contact_support": "تواصل مع الدعم",
+    "amount_to_pay": "المبلغ المطلوب دفعه",
+    "medical_consultation_fee": "رسوم الاستشارة الطبية",
+    "choose_payment_method": "اختر طريقة الدفع المفضلة لديك",
+    "iraqi_electronic_payment": "بطاقة الدفع الإلكتروني العراقية",
+    "fast_digital_payments": "مدفوعات رقمية سريعة",
+    "first_iraqi_bank": "المصرف العراقي الأول",
+    "mobile_wallet_zain": "المحفظة الإلكترونية من زين العراق",
+    "support_available": "فريق الدعم متاح على مدار الساعة",
+    "contact_for_payment": "تواصل مع الدعم للدفع"
   }
 };
