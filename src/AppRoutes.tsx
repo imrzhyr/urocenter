@@ -7,6 +7,7 @@ import SignUp from "@/pages/SignUp";
 import Welcome from "@/pages/Welcome";
 import MedicalInformation from "@/pages/MedicalInformation";
 import Payment from "@/pages/Payment";
+import PaymentVerification from "@/pages/PaymentVerification";
 import Settings from "@/pages/Settings";
 import AdminDashboard from "@/pages/AdminDashboard";
 import AdminStatistics from "@/pages/AdminStatistics";
@@ -43,6 +44,10 @@ const router = createBrowserRouter([
         element: <Payment />,
       },
     ],
+  },
+  {
+    path: "/payment-verification",
+    element: <PaymentVerification />,
   },
   {
     path: "/dashboard",

@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
 import { ChevronRight } from "lucide-react";
-import { PaymentLoadingScreen } from "@/components/payment/PaymentLoadingScreen";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
 import { motion } from "framer-motion";
@@ -14,85 +13,6 @@ const Payment = () => {
   const [selectedMethod, setSelectedMethod] = useState("");
   const { t } = useLanguage();
   const { profile, refetch } = useProfile();
-  const [isWaitingForApproval, setIsWaitingForApproval] = useState(false);
-  const [hasContactedSupport, setHasContactedSupport] = useState(false);
-
-  useEffect(() => {
-    const checkPaymentStatus = async () => {
-      const userPhone = localStorage.getItem('userPhone');
-      if (!userPhone) return;
-
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('payment_status, payment_approval_status, role')
-        .eq('phone', userPhone)
-        .single();
-
-      if (error) {
-        console.error('Error checking payment status:', error);
-        return;
-      }
-
-      // If user is admin, redirect to admin dashboard
-      if (data.role === 'admin') {
-        navigate('/admin');
-        return;
-      }
-
-      // Only show waiting screen if user has contacted support AND payment is pending
-      if (hasContactedSupport && data.payment_approval_status === 'pending' && data.payment_status === 'unpaid') {
-        console.log('User has contacted support and payment is pending, showing waiting screen');
-        setIsWaitingForApproval(true);
-      }
-
-      // If payment is approved, redirect to dashboard
-      if (data.payment_status === 'paid' && data.payment_approval_status === 'approved') {
-        console.log('Payment approved, redirecting to dashboard');
-        navigate('/dashboard', { replace: true });
-        return;
-      }
-    };
-
-    checkPaymentStatus();
-
-    // Subscribe to real-time updates with improved error handling
-    const channel = supabase
-      .channel('payment_status_changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'profiles',
-          filter: `phone=eq.${localStorage.getItem('userPhone')}`,
-        },
-        async (payload: any) => {
-          console.log('Payment status changed:', payload);
-          
-          // If user is admin, redirect to admin dashboard
-          if (payload.new.role === 'admin') {
-            navigate('/admin', { replace: true });
-            return;
-          }
-
-          // Check if payment was just approved
-          if (payload.new.payment_status === 'paid' && payload.new.payment_approval_status === 'approved') {
-            console.log('Payment just approved, redirecting to dashboard');
-            toast.success(t("Payment Approved - You can now chat with Dr. Ali Kamal"));
-            await refetch();
-            navigate('/dashboard', { replace: true });
-          }
-        }
-      )
-      .subscribe((status) => {
-        console.log('Subscription status:', status);
-      });
-
-    return () => {
-      console.log('Cleaning up subscription');
-      supabase.removeChannel(channel);
-    };
-  }, [navigate, refetch, t, hasContactedSupport]);
 
   const handleSupportContact = async () => {
     try {
@@ -100,28 +20,28 @@ const Payment = () => {
         .from('profiles')
         .update({
           payment_status: 'unpaid',
-          payment_approval_status: 'pending'
+          payment_approval_status: 'pending',
+          payment_method: selectedMethod
         })
         .eq('id', profile?.id);
 
       if (error) throw error;
 
-      setHasContactedSupport(true);
-      setIsWaitingForApproval(true);
       const message = encodeURIComponent(
         `Hello, I would like to pay for UroCenter consultation using ${selectedMethod}. Please guide me through the payment process.`
       );
+      
+      // Open WhatsApp in a new tab
       window.open(`https://wa.me/9647702428154?text=${message}`, '_blank');
+      
+      // Navigate to the verification page
+      navigate('/payment-verification', { replace: true });
+      
     } catch (error) {
       console.error('Error updating payment status:', error);
       toast.error(t("Error updating payment status"));
     }
   };
-
-  // If waiting for approval AND has contacted support, show the waiting screen
-  if (isWaitingForApproval && hasContactedSupport) {
-    return <PaymentLoadingScreen />;
-  }
 
   return (
     <div className="flex-1 flex flex-col items-center">
