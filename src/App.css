@@ -17,11 +17,8 @@ body {
 }
 
 /* RTL Support */
-[dir="rtl"] {
-  font-family: 'Noto Sans Arabic', sans-serif;
-}
-
 [dir="rtl"] * {
+  font-family: 'Noto Sans Arabic', sans-serif !important;
   letter-spacing: 0;
 }
 
