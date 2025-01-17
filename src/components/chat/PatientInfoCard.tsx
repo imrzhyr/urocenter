@@ -102,7 +102,11 @@ export const PatientInfoCard = ({
           </div>
         </div>
 
-        <Tabs defaultValue="complaint" className="w-full">
+        <Tabs defaultValue="complaint" className="w-full" onValueChange={(value) => {
+          if (value === "reports") {
+            fetchReports();
+          }
+        }}>
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="complaint">Complaint</TabsTrigger>
             <TabsTrigger value="reports">Medical Reports</TabsTrigger>
