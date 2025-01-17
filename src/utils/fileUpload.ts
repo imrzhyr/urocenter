@@ -16,16 +16,22 @@ export const uploadFile = async (file: File) => {
       filePath
     });
 
-    // Create a new Blob with the correct MIME type for audio files
-    const fileBlob = file.type.startsWith('audio/') 
-      ? new Blob([await file.arrayBuffer()], { type: 'audio/mpeg' })
-      : file;
+    // For audio files, ensure we're using the correct MIME type and format
+    let contentType = file.type;
+    let fileToUpload = file;
+
+    if (file.type.startsWith('audio/')) {
+      // Convert audio to proper format
+      const audioBuffer = await file.arrayBuffer();
+      fileToUpload = new Blob([audioBuffer], { type: 'audio/mpeg' });
+      contentType = 'audio/mpeg';
+    }
 
     // Upload file to Supabase storage with proper content type
     const { data, error } = await supabase.storage
       .from('chat_attachments')
-      .upload(filePath, fileBlob, {
-        contentType: file.type.startsWith('audio/') ? 'audio/mpeg' : file.type,
+      .upload(filePath, fileToUpload, {
+        contentType: contentType,
         upsert: false,
         cacheControl: '3600'
       });
