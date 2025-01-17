@@ -10,13 +10,15 @@ import { cn } from "@/lib/utils";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { WhatsAppSupport } from "@/components/WhatsAppSupport";
 import { toast } from "sonner";
+import { useProfileState } from "@/hooks/useProfileState";
 
 export const PaymentVerification = () => {
   const { t, isRTL } = useLanguage();
   const navigate = useNavigate();
+  const { profile, setState } = useProfileState();
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    localStorage.removeItem('userPhone');
     navigate('/', { replace: true });
   };
 
@@ -29,9 +31,9 @@ export const PaymentVerification = () => {
           return;
         }
 
-        const { data: profile, error } = await supabase
+        const { data: profileData, error } = await supabase
           .from('profiles')
-          .select('payment_status, payment_approval_status')
+          .select('*')
           .eq('phone', userPhone)
           .single();
 
@@ -39,12 +41,20 @@ export const PaymentVerification = () => {
           throw error;
         }
 
-        console.log('Payment status check:', profile);
+        if (profileData) {
+          setState({ profile: profileData });
+          console.log('Latest profile data:', profileData);
 
-        if (profile?.payment_status === 'paid' && profile?.payment_approval_status === 'approved') {
-          console.log('Payment approved, redirecting to dashboard');
-          toast.success(t('payment_approved'));
-          navigate('/dashboard', { replace: true });
+          const isPaid = profileData.payment_status === 'paid';
+          const isApproved = profileData.payment_approval_status === 'approved';
+          
+          console.log('Payment verification:', { isPaid, isApproved });
+
+          if (isPaid && isApproved) {
+            console.log('Payment approved, redirecting to dashboard');
+            toast.success(t('payment_approved'));
+            navigate('/dashboard', { replace: true });
+          }
         }
       } catch (error) {
         console.error('Error checking payment status:', error);
@@ -55,10 +65,7 @@ export const PaymentVerification = () => {
     checkPaymentStatus();
 
     // Set up polling interval
-    const pollingInterval = setInterval(() => {
-      console.log('Polling for payment status...');
-      checkPaymentStatus();
-    }, 3000); // Poll every 3 seconds
+    const pollingInterval = setInterval(checkPaymentStatus, 3000);
 
     // Set up real-time subscription
     const channel = supabase
@@ -71,21 +78,18 @@ export const PaymentVerification = () => {
           table: 'profiles',
           filter: `phone=eq.${localStorage.getItem('userPhone')}`
         },
-        (payload) => {
+        async (payload) => {
           console.log('Profile update received:', payload);
-          checkPaymentStatus();
+          await checkPaymentStatus();
         }
       )
-      .subscribe((status) => {
-        console.log('Subscription status:', status);
-      });
+      .subscribe();
 
     return () => {
-      console.log('Cleaning up payment verification subscription and polling...');
       clearInterval(pollingInterval);
       supabase.removeChannel(channel);
     };
-  }, [navigate, t]);
+  }, [navigate, t, setState]);
 
   return (
     <div className="fixed inset-0 w-full h-full flex flex-col bg-gradient-to-br from-blue-50 to-blue-100 dark:from-[#1A1F2C] dark:to-[#2D3748]">
