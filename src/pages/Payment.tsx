@@ -86,30 +86,6 @@ const Payment = () => {
 
   // If waiting for approval, show the waiting screen
   if (isWaitingForApproval) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center space-y-6 max-w-md"
-        >
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            {t("Waiting for Payment Approval")}
-          </h1>
-          <p className="text-gray-600 dark:text-gray-300">
-            {t("Your payment is being reviewed by our team. Once approved, you'll be able to access the dashboard and chat with Dr. Ali Kamal.")}
-          </p>
-          <div className="animate-pulse flex justify-center">
-            <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center">
-              <div className="w-8 h-8 bg-blue-500/40 rounded-full" />
-            </div>
-          </div>
-        </motion.div>
-      </div>
-    );
-  }
-
-  if (isContactingSupport) {
     return <PaymentLoadingScreen />;
   }
 
