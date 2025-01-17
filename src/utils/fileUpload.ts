@@ -23,7 +23,13 @@ export const uploadFile = async (file: File) => {
     if (file.type.startsWith('audio/')) {
       // Convert audio to proper format
       const audioBuffer = await file.arrayBuffer();
-      fileToUpload = new Blob([audioBuffer], { type: 'audio/mpeg' });
+      const blob = new Blob([audioBuffer], { type: 'audio/mpeg' });
+      
+      // Create a new File object from the Blob
+      fileToUpload = new File([blob], file.name, {
+        type: 'audio/mpeg',
+        lastModified: file.lastModified
+      });
       contentType = 'audio/mpeg';
     }
 
