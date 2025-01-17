@@ -23,13 +23,18 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioUrl, duration }) 
     audio.addEventListener('loadedmetadata', () => {
       console.log('Audio metadata loaded:', {
         duration: audio.duration,
-        src: audio.src,
-        type: audio.type
+        src: audio.src
       });
     });
 
     audio.addEventListener('error', (e) => {
-      console.error('Audio loading error:', e);
+      const error = e.currentTarget as HTMLAudioElement;
+      console.error('Audio loading error:', {
+        error: error.error,
+        networkState: error.networkState,
+        readyState: error.readyState,
+        src: error.src
+      });
       toast.error('Failed to load audio file');
     });
 
@@ -75,10 +80,21 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioUrl, duration }) 
       } else {
         // Check if the audio is supported
         if (audioRef.current.error) {
-          console.error('Audio error:', audioRef.current.error);
+          console.error('Audio error:', {
+            error: audioRef.current.error,
+            networkState: audioRef.current.networkState,
+            readyState: audioRef.current.readyState,
+            src: audioRef.current.src
+          });
           toast.error('This audio format is not supported');
           return;
         }
+        
+        console.log('Attempting to play audio:', {
+          src: audioRef.current.src,
+          readyState: audioRef.current.readyState,
+          networkState: audioRef.current.networkState
+        });
         
         const playPromise = audioRef.current.play();
         if (playPromise !== undefined) {
