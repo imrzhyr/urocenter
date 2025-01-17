@@ -12,7 +12,6 @@ import { motion } from "framer-motion";
 const Payment = () => {
   const navigate = useNavigate();
   const [selectedMethod, setSelectedMethod] = useState("");
-  const [isContactingSupport, setIsContactingSupport] = useState(false);
   const { t } = useLanguage();
   const { profile, refetch } = useProfile();
   const [isWaitingForApproval, setIsWaitingForApproval] = useState(false);
@@ -45,8 +44,8 @@ const Payment = () => {
         return;
       }
 
-      // Only show waiting screen if user has contacted support
-      if (isContactingSupport && data.payment_approval_status === 'pending') {
+      // Show waiting screen if payment_approval_status is pending
+      if (data.payment_approval_status === 'pending') {
         setIsWaitingForApproval(true);
       }
     };
@@ -78,7 +77,7 @@ const Payment = () => {
             toast.success(t("Payment Approved - You can now chat with Dr. Ali Kamal"));
             await refetch();
             navigate('/dashboard', { replace: true });
-          } else if (isContactingSupport && payload.new.payment_approval_status === 'pending') {
+          } else if (payload.new.payment_approval_status === 'pending') {
             setIsWaitingForApproval(true);
           }
         }
@@ -88,7 +87,7 @@ const Payment = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [navigate, refetch, t, isContactingSupport]);
+  }, [navigate, refetch, t]);
 
   const handleSupportContact = async () => {
     try {
@@ -102,7 +101,6 @@ const Payment = () => {
 
       if (error) throw error;
 
-      setIsContactingSupport(true);
       setIsWaitingForApproval(true);
       const message = encodeURIComponent(
         `Hello, I would like to pay for UroCenter consultation using ${selectedMethod}. Please guide me through the payment process.`
