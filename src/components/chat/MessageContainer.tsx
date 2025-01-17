@@ -66,6 +66,7 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
           replyingTo={replyingTo}
           onCancelReply={() => setReplyingTo(null)}
           onTyping={onTyping}
+          userId={userId}
         />
       </div>
     </div>
