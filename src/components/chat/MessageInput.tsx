@@ -50,11 +50,7 @@ export const MessageInput = ({
 
     try {
       const fileInfo = await uploadFile(file);
-      onSendMessage("", {
-        url: fileInfo.url,
-        name: fileInfo.name,
-        type: fileInfo.type
-      }, replyingTo || undefined);
+      onSendMessage("", fileInfo, replyingTo || undefined);
       if (onCancelReply) {
         onCancelReply();
       }
@@ -90,11 +86,11 @@ export const MessageInput = ({
             isLoading={isLoading} 
           />
           <VoiceRecorder 
-            onRecordingComplete={(audioInfo) => onSendMessage("", {
-              url: audioInfo.url,
-              name: audioInfo.name,
-              type: audioInfo.type,
-              duration: audioInfo.duration
+            onRecordingComplete={(audioUrl, duration) => onSendMessage("", {
+              url: audioUrl,
+              name: `voice-message-${Date.now()}.webm`,
+              type: 'audio/webm',
+              duration
             })} 
           />
         </div>
