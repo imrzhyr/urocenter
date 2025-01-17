@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Play, Pause, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { logger } from "@/utils/logger";
 
 interface AudioPlayerProps {
   audioUrl: string;
@@ -24,7 +25,11 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
     setIsSupported(isWebmSupported);
 
     if (!isWebmSupported) {
-      console.warn('WebM audio format is not supported in this browser');
+      logger.warn('AudioPlayer', 'WebM audio format not supported', {
+        browser: navigator.userAgent,
+        messageId,
+        audioUrl
+      });
       toast.error('Your browser may not support this audio format');
     }
 
@@ -32,11 +37,14 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
     
     const handleCanPlay = () => {
       setIsLoading(false);
-      console.log('Audio ready to play:', {
+      logger.info('AudioPlayer', 'Audio ready to play', {
+        messageId,
         duration: newAudio.duration,
         readyState: newAudio.readyState,
         networkState: newAudio.networkState,
-        type: 'audio/webm'
+        type: 'audio/webm',
+        browser: navigator.userAgent,
+        audioUrl
       });
     };
 
@@ -50,25 +58,52 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
     };
 
     const handleError = (e: ErrorEvent) => {
-      console.error('Audio error:', {
-        error: newAudio.error,
+      const errorDetails = {
+        messageId,
+        errorCode: newAudio.error?.code,
+        errorMessage: newAudio.error?.message,
         networkState: newAudio.networkState,
         readyState: newAudio.readyState,
         currentSrc: newAudio.currentSrc,
-        type: 'webm'
-      });
+        type: 'audio/webm',
+        browser: navigator.userAgent,
+        audioUrl,
+        timestamp: new Date().toISOString()
+      };
+
+      logger.error('AudioPlayer', 'Audio playback error', errorDetails);
+      
       setIsLoading(false);
       setIsPlaying(false);
       
-      // Check specific error types
-      if (newAudio.error?.code === 4) {
-        toast.error('Audio format not supported by your browser');
-      } else if (newAudio.networkState === 3) {
-        toast.error('Unable to load audio file');
-        // Attempt to reload the audio
-        newAudio.load();
-      } else {
-        toast.error('Unable to play this audio message');
+      // Detailed error handling based on specific error types
+      switch (newAudio.error?.code) {
+        case 1:
+          logger.error('AudioPlayer', 'Audio fetch aborted', errorDetails);
+          toast.error('Audio loading was interrupted');
+          break;
+        case 2:
+          logger.error('AudioPlayer', 'Network error', errorDetails);
+          toast.error('Network error while loading audio');
+          break;
+        case 3:
+          logger.error('AudioPlayer', 'Audio decoding error', errorDetails);
+          toast.error('Error processing audio file');
+          break;
+        case 4:
+          logger.error('AudioPlayer', 'Audio format not supported', errorDetails);
+          toast.error('Audio format not supported by your browser');
+          break;
+        default:
+          if (newAudio.networkState === 3) {
+            logger.error('AudioPlayer', 'Network resource unavailable', errorDetails);
+            toast.error('Unable to load audio file');
+            // Attempt to reload the audio
+            newAudio.load();
+          } else {
+            logger.error('AudioPlayer', 'Unknown audio error', errorDetails);
+            toast.error('Unable to play this audio message');
+          }
       }
     };
 
@@ -87,7 +122,11 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
     try {
       newAudio.load();
     } catch (error) {
-      console.error('Error loading audio:', error);
+      logger.error('AudioPlayer', 'Error loading audio', {
+        messageId,
+        error,
+        audioUrl
+      });
     }
 
     return () => {
@@ -105,7 +144,7 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
       newAudio.src = '';
       audioRef.current = null;
     };
-  }, [audioUrl]);
+  }, [audioUrl, messageId]);
 
   const togglePlayPause = async () => {
     if (!audioRef.current || isLoading) return;
@@ -129,14 +168,22 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
           await playPromiseRef.current;
           setIsPlaying(true);
         } catch (error) {
-          console.error('Error playing audio:', error);
+          logger.error('AudioPlayer', 'Error playing audio', {
+            messageId,
+            error,
+            audioUrl
+          });
           toast.error('Failed to play audio');
           setIsPlaying(false);
         }
         setIsLoading(false);
       }
     } catch (error) {
-      console.error('Error in togglePlayPause:', error);
+      logger.error('AudioPlayer', 'Error in togglePlayPause', {
+        messageId,
+        error,
+        audioUrl
+      });
       setIsPlaying(false);
       setIsLoading(false);
       toast.error('Failed to play audio');
