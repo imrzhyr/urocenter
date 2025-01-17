@@ -17,6 +17,8 @@ const PaymentVerification = () => {
   useEffect(() => {
     if (!profile) return;
 
+    let hasRedirected = false;
+
     console.log('Setting up payment verification polling and subscription...');
     
     // Set up polling interval
@@ -24,9 +26,10 @@ const PaymentVerification = () => {
       console.log('Polling for payment status...');
       await refetch();
       
-      if (profile.payment_status === 'paid' && 
+      if (!hasRedirected && profile.payment_status === 'paid' && 
           profile.payment_approval_status === 'approved') {
         console.log('Payment approved (via polling), redirecting to dashboard...');
+        hasRedirected = true;
         toast.success(t('payment_approved'));
         navigate('/dashboard', { replace: true });
       }
@@ -47,9 +50,10 @@ const PaymentVerification = () => {
           console.log('Payment status change received:', payload);
           const updatedProfile = payload.new;
           
-          if (updatedProfile.payment_status === 'paid' && 
+          if (!hasRedirected && updatedProfile.payment_status === 'paid' && 
               updatedProfile.payment_approval_status === 'approved') {
             console.log('Payment approved (via subscription), redirecting to dashboard...');
+            hasRedirected = true;
             await refetch();
             toast.success(t('payment_approved'));
             navigate('/dashboard', { replace: true });
@@ -64,9 +68,10 @@ const PaymentVerification = () => {
     const checkInitialStatus = async () => {
       await refetch();
       
-      if (profile.payment_status === 'paid' && 
+      if (!hasRedirected && profile.payment_status === 'paid' && 
           profile.payment_approval_status === 'approved') {
         console.log('Payment already approved, redirecting to dashboard...');
+        hasRedirected = true;
         toast.success(t('payment_approved'));
         navigate('/dashboard', { replace: true });
       }

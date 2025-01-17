@@ -27,8 +27,15 @@ const Payment = () => {
 
       if (error) throw error;
 
+      const paymentMethods = {
+        qicard: "Qi Card",
+        fastpay: "FastPay",
+        fib: "First Iraqi Bank",
+        zaincash: "ZainCash"
+      };
+
       const message = encodeURIComponent(
-        `Hello, I would like to pay for UroCenter consultation using ${selectedMethod}. Please guide me through the payment process.`
+        t("payment_message").replace("{method}", paymentMethods[selectedMethod as keyof typeof paymentMethods])
       );
       
       // Open WhatsApp in a new tab

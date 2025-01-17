@@ -7,7 +7,7 @@ export const paymentTranslations = {
     "payment_date": "Payment Date",
     "payment_success": "Payment Successful",
     "payment_error": "Payment Error",
-    "payment_pending": "Payment Pending",
+    "payment_pending": "Your payment is pending approval",
     "payment_cancelled": "Payment Cancelled",
     "pay_now": "Pay Now",
     "processing_payment": "Processing Payment...",
@@ -22,7 +22,9 @@ export const paymentTranslations = {
     "payment_history": "Payment History",
     "no_payment_history": "No payment history found",
     "payment_required": "Payment Required",
-    "complete_payment": "Please complete the payment to continue"
+    "complete_payment": "Please complete the payment to continue",
+    "payment_approved": "Your payment has been approved successfully!",
+    "payment_message": "Hello, I would like to pay for UroCenter consultation using {method}. Please guide me through the payment process.",
   },
   ar: {
     "payment": "الدفع",
@@ -32,7 +34,7 @@ export const paymentTranslations = {
     "payment_date": "تاريخ الدفع",
     "payment_success": "تم الدفع بنجاح",
     "payment_error": "خطأ في الدفع",
-    "payment_pending": "الدفع قيد الانتظار",
+    "payment_pending": "دفعتك في انتظار الموافقة",
     "payment_cancelled": "تم إلغاء الدفع",
     "pay_now": "ادفع الآن",
     "processing_payment": "جاري معالجة الدفع...",
@@ -47,6 +49,8 @@ export const paymentTranslations = {
     "payment_history": "سجل الدفع",
     "no_payment_history": "لم يتم العثور على سجل دفع",
     "payment_required": "الدفع مطلوب",
-    "complete_payment": "يرجى إكمال عملية الدفع للمتابعة"
+    "complete_payment": "يرجى إكمال عملية الدفع للمتابعة",
+    "payment_approved": "تمت الموافقة على دفعتك بنجاح!",
+    "payment_message": "مرحباً، أود الدفع مقابل استشارة مركز المسالك البولية باستخدام {method}. يرجى إرشادي خلال عملية الدفع.",
   }
 };
