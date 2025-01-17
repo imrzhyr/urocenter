@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { MessagesCard } from "@/components/dashboard/MessagesCard";
-import { PaymentApprovalsCard } from "@/components/dashboard/PaymentApprovalsCard";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { AdminNavigation } from "@/components/dashboard/admin/AdminNavigation";
 import { motion } from "framer-motion";
@@ -44,7 +43,6 @@ const AdminDashboard = () => {
           className="space-y-8"
         >
           <MessagesCard />
-          <PaymentApprovalsCard />
         </motion.div>
       </main>
       <AdminNavigation />
