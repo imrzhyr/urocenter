@@ -58,16 +58,9 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
 
     // Set audio properties
     audio.preload = 'auto';
-    audio.crossOrigin = "anonymous";
-    
-    // Add source with type for better browser compatibility
-    const sourceElement = document.createElement('source');
-    sourceElement.src = audioUrl;
-    sourceElement.type = audioUrl.endsWith('webm') ? 'audio/webm' : 'audio/mpeg';
-    audio.appendChild(sourceElement);
+    audio.src = audioUrl;
     
     audioRef.current = audio;
-    audio.load();
 
     return () => {
       if (playPromiseRef.current) {
