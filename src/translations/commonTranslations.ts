@@ -34,14 +34,26 @@ export const commonTranslations = {
     // Welcome Page
     "uro_center": "Uro Center",
     "doctor_name": "Dr. Ali Kamal",
-    "doctor_title": "Consultant Urologist & Andrologist",
+    "doctor_title": "Consultant Urologist",
     "expert_care": "Expert Medical Care",
     "specialized_treatment": "Specialized treatment for urological conditions",
     "direct_communication": "Direct Communication",
     "connect_with_doctor": "Connect directly with your doctor",
     "start_journey": "Begin Your Medical Journey",
     "already_have_account": "Already have an account?",
-    "sign_in": "Sign In"
+    "sign_in": "Sign In",
+    
+    // Settings translations
+    "settings": "Settings",
+    "appearance": "Appearance",
+    "dark_mode": "Dark Mode",
+    "language": "Language",
+    "select_language": "Select Language",
+    "notifications": "Notifications",
+    "push_notifications": "Push Notifications",
+    "help": "Help & Support",
+    "about": "About",
+    "logout": "Logout"
   },
   ar: {
     "please_sign_in_first": "الرجاء تسجيل الدخول للمتابعة",
@@ -78,13 +90,25 @@ export const commonTranslations = {
     // Welcome Page
     "uro_center": "مركز المسالك البولية",
     "doctor_name": "د. علي كمال",
-    "doctor_title": "استشاري المسالك البولية وأمراض الذكورة",
+    "doctor_title": "استشاري المسالك البولية",
     "expert_care": "رعاية طبية متخصصة",
     "specialized_treatment": "علاج متخصص لأمراض المسالك البولية",
     "direct_communication": "تواصل مباشر",
     "connect_with_doctor": "تواصل مباشرة مع طبيبك",
     "start_journey": "ابدأ رحلتك العلاجية",
     "already_have_account": "لديك حساب بالفعل؟",
-    "sign_in": "تسجيل الدخول"
+    "sign_in": "تسجيل الدخول",
+    
+    // Settings translations
+    "settings": "الإعدادات",
+    "appearance": "المظهر",
+    "dark_mode": "الوضع الداكن",
+    "language": "اللغة",
+    "select_language": "اختر اللغة",
+    "notifications": "الإشعارات",
+    "push_notifications": "إشعارات الدفع",
+    "help": "المساعدة والدعم",
+    "about": "حول التطبيق",
+    "logout": "تسجيل الخروج"
   }
 };

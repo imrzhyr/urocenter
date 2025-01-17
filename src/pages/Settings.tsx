@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Globe, Bell, User, Shield, Lock, HelpCircle, Info, LogOut } from "lucide-react";
+import { Moon, Sun, Globe, Bell, HelpCircle, Info, LogOut } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSelector } from "@/components/LanguageSelector";
@@ -33,21 +33,6 @@ const Settings = () => {
   };
 
   const settingsSections = [
-    {
-      icon: User,
-      title: t('account'),
-      onClick: () => navigate('/profile')
-    },
-    {
-      icon: Shield,
-      title: t('security'),
-      onClick: () => {}
-    },
-    {
-      icon: Lock,
-      title: t('privacy'),
-      onClick: () => {}
-    },
     {
       icon: HelpCircle,
       title: t('help'),
