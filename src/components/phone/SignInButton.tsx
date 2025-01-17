@@ -45,7 +45,7 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
         .select('*')
         .eq('phone', formattedPhone)
         .eq('password', password)
-        .maybeSingle();
+        .single();
 
       if (error) {
         console.error("Sign in error:", error);
@@ -58,8 +58,22 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
         return;
       }
 
-      // Update the profile state
-      setState({ profile });
+      // Update the profile state with all the data
+      setState({ 
+        profile: {
+          id: profile.id,
+          full_name: profile.full_name || "",
+          gender: profile.gender || "",
+          age: profile.age || "",
+          complaint: profile.complaint || "",
+          phone: profile.phone || "",
+          role: profile.role || "patient",
+          payment_status: profile.payment_status || "unpaid",
+          payment_approval_status: profile.payment_approval_status || "pending",
+          payment_method: profile.payment_method,
+          payment_date: profile.payment_date
+        }
+      });
       
       localStorage.setItem('userPhone', formattedPhone);
       toast.success(t('signin_success'));
