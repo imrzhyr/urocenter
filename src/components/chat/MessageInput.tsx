@@ -56,15 +56,17 @@ export const MessageInput = ({
   return (
     <div className="p-4 space-y-4">
       {replyingTo && (
-        <ReplyPreview message={replyingTo} onCancel={onCancelReply} />
+        <ReplyPreview message={replyingTo} onCancelReply={onCancelReply} />
       )}
       
       <div className="flex items-end gap-2">
         <AttachmentButton
+          onClick={() => {}}
           onFileSelect={(fileInfo) => {
             onSendMessage("", fileInfo, replyingTo || undefined);
             onCancelReply?.();
           }}
+          isLoading={isLoading}
         />
         
         <TextArea
@@ -90,6 +92,7 @@ export const MessageInput = ({
         
         <SendButton
           onClick={handleSend}
+          isLoading={isLoading}
           disabled={isLoading || !message.trim()}
         />
       </div>
