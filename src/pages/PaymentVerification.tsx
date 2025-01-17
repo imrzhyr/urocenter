@@ -1,92 +1,16 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { LanguageSelector } from "@/components/LanguageSelector";
-import { WhatsAppSupport } from "@/components/WhatsAppSupport";
-import { supabase } from "@/integrations/supabase/client";
-import { useProfile } from "@/hooks/useProfile";
-import { toast } from "sonner";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
 
-const PaymentVerification = () => {
+export const PaymentVerification = () => {
+  const { t, isRTL } = useLanguage();
   const navigate = useNavigate();
-  const { t } = useLanguage();
-  const { profile, refetch } = useProfile();
-
-  useEffect(() => {
-    if (!profile) return;
-
-    let hasRedirected = false;
-
-    console.log('Setting up payment verification polling and subscription...');
-    
-    // Set up polling interval
-    const pollingInterval = setInterval(async () => {
-      console.log('Polling for payment status...');
-      await refetch();
-      
-      if (!hasRedirected && profile.payment_status === 'paid' && 
-          profile.payment_approval_status === 'approved') {
-        console.log('Payment approved (via polling), redirecting to dashboard...');
-        hasRedirected = true;
-        toast.success(t('payment_approved'));
-        navigate('/dashboard', { replace: true });
-      }
-    }, 3000); // Poll every 3 seconds
-
-    // Set up real-time subscription for profile updates
-    const channel = supabase
-      .channel(`payment_verification_${profile.id}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'profiles',
-          filter: `id=eq.${profile.id}`,
-        },
-        async (payload) => {
-          console.log('Payment status change received:', payload);
-          const updatedProfile = payload.new;
-          
-          if (!hasRedirected && updatedProfile.payment_status === 'paid' && 
-              updatedProfile.payment_approval_status === 'approved') {
-            console.log('Payment approved (via subscription), redirecting to dashboard...');
-            hasRedirected = true;
-            await refetch();
-            toast.success(t('payment_approved'));
-            navigate('/dashboard', { replace: true });
-          }
-        }
-      )
-      .subscribe((status) => {
-        console.log('Subscription status:', status);
-      });
-
-    // Check initial status
-    const checkInitialStatus = async () => {
-      await refetch();
-      
-      if (!hasRedirected && profile.payment_status === 'paid' && 
-          profile.payment_approval_status === 'approved') {
-        console.log('Payment already approved, redirecting to dashboard...');
-        hasRedirected = true;
-        toast.success(t('payment_approved'));
-        navigate('/dashboard', { replace: true });
-      }
-    };
-
-    checkInitialStatus();
-
-    return () => {
-      console.log('Cleaning up payment verification subscription and polling...');
-      clearInterval(pollingInterval);
-      supabase.removeChannel(channel);
-    };
-  }, [navigate, profile?.id, refetch, t, profile?.payment_status, profile?.payment_approval_status]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -99,23 +23,22 @@ const PaymentVerification = () => {
         <Button
           variant="ghost"
           onClick={handleLogout}
-          className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+          className={cn(
+            "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white",
+            isRTL && "flex-row-reverse"
+          )}
         >
-          <LogOut className="h-5 w-5 mr-2" />
+          <LogOut className={cn("h-5 w-5", isRTL ? "ml-2" : "mr-2")} />
           {t("sign_out")}
         </Button>
-        <div className="flex items-center gap-2">
-          <WhatsAppSupport />
-          <LanguageSelector />
-        </div>
       </div>
-      
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex-1 flex flex-col items-center justify-center p-6"
+        className="flex-1 flex items-center justify-center"
       >
-        <div className="text-center space-y-8">
+        <div className="text-center space-y-8 p-6">
           <div className="relative">
             <motion.div
               animate={{
@@ -139,7 +62,7 @@ const PaymentVerification = () => {
               transition={{ delay: 0.2 }}
               className="text-2xl font-semibold text-gray-900 dark:text-gray-100"
             >
-              {t("Waiting For Payment Verification")}
+              {t("waiting_for_payment")}
             </motion.h2>
             <motion.p
               initial={{ opacity: 0 }}
@@ -147,7 +70,7 @@ const PaymentVerification = () => {
               transition={{ delay: 0.4 }}
               className="text-gray-600 dark:text-gray-400 max-w-md mx-auto"
             >
-              {t("Our Support Team Is Processing Your Payment")}
+              {t("support_processing")}
             </motion.p>
             <motion.div
               initial={{ opacity: 0 }}
@@ -155,7 +78,7 @@ const PaymentVerification = () => {
               transition={{ delay: 0.6 }}
               className="text-sm text-gray-500 dark:text-gray-500"
             >
-              {t("You Will Be Redirected Once Payment Is Confirmed")}
+              {t("redirect_confirmation")}
             </motion.div>
           </div>
         </div>

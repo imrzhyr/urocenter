@@ -1,4 +1,5 @@
 import { PaymentMethod } from "./PaymentMethod";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface PaymentMethodsProps {
   selectedMethod: string;
@@ -11,30 +12,31 @@ export const PaymentMethods = ({
   onSelectMethod,
   onContinuePayment,
 }: PaymentMethodsProps) => {
+  const { t } = useLanguage();
+
   const paymentMethods = [
     {
-      id: "credit-card",
-      name: "Credit Card",
-      logo: "/lovable-uploads/4feeb68c-1aca-4f05-bba5-447da732b1c3.png",
+      id: "qicard",
+      name: t("Qi Card"),
+      description: t("iraqi_electronic_payment"),
+      logo: "/lovable-uploads/2cb98755-7a98-43b1-b259-3e894b6d9bf3.png",
     },
     {
       id: "fastpay",
-      name: "FastPay",
+      name: t("FastPay"),
+      description: t("fast_digital_payments"),
       logo: "/lovable-uploads/ea4de526-e37e-4348-acf0-c64cf182a493.png",
     },
     {
       id: "fib",
-      name: "FIB",
+      name: t("FIB"),
+      description: t("first_iraqi_bank"),
       logo: "/lovable-uploads/baf5ed4f-4ba5-4618-8694-5d71249b817a.png",
     },
     {
-      id: "qicard",
-      name: "Qi Card",
-      logo: "/lovable-uploads/2cb98755-7a98-43b1-b259-3e894b6d9bf3.png",
-    },
-    {
       id: "zaincash",
-      name: "ZainCash",
+      name: t("ZainCash"),
+      description: t("mobile_wallet_zain"),
       logo: "/lovable-uploads/292e06cf-9fcf-475a-9497-a045233f8b4d.png",
     },
   ];
@@ -44,7 +46,10 @@ export const PaymentMethods = ({
       {paymentMethods.map((method) => (
         <PaymentMethod
           key={method.id}
-          {...method}
+          id={method.id}
+          name={method.name}
+          description={method.description}
+          logo={method.logo}
           selected={selectedMethod === method.id}
           onSelect={() => onSelectMethod(method.id)}
           onContinue={onContinuePayment}

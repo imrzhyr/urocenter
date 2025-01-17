@@ -1,12 +1,11 @@
-import { cn } from "@/lib/utils";
-import { CreditCard } from "lucide-react";
-import { useState } from "react";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { cn } from "@/lib/utils";
 
 interface PaymentMethodProps {
   id: string;
   name: string;
+  description: string;
   logo: string;
   selected: boolean;
   onSelect: () => void;
@@ -16,66 +15,40 @@ interface PaymentMethodProps {
 export const PaymentMethod = ({
   id,
   name,
+  description,
   logo,
   selected,
   onSelect,
   onContinue,
 }: PaymentMethodProps) => {
-  const [imageError, setImageError] = useState(false);
-  const isCreditCard = id === "credit-card";
   const { t, isRTL } = useLanguage();
 
   return (
     <div
       className={cn(
-        "p-4 border rounded-lg transition-all flex items-center justify-between",
-        selected
-          ? "border-primary bg-primary/5 shadow-lg dark:bg-primary/10"
-          : "border-gray-200 hover:border-primary/50 dark:border-gray-700"
+        "relative rounded-lg border p-4 transition-all hover:shadow-md",
+        selected ? "border-primary bg-primary/5" : "border-gray-200 dark:border-gray-800"
       )}
     >
-      <div className={cn("flex items-center gap-4", isRTL && "flex-row-reverse")}>
-        {isCreditCard ? (
-          <div className="w-12 h-12 flex items-center justify-center">
-            <CreditCard className="w-8 h-8 text-primary" />
+      <div className="flex items-center justify-between">
+        <div className={cn("flex items-center gap-4", isRTL && "flex-row-reverse")}>
+          <img src={logo} alt={name} className="h-12 w-12 object-contain" />
+          <div className={cn("space-y-1", isRTL && "text-right")}>
+            <h3 className="font-medium text-gray-900 dark:text-gray-100">{name}</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{description}</p>
           </div>
-        ) : !imageError ? (
-          <img
-            src={logo}
-            alt={name}
-            className="w-12 h-12 object-contain"
-            onError={() => setImageError(true)}
-            loading="eager"
-          />
-        ) : (
-          <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded flex items-center justify-center text-gray-400 text-xs">
-            {name}
-          </div>
-        )}
-        <span className="text-sm font-medium dark:text-gray-200">{name}</span>
-      </div>
-
-      <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
-        <Button
-          variant={selected ? "default" : "outline"}
-          size="sm"
-          onClick={onSelect}
-          className={cn(
-            "min-w-[100px]",
-            selected && "bg-primary hover:bg-primary/90"
+        </div>
+        <div className="flex items-center gap-2">
+          {selected ? (
+            <Button onClick={onContinue} className={cn(isRTL && "flex-row-reverse")}>
+              {t("continue")}
+            </Button>
+          ) : (
+            <Button variant="outline" onClick={onSelect} className={cn(isRTL && "flex-row-reverse")}>
+              {t("select")}
+            </Button>
           )}
-        >
-          {selected ? t("selected") : t("select")}
-        </Button>
-        {selected && (
-          <Button
-            onClick={onContinue}
-            size="sm"
-            className="bg-green-600 hover:bg-green-700"
-          >
-            {t("contact_support")}
-          </Button>
-        )}
+        </div>
       </div>
     </div>
   );
