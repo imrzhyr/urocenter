@@ -53,8 +53,7 @@ export const MessageInput = ({
       onSendMessage("", {
         url: fileInfo.url,
         name: fileInfo.name,
-        type: fileInfo.type,
-        duration: fileInfo.duration
+        type: fileInfo.type
       }, replyingTo || undefined);
       if (onCancelReply) {
         onCancelReply();
