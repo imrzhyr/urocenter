@@ -24,12 +24,18 @@ const Payment = () => {
 
       const { data, error } = await supabase
         .from('profiles')
-        .select('payment_status, payment_approval_status')
+        .select('payment_status, payment_approval_status, role')
         .eq('phone', userPhone)
         .single();
 
       if (error) {
         console.error('Error checking payment status:', error);
+        return;
+      }
+
+      // If user is admin, redirect to admin dashboard
+      if (data.role === 'admin') {
+        navigate('/admin');
         return;
       }
 
@@ -52,6 +58,12 @@ const Payment = () => {
           filter: `phone=eq.${localStorage.getItem('userPhone')}`,
         },
         async (payload: any) => {
+          // If user is admin, redirect to admin dashboard
+          if (payload.new.role === 'admin') {
+            navigate('/admin');
+            return;
+          }
+
           if (payload.new.payment_status === 'paid' && payload.new.payment_approval_status === 'approved') {
             await refetch();
             toast.success(t("Payment Approved - You can now chat with Dr. Ali Kamal"));
