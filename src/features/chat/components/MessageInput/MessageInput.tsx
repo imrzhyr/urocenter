@@ -2,7 +2,6 @@ import { useState, useRef } from "react";
 import { SendButton } from "../SendButton/SendButton";
 import { TextArea } from "../TextArea/TextArea";
 import { AttachmentButton } from "../AttachmentButton/AttachmentButton";
-import { VoiceMessageRecorder } from "../VoiceMessageRecorder/VoiceMessageRecorder";
 import { Message } from "@/types/profile";
 import { ReplyPreview } from "../ReplyPreview/ReplyPreview";
 
@@ -77,13 +76,6 @@ export const MessageInput = ({
           }}
           className="flex-1"
           placeholder="Type a message..."
-        />
-
-        <VoiceMessageRecorder 
-          userId={userId}
-          onRecordingComplete={() => {
-            onCancelReply?.();
-          }}
         />
         
         <SendButton
