@@ -32,19 +32,13 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
       } else {
         formattedPhone = formatPhoneNumber(phone);
       }
-      
-      console.log("Attempting sign in with:", {
-        formattedPhone,
-        phone,
-        password
-      });
 
-      const { data, error } = await supabase
+      const { data: profile, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('phone', formattedPhone)
         .eq('password', password)
-        .maybeSingle();
+        .single();
 
       if (error) {
         console.error("Sign in error:", error);
@@ -52,38 +46,24 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
         return;
       }
 
-      if (!data) {
-        console.log("No user found with credentials");
+      if (!profile) {
         toast.error(t('invalid_credentials'));
         return;
       }
 
-      // Ensure payment_status and payment_approval_status have default values
-      const paymentStatus = data.payment_status || 'unpaid';
-      const approvalStatus = data.payment_approval_status || 'pending';
-
-      console.log("Sign in successful, user data:", {
-        role: data.role,
-        payment_status: paymentStatus,
-        payment_approval_status: approvalStatus
-      });
-
       localStorage.setItem('userPhone', formattedPhone);
       toast.success(t('signin_success'));
 
-      if (data.role === 'admin') {
+      if (profile.role === 'admin') {
         navigate('/admin', { replace: true });
         return;
       }
 
-      // Check payment status and approval status
-      if (paymentStatus === 'paid' && approvalStatus === 'approved') {
+      if (profile.payment_status === 'paid' && profile.payment_approval_status === 'approved') {
         navigate('/dashboard', { replace: true });
-      } else if (data.payment_method && paymentStatus === 'unpaid') {
-        // If payment method selected but payment pending
+      } else if (profile.payment_method && profile.payment_status === 'unpaid') {
         navigate('/payment-verification', { replace: true });
       } else {
-        // If no payment initiated yet
         navigate('/payment', { replace: true });
       }
 
