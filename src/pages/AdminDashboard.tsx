@@ -36,18 +36,17 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-gray-900">
       <DashboardHeader />
-      <main className="container mx-auto p-4 space-y-6 max-w-7xl">
+      <main className="container mx-auto px-4 py-6 space-y-6 max-w-7xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
+          className="space-y-6"
         >
-          <h1 className="text-2xl font-bold text-primary dark:text-white mb-6 px-4">Admin Dashboard</h1>
-          <div className="space-y-6">
-            <AdminStatsCard />
-            <PaymentApprovalsCard />
-            <MessagesCard />
-          </div>
+          <h1 className="text-2xl font-bold text-primary dark:text-white">Admin Dashboard</h1>
+          <AdminStatsCard />
+          <PaymentApprovalsCard />
+          <MessagesCard />
         </motion.div>
       </main>
     </div>

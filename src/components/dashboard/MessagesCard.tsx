@@ -10,7 +10,7 @@ export const MessagesCard = () => {
   const { t } = useLanguage();
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 group hover:shadow-xl transition-all duration-300">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full">
       <div className="relative">
         <div className="flex items-center gap-3 mb-4">
           <div className="p-2 bg-primary/10 rounded-xl">
@@ -18,17 +18,17 @@ export const MessagesCard = () => {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-lg font-semibold text-gray-900">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                 {isAdmin ? t("patient_messages") : t("virtual_consultation")}
               </h2>
               <Sparkles className="h-4 w-4 text-primary animate-pulse" />
             </div>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-300">
               {isAdmin ? t("review_patient_inquiries") : t("connect_with_doctor")}
             </p>
           </div>
         </div>
-        <div className="flex items-center justify-center">
+        <div className="w-full">
           {isAdmin ? <AdminMessagesList /> : <PatientChatPrompt />}
         </div>
       </div>

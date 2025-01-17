@@ -119,37 +119,39 @@ export const PaymentApprovalsCard = () => {
               {t("No pending payment approvals")}
             </p>
           ) : (
-            pendingPayments.map((payment) => (
-              <motion.div
-                key={payment.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex items-center justify-between p-4 bg-card rounded-lg border"
-              >
-                <div>
-                  <p className="font-medium">{payment.full_name || t("Unknown User")}</p>
-                  <p className="text-sm text-muted-foreground">{payment.phone}</p>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    onClick={() => handleApprovePayment(payment.id)}
-                    className="bg-green-500 hover:bg-green-600"
-                  >
-                    <Check className="w-4 h-4 mr-1" />
-                    {t("Approve")}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => handleRejectPayment(payment.id)}
-                  >
-                    <X className="w-4 h-4 mr-1" />
-                    {t("Reject")}
-                  </Button>
-                </div>
-              </motion.div>
-            ))
+            <div className="grid gap-4">
+              {pendingPayments.map((payment) => (
+                <motion.div
+                  key={payment.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center justify-between p-4 bg-card rounded-lg border dark:border-gray-800"
+                >
+                  <div>
+                    <p className="font-medium">{payment.full_name || t("Unknown User")}</p>
+                    <p className="text-sm text-muted-foreground">{payment.phone}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() => handleApprovePayment(payment.id)}
+                      className="bg-green-500 hover:bg-green-600 text-white"
+                    >
+                      <Check className="w-4 h-4 mr-1" />
+                      {t("Approve")}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => handleRejectPayment(payment.id)}
+                    >
+                      <X className="w-4 h-4 mr-1" />
+                      {t("Reject")}
+                    </Button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           )}
         </div>
       </CardContent>
