@@ -57,7 +57,7 @@
     @apply bg-background text-foreground antialiased font-sans;
   }
   [dir="rtl"] {
-    font-family: "IBM Plex Sans Arabic", sans-serif;
+    font-family: "Noto Sans Arabic", sans-serif;
   }
 }
 
