@@ -28,8 +28,31 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
         } 
       });
       
+      // Try to use webm first, then fall back to mp4, then to other formats
+      const mimeTypes = [
+        'audio/webm',
+        'audio/webm;codecs=opus',
+        'audio/mp4',
+        'audio/mpeg',
+        'audio/aac'
+      ];
+
+      let selectedMimeType = '';
+      for (const mimeType of mimeTypes) {
+        if (MediaRecorder.isTypeSupported(mimeType)) {
+          selectedMimeType = mimeType;
+          break;
+        }
+      }
+
+      if (!selectedMimeType) {
+        throw new Error('No supported audio recording format found');
+      }
+
+      console.log('Using audio format:', selectedMimeType);
+      
       mediaRecorderRef.current = new MediaRecorder(stream, {
-        mimeType: 'audio/ogg;codecs=opus'
+        mimeType: selectedMimeType
       });
       
       chunksRef.current = [];
@@ -43,14 +66,15 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
 
       mediaRecorderRef.current.onstop = async () => {
         const audioBlob = new Blob(chunksRef.current, { 
-          type: 'audio/ogg;codecs=opus' 
+          type: selectedMimeType
         });
         
         setIsUploading(true);
         
         try {
-          const file = new File([audioBlob], `voice-message-${Date.now()}.ogg`, { 
-            type: 'audio/ogg;codecs=opus'
+          const fileExtension = selectedMimeType.split('/')[1].split(';')[0];
+          const file = new File([audioBlob], `voice-message-${Date.now()}.${fileExtension}`, { 
+            type: selectedMimeType
           });
           
           const fileInfo = await uploadFile(file);
@@ -82,7 +106,7 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
       }, 1000);
     } catch (error) {
       console.error('Error starting recording:', error);
-      toast.error('Failed to access microphone');
+      toast.error('Failed to access microphone. Please check your browser permissions.');
     }
   };
 

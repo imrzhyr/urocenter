@@ -1,32 +1,23 @@
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 
 export const uploadFile = async (file: File) => {
-  const userPhone = localStorage.getItem('userPhone');
-  if (!userPhone) {
-    throw new Error('Authentication required');
-  }
-
   try {
     // Generate a unique file path
-    const fileExt = file.type === 'audio/ogg;codecs=opus' ? 'ogg' : file.name.split('.').pop();
+    const fileExt = file.type.startsWith('audio/') 
+      ? file.type.split('/')[1].split(';')[0]  // Get the audio format (webm, mp4, etc.)
+      : file.name.split('.').pop();
     const filePath = `${crypto.randomUUID()}.${fileExt}`;
 
     // Upload file to Supabase storage
-    const { data, error: uploadError } = await supabase.storage
+    const { data, error } = await supabase.storage
       .from('chat_attachments')
-      .upload(filePath, file, {
-        upsert: false,
-        contentType: file.type
-      });
+      .upload(filePath, file);
 
-    if (uploadError) {
-      console.error('Upload error:', uploadError);
-      toast.error('Failed to upload file');
-      throw uploadError;
+    if (error) {
+      throw error;
     }
 
-    // Get the public URL for the uploaded file
+    // Get the public URL
     const { data: { publicUrl } } = supabase.storage
       .from('chat_attachments')
       .getPublicUrl(filePath);
@@ -37,7 +28,7 @@ export const uploadFile = async (file: File) => {
       type: file.type
     };
   } catch (error) {
-    console.error('File upload error:', error);
+    console.error('Error uploading file:', error);
     throw error;
   }
 };
