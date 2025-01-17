@@ -12,15 +12,20 @@ export const PaymentApprovalsCard = () => {
 
   const fetchPendingPayments = async () => {
     try {
+      console.log('Fetching pending payments...');
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('payment_status', 'unpaid')
         .eq('payment_approval_status', 'pending')
-        .not('payment_method', 'is', null) // Only include users who have selected a payment method
-        .order('created_at', { ascending: false });
+        .not('payment_method', 'is', null);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching pending payments:', error);
+        throw error;
+      }
+
+      console.log('Pending payments data:', data);
       setPendingPayments(data || []);
     } catch (error) {
       console.error('Error fetching pending payments:', error);
@@ -30,6 +35,7 @@ export const PaymentApprovalsCard = () => {
 
   const handleApprovePayment = async (userId: string) => {
     try {
+      console.log('Approving payment for user:', userId);
       const { error } = await supabase
         .from('profiles')
         .update({
@@ -39,8 +45,12 @@ export const PaymentApprovalsCard = () => {
         })
         .eq('id', userId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error approving payment:', error);
+        throw error;
+      }
 
+      console.log('Payment approved successfully');
       setPendingPayments(prev => prev.filter(payment => payment.id !== userId));
       toast.success(t('payment_approved'));
     } catch (error) {
