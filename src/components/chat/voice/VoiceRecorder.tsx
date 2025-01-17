@@ -16,7 +16,6 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout>();
   const startTimeRef = useRef<number>(0);
-  const audioContextRef = useRef<AudioContext>();
 
   const startRecording = async () => {
     try {
@@ -30,7 +29,7 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
       });
       
       mediaRecorderRef.current = new MediaRecorder(stream, {
-        mimeType: 'audio/webm;codecs=opus'
+        mimeType: 'audio/mp3'
       });
       
       chunksRef.current = [];
@@ -44,14 +43,14 @@ export const VoiceRecorder = ({ onRecordingComplete }: VoiceRecorderProps) => {
 
       mediaRecorderRef.current.onstop = async () => {
         const audioBlob = new Blob(chunksRef.current, { 
-          type: 'audio/webm;codecs=opus' 
+          type: 'audio/mp3' 
         });
         
         setIsUploading(true);
         
         try {
-          const file = new File([audioBlob], `voice-message-${Date.now()}.webm`, { 
-            type: 'audio/webm;codecs=opus'
+          const file = new File([audioBlob], `voice-message-${Date.now()}.mp3`, { 
+            type: 'audio/mp3'
           });
           
           const fileInfo = await uploadFile(file);

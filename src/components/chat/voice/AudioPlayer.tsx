@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Play, Pause } from "lucide-react";
+import { Play, Pause, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface AudioPlayerProps {
@@ -25,8 +25,7 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
         duration: audio.duration,
         readyState: audio.readyState,
         networkState: audio.networkState,
-        type: audio.currentSrc ? audio.currentSrc.split('.').pop() : 'unknown',
-        mimeType: 'audio/webm' // We know we're using WebM format for voice messages
+        type: audio.currentSrc ? audio.currentSrc.split('.').pop() : 'unknown'
       });
     };
 
@@ -132,7 +131,9 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
         onClick={togglePlayPause}
         disabled={isLoading}
       >
-        {isPlaying ? (
+        {isLoading ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : isPlaying ? (
           <Pause className="h-4 w-4" />
         ) : (
           <Play className="h-4 w-4" />

@@ -9,7 +9,7 @@ export const uploadFile = async (file: File) => {
 
   try {
     // Generate a unique file path
-    const fileExt = file.name.split('.').pop();
+    const fileExt = file.type === 'audio/mp3' ? 'mp3' : file.name.split('.').pop();
     const filePath = `${crypto.randomUUID()}.${fileExt}`;
 
     // Upload file to Supabase storage
