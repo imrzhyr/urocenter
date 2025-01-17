@@ -1,0 +1,40 @@
+export const paymentTranslations = {
+  en: {
+    "payment_details": "Payment Details",
+    "amount_to_pay": "Amount to Pay",
+    "consultation_fee": "Consultation Fee",
+    "select_payment_method": "Select Payment Method",
+    "payment_methods": "Payment Methods",
+    "contact_support": "Contact Support",
+    "support_available": "Our support team is available 24/7",
+    "payment_successful": "Payment Successful",
+    "payment_failed": "Payment Failed",
+    "payment_pending": "Payment Pending",
+    "payment_cancelled": "Payment Cancelled",
+    "try_again": "Try Again",
+    "processing_payment": "Processing Payment",
+    "secure_payment": "Secure Payment",
+    "total_amount": "Total Amount",
+    "pay_now": "Pay Now",
+    "payment_confirmation": "Payment Confirmation"
+  },
+  ar: {
+    "payment_details": "تفاصيل الدفع",
+    "amount_to_pay": "المبلغ المطلوب",
+    "consultation_fee": "رسوم الاستشارة",
+    "select_payment_method": "اختر طريقة الدفع",
+    "payment_methods": "طرق الدفع",
+    "contact_support": "اتصل بالدعم",
+    "support_available": "فريق الدعم متاح على مدار الساعة",
+    "payment_successful": "تم الدفع بنجاح",
+    "payment_failed": "فشل الدفع",
+    "payment_pending": "الدفع قيد الانتظار",
+    "payment_cancelled": "تم إلغاء الدفع",
+    "try_again": "حاول مرة أخرى",
+    "processing_payment": "جاري معالجة الدفع",
+    "secure_payment": "دفع آمن",
+    "total_amount": "المبلغ الإجمالي",
+    "pay_now": "ادفع الآن",
+    "payment_confirmation": "تأكيد الدفع"
+  }
+};

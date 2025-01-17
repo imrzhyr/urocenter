@@ -1,20 +1,35 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import { translations } from '@/translations/translations';
+import { authTranslations } from '@/translations/authTranslations';
+import { profileTranslations } from '@/translations/profileTranslations';
+import { dashboardTranslations } from '@/translations/dashboardTranslations';
+import { progressTranslations } from '@/translations/progressTranslations';
+import { commonTranslations } from '@/translations/commonTranslations';
+import { paymentTranslations } from '@/translations/paymentTranslations';
 import { chatTranslations } from '@/translations/chatTranslations';
 import { medicalTranslations } from '@/translations/medicalTranslations';
 
 const resources = {
   en: {
     translation: {
-      ...translations.en,
+      ...authTranslations.en,
+      ...profileTranslations.en,
+      ...dashboardTranslations.en,
+      ...progressTranslations.en,
+      ...commonTranslations.en,
+      ...paymentTranslations.en,
       ...chatTranslations.en,
       ...medicalTranslations.en,
     },
   },
   ar: {
     translation: {
-      ...translations.ar,
+      ...authTranslations.ar,
+      ...profileTranslations.ar,
+      ...dashboardTranslations.ar,
+      ...progressTranslations.ar,
+      ...commonTranslations.ar,
+      ...paymentTranslations.ar,
       ...chatTranslations.ar,
       ...medicalTranslations.ar,
     },
