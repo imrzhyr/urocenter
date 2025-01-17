@@ -34,6 +34,9 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
         password
       });
 
+      // Store the phone number first
+      localStorage.setItem('userPhone', formattedPhone);
+
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -43,11 +46,12 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
 
       if (error || !data) {
         console.error("Sign in error:", error);
+        // Clear the stored phone if sign in fails
+        localStorage.removeItem('userPhone');
         toast.error(t('invalid_credentials'));
         return;
       }
 
-      localStorage.setItem('userPhone', formattedPhone);
       toast.success(t('signin_success'));
 
       console.log("Sign in successful, user data:", {
@@ -85,6 +89,8 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
 
     } catch (error) {
       console.error('Sign in error:', error);
+      // Clear the stored phone if sign in fails
+      localStorage.removeItem('userPhone');
       toast.error(t('signin_error'));
     } finally {
       setIsLoading(false);
