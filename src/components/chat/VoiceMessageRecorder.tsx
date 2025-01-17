@@ -20,13 +20,9 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      
-      mediaRecorderRef.current = new MediaRecorder(stream, {
-        mimeType: 'audio/webm'
-      });
-      
+      mediaRecorderRef.current = new MediaRecorder(stream);
       chunksRef.current = [];
-      
+
       mediaRecorderRef.current.ondataavailable = (e) => {
         if (e.data.size > 0) {
           chunksRef.current.push(e.data);
@@ -34,34 +30,25 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
       };
 
       mediaRecorderRef.current.onstop = async () => {
+        setIsUploading(true);
         try {
           const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
-          
+          const file = new File([audioBlob], `voice-message-${Date.now()}.webm`, { type: 'audio/webm' });
+
           // Get audio duration
           const arrayBuffer = await audioBlob.arrayBuffer();
           audioContextRef.current = new AudioContext();
           const audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
           const audioDuration = Math.round(audioBuffer.duration);
 
-          setIsUploading(true);
-          
-          // Create file with proper MIME type
-          const file = new File([audioBlob], `voice-message-${Date.now()}.webm`, { 
-            type: 'audio/webm'
-          });
-
           const uploadedFile = await uploadFile(file);
-          
           onRecordingComplete({
-            url: uploadedFile.url,
-            name: uploadedFile.name,
-            type: uploadedFile.type,
+            ...uploadedFile,
             duration: audioDuration
           });
-
         } catch (error) {
-          console.error('Error uploading voice message:', error);
-          toast.error('Failed to upload voice message');
+          console.error('Error processing voice message:', error);
+          toast.error('Failed to process voice message');
         } finally {
           setIsUploading(false);
           setDuration(0);
@@ -69,8 +56,6 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
             audioContextRef.current.close();
           }
         }
-        
-        // Cleanup
         stream.getTracks().forEach(track => track.stop());
       };
 
