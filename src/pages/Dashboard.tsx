@@ -39,18 +39,18 @@ const Dashboard = () => {
             payment_approval_status: profile.payment_approval_status
           });
 
-          const isPaid = profile.payment_status?.toLowerCase() === 'paid';
-          const isApproved = profile.payment_approval_status?.toLowerCase() === 'approved';
+          if (profile.role === 'admin') {
+            console.log("User is admin, redirecting to admin dashboard");
+            navigate("/admin", { replace: true });
+            return;
+          }
+
+          const isPaid = profile.payment_status === 'paid';
+          const isApproved = profile.payment_approval_status === 'approved';
           
           if (!isPaid || !isApproved) {
             console.log("User not paid or approved, redirecting to payment");
             navigate("/payment", { replace: true });
-            return;
-          }
-
-          if (profile.role === 'admin') {
-            console.log("User is admin, redirecting to admin dashboard");
-            navigate("/admin", { replace: true });
             return;
           }
 
