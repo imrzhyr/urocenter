@@ -19,7 +19,17 @@ export const DoctorChatHeader = ({
   onRefresh: () => void;
 }) => {
   const queryClient = useQueryClient();
-  const { initiateCall } = useCallActions(patientId);
+  const { initiateCall } = useCallActions({
+    profileId: patientId,
+    setupAgoraClient: async () => true,
+    clearCallTimeout: () => {},
+    setCurrentCallId: () => {},
+    setIsInCall: () => {},
+    setIncomingCall: () => {},
+    setIsCallEnded: () => {},
+    startDurationTimer: () => {},
+    updateCallStatus: async () => {},
+  });
   const { profile: patientProfile } = usePatientProfile(patientId);
   const { chatStatus } = useChatStatus(patientId);
 
