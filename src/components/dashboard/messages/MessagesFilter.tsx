@@ -27,10 +27,10 @@ export const MessagesFilter = ({
         value={statusFilter}
         onValueChange={(value: MessageStatus | "all") => onStatusChange(value)}
       >
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className="w-[180px] bg-white dark:bg-gray-800">
           <SelectValue placeholder="Filter by status" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-white dark:bg-gray-800">
           <SelectItem value="all">All Messages</SelectItem>
           <SelectItem value="not_seen">Not Seen</SelectItem>
           <SelectItem value="in_progress">In Progress</SelectItem>

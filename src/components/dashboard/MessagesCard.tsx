@@ -10,7 +10,7 @@ export const MessagesCard = () => {
   const { t } = useLanguage();
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full">
+    <div className="w-full">
       <div className="relative">
         <div className="flex items-center gap-3 mb-4">
           <div className="p-2 bg-primary/10 rounded-xl">
