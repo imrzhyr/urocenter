@@ -2,7 +2,7 @@ export const progressTranslations = {
   en: {
     "onboarding_signup": "Sign Up",
     "onboarding_profile": "Profile",
-    "onboarding_medical_info": "Medical Information",
+    "onboarding_medical_info": "Medical Info",
     "onboarding_payment": "Payment",
     "step_complete": "Step Complete",
     "step_incomplete": "Step Incomplete",
