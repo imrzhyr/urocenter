@@ -26,6 +26,7 @@ export const DoctorChatHeader = ({
   const { initiateCall } = useCall();
   const [showInfo, setShowInfo] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [localIsResolved, setLocalIsResolved] = useState(false);
 
   const { data: patientInfo } = useQuery({
     queryKey: ['patient', patientId],
@@ -47,6 +48,11 @@ export const DoctorChatHeader = ({
         .select('*')
         .eq('user_id', patientId)
         .order('created_at', { ascending: false });
+      
+      // Update local state based on messages
+      const isResolved = data?.some(msg => msg.is_resolved) || false;
+      setLocalIsResolved(isResolved);
+      
       return data || [];
     }
   });
@@ -63,18 +69,19 @@ export const DoctorChatHeader = ({
     }
   });
 
-  const isResolved = messages?.some(msg => msg.is_resolved);
-
   const handleCall = () => {
     initiateCall(patientId, patientName);
   };
 
   const handleResolve = async () => {
     try {
-      // First, update all messages for this user
+      // Update local state immediately
+      setLocalIsResolved(!localIsResolved);
+
+      // Update all messages for this user
       const { error: updateError } = await supabase
         .from('messages')
-        .update({ is_resolved: !isResolved })
+        .update({ is_resolved: !localIsResolved })
         .eq('user_id', patientId);
 
       if (updateError) throw updateError;
@@ -84,19 +91,21 @@ export const DoctorChatHeader = ({
         .from('messages')
         .insert({
           user_id: patientId,
-          content: `Chat ${!isResolved ? 'resolved' : 'unresolved'} by Dr. Ali Kamal`,
+          content: `Chat ${!localIsResolved ? 'resolved' : 'unresolved'} by Dr. Ali Kamal`,
           is_from_doctor: true,
           is_read: true,
           status: 'seen',
-          is_resolved: !isResolved,
+          is_resolved: !localIsResolved,
           sender_name: 'System'
         });
 
       if (insertError) throw insertError;
 
-      toast.success(!isResolved ? "Chat marked as resolved" : "Chat marked as unresolved");
+      toast.success(!localIsResolved ? "Chat marked as resolved" : "Chat marked as unresolved");
       onRefresh();
     } catch (error) {
+      // Revert local state if there's an error
+      setLocalIsResolved(!localIsResolved);
       console.error('Error resolving chat:', error);
       toast.error("Failed to update chat status");
     }
@@ -138,7 +147,7 @@ export const DoctorChatHeader = ({
             size="icon"
             className={cn(
               "h-8 w-8 transition-colors",
-              isResolved 
+              localIsResolved 
                 ? "text-purple-400 hover:bg-purple-400/20" 
                 : "text-red-400 hover:bg-red-400/20"
             )}
@@ -146,7 +155,7 @@ export const DoctorChatHeader = ({
           >
             <div className={cn(
               "h-3 w-3 rounded-full",
-              isResolved ? "bg-purple-400" : "bg-red-400"
+              localIsResolved ? "bg-purple-400" : "bg-red-400"
             )} />
           </Button>
         </div>
