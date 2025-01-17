@@ -51,6 +51,18 @@ export const DoctorChatHeader = ({
     }
   });
 
+  const { data: medicalReports } = useQuery({
+    queryKey: ['medical-reports', patientId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('medical_reports')
+        .select('*')
+        .eq('user_id', patientId)
+        .order('created_at', { ascending: false });
+      return data || [];
+    }
+  });
+
   const isResolved = messages?.some(msg => msg.is_resolved);
 
   const handleCall = () => {
