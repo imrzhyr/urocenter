@@ -89,7 +89,14 @@ export const MessageInput = ({
             onClick={() => fileInputRef.current?.click()} 
             isLoading={isLoading} 
           />
-          <VoiceRecorder onRecordingComplete={(fileInfo) => onSendMessage("", fileInfo)} />
+          <VoiceRecorder 
+            onRecordingComplete={(audioInfo) => onSendMessage("", {
+              url: audioInfo.url,
+              name: audioInfo.name,
+              type: audioInfo.type,
+              duration: audioInfo.duration
+            })} 
+          />
         </div>
         <TextArea
           ref={textareaRef}
