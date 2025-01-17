@@ -1,7 +1,7 @@
 import { Message } from "@/types/profile";
 import { format } from "date-fns";
 import { MessageStatus } from "../MessageStatus";
-import { AudioPlayer } from "../audio/AudioPlayer";
+import { AudioPlayer } from "../voice/AudioPlayer";
 import { MediaGallery } from "../media/MediaGallery";
 import { ReferencedMessage } from "../ReferencedMessage";
 
@@ -24,8 +24,7 @@ export const MessageContent = ({ message, fromCurrentUser }: MessageContentProps
       {message.file_url && message.file_type?.startsWith('audio/') ? (
         <AudioPlayer
           audioUrl={message.file_url}
-          messageId={message.id}
-          duration={message.duration}
+          duration={message.duration || 0}
         />
       ) : message.file_url && (message.file_type?.startsWith('image/') || message.file_type?.startsWith('video/')) ? (
         <MediaGallery

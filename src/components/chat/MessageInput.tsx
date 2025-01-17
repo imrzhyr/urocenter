@@ -1,14 +1,13 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { TextArea } from "./input/TextArea";
 import { AttachmentButton } from "./input/AttachmentButton";
 import { SendButton } from "./input/SendButton";
 import { ReplyPreview } from "./reply/ReplyPreview";
 import { Message } from "@/types/profile";
-import { VoiceMessageRecorder } from "./VoiceMessageRecorder";
+import { VoiceRecorder } from "./voice/VoiceRecorder";
 import { uploadFile } from "@/utils/fileUpload";
 import { toast } from "sonner";
-import { debounce } from "lodash";
 
 export interface MessageInputProps {
   onSendMessage: (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }, replyTo?: Message) => void;
@@ -29,33 +28,6 @@ export const MessageInput = ({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { t } = useLanguage();
-
-  const debouncedTypingUpdate = useRef(
-    debounce((isTyping: boolean) => {
-      onTyping?.(isTyping);
-    }, 500)
-  ).current;
-
-  useEffect(() => {
-    return () => {
-      debouncedTypingUpdate.cancel();
-    };
-  }, [debouncedTypingUpdate]);
-
-  const handleMessageChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newMessage = e.target.value;
-    setMessage(newMessage);
-    
-    if (onTyping) {
-      const isTyping = newMessage.length > 0;
-      debouncedTypingUpdate(isTyping);
-      
-      // If the message is empty, immediately stop typing
-      if (!isTyping) {
-        debouncedTypingUpdate.flush();
-      }
-    }
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,12 +85,15 @@ export const MessageInput = ({
             onClick={() => fileInputRef.current?.click()} 
             isLoading={isLoading} 
           />
-          <VoiceMessageRecorder onRecordingComplete={(fileInfo) => onSendMessage("", fileInfo)} />
+          <VoiceRecorder onRecordingComplete={(fileInfo) => onSendMessage("", fileInfo)} />
         </div>
         <TextArea
           ref={textareaRef}
           value={message}
-          onChange={handleMessageChange}
+          onChange={(e) => {
+            setMessage(e.target.value);
+            onTyping?.(e.target.value.length > 0);
+          }}
           placeholder={t("type_message")}
           rows={1}
           className="flex-1"
