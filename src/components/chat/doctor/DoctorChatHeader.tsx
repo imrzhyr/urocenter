@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ImageViewer } from "../media/ImageViewer";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface DoctorChatHeaderProps {
   patientId: string;
@@ -38,11 +39,11 @@ export const DoctorChatHeader = ({
     }
   });
 
-  const { data: medicalReports } = useQuery({
-    queryKey: ['medical-reports', patientId],
+  const { data: messages } = useQuery({
+    queryKey: ['messages', patientId],
     queryFn: async () => {
       const { data } = await supabase
-        .from('medical_reports')
+        .from('messages')
         .select('*')
         .eq('user_id', patientId)
         .order('created_at', { ascending: false });
@@ -50,23 +51,42 @@ export const DoctorChatHeader = ({
     }
   });
 
+  const isResolved = messages?.some(msg => msg.is_resolved);
+
   const handleCall = () => {
     initiateCall(patientId, patientName);
   };
 
   const handleResolve = async () => {
     try {
-      const { error } = await supabase
+      // First, update all messages for this user
+      const { error: updateError } = await supabase
         .from('messages')
-        .update({ is_resolved: true })
+        .update({ is_resolved: !isResolved })
         .eq('user_id', patientId);
 
-      if (error) throw error;
-      toast.success("Chat marked as resolved");
+      if (updateError) throw updateError;
+
+      // Create a system message to indicate resolution status
+      const { error: insertError } = await supabase
+        .from('messages')
+        .insert({
+          user_id: patientId,
+          content: `Chat ${isResolved ? 'unresolved' : 'resolved'} by Dr. Ali Kamal`,
+          is_from_doctor: true,
+          is_read: true,
+          status: 'seen',
+          is_resolved: !isResolved,
+          sender_name: 'System'
+        });
+
+      if (insertError) throw insertError;
+
+      toast.success(isResolved ? "Chat marked as unresolved" : "Chat marked as resolved");
       onRefresh();
     } catch (error) {
       console.error('Error resolving chat:', error);
-      toast.error("Failed to resolve chat");
+      toast.error("Failed to update chat status");
     }
   };
 
@@ -104,7 +124,12 @@ export const DoctorChatHeader = ({
           <Button
             variant="ghost"
             size="icon"
-            className="text-white hover:bg-white/20 h-8 w-8"
+            className={cn(
+              "h-8 w-8 transition-colors",
+              isResolved 
+                ? "text-purple-400 hover:bg-purple-400/20" 
+                : "text-red-400 hover:bg-red-400/20"
+            )}
             onClick={handleResolve}
           >
             <CheckCircle className="h-5 w-5" />
