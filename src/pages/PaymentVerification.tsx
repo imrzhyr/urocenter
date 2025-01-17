@@ -8,6 +8,8 @@ import { WhatsAppSupport } from "@/components/WhatsAppSupport";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { LogOut } from "lucide-react";
 
 const PaymentVerification = () => {
   const navigate = useNavigate();
@@ -86,11 +88,26 @@ const PaymentVerification = () => {
     };
   }, [navigate, profile?.id, refetch, t, profile?.payment_status, profile?.payment_approval_status]);
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/', { replace: true });
+  };
+
   return (
     <div className="fixed inset-0 w-full h-full flex flex-col bg-gradient-to-br from-blue-50 to-blue-100 dark:from-[#1A1F2C] dark:to-[#2D3748]">
-      <div className="p-4 flex justify-end items-center gap-2">
-        <WhatsAppSupport />
-        <LanguageSelector />
+      <div className="p-4 flex justify-between items-center">
+        <Button
+          variant="ghost"
+          onClick={handleLogout}
+          className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+        >
+          <LogOut className="h-5 w-5 mr-2" />
+          {t("sign_out")}
+        </Button>
+        <div className="flex items-center gap-2">
+          <WhatsAppSupport />
+          <LanguageSelector />
+        </div>
       </div>
       
       <motion.div
