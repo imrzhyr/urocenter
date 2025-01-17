@@ -65,10 +65,8 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
     
     // Set source with proper MIME type
     if (audioUrl.endsWith('.webm')) {
-      const source = document.createElement('source');
-      source.src = urlWithCache;
-      source.type = 'audio/webm; codecs="opus"';
-      audio.appendChild(source);
+      audio.src = urlWithCache;
+      audio.type = 'audio/webm; codecs="opus"';
     } else {
       audio.src = urlWithCache;
     }
@@ -79,9 +77,6 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('error', handleError);
 
-    // Load the audio
-    audio.load();
-
     return () => {
       // Cleanup
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
@@ -91,6 +86,8 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
       
       if (audio) {
         audio.pause();
+        setIsPlaying(false);
+        setIsLoading(false);
         audio.src = '';
         audioRef.current = null;
       }
@@ -115,9 +112,16 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
         }
 
         setIsLoading(true);
-        await audio.play();
-        setIsPlaying(true);
-        setIsLoading(false);
+        try {
+          await audio.play();
+          setIsPlaying(true);
+        } catch (error) {
+          console.error('Playback error:', error);
+          toast.error('Unable to play voice message. Please try again.');
+          setIsPlaying(false);
+        } finally {
+          setIsLoading(false);
+        }
       }
     } catch (error) {
       console.error('Playback error:', error);
