@@ -24,12 +24,14 @@ export const UserChatContainer = () => {
   }
 
   return (
-    <MessageContainer
-      messages={messages}
-      onSendMessage={handleSendMessage}
-      isLoading={isLoading}
-      header={<PatientChatHeader />}
-      userId={profile.id}
-    />
+    <CallProvider>
+      <MessageContainer
+        messages={messages}
+        onSendMessage={handleSendMessage}
+        isLoading={isLoading}
+        header={<PatientChatHeader />}
+        userId={profile.id}
+      />
+    </CallProvider>
   );
 };
