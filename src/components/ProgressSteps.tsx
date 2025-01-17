@@ -15,13 +15,13 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
     // Map the step text to the corresponding translation key
     switch (step) {
       case "Sign Up":
-        return "signup";
+        return "onboarding_signup";
       case "Profile":
-        return "profile";
+        return "onboarding_profile";
       case "Medical Info":
-        return "medical_info";
+        return "onboarding_medical_info";
       case "Payment":
-        return "payment";
+        return "onboarding_payment";
       default:
         return step.toLowerCase();
     }
