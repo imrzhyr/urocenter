@@ -5,7 +5,7 @@ export const uploadFile = async (file: File) => {
   try {
     // Generate a unique file path
     const fileExt = file.type.startsWith('audio/') 
-      ? 'mp3'  // Always use mp3 for audio files
+      ? 'mp3'  // Always use mp3 extension for audio files
       : file.name.split('.').pop();
     const filePath = `${crypto.randomUUID()}.${fileExt}`;
 
@@ -16,11 +16,16 @@ export const uploadFile = async (file: File) => {
       filePath
     });
 
+    // Create a new Blob with the correct MIME type for audio files
+    const fileBlob = file.type.startsWith('audio/') 
+      ? new Blob([await file.arrayBuffer()], { type: 'audio/mpeg' })
+      : file;
+
     // Upload file to Supabase storage with proper content type
     const { data, error } = await supabase.storage
       .from('chat_attachments')
-      .upload(filePath, file, {
-        contentType: file.type,
+      .upload(filePath, fileBlob, {
+        contentType: file.type.startsWith('audio/') ? 'audio/mpeg' : file.type,
         upsert: false,
         cacheControl: '3600'
       });
@@ -43,7 +48,7 @@ export const uploadFile = async (file: File) => {
     return {
       url: publicUrl,
       name: file.name,
-      type: file.type
+      type: file.type.startsWith('audio/') ? 'audio/mpeg' : file.type
     };
   } catch (error) {
     logger.error('FileUpload', 'Error uploading file:', error);
