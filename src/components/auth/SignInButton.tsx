@@ -50,16 +50,30 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
       localStorage.setItem('userPhone', formattedPhone);
       toast.success(t('signin_success'));
 
-      console.log("Sign in successful, user data:", data);
+      console.log("Sign in successful, user data:", {
+        role: data.role,
+        payment_status: data.payment_status,
+        payment_approval_status: data.payment_approval_status
+      });
 
-      // Check role and payment status for redirection
+      // Check role first
       if (data.role === 'admin') {
+        console.log("User is admin, redirecting to admin dashboard");
         navigate('/admin', { replace: true });
         return;
       }
 
-      // If payment is approved and paid, go directly to dashboard
-      if (data.payment_approval_status === 'approved' && data.payment_status === 'paid') {
+      // Check payment status
+      const isPaid = data.payment_status === 'paid';
+      const isApproved = data.payment_approval_status === 'approved';
+
+      console.log("Payment status check:", {
+        isPaid,
+        isApproved,
+        shouldGoToDashboard: isPaid && isApproved
+      });
+
+      if (isPaid && isApproved) {
         console.log("User is paid and approved, redirecting to dashboard");
         navigate('/dashboard', { replace: true });
         return;
