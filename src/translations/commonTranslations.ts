@@ -1,5 +1,6 @@
 export const commonTranslations = {
   en: {
+    // General Actions
     "loading": "Loading...",
     "error": "Error",
     "success": "Success",
@@ -25,17 +26,43 @@ export const commonTranslations = {
     "show_less": "Show Less",
     "not_found": "Not Found",
     "coming_soon": "Coming Soon",
+
+    // Form Fields
+    "full_name": "Full Name",
+    "phone": "Phone Number",
+    "email": "Email",
+    "password": "Password",
+    "age": "Age",
+    "gender": "Gender",
+    "male": "Male",
+    "female": "Female",
+    "enter_full_name": "Please enter your full name",
+    "enter_age": "Enter your age",
+    "not_provided": "Not provided",
+
+    // Navigation
+    "home": "Home",
+    "profile": "Profile",
+    "settings": "Settings",
+    "messages": "Messages",
+    "notifications": "Notifications",
+
+    // Footer
     "all_rights_reserved": "© 2024 Uro Center. All rights reserved",
     "get_support": "Get Support",
     "help_center": "Help Center",
     "contact_us": "Contact Us",
-    "settings": "Settings",
+
+    // Theme & Language
     "language": "Language",
     "theme": "Theme",
     "dark_mode": "Dark Mode",
-    "light_mode": "Light Mode"
+    "light_mode": "Light Mode",
+    "rtl_mode": "Right to Left Mode",
+    "ltr_mode": "Left to Right Mode"
   },
   ar: {
+    // General Actions
     "loading": "جاري التحميل...",
     "error": "خطأ",
     "success": "نجاح",
@@ -61,14 +88,39 @@ export const commonTranslations = {
     "show_less": "عرض أقل",
     "not_found": "غير موجود",
     "coming_soon": "قريباً",
+
+    // Form Fields
+    "full_name": "الاسم الكامل",
+    "phone": "رقم الهاتف",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "age": "العمر",
+    "gender": "الجنس",
+    "male": "ذكر",
+    "female": "أنثى",
+    "enter_full_name": "الرجاء إدخال اسمك الكامل",
+    "enter_age": "أدخل عمرك",
+    "not_provided": "غير متوفر",
+
+    // Navigation
+    "home": "الرئيسية",
+    "profile": "الملف الشخصي",
+    "settings": "الإعدادات",
+    "messages": "الرسائل",
+    "notifications": "الإشعارات",
+
+    // Footer
     "all_rights_reserved": "© 2024 مركز المسالك البولية. جميع الحقوق محفوظة",
     "get_support": "الحصول على الدعم",
     "help_center": "مركز المساعدة",
     "contact_us": "اتصل بنا",
-    "settings": "الإعدادات",
+
+    // Theme & Language
     "language": "اللغة",
     "theme": "المظهر",
     "dark_mode": "الوضع الداكن",
-    "light_mode": "الوضع الفاتح"
+    "light_mode": "الوضع الفاتح",
+    "rtl_mode": "وضع اليمين لليسار",
+    "ltr_mode": "وضع اليسار لليمين"
   }
 };
