@@ -16,6 +16,8 @@ export const FileUploadButton = ({ onFileUpload }: FileUploadButtonProps) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    console.log('Selected file type:', file.type);
+
     try {
       setIsUploading(true);
       const uploadedFile = await uploadFile(file);
@@ -23,7 +25,6 @@ export const FileUploadButton = ({ onFileUpload }: FileUploadButtonProps) => {
       toast.success('File uploaded successfully');
     } catch (error) {
       console.error('File upload error:', error);
-      toast.error('Failed to upload file');
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) {
@@ -38,21 +39,21 @@ export const FileUploadButton = ({ onFileUpload }: FileUploadButtonProps) => {
         type="file"
         ref={fileInputRef}
         onChange={handleFileSelect}
-        accept="image/*,video/*"
+        accept="image/*,video/*,audio/*"
         className="hidden"
       />
       {isUploading ? (
-        <Button disabled variant="secondary" size="icon" className="h-10 w-10">
+        <Button disabled variant="ghost" size="icon" className="h-10 w-10">
           <Loader2 className="h-5 w-5 animate-spin" />
         </Button>
       ) : (
         <Button
           onClick={() => fileInputRef.current?.click()}
-          variant="secondary"
+          variant="ghost"
           size="icon"
-          className="h-10 w-10 bg-green-500 hover:bg-green-600 text-white"
+          className="h-10 w-10"
         >
-          <ImagePlus className="h-5 w-5" />
+          <ImagePlus className="h-5 w-5 text-muted-foreground" />
         </Button>
       )}
     </div>

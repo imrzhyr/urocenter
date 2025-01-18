@@ -20,7 +20,9 @@ export const VoiceMessageButton = ({ onVoiceMessage }: VoiceMessageButtonProps) 
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
+      mediaRecorderRef.current = new MediaRecorder(stream, {
+        mimeType: 'audio/webm' // Use standard WebM audio format
+      });
       chunksRef.current = [];
 
       mediaRecorderRef.current.ondataavailable = (e) => {
@@ -33,8 +35,11 @@ export const VoiceMessageButton = ({ onVoiceMessage }: VoiceMessageButtonProps) 
         setIsUploading(true);
         try {
           const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
-          const file = new File([audioBlob], `voice-message-${Date.now()}.webm`, { type: 'audio/webm' });
+          const file = new File([audioBlob], `voice-message-${Date.now()}.webm`, { 
+            type: 'audio/webm'
+          });
 
+          // Get audio duration
           const arrayBuffer = await audioBlob.arrayBuffer();
           audioContextRef.current = new AudioContext();
           const audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
@@ -88,7 +93,7 @@ export const VoiceMessageButton = ({ onVoiceMessage }: VoiceMessageButtonProps) 
   return (
     <div className="flex items-center gap-2">
       {isUploading ? (
-        <Button disabled variant="secondary" size="icon" className="h-10 w-10">
+        <Button disabled variant="ghost" size="icon" className="h-10 w-10">
           <Loader2 className="h-5 w-5 animate-spin" />
         </Button>
       ) : isRecording ? (
@@ -98,21 +103,21 @@ export const VoiceMessageButton = ({ onVoiceMessage }: VoiceMessageButtonProps) 
           </span>
           <Button
             onClick={stopRecording}
-            variant="secondary"
+            variant="ghost"
             size="icon"
-            className="h-10 w-10 bg-red-500 hover:bg-red-600 text-white"
+            className="h-10 w-10 bg-red-50 hover:bg-red-100 dark:bg-red-900/10 dark:hover:bg-red-900/20"
           >
-            <Square className="h-5 w-5" />
+            <Square className="h-5 w-5 text-red-500" />
           </Button>
         </>
       ) : (
         <Button
           onClick={startRecording}
-          variant="secondary"
+          variant="ghost"
           size="icon"
-          className="h-10 w-10 bg-green-500 hover:bg-green-600 text-white"
+          className="h-10 w-10"
         >
-          <Mic className="h-5 w-5" />
+          <Mic className="h-5 w-5 text-primary" />
         </Button>
       )}
     </div>
