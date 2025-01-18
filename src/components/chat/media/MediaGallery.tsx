@@ -24,12 +24,20 @@ export const MediaGallery = ({ fileUrl, fileType, fileName, duration, className 
     <div className={cn("relative", className)}>
       {isImage && (
         <>
-          <img
-            src={fileUrl}
-            alt={fileName || 'Image'}
-            className="max-w-[200px] max-h-[200px] rounded-lg cursor-pointer object-cover"
-            onClick={() => setIsImageViewerOpen(true)}
-          />
+          <div className="relative max-w-[300px] rounded-lg overflow-hidden">
+            <img
+              src={fileUrl}
+              alt={fileName || 'Image'}
+              className="w-full h-auto object-cover cursor-pointer hover:opacity-95 transition-opacity"
+              onClick={() => setIsImageViewerOpen(true)}
+              loading="lazy"
+            />
+            {fileName && (
+              <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-1 truncate">
+                {fileName}
+              </div>
+            )}
+          </div>
           <ImageViewer
             isOpen={isImageViewerOpen}
             onClose={() => setIsImageViewerOpen(false)}
@@ -39,11 +47,13 @@ export const MediaGallery = ({ fileUrl, fileType, fileName, duration, className 
         </>
       )}
       {isVideo && (
-        <video
-          src={fileUrl}
-          controls
-          className="max-w-[200px] max-h-[200px] rounded-lg"
-        />
+        <div className="max-w-[300px] rounded-lg overflow-hidden">
+          <video
+            src={fileUrl}
+            controls
+            className="w-full h-auto"
+          />
+        </div>
       )}
       {isAudio && (
         <AudioPlayer
