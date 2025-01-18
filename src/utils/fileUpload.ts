@@ -27,7 +27,7 @@ export const uploadFile = async (file: File) => {
     const fileExt = file.name.split('.').pop() || '';
     const fileName = `${crypto.randomUUID()}-${file.name}`;
 
-    // Upload directly with proper content type
+    // Upload file with correct content type
     const { data, error } = await supabase.storage
       .from('chat_attachments')
       .upload(fileName, file, {
