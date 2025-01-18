@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 import { Profile } from "@/types/profile";
+import { AuroraBackground } from "@/components/ui/aurora-background";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -106,7 +107,7 @@ const Dashboard = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 dark:from-[#1A1F2C] dark:to-[#2D3748]">
+      <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner />
       </div>
     );
@@ -129,7 +130,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 dark:from-[#1A1F2C] dark:to-[#2D3748] transition-colors duration-300">
+    <AuroraBackground className="min-h-screen">
       <DashboardHeader />
       <main className="px-4 py-4">
         <div className="max-w-lg mx-auto">
@@ -165,7 +166,7 @@ const Dashboard = () => {
           </motion.div>
         </div>
       </main>
-    </div>
+    </AuroraBackground>
   );
 };
 
