@@ -59,6 +59,7 @@ export const MessageContainer = ({
         <MessageList 
           messages={messages}
           onReply={setReplyingTo}
+          currentUserId={userId || ''}
         />
         <TypingIndicator typingUsers={[]} />
       </div>
