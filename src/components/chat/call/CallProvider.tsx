@@ -58,7 +58,12 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     toggleSpeaker
   } = useAgoraCall({
     currentCallId,
-    profileId: profile?.id
+    profileId: profile?.id,
+    onCallConnected: () => {
+      setIsInCall(true);
+      setIsCalling(false);
+      startDurationTimer();
+    }
   });
 
   useEffect(() => {
@@ -107,7 +112,6 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
 
       clearCallTimeout();
       setCurrentCallId(callId);
-      setIsInCall(true);
       setIncomingCall(null);
       setIsCallEnded(false);
 
@@ -125,17 +129,6 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const rejectCall = async (callId: string) => {
-    try {
-      await updateCallStatus(callId, 'rejected', true);
-      setIncomingCall(null);
-      toast.info('Call rejected');
-    } catch (error) {
-      console.error('Error rejecting call:', error);
-      toast.error('Failed to reject call');
-    }
-  };
-
   const endCall = async () => {
     if (!currentCallId || !profile?.id) return;
 
@@ -144,9 +137,14 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       await leaveChannel();
       setIsCallEnded(true);
       stopDurationTimer();
-      callSoundUtils.stopCallSound(); // Stop any ongoing call sounds
-      setIsInCall(false); // Hide the call UI
-      setIsCalling(false); // Ensure calling UI is also hidden
+      callSoundUtils.stopCallSound();
+
+      // Keep the end call UI visible for 3 seconds
+      setTimeout(() => {
+        setIsInCall(false);
+        setIsCalling(false);
+        setIsCallEnded(false);
+      }, 3000);
 
       const { data: callData } = await supabase
         .from('calls')
@@ -185,6 +183,17 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error) {
       console.error('Error ending call:', error);
       toast.error('Failed to end call');
+    }
+  };
+
+  const rejectCall = async (callId: string) => {
+    try {
+      await updateCallStatus(callId, 'rejected', true);
+      setIncomingCall(null);
+      toast.info('Call rejected');
+    } catch (error) {
+      console.error('Error rejecting call:', error);
+      toast.error('Failed to reject call');
     }
   };
 
@@ -257,7 +266,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
           />
         )}
         {isCalling && <CallingUI recipientName={recipientNameRef.current} />}
-        {isInCall && !isCallEnded && <ActiveCallUI />}
+        {(isInCall || isCallEnded) && <ActiveCallUI />}
       </Portal>
     </CallContext.Provider>
   );
