@@ -17,18 +17,13 @@ export const uploadFile = async (file: File) => {
     const fileExt = file.name.split('.').pop() || '';
     const fileName = `${crypto.randomUUID()}.${fileExt}`;
 
-    // Create FormData and append file with proper type
-    const formData = new FormData();
-    formData.append('file', file, fileName);
-
-    // Upload with explicit content type and cacheControl
+    // Upload with explicit content type
     const { data, error } = await supabase.storage
       .from('chat_attachments')
       .upload(fileName, file, {
         contentType: file.type,
         cacheControl: '3600',
-        upsert: false,
-        duplex: 'half'
+        upsert: false
       });
 
     if (error) {
