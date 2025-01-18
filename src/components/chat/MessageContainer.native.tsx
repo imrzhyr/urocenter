@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Platform } from 'react-native';
+import { View, StyleSheet, ScrollView, Platform, Dimensions } from 'react-native';
 import { MessageList } from './MessageList.native';
 import { MessageInput } from './MessageInput.native';
 import { Message } from '@/types/profile';
@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    height: Platform.OS === 'web' ? '100vh' : '100%',
+    height: Platform.OS === 'web' ? Dimensions.get('window').height : '100%',
   },
   header: {
     backgroundColor: '#7c3aed',
