@@ -27,10 +27,12 @@ export const CallNotification = ({
 }: CallNotificationProps) => {
   useEffect(() => {
     if (open) {
+      // Start playing the call sound when the notification opens
       callSoundUtils.playCallSound();
     }
     
     return () => {
+      // Stop the sound when the notification closes
       callSoundUtils.stopCallSound();
     };
   }, [open]);
@@ -47,22 +49,22 @@ export const CallNotification = ({
 
   return (
     <AlertDialog open={open}>
-      <AlertDialogContent className="w-[90vw] max-w-[425px] overflow-hidden">
+      <AlertDialogContent className="sm:max-w-[425px]">
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
             <Phone className="h-5 w-5 text-green-500 animate-pulse" />
             Incoming Call
           </AlertDialogTitle>
-          <AlertDialogDescription className="break-words">
+          <AlertDialogDescription>
             {callerName} is calling you
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-          <AlertDialogCancel onClick={handleReject} className="flex items-center justify-center gap-2 w-full sm:w-auto">
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={handleReject} className="flex items-center gap-2">
             <PhoneOff className="h-4 w-4" />
             Reject
           </AlertDialogCancel>
-          <AlertDialogAction onClick={handleAccept} className="flex items-center justify-center gap-2 w-full sm:w-auto bg-green-500 hover:bg-green-600">
+          <AlertDialogAction onClick={handleAccept} className="flex items-center gap-2 bg-green-500 hover:bg-green-600">
             <Phone className="h-4 w-4" />
             Accept
           </AlertDialogAction>

@@ -1,29 +1,44 @@
-import { Phone, X } from "lucide-react";
+import React, { useEffect } from 'react';
 import { Button } from "@/components/ui/button";
+import { Phone, PhoneOff } from "lucide-react";
+import { useCall } from './CallProvider';
+import { callSoundUtils } from '@/utils/callSoundUtils';
 
 interface CallingUIProps {
-  receiverName: string;
-  onCancel: () => void;
+  recipientName: string;
 }
 
-export const CallingUI = ({ receiverName, onCancel }: CallingUIProps) => {
+export const CallingUI = ({ recipientName }: CallingUIProps) => {
+  const { endCall } = useCall();
+
+  useEffect(() => {
+    // Start playing the calling sound when the component mounts
+    callSoundUtils.startCallingSound();
+    
+    // Stop the sound when the component unmounts
+    return () => {
+      callSoundUtils.stopCallingSound();
+    };
+  }, []);
+
   return (
-    <div className="fixed inset-0 z-50 bg-black/90 flex flex-col items-center justify-center">
-      <h2 className="text-[18px] font-semibold leading-6 text-white mb-2">
-        {receiverName}
-      </h2>
-      <p className="text-[13px] leading-[16px] text-white/80 mb-8">
-        Calling...
-      </p>
-      
-      <div className="flex gap-4">
+    <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center text-white z-50">
+      <div className="text-center space-y-8">
+        <div className="space-y-4">
+          <div className="w-24 h-24 bg-primary rounded-full flex items-center justify-center mx-auto animate-pulse">
+            <Phone className="w-12 h-12" />
+          </div>
+          <h2 className="text-2xl font-semibold">Calling {recipientName}...</h2>
+          <p className="text-gray-400">Waiting for answer</p>
+        </div>
+        
         <Button
           variant="destructive"
-          size="icon"
-          className="h-14 w-14 rounded-full bg-red-500 hover:bg-red-600"
-          onClick={onCancel}
+          size="lg"
+          className="rounded-full p-6"
+          onClick={endCall}
         >
-          <X className="h-6 w-6" />
+          <PhoneOff className="w-6 h-6" />
         </Button>
       </div>
     </div>
