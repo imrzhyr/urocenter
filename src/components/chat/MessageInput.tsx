@@ -1,10 +1,11 @@
 import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Send, Paperclip } from "lucide-react";
+import { Send, Paperclip, FileImage } from "lucide-react";
 import { Message } from "@/types/profile";
 import { ReplyPreview } from "./reply/ReplyPreview";
 import { TextArea } from "./input/TextArea";
 import { uploadFile } from "@/utils/fileUpload";
+import { uploadMedicalFile } from "@/utils/medicalFileUpload";
 import { toast } from "sonner";
 import { FileInfo } from "@/types/chat";
 
@@ -26,6 +27,7 @@ export const MessageInput = ({
   const [message, setMessage] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const medicalFileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,9 +58,29 @@ export const MessageInput = ({
       toast.error('Failed to upload file');
     }
 
-    // Reset file input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
+    }
+  };
+
+  const handleMedicalFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const fileInfo = await uploadMedicalFile(file);
+      onSendMessage("", fileInfo);
+      if (onCancelReply) {
+        onCancelReply();
+      }
+      toast.success('Medical file uploaded successfully');
+    } catch (error) {
+      console.error('Medical file upload error:', error);
+      toast.error('Failed to upload medical file');
+    }
+
+    if (medicalFileInputRef.current) {
+      medicalFileInputRef.current.value = '';
     }
   };
 
@@ -70,6 +92,13 @@ export const MessageInput = ({
         onChange={handleFileUpload}
         className="hidden"
         accept="image/*,video/*,audio/*"
+      />
+      <input
+        type="file"
+        ref={medicalFileInputRef}
+        onChange={handleMedicalFileUpload}
+        className="hidden"
+        accept="image/jpeg"
       />
       {replyingTo && (
         <ReplyPreview
@@ -86,6 +115,15 @@ export const MessageInput = ({
           disabled={isLoading}
         >
           <Paperclip className="h-5 w-5" />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={() => medicalFileInputRef.current?.click()}
+          disabled={isLoading}
+        >
+          <FileImage className="h-5 w-5" />
         </Button>
         <TextArea
           ref={textareaRef}
