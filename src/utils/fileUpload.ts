@@ -1,13 +1,20 @@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+const ALLOWED_MIME_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'audio/mpeg',
+  'audio/ogg',
+  'audio/webm'
+];
+
 export const uploadFile = async (file: File) => {
   try {
     // Validate file type
-    if (!file.type.startsWith('image/') && 
-        !file.type.startsWith('audio/') && 
-        !file.type.startsWith('video/')) {
-      throw new Error('Only images, audio, and video files are supported');
+    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+      throw new Error(`Unsupported file type. Allowed types: ${ALLOWED_MIME_TYPES.join(', ')}`);
     }
 
     console.log('Uploading file:', {
@@ -18,7 +25,7 @@ export const uploadFile = async (file: File) => {
 
     // Generate unique filename while preserving extension
     const fileExt = file.name.split('.').pop() || '';
-    const fileName = `${crypto.randomUUID()}.${fileExt}`;
+    const fileName = `${crypto.randomUUID()}-${file.name}`;
 
     // Upload directly with proper content type
     const { data, error } = await supabase.storage
@@ -52,13 +59,7 @@ export const uploadFile = async (file: File) => {
     };
   } catch (error) {
     console.error('Error uploading file:', error);
-
-    if (error.message === 'Only images, audio, and video files are supported') {
-      toast.error('Unsupported file type. Only images, audio, and video files are allowed.');
-    } else {
-      toast.error('Failed to upload file. Please try again.');
-    }
-
+    toast.error(error.message || 'Failed to upload file. Please try again.');
     throw error;
   }
 };

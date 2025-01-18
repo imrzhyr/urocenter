@@ -43,7 +43,7 @@ export const FileUploadButton = ({ onFileUpload }: FileUploadButtonProps) => {
         type="file"
         ref={fileInputRef}
         onChange={handleFileSelect}
-        accept="image/*,video/*,audio/*"
+        accept="image/jpeg,image/png,image/webp,audio/mpeg,audio/ogg,audio/webm"
         className="hidden"
       />
       {isUploading ? (
