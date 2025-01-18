@@ -32,17 +32,21 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
     document.body.style.position = 'fixed';
     document.body.style.width = '100%';
     document.body.style.height = '100%';
+    document.body.style.top = '0';
+    document.body.style.left = '0';
     
     return () => {
       document.body.style.overflow = '';
       document.body.style.position = '';
       document.body.style.width = '';
       document.body.style.height = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
     };
   }, []);
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-[#f0f7ff] dark:bg-[#1A2433]">
+    <div className="fixed inset-0 flex flex-col bg-[#f0f7ff] dark:bg-[#1A2433] h-[100dvh]">
       <div className="absolute top-0 left-0 right-0 z-50 bg-[#0066CC] text-white">
         {header}
       </div>

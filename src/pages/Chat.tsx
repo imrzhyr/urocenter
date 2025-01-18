@@ -13,7 +13,7 @@ const Chat = () => {
   const { profile } = useProfile();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-[100dvh] bg-background">
       <ExpandableChat
         size="lg"
         position="bottom-right"
