@@ -20,7 +20,9 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
+      mediaRecorderRef.current = new MediaRecorder(stream, {
+        mimeType: 'audio/webm' // Use WebM format for better compatibility
+      });
       chunksRef.current = [];
 
       mediaRecorderRef.current.ondataavailable = (e) => {
@@ -33,13 +35,12 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
         setIsUploading(true);
         try {
           const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
-          const file = new File([audioBlob], `voice-message-${Date.now()}.webm`, { type: 'audio/webm' });
-
-          // Get audio duration
           const arrayBuffer = await audioBlob.arrayBuffer();
           audioContextRef.current = new AudioContext();
           const audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
           const audioDuration = Math.round(audioBuffer.duration);
+
+          const file = new File([audioBlob], `voice-message-${Date.now()}.webm`, { type: 'audio/webm' });
 
           const uploadedFile = await uploadFile(file);
           onRecordingComplete({
