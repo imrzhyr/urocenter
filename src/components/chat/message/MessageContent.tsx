@@ -15,7 +15,7 @@ export const MessageContent = ({ message, fromCurrentUser }: MessageContentProps
   return (
     <div
       className={cn(
-        "max-w-[70%] break-words rounded-lg p-2",
+        "max-w-[85%] sm:max-w-[70%] break-words rounded-lg p-2",
         fromCurrentUser
           ? "bg-primary text-primary-foreground"
           : "bg-secondary text-secondary-foreground",
