@@ -34,7 +34,24 @@ export const MessageItem = ({ message, fromCurrentUser, onDragEnd }: MessageItem
         )}
         
         <div className="relative w-full flex flex-col">
-          {message.replyTo && <ReplyPreview replyTo={message.replyTo} />}
+          {message.replyTo && (
+            <ReplyPreview 
+              message={{
+                id: 'reply-' + message.id,
+                content: message.replyTo.content,
+                created_at: message.created_at,
+                updated_at: message.created_at,
+                user_id: message.user_id,
+                is_from_doctor: message.is_from_doctor,
+                is_read: true,
+                status: 'seen',
+                sender_name: message.replyTo.sender_name,
+                file_type: message.replyTo.file_type,
+                file_url: message.replyTo.file_url
+              }}
+              onCancelReply={() => {}}
+            />
+          )}
           <div className={`flex ${fromCurrentUser ? 'justify-end' : 'justify-start'} w-full`}>
             <MessageContent message={message} fromCurrentUser={fromCurrentUser} />
           </div>
