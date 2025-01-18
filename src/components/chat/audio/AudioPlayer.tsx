@@ -6,11 +6,12 @@ import { AudioProgress } from "./AudioProgress";
 
 interface AudioPlayerProps {
   url: string;
+  messageId: string; // Added this prop
   duration?: number | null;
   className?: string;
 }
 
-export const AudioPlayer = ({ url, duration, className }: AudioPlayerProps) => {
+export const AudioPlayer = ({ url, messageId, duration, className }: AudioPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [audioDuration, setAudioDuration] = useState(duration || 0);
