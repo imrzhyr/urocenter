@@ -4,7 +4,8 @@ import { TextArea } from "./input/TextArea";
 import { SendButton } from "./input/SendButton";
 import { ReplyPreview } from "./reply/ReplyPreview";
 import { Message } from "@/types/profile";
-import { ChatInputTools } from "./input/ChatInputTools";
+import { FileUploadButton } from "./media/FileUploadButton";
+import { VoiceMessageButton } from "./media/VoiceMessageButton";
 
 export interface MessageInputProps {
   onSendMessage: (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }, replyTo?: Message) => void;
@@ -63,11 +64,10 @@ export const MessageInput = ({
         />
       )}
       <div className="relative flex items-center gap-2 p-4 max-w-7xl mx-auto">
-        <ChatInputTools
-          onFileUpload={handleFileUpload}
-          onVoiceMessage={handleVoiceMessage}
-          disabled={isLoading}
-        />
+        <div className="flex items-center gap-2">
+          <FileUploadButton onFileUpload={handleFileUpload} />
+          <VoiceMessageButton onVoiceMessage={handleVoiceMessage} />
+        </div>
         <TextArea
           ref={textareaRef}
           value={message}

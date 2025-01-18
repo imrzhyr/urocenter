@@ -21,7 +21,7 @@ export const VoiceMessageButton = ({ onVoiceMessage }: VoiceMessageButtonProps) 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaRecorderRef.current = new MediaRecorder(stream, {
-        mimeType: 'audio/webm'
+        mimeType: 'audio/webm' // Explicitly set WebM audio format
       });
       chunksRef.current = [];
 
@@ -35,21 +35,29 @@ export const VoiceMessageButton = ({ onVoiceMessage }: VoiceMessageButtonProps) 
         setIsUploading(true);
         try {
           const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
+          console.log('Audio blob type:', audioBlob.type);
+
+          // Get audio duration
           const arrayBuffer = await audioBlob.arrayBuffer();
           audioContextRef.current = new AudioContext();
           const audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
           const audioDuration = Math.round(audioBuffer.duration);
 
-          const file = new File([audioBlob], `voice-message-${Date.now()}.webm`, { type: 'audio/webm' });
+          // Create File object with proper MIME type
+          const file = new File([audioBlob], `voice-message-${Date.now()}.webm`, { 
+            type: 'audio/webm'
+          });
+          console.log('File type before upload:', file.type);
 
           const uploadedFile = await uploadFile(file);
           onVoiceMessage({
             ...uploadedFile,
             duration: audioDuration
           });
+          toast.success('Voice message sent');
         } catch (error) {
           console.error('Error processing voice message:', error);
-          toast.error('Failed to process voice message');
+          toast.error('Failed to send voice message');
         } finally {
           setIsUploading(false);
           setDuration(0);
