@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Message } from '@/types/profile';
 import { TypingIndicator } from './TypingIndicator';
-import { Paperclip, Mic, CornerDownLeft, Phone, Image } from "lucide-react";
+import { Mic, Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ChatBubble, ChatBubbleAvatar, ChatBubbleMessage } from "@/components/ui/chat-bubble";
 import { ChatMessageList } from "@/components/ui/chat-message-list";
@@ -10,6 +10,8 @@ import { useProfile } from '@/hooks/useProfile';
 import { format } from 'date-fns';
 import { MediaGallery } from './media/MediaGallery';
 import { AudioPlayer } from './audio/AudioPlayer';
+import { uploadFile } from '@/utils/fileUpload';
+import { toast } from 'sonner';
 
 interface MessageContainerProps {
   messages: Message[];
@@ -30,6 +32,7 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
 }) => {
   const [message, setMessage] = useState("");
   const { profile } = useProfile();
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
   
   const typingUsers = messages && messages.length > 0 ? 
     messages[messages.length - 1]?.typing_users || [] : 
@@ -41,6 +44,23 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
       onSendMessage(message.trim());
       setMessage("");
       onTyping?.(false);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const fileInfo = await uploadFile(file);
+      onSendMessage("", fileInfo);
+    } catch (error) {
+      console.error('File upload error:', error);
+      toast.error('Failed to upload file');
+    }
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -66,7 +86,7 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
           url={msg.file_url || ''}
           messageId={msg.id}
           duration={msg.duration}
-          className="max-w-[200px]"
+          className="max-w-[180px]"
         />
       );
     }
@@ -92,7 +112,7 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
         {header}
       </div>
       
-      <div className="absolute inset-0 top-[56px] bottom-[64px] w-full">
+      <div className="absolute inset-0 top-[56px] bottom-[52px] w-full">
         <ChatMessageList>
           {messages.map((msg) => {
             const fromCurrentUser = msg.is_from_doctor === (profile?.role === 'admin');
@@ -125,57 +145,32 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
         </ChatMessageList>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 z-50 bg-[#1F2937] dark:bg-[#1F2937] w-full p-4">
-        <form
-          onSubmit={handleSubmit}
-          className="relative rounded-lg bg-[#2D3748] focus-within:ring-1 focus-within:ring-ring p-1"
-        >
-          <ChatInput
-            value={message}
-            onChange={(e) => {
-              setMessage(e.target.value);
-              onTyping?.(e.target.value.length > 0);
-            }}
-            placeholder="Type a message"
-            className="min-h-12 resize-none rounded-lg bg-[#2D3748] text-white border-0 p-3 shadow-none focus-visible:ring-0"
+      <div className="absolute bottom-0 left-0 right-0 z-50 bg-[#1F2937] dark:bg-[#1F2937] w-full py-2 px-4">
+        <form onSubmit={handleSubmit} className="flex items-center gap-2">
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileUpload}
+            accept="image/*,video/*"
+            className="hidden"
           />
-          <div className="flex items-center p-3 pt-0 justify-between">
-            <div className="flex gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                type="button"
-                className="text-gray-400 hover:text-white"
-              >
-                <Paperclip className="size-5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                type="button"
-                className="text-gray-400 hover:text-white"
-              >
-                <Image className="size-5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                type="button"
-                className="text-gray-400 hover:text-white"
-              >
-                <Mic className="size-5" />
-              </Button>
-            </div>
-            <Button 
-              type="submit" 
-              size="sm" 
-              className="ml-auto gap-1.5 bg-[#015C4B] hover:bg-[#015C4B]/90"
-              disabled={!message.trim()}
-            >
-              Send
-              <CornerDownLeft className="size-3.5" />
-            </Button>
-          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="text-gray-400 hover:text-white"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <Image className="size-5" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="text-gray-400 hover:text-white"
+          >
+            <Mic className="size-5" />
+          </Button>
         </form>
       </div>
     </div>
