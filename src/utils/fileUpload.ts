@@ -34,14 +34,13 @@ export const uploadFile = async (file: File) => {
       contentType: file.type
     });
 
-    // Create FormData
-    const formData = new FormData();
-    formData.append('file', file);
+    // Convert file to ArrayBuffer and then to Uint8Array for binary upload
+    const arrayBuffer = await file.arrayBuffer();
+    const uint8Array = new Uint8Array(arrayBuffer);
 
-    // Upload file with FormData
     const { data, error } = await supabase.storage
       .from('chat_attachments')
-      .upload(fileName, file, {
+      .upload(fileName, uint8Array, {
         contentType: file.type,
         cacheControl: '3600',
         upsert: false
