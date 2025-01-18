@@ -26,7 +26,50 @@ export const MessageInput = ({
   const [message, setMessage] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const testFileInputRef = useRef<HTMLInputElement>(null);
   const medicalFileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleTestUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      console.log('Uploading file:', file.type); // Log the file type
+
+      const fileExt = file.name.split('.').pop();
+      const fileName = `test_${crypto.randomUUID()}.${fileExt}`;
+      
+      console.log('Starting upload to Supabase with fileName:', fileName);
+      
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('chat_attachments')
+        .upload(fileName, file, {
+          contentType: file.type,
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('chat_attachments')
+        .getPublicUrl(fileName);
+
+      console.log('Upload successful. Public URL:', publicUrl);
+      toast.success('Test upload successful');
+      
+    } catch (error) {
+      console.error('Test upload error:', error);
+      toast.error('Test upload failed');
+    }
+
+    if (testFileInputRef.current) {
+      testFileInputRef.current.value = '';
+    }
+  };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -150,6 +193,13 @@ export const MessageInput = ({
       />
       <input
         type="file"
+        ref={testFileInputRef}
+        onChange={handleTestUpload}
+        className="hidden"
+        accept="image/jpeg"
+      />
+      <input
+        type="file"
         ref={medicalFileInputRef}
         onChange={handleMedicalFileUpload}
         className="hidden"
@@ -170,6 +220,15 @@ export const MessageInput = ({
           disabled={isLoading}
         >
           <Paperclip className="h-5 w-5" />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={() => testFileInputRef.current?.click()}
+          disabled={isLoading}
+        >
+          <FileImage className="h-5 w-5 text-red-500" />
         </Button>
         <Button
           type="button"
