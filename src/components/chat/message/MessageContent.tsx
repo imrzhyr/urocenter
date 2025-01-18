@@ -2,6 +2,8 @@ import { Message } from "@/types/profile";
 import { cn } from "@/lib/utils";
 import { MediaGallery } from "../media/MediaGallery";
 import { format } from "date-fns";
+import { useState } from "react";
+import { AlertCircle } from "lucide-react";
 
 interface MessageContentProps {
   message: Message;
@@ -9,6 +11,7 @@ interface MessageContentProps {
 }
 
 export const MessageContent = ({ message, fromCurrentUser }: MessageContentProps) => {
+  const [imageError, setImageError] = useState(false);
   const hasMedia = message.file_url && message.file_type;
   const messageTime = message.created_at ? format(new Date(message.created_at), 'HH:mm') : '';
 
@@ -17,8 +20,14 @@ export const MessageContent = ({ message, fromCurrentUser }: MessageContentProps
     hasMedia,
     fileUrl: message.file_url,
     fileType: message.file_type,
-    fileName: message.file_name
+    fileName: message.file_name,
+    imageError
   });
+
+  const handleImageError = () => {
+    console.error('Image failed to load:', message.file_url);
+    setImageError(true);
+  };
 
   return (
     <div
@@ -33,23 +42,33 @@ export const MessageContent = ({ message, fromCurrentUser }: MessageContentProps
       {hasMedia && (
         <div className="mb-2">
           {message.file_type?.startsWith('image/') ? (
-            <img 
-              src={message.file_url} 
-              alt={message.file_name || 'Image'} 
-              className="max-w-full rounded-lg"
-              loading="lazy"
-            />
+            imageError ? (
+              <div className="p-4 bg-background/10 rounded-lg flex items-center gap-2 text-sm">
+                <AlertCircle className="h-4 w-4" />
+                <span>Image no longer available</span>
+              </div>
+            ) : (
+              <img 
+                src={message.file_url} 
+                alt={message.file_name || 'Image'} 
+                className="max-w-full rounded-lg"
+                loading="lazy"
+                onError={handleImageError}
+              />
+            )
           ) : message.file_type?.startsWith('video/') ? (
             <video 
               src={message.file_url} 
               controls 
               className="max-w-full rounded-lg"
+              onError={handleImageError}
             />
           ) : message.file_type?.startsWith('audio/') ? (
             <audio 
               src={message.file_url} 
               controls 
               className="w-full"
+              onError={handleImageError}
             />
           ) : (
             <div className="p-2 bg-background/10 rounded-lg">
