@@ -14,6 +14,8 @@ interface MediaGalleryProps {
 export const MediaGallery = ({ fileUrl, fileType, fileName, duration, className }: MediaGalleryProps) => {
   const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
 
+  console.log('MediaGallery props:', { fileUrl, fileType, fileName, duration });
+
   if (!fileUrl || !fileType) return null;
 
   const isImage = fileType.startsWith('image/');
