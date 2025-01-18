@@ -1,14 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Phone, PhoneOff, Mic, MicOff, Volume2, VolumeX } from "lucide-react";
+import { Phone, PhoneOff, Mic, MicOff, Volume2, VolumeX, Minimize2 } from "lucide-react";
 import { useCall } from './CallProvider';
 import { motion, AnimatePresence } from 'framer-motion';
+import { MinimizedCallUI } from './MinimizedCallUI';
 
 export const ActiveCallUI = () => {
   const { callDuration, endCall, toggleMute, toggleSpeaker, isCallEnded } = useCall();
-  const [isMuted, setIsMuted] = React.useState(false);
-  const [isSpeakerOn, setIsSpeakerOn] = React.useState(false);
-  const [showUI, setShowUI] = React.useState(true);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isSpeakerOn, setIsSpeakerOn] = useState(false);
+  const [showUI, setShowUI] = useState(true);
+  const [isMinimized, setIsMinimized] = useState(false);
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -35,6 +37,10 @@ export const ActiveCallUI = () => {
     }
   }, [isCallEnded]);
 
+  if (isMinimized) {
+    return <MinimizedCallUI onMaximize={() => setIsMinimized(false)} />;
+  }
+
   return (
     <AnimatePresence>
       {showUI && (
@@ -44,6 +50,15 @@ export const ActiveCallUI = () => {
           exit={{ opacity: 0 }}
           className="fixed inset-0 bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center text-white z-50"
         >
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-4 right-4 text-white hover:bg-white/10"
+            onClick={() => setIsMinimized(true)}
+          >
+            <Minimize2 className="h-5 w-5" />
+          </Button>
+
           <motion.div 
             className="text-center space-y-8"
             initial={{ scale: 0.9, opacity: 0 }}
