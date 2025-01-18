@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Paperclip } from "lucide-react";
 import { toast } from "sonner";
+import { uploadFile } from '@/utils/fileUpload';
 
 interface FileUploadButtonProps {
   onFileSelect: (fileInfo: { url: string; name: string; type: string }) => void;
@@ -25,7 +26,6 @@ export const FileUploadButton: React.FC<FileUploadButtonProps> = ({
     console.log('Selected file:', file);
 
     try {
-      const { uploadFile } = await import('@/utils/fileUpload');
       const fileInfo = await uploadFile(file);
       onFileSelect(fileInfo);
       toast.success('File uploaded successfully');

@@ -73,7 +73,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
     <div className="p-4 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t">
       {replyingTo && (
         <div className="mb-2">
-          <ReplyPreview replyTo={replyingTo} />
+          <ReplyPreview message={replyingTo} onCancel={onCancelReply} />
         </div>
       )}
       <div className="flex items-end gap-2">

@@ -13,12 +13,12 @@ export const uploadFile = async (file: File) => {
     const fileExt = file.name.split('.').pop();
     const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
 
-    // Upload to the raw_uploads bucket
+    // Upload directly to raw_uploads bucket without any transformation
     const { data, error } = await supabase.storage
       .from('raw_uploads')
       .upload(fileName, file, {
         cacheControl: '3600',
-        contentType: file.type, // Explicitly set the content type
+        contentType: file.type,
         upsert: false
       });
 
