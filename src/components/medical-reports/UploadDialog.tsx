@@ -12,6 +12,8 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { logger } from '@/utils/logger';
+import { PostgrestError } from "@supabase/supabase-js";
+import { StorageError } from "@supabase/storage-js";
 
 interface UploadDialogProps {
   open: boolean;
@@ -68,7 +70,7 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
         .maybeSingle();
 
       if (profileError) {
-        logger.error("Profile error:", profileError);
+        logger.error("Profile error", "Failed to fetch profile", profileError);
         toast.error("Error accessing profile");
         return;
       }
@@ -94,7 +96,7 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
         });
 
       if (uploadError) {
-        logger.error("Storage upload error:", uploadError);
+        logger.error("Storage upload error", uploadError.message, uploadError);
         throw uploadError;
       }
 
@@ -108,7 +110,7 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
         });
 
       if (dbError) {
-        logger.error("Database insert error:", dbError);
+        logger.error("Database insert error", dbError.message, dbError);
         throw dbError;
       }
 
@@ -116,7 +118,7 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
       onUploadSuccess();
       onOpenChange(false);
     } catch (error) {
-      logger.error("Upload error:", error);
+      logger.error("Upload error", error instanceof Error ? error.message : 'Unknown error', error);
       toast.error("Failed to upload file");
     }
   };
