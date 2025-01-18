@@ -13,7 +13,7 @@ interface MessageContentProps {
 export const MessageContent = ({ message, fromCurrentUser }: MessageContentProps) => {
   return (
     <div className={cn(
-      "max-w-[85%] sm:max-w-[70%] md:max-w-[60%] rounded-lg p-3 space-y-1 shadow-sm break-words",
+      "max-w-[120px] sm:max-w-[120px] md:max-w-[120px] rounded-lg p-2 space-y-1 shadow-sm break-words",
       fromCurrentUser
         ? "bg-[#0066CC] text-white ml-auto" 
         : "bg-white dark:bg-[#1A2433] dark:border dark:border-gray-700/50 text-gray-800 dark:text-white"
@@ -27,7 +27,7 @@ export const MessageContent = ({ message, fromCurrentUser }: MessageContentProps
       )}
       
       {message.file_url && (message.file_type?.startsWith('image/') || message.file_type?.startsWith('video/')) && (
-        <div className="mb-2">
+        <div className="mb-2 max-w-[120px]">
           <MediaGallery
             url={message.file_url}
             type={message.file_type}
