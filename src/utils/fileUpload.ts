@@ -3,29 +3,20 @@ import { toast } from "sonner";
 
 export const uploadFile = async (file: File) => {
   try {
-    // Get the file extension and convert to lowercase
-    const fileExt = file.name.split('.').pop()?.toLowerCase();
-    
-    // Use the file's actual MIME type instead of trying to determine it
-    const mimeType = file.type;
-
-    // Validate mime type
-    if (!mimeType.startsWith('image/') && 
-        !mimeType.startsWith('audio/') && 
-        !mimeType.startsWith('video/')) {
-      throw new Error('Unsupported file type');
+    // Simple validation for image and audio files
+    if (!file.type.startsWith('image/') && 
+        !file.type.startsWith('audio/') && 
+        !file.type.startsWith('video/')) {
+      throw new Error('Only images, audio, and video files are supported');
     }
 
-    const fileName = `${crypto.randomUUID()}.${fileExt}`;
-    const filePath = fileName;
+    const fileName = `${crypto.randomUUID()}-${file.name}`;
 
-    // Upload the file directly with its original MIME type
+    // Upload file directly without any conversion
     const { data, error } = await supabase.storage
       .from('chat_attachments')
-      .upload(filePath, file, {
-        contentType: mimeType,
-        cacheControl: '3600',
-        upsert: false
+      .upload(fileName, file, {
+        contentType: file.type // Use the file's original MIME type
       });
 
     if (error) {
@@ -34,12 +25,12 @@ export const uploadFile = async (file: File) => {
 
     const { data: { publicUrl } } = supabase.storage
       .from('chat_attachments')
-      .getPublicUrl(filePath);
+      .getPublicUrl(fileName);
 
     return {
       url: publicUrl,
       name: file.name,
-      type: mimeType
+      type: file.type // Use the original file type
     };
   } catch (error) {
     console.error('Error uploading file:', error);
