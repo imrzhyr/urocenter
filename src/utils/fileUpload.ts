@@ -4,6 +4,7 @@ import { logger } from '@/utils/logger';
 
 export const uploadFile = async (file: File) => {
   try {
+    // Log the original file details
     logger.info('FileUpload', 'Starting file upload', {
       name: file.name,
       type: file.type,

@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { logger } from '@/utils/logger';
 
 interface UploadDialogProps {
   open: boolean;
@@ -67,7 +68,7 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
         .maybeSingle();
 
       if (profileError) {
-        console.error("Profile error:", profileError);
+        logger.error("Profile error:", profileError);
         toast.error("Error accessing profile");
         return;
       }
@@ -79,15 +80,21 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
 
       const fileName = `${profileData.id}/${crypto.randomUUID()}-${file.name}`;
       
+      logger.info('FileUpload', 'Starting upload', {
+        fileName,
+        contentType: file.type
+      });
+
       const { error: uploadError } = await supabase.storage
         .from('medical_reports')
         .upload(fileName, file, {
+          contentType: file.type,
           cacheControl: '3600',
           upsert: false
         });
 
       if (uploadError) {
-        console.error("Storage upload error:", uploadError);
+        logger.error("Storage upload error:", uploadError);
         throw uploadError;
       }
 
@@ -101,7 +108,7 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
         });
 
       if (dbError) {
-        console.error("Database insert error:", dbError);
+        logger.error("Database insert error:", dbError);
         throw dbError;
       }
 
@@ -109,7 +116,7 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
       onUploadSuccess();
       onOpenChange(false);
     } catch (error) {
-      console.error("Upload error:", error);
+      logger.error("Upload error:", error);
       toast.error("Failed to upload file");
     }
   };
