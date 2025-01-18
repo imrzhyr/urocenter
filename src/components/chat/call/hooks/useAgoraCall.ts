@@ -6,9 +6,10 @@ import { supabase } from '@/integrations/supabase/client';
 interface UseAgoraCallProps {
   currentCallId: string | null;
   profileId: string | null;
+  onCallConnected?: () => void;
 }
 
-export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) => {
+export const useAgoraCall = ({ currentCallId, profileId, onCallConnected }: UseAgoraCallProps) => {
   const agoraClient = useRef<IAgoraRTCClient | null>(null);
   const localAudioTrack = useRef<ILocalAudioTrack | null>(null);
   const audioContext = useRef<AudioContext | null>(null);
@@ -41,6 +42,8 @@ export const useAgoraCall = ({ currentCallId, profileId }: UseAgoraCallProps) =>
         await agoraClient.current?.subscribe(user, mediaType);
         if (mediaType === 'audio') {
           user.audioTrack?.play();
+          // Call the onCallConnected callback when audio is published
+          onCallConnected?.();
         }
         console.log('Subscribe success');
       });
