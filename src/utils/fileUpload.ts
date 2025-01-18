@@ -24,11 +24,12 @@ export const uploadFile = async (file: File) => {
     });
 
     // Generate unique filename while preserving extension
-    const fileName = `${crypto.randomUUID()}-${file.name}`;
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${crypto.randomUUID()}.${fileExt}`;
 
     // Upload file with explicit content type
     const { data, error } = await supabase.storage
-      .from('chat_attachments')
+      .from('raw_uploads')
       .upload(fileName, file, {
         contentType: file.type,
         cacheControl: '3600',
@@ -42,7 +43,7 @@ export const uploadFile = async (file: File) => {
 
     // Get the public URL
     const { data: publicUrlData } = supabase.storage
-      .from('chat_attachments')
+      .from('raw_uploads')
       .getPublicUrl(fileName);
 
     console.log('Upload successful:', {

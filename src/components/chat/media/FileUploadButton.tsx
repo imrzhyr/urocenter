@@ -1,40 +1,23 @@
-import { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { ImagePlus, Loader2 } from "lucide-react";
-import { toast } from "sonner";
-import { uploadFile } from "@/utils/fileUpload";
+import { useState, useRef } from "react";
 
 interface FileUploadButtonProps {
-  onFileUpload: (fileInfo: { url: string; name: string; type: string }) => void;
+  onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export const FileUploadButton = ({ onFileUpload }: FileUploadButtonProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleClick = () => {
+    fileInputRef.current?.click();
+  };
 
-    console.log('Selected file:', {
-      name: file.name,
-      type: file.type,
-      size: file.size
-    });
-
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsUploading(true);
     try {
-      setIsUploading(true);
-      // Create a new File object with explicit type
-      const fileWithType = new File([file], file.name, {
-        type: file.type
-      });
-      
-      const uploadedFile = await uploadFile(fileWithType);
-      onFileUpload(uploadedFile);
-      toast.success('File uploaded successfully');
-    } catch (error) {
-      console.error('File upload error:', error);
-      toast.error('Failed to upload file');
+      await onFileUpload(e);
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) {
@@ -48,7 +31,7 @@ export const FileUploadButton = ({ onFileUpload }: FileUploadButtonProps) => {
       <input
         type="file"
         ref={fileInputRef}
-        onChange={handleFileSelect}
+        onChange={handleChange}
         accept="image/jpeg,image/png,image/webp,audio/mpeg,audio/ogg,audio/webm"
         className="hidden"
       />
@@ -58,7 +41,7 @@ export const FileUploadButton = ({ onFileUpload }: FileUploadButtonProps) => {
         </Button>
       ) : (
         <Button
-          onClick={() => fileInputRef.current?.click()}
+          onClick={handleClick}
           variant="ghost"
           size="icon"
           className="h-10 w-10"

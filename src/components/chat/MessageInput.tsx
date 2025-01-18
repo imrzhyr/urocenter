@@ -6,8 +6,9 @@ import { ReplyPreview } from "./reply/ReplyPreview";
 import { Message } from "@/types/profile";
 import { FileUploadButton } from "./media/FileUploadButton";
 import { VoiceMessageButton } from "./media/VoiceMessageButton";
+import { uploadFile } from "@/utils/fileUpload";
 
-export interface MessageInputProps {
+interface MessageInputProps {
   onSendMessage: (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }, replyTo?: Message) => void;
   isLoading?: boolean;
   replyingTo?: Message | null;
@@ -41,17 +42,24 @@ export const MessageInput = ({
     }
   };
 
-  const handleFileUpload = (fileInfo: { url: string; name: string; type: string }) => {
-    onSendMessage("", fileInfo, replyingTo || undefined);
-    if (onCancelReply) {
-      onCancelReply();
-    }
-  };
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  const handleVoiceMessage = (fileInfo: { url: string; name: string; type: string; duration: number }) => {
-    onSendMessage("", fileInfo, replyingTo || undefined);
-    if (onCancelReply) {
-      onCancelReply();
+    console.log('Selected file:', {
+      name: file.name,
+      type: file.type,
+      size: file.size
+    });
+
+    try {
+      const fileInfo = await uploadFile(file);
+      onSendMessage("", fileInfo, replyingTo || undefined);
+      if (onCancelReply) {
+        onCancelReply();
+      }
+    } catch (error) {
+      console.error('File upload error:', error);
     }
   };
 
@@ -65,8 +73,8 @@ export const MessageInput = ({
       )}
       <div className="relative flex items-center gap-2 p-4 max-w-7xl mx-auto">
         <div className="flex items-center gap-2">
-          <FileUploadButton onFileUpload={handleFileUpload} />
-          <VoiceMessageButton onVoiceMessage={handleVoiceMessage} />
+          <FileUploadButton onFileUpload={handleFileSelect} />
+          <VoiceMessageButton onVoiceMessage={(fileInfo) => onSendMessage("", fileInfo)} />
         </div>
         <TextArea
           ref={textareaRef}
