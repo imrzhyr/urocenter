@@ -9,6 +9,20 @@ interface FileUploadButtonProps {
   isLoading?: boolean;
 }
 
+// Define allowed MIME types
+const ALLOWED_MIME_TYPES = {
+  // Images
+  'image/jpeg': true,
+  'image/png': true,
+  'image/gif': true,
+  'image/webp': true,
+  // Audio
+  'audio/mpeg': true,
+  'audio/wav': true,
+  'audio/ogg': true,
+  'audio/webm': true,
+};
+
 export const FileUploadButton: React.FC<FileUploadButtonProps> = ({
   onFileSelect,
   isLoading
@@ -19,11 +33,26 @@ export const FileUploadButton: React.FC<FileUploadButtonProps> = ({
     fileInputRef.current?.click();
   };
 
+  const validateFileType = (file: File): boolean => {
+    if (!ALLOWED_MIME_TYPES[file.type as keyof typeof ALLOWED_MIME_TYPES]) {
+      toast.error('Only image and audio files are allowed');
+      return false;
+    }
+    return true;
+  };
+
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    console.log('Selected file:', file);
+    console.log('Selected file type:', file.type);
+
+    if (!validateFileType(file)) {
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      return;
+    }
 
     try {
       const fileInfo = await uploadFile(file);
@@ -47,7 +76,7 @@ export const FileUploadButton: React.FC<FileUploadButtonProps> = ({
         ref={fileInputRef}
         onChange={handleFileChange}
         className="hidden"
-        accept="image/*,video/*,audio/*,.pdf,.doc,.docx"
+        accept="image/*,audio/*"
       />
       <Button
         variant="ghost"
