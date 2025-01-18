@@ -34,7 +34,11 @@ export const uploadFile = async (file: File) => {
       contentType: file.type
     });
 
-    // Upload file with explicit content type
+    // Create FormData
+    const formData = new FormData();
+    formData.append('file', file);
+
+    // Upload file with FormData
     const { data, error } = await supabase.storage
       .from('chat_attachments')
       .upload(fileName, file, {
