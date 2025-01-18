@@ -78,15 +78,16 @@ export const useChat = (userId?: string) => {
     try {
       setIsLoading(true);
 
+      // Create the message data without stringifying file info
       const messageData = {
         content: content.trim(),
         user_id: userId,
         is_from_doctor: profile.role === 'admin',
         status: 'not_seen',
-        file_url: fileInfo?.url,
-        file_name: fileInfo?.name,
-        file_type: fileInfo?.type,
-        duration: fileInfo?.duration,
+        file_url: fileInfo?.url || null,
+        file_name: fileInfo?.name || null,
+        file_type: fileInfo?.type || null,
+        duration: fileInfo?.duration || null,
         sender_name: profile.full_name || 'Unknown User',
         referenced_message: replyTo ? {
           id: replyTo.id,
@@ -96,7 +97,7 @@ export const useChat = (userId?: string) => {
         } : null
       };
 
-      console.log('Sending message:', messageData);
+      console.log('Sending message with data:', messageData);
 
       const { data, error } = await supabase
         .from('messages')
