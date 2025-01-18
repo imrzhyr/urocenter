@@ -8,6 +8,7 @@ import { uploadFile } from "@/utils/fileUpload";
 import { uploadMedicalFile } from "@/utils/medicalFileUpload";
 import { toast } from "sonner";
 import { FileInfo } from "@/types/chat";
+import { supabase } from "@/integrations/supabase/client";
 
 interface MessageInputProps {
   onSendMessage: (content: string, fileInfo?: FileInfo) => void;
@@ -29,27 +30,38 @@ export const MessageInput = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const medicalFileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (message.trim()) {
-      onSendMessage(message.trim());
-      setMessage("");
-      if (onCancelReply) {
-        onCancelReply();
-      }
-      if (textareaRef.current) {
-        textareaRef.current.style.height = 'auto';
-      }
-    }
-  };
-
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     try {
-      const fileInfo = await uploadFile(file);
+      // Upload file to Supabase Storage first
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${crypto.randomUUID()}.${fileExt}`;
+      
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('chat_attachments')
+        .upload(fileName, file, {
+          contentType: file.type,
+          cacheControl: '3600'
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Get the public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('chat_attachments')
+        .getPublicUrl(fileName);
+
+      // Now send the message with the file info
+      const fileInfo = {
+        url: publicUrl,
+        name: file.name,
+        type: file.type
+      };
+
       onSendMessage("", fileInfo);
+      
       if (onCancelReply) {
         onCancelReply();
       }
@@ -68,7 +80,28 @@ export const MessageInput = ({
     if (!file) return;
 
     try {
-      const fileInfo = await uploadMedicalFile(file);
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${crypto.randomUUID()}.${fileExt}`;
+      
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('medical_attachments')
+        .upload(fileName, file, {
+          contentType: file.type,
+          cacheControl: '3600'
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('medical_attachments')
+        .getPublicUrl(fileName);
+
+      const fileInfo = {
+        url: publicUrl,
+        name: file.name,
+        type: file.type
+      };
+
       onSendMessage("", fileInfo);
       if (onCancelReply) {
         onCancelReply();
@@ -81,6 +114,20 @@ export const MessageInput = ({
 
     if (medicalFileInputRef.current) {
       medicalFileInputRef.current.value = '';
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (message.trim()) {
+      onSendMessage(message.trim());
+      setMessage("");
+      if (onCancelReply) {
+        onCancelReply();
+      }
+      if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto';
+      }
     }
   };
 
