@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { toast } from 'sonner';
 import { AudioControls } from './AudioControls';
 import { AudioProgress } from './AudioProgress';
@@ -14,8 +14,28 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
   const [currentTime, setCurrentTime] = useState(0);
   const [audioDuration, setAudioDuration] = useState(duration);
   const [progress, setProgress] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    const checkAudioAccess = async () => {
+      try {
+        const response = await fetch(audioUrl, { method: 'HEAD' });
+        if (!response.ok) {
+          throw new Error('Audio file not accessible');
+        }
+        setIsLoading(false);
+      } catch (err) {
+        console.error('Audio access error:', err);
+        setError('Unable to load audio');
+        setIsLoading(false);
+        toast.error('Failed to load audio file');
+      }
+    };
+
+    checkAudioAccess();
+  }, [audioUrl]);
 
   useEffect(() => {
     const audio = new Audio();
@@ -44,6 +64,7 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
       console.error('Audio loading error:', e);
       setIsPlaying(false);
       setIsLoading(false);
+      setError('Failed to load audio');
       
       // Check WebM support
       const canPlayWebm = audio.canPlayType('audio/webm; codecs="opus"');
@@ -51,48 +72,18 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
         toast.error('Your browser does not support WebM audio. Please try using Chrome or Firefox.');
         return;
       }
-
-      // Check if URL is accessible
-      fetch(audioUrl, { method: 'HEAD' })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          // URL is valid but audio still won't play - might be a codec issue
-          toast.error('This audio format is not supported by your browser. Try using Chrome or Firefox.');
-        })
-        .catch(error => {
-          console.error('Error checking audio URL:', error);
-          toast.error('Unable to access the audio file. Please try again later.');
-        });
     };
 
-    // Configure audio with proper MIME type and CORS settings
     audio.preload = 'auto';
     audio.crossOrigin = 'anonymous';
+    audio.src = audioUrl;
 
-    // Add timestamp to prevent caching
-    const timestamp = new Date().getTime();
-    const urlWithCache = `${audioUrl}?t=${timestamp}`;
-    
-    // Set source with proper MIME type
-    if (audioUrl.endsWith('.webm')) {
-      const source = document.createElement('source');
-      source.src = urlWithCache;
-      source.type = 'audio/webm; codecs="opus"';
-      audio.appendChild(source);
-    } else {
-      audio.src = urlWithCache;
-    }
-
-    // Add event listeners
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('error', handleError as EventListener);
 
     return () => {
-      // Cleanup
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('ended', handleEnded);
@@ -109,7 +100,7 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
   }, [audioUrl]);
 
   const handlePlayPause = async () => {
-    if (!audioRef.current) return;
+    if (!audioRef.current || error) return;
 
     try {
       if (isPlaying) {
@@ -118,20 +109,12 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
       } else {
         setIsLoading(true);
         
-        // Check WebM support before playing
-        const canPlayWebm = audioRef.current.canPlayType('audio/webm; codecs="opus"');
-        if (audioUrl.endsWith('.webm') && !canPlayWebm) {
-          toast.error('Your browser does not support WebM audio. Please try using Chrome or Firefox.');
-          setIsLoading(false);
-          return;
-        }
-
         try {
           await audioRef.current.play();
           setIsPlaying(true);
         } catch (error) {
           console.error('Playback error:', error);
-          toast.error('Unable to play voice message. Please try using Chrome or Firefox.');
+          toast.error('Unable to play audio message. Please try using Chrome or Firefox.');
           setIsPlaying(false);
         } finally {
           setIsLoading(false);
@@ -139,11 +122,28 @@ export const AudioPlayer = ({ audioUrl, messageId, duration = 0 }: AudioPlayerPr
       }
     } catch (error) {
       console.error('Playback error:', error);
-      toast.error('Unable to play voice message. Please try again.');
+      toast.error('Unable to play audio message. Please try again.');
       setIsPlaying(false);
       setIsLoading(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center gap-3 w-full max-w-[300px] bg-white dark:bg-gray-800 rounded-xl p-3 shadow-sm">
+        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
+        <span className="text-sm text-gray-500 dark:text-gray-400">Loading audio...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center gap-3 w-full max-w-[300px] bg-white dark:bg-gray-800 rounded-xl p-3 shadow-sm">
+        <span className="text-sm text-red-500">{error}</span>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center gap-3 w-full max-w-[300px] bg-white dark:bg-gray-800 rounded-xl p-3 shadow-sm">

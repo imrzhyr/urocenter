@@ -4,11 +4,11 @@ import { toast } from "sonner";
 export const uploadFile = async (file: File) => {
   try {
     const fileExt = file.name.split('.').pop();
-    const filePath = `${crypto.randomUUID()}.${fileExt}`;
+    const fileName = `${crypto.randomUUID()}-${Date.now()}.${fileExt}`;
 
     const { data, error: uploadError } = await supabase.storage
       .from('chat_attachments')
-      .upload(filePath, file, {
+      .upload(fileName, file, {
         contentType: file.type,
         cacheControl: '3600',
         upsert: false
@@ -19,9 +19,21 @@ export const uploadFile = async (file: File) => {
       throw uploadError;
     }
 
+    // Get the public URL using the correct method
     const { data: { publicUrl } } = supabase.storage
       .from('chat_attachments')
-      .getPublicUrl(filePath);
+      .getPublicUrl(fileName);
+
+    // Verify the file is accessible
+    try {
+      const response = await fetch(publicUrl, { method: 'HEAD' });
+      if (!response.ok) {
+        throw new Error('File not accessible');
+      }
+    } catch (error) {
+      console.error('File accessibility check failed:', error);
+      throw new Error('Uploaded file is not accessible');
+    }
 
     return {
       url: publicUrl,
