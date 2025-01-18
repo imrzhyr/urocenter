@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Play, Pause, Volume2 } from "lucide-react";
+import { Play, Pause } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AudioPlayerProps {
@@ -9,17 +9,20 @@ interface AudioPlayerProps {
   className?: string;
 }
 
-export const AudioPlayer = ({ url, messageId, duration, className }: AudioPlayerProps) => {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+export const AudioPlayer = ({ url, duration, className }: AudioPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [volume, setVolume] = useState(1);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     if (audioRef.current) {
-      audioRef.current.volume = volume;
+      audioRef.current.addEventListener('ended', () => setIsPlaying(false));
     }
-  }, [volume]);
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.removeEventListener('ended', () => setIsPlaying(false));
+      }
+    };
+  }, []);
 
   const handlePlayPause = () => {
     if (audioRef.current) {
@@ -32,52 +35,22 @@ export const AudioPlayer = ({ url, messageId, duration, className }: AudioPlayer
     }
   };
 
-  const handleTimeUpdate = () => {
-    if (audioRef.current) {
-      setProgress(audioRef.current.currentTime);
-    }
-  };
-
-  const handleSeek = (time: number) => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = time;
-      setProgress(time);
-    }
-  };
-
   return (
-    <div className={cn("flex items-center gap-2 p-2 rounded-lg bg-opacity-10 w-[180px]", className)}>
-      <audio
-        ref={audioRef}
-        src={url}
-        onTimeUpdate={handleTimeUpdate}
-        onEnded={() => setIsPlaying(false)}
-      />
-      <button onClick={handlePlayPause} className="flex items-center">
-        {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+    <div className={cn("flex items-center gap-2 p-2 rounded-lg bg-opacity-10", className)}>
+      <audio ref={audioRef} src={url} />
+      <button 
+        onClick={handlePlayPause}
+        className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors"
+      >
+        {isPlaying ? (
+          <Pause className="h-4 w-4" />
+        ) : (
+          <Play className="h-4 w-4" />
+        )}
       </button>
-      <div className="flex-1">
-        <input
-          type="range"
-          min="0"
-          max={duration || 0}
-          value={progress}
-          onChange={(e) => handleSeek(Number(e.target.value))}
-          className="w-full"
-        />
-      </div>
-      <div className="flex items-center">
-        <Volume2 className="h-5 w-5" />
-        <input
-          type="range"
-          min="0"
-          max="1"
-          step="0.1"
-          value={volume}
-          onChange={(e) => setVolume(Number(e.target.value))}
-          className="w-16"
-        />
-      </div>
+      <span className="text-xs opacity-70">
+        {duration ? `${duration}s` : '0s'}
+      </span>
     </div>
   );
 };
