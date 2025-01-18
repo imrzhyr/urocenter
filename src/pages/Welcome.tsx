@@ -1,10 +1,10 @@
-import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Stethoscope, MessageCircle } from "lucide-react";
 import { TestimonialsCarousel } from "@/components/testimonials/TestimonialsCarousel";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { RainbowButton } from "@/components/ui/rainbow-button";
 
 const Welcome = () => {
   const navigate = useNavigate();
@@ -35,7 +35,7 @@ const Welcome = () => {
           <img 
             src="/lovable-uploads/15e20ff0-66a5-4888-b578-9c94d3d5f851.png" 
             alt="UroCenter"
-            className="h-12 w-auto" // Increased from h-8 to h-12 for a larger size
+            className="h-12 w-auto"
           />
         </div>
         <LanguageSelector />
@@ -87,12 +87,12 @@ const Welcome = () => {
         <TestimonialsCarousel />
 
         <div className="w-full space-y-2 max-w-md mx-auto">
-          <Button
-            className="w-full py-4 bg-primary hover:bg-primary/90 transition-all duration-300"
+          <RainbowButton
+            className="w-full"
             onClick={() => navigate("/signup")}
           >
             {t("start_journey")}
-          </Button>
+          </RainbowButton>
           <p className="text-xs text-muted-foreground text-center">
             {t("already_have_account")}{" "}
             <button
