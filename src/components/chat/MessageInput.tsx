@@ -4,8 +4,6 @@ import { Send, Paperclip, FileImage } from "lucide-react";
 import { Message } from "@/types/profile";
 import { ReplyPreview } from "./reply/ReplyPreview";
 import { TextArea } from "./input/TextArea";
-import { uploadFile } from "@/utils/fileUpload";
-import { uploadMedicalFile } from "@/utils/medicalFileUpload";
 import { toast } from "sonner";
 import { FileInfo } from "@/types/chat";
 import { supabase } from "@/integrations/supabase/client";
@@ -35,7 +33,11 @@ export const MessageInput = ({
     if (!file) return;
 
     try {
-      // Upload file to Supabase Storage first
+      // Create FormData to send the file
+      const formData = new FormData();
+      formData.append('file', file);
+
+      // Upload file to Supabase Storage as binary data
       const fileExt = file.name.split('.').pop();
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
       
@@ -43,7 +45,8 @@ export const MessageInput = ({
         .from('chat_attachments')
         .upload(fileName, file, {
           contentType: file.type,
-          cacheControl: '3600'
+          cacheControl: '3600',
+          upsert: false
         });
 
       if (uploadError) throw uploadError;
@@ -53,7 +56,7 @@ export const MessageInput = ({
         .from('chat_attachments')
         .getPublicUrl(fileName);
 
-      // Now send the message with the file info
+      // Send message with file reference
       const fileInfo = {
         url: publicUrl,
         name: file.name,
@@ -80,6 +83,10 @@ export const MessageInput = ({
     if (!file) return;
 
     try {
+      // Create FormData for medical file
+      const formData = new FormData();
+      formData.append('file', file);
+
       const fileExt = file.name.split('.').pop();
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
       
@@ -87,7 +94,8 @@ export const MessageInput = ({
         .from('medical_attachments')
         .upload(fileName, file, {
           contentType: file.type,
-          cacheControl: '3600'
+          cacheControl: '3600',
+          upsert: false
         });
 
       if (uploadError) throw uploadError;
