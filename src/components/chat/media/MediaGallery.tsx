@@ -8,11 +8,18 @@ interface MediaGalleryProps {
   fileType?: string | null;
   fileName?: string | null;
   duration?: number | null;
-  messageId?: string;  // Added messageId prop
+  messageId?: string;
   className?: string;
 }
 
-export const MediaGallery = ({ fileUrl, fileType, fileName, duration, messageId, className }: MediaGalleryProps) => {
+export const MediaGallery = ({ 
+  fileUrl, 
+  fileType, 
+  fileName, 
+  duration, 
+  messageId, 
+  className 
+}: MediaGalleryProps) => {
   const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
 
   if (!fileUrl || !fileType) return null;
@@ -25,12 +32,14 @@ export const MediaGallery = ({ fileUrl, fileType, fileName, duration, messageId,
     <div className={cn("relative", className)}>
       {isImage && (
         <>
-          <div className="relative max-w-[300px] rounded-lg overflow-hidden">
+          <div 
+            className="relative max-w-[200px] rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
+            onClick={() => setIsImageViewerOpen(true)}
+          >
             <img
               src={fileUrl}
               alt={fileName || 'Image'}
-              className="w-full h-auto object-cover cursor-pointer hover:opacity-95 transition-opacity"
-              onClick={() => setIsImageViewerOpen(true)}
+              className="w-full h-auto object-cover"
               loading="lazy"
             />
             {fileName && (
@@ -48,7 +57,7 @@ export const MediaGallery = ({ fileUrl, fileType, fileName, duration, messageId,
         </>
       )}
       {isVideo && (
-        <div className="max-w-[300px] rounded-lg overflow-hidden">
+        <div className="max-w-[200px] rounded-lg overflow-hidden">
           <video
             src={fileUrl}
             controls
@@ -61,7 +70,7 @@ export const MediaGallery = ({ fileUrl, fileType, fileName, duration, messageId,
           url={fileUrl}
           messageId={messageId}
           duration={duration}
-          className="w-[200px]"
+          className="w-[180px]"
         />
       )}
     </div>

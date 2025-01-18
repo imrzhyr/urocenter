@@ -47,10 +47,10 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
   const renderCallMessage = (msg: Message) => {
     const duration = msg.duration ? `${Math.floor(msg.duration / 60)}:${(msg.duration % 60).toString().padStart(2, '0')}` : '';
     return (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 text-sm">
         <Phone className="h-4 w-4" />
         <span>Voice call</span>
-        {duration && <span className="text-sm opacity-70">{duration}</span>}
+        {duration && <span className="text-xs opacity-70">{duration}</span>}
       </div>
     );
   };
@@ -66,6 +66,7 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
           url={msg.file_url || ''}
           messageId={msg.id}
           duration={msg.duration}
+          className="max-w-[200px]"
         />
       );
     }
@@ -77,6 +78,7 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
           fileType={msg.file_type}
           fileName={msg.file_name}
           className="mb-2"
+          messageId={msg.id}
         />
       );
     }
@@ -108,7 +110,7 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
                 <div className="flex flex-col gap-1 max-w-[75%]">
                   <ChatBubbleMessage
                     variant={fromCurrentUser ? "sent" : "received"}
-                    className={`${fromCurrentUser ? 'bg-[#015C4B]' : 'bg-[#1F2937]'} text-white`}
+                    className={`${fromCurrentUser ? 'bg-[#015C4B]' : 'bg-[#1F2937]'} text-white text-[14px] leading-[20px]`}
                   >
                     {renderMessageContent(msg, fromCurrentUser)}
                     <span className="text-[10px] opacity-70 float-right mt-1 ml-2">

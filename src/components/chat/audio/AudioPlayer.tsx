@@ -1,71 +1,82 @@
-import { useState, useRef, useEffect } from 'react';
-import { Play, Pause } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import { formatTime } from '@/utils/audioUtils';
+import { useEffect, useRef, useState } from "react";
+import { Play, Pause, Volume2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AudioPlayerProps {
   url: string;
   messageId: string;
-  duration?: number;
+  duration?: number | null;
   className?: string;
 }
 
 export const AudioPlayer = ({ url, messageId, duration, className }: AudioPlayerProps) => {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const audioRef = useRef<HTMLAudioElement>(null);
+  const [progress, setProgress] = useState(0);
+  const [volume, setVolume] = useState(1);
 
   useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const handleTimeUpdate = () => {
-      setCurrentTime(audio.currentTime);
-    };
-
-    const handleEnded = () => {
-      setIsPlaying(false);
-      setCurrentTime(0);
-    };
-
-    audio.addEventListener('timeupdate', handleTimeUpdate);
-    audio.addEventListener('ended', handleEnded);
-
-    return () => {
-      audio.removeEventListener('timeupdate', handleTimeUpdate);
-      audio.removeEventListener('ended', handleEnded);
-    };
-  }, []);
-
-  const togglePlayPause = () => {
-    if (!audioRef.current) return;
-
-    if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.play();
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
     }
-    setIsPlaying(!isPlaying);
+  }, [volume]);
+
+  const handlePlayPause = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const handleTimeUpdate = () => {
+    if (audioRef.current) {
+      setProgress(audioRef.current.currentTime);
+    }
+  };
+
+  const handleSeek = (time: number) => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = time;
+      setProgress(time);
+    }
   };
 
   return (
-    <div className={cn("flex items-center gap-2 min-w-[200px]", className)}>
-      <audio ref={audioRef} src={url} preload="metadata" />
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-8 w-8"
-        onClick={togglePlayPause}
-      >
-        {isPlaying ? (
-          <Pause className="h-4 w-4" />
-        ) : (
-          <Play className="h-4 w-4" />
-        )}
-      </Button>
-      <div className="text-[12px] leading-4 opacity-80">
-        {formatTime(currentTime)} / {formatTime(duration || 0)}
+    <div className={cn("flex items-center gap-2 p-2 rounded-lg bg-opacity-10 w-[180px]", className)}>
+      <audio
+        ref={audioRef}
+        src={url}
+        onTimeUpdate={handleTimeUpdate}
+        onEnded={() => setIsPlaying(false)}
+      />
+      <button onClick={handlePlayPause} className="flex items-center">
+        {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+      </button>
+      <div className="flex-1">
+        <input
+          type="range"
+          min="0"
+          max={duration || 0}
+          value={progress}
+          onChange={(e) => handleSeek(Number(e.target.value))}
+          className="w-full"
+        />
+      </div>
+      <div className="flex items-center">
+        <Volume2 className="h-5 w-5" />
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.1"
+          value={volume}
+          onChange={(e) => setVolume(Number(e.target.value))}
+          className="w-16"
+        />
       </div>
     </div>
   );
