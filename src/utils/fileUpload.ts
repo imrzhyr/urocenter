@@ -15,9 +15,7 @@ export const uploadFile = async (file: File) => {
     // Upload file directly without any conversion
     const { data, error } = await supabase.storage
       .from('chat_attachments')
-      .upload(fileName, file, {
-        contentType: file.type // Use the file's original MIME type
-      });
+      .upload(fileName, file);
 
     if (error) {
       throw error;
@@ -30,7 +28,7 @@ export const uploadFile = async (file: File) => {
     return {
       url: publicUrl,
       name: file.name,
-      type: file.type // Use the original file type
+      type: file.type
     };
   } catch (error) {
     console.error('Error uploading file:', error);
