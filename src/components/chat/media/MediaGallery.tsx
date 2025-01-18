@@ -17,15 +17,17 @@ export const MediaGallery = ({ url, type, name }: MediaGalleryProps) => {
         <img
           src={url}
           alt={name}
-          className="max-w-full rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+          className="max-w-full h-auto rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
           onClick={() => setIsOpen(true)}
+          loading="lazy"
         />
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-          <DialogContent className="max-w-4xl">
+          <DialogContent className="max-w-4xl p-0">
             <ImageViewer 
               url={url} 
               isOpen={isOpen} 
               onClose={() => setIsOpen(false)} 
+              name={name}
             />
           </DialogContent>
         </Dialog>
@@ -39,6 +41,7 @@ export const MediaGallery = ({ url, type, name }: MediaGalleryProps) => {
         src={url}
         controls
         className="max-w-full rounded-lg"
+        preload="metadata"
       />
     );
   }

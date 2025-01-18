@@ -34,6 +34,7 @@ export const ImageViewer = ({ isOpen, onClose, url, name }: ImageViewerProps) =>
             src={url}
             alt={name || "Preview"}
             className="w-full h-full object-contain"
+            loading="lazy"
           />
         </div>
       </DialogContent>

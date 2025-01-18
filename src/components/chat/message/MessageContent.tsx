@@ -18,19 +18,23 @@ export const MessageContent = ({ message, fromCurrentUser }: MessageContentProps
         ? "bg-[#0066CC] text-white ml-auto" 
         : "bg-white dark:bg-[#1A2433] dark:border dark:border-gray-700/50 text-gray-800 dark:text-white"
     )}>
-      {message.file_url && message.file_type?.startsWith('audio/') ? (
+      {message.file_url && (message.file_type?.startsWith('image/') || message.file_type?.startsWith('video/')) && (
+        <div className="mb-2">
+          <MediaGallery
+            url={message.file_url}
+            type={message.file_type}
+            name={message.file_name || ''}
+          />
+        </div>
+      )}
+      
+      {message.file_url && message.file_type?.startsWith('audio/') && (
         <AudioPlayer
           audioUrl={message.file_url}
           messageId={message.id}
           duration={message.duration}
         />
-      ) : message.file_url && (message.file_type?.startsWith('image/') || message.file_type?.startsWith('video/')) ? (
-        <MediaGallery
-          url={message.file_url}
-          type={message.file_type}
-          name={message.file_name || ''}
-        />
-      ) : null}
+      )}
       
       {message.content && (
         <p className="text-sm whitespace-pre-wrap break-words overflow-wrap-anywhere">
