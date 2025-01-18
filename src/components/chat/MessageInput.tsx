@@ -1,12 +1,11 @@
-import { useState, useRef } from "react";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { TextArea } from "./input/TextArea";
-import { SendButton } from "./input/SendButton";
-import { ReplyPreview } from "./reply/ReplyPreview";
-import { Message } from "@/types/profile";
+import React, { useState, useRef, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Send } from "lucide-react";
 import { FileUploadButton } from "./media/FileUploadButton";
-import { VoiceMessageButton } from "./media/VoiceMessageButton";
-import { uploadFile } from "@/utils/fileUpload";
+import { VoiceMessageRecorder } from "./VoiceMessageRecorder";
+import { Message } from "@/types/profile";
+import { ReplyPreview } from "./reply/ReplyPreview";
+import { TextArea } from "./input/TextArea";
 
 interface MessageInputProps {
   onSendMessage: (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }, replyTo?: Message) => void;
@@ -16,79 +15,93 @@ interface MessageInputProps {
   onTyping?: (isTyping: boolean) => void;
 }
 
-export const MessageInput = ({
+export const MessageInput: React.FC<MessageInputProps> = ({
   onSendMessage,
   isLoading,
   replyingTo,
   onCancelReply,
-  onTyping
-}: MessageInputProps) => {
-  const [message, setMessage] = useState("");
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { t } = useLanguage();
+  onTyping,
+}) => {
+  const [content, setContent] = useState("");
+  const [fileInfo, setFileInfo] = useState<{ url: string; name: string; type: string } | null>(null);
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (message.trim()) {
-      onSendMessage(message.trim(), undefined, replyingTo || undefined);
-      setMessage("");
+  const handleSend = () => {
+    if (content.trim() || fileInfo) {
+      onSendMessage(content.trim(), fileInfo || undefined, replyingTo || undefined);
+      setContent("");
+      setFileInfo(null);
       if (onCancelReply) {
         onCancelReply();
       }
-      if (textareaRef.current) {
-        textareaRef.current.style.height = 'auto';
-      }
-      onTyping?.(false);
     }
   };
 
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
 
-    console.log('Selected file:', {
-      name: file.name,
-      type: file.type,
-      size: file.size
-    });
-
-    try {
-      const fileInfo = await uploadFile(file);
-      onSendMessage("", fileInfo, replyingTo || undefined);
+  const handleFileSelect = (info: { url: string; name: string; type: string }) => {
+    setFileInfo(info);
+    // Automatically send the message if it's a file-only message
+    if (!content.trim()) {
+      onSendMessage("", info, replyingTo || undefined);
+      setFileInfo(null);
       if (onCancelReply) {
         onCancelReply();
       }
-    } catch (error) {
-      console.error('File upload error:', error);
     }
   };
+
+  const handleVoiceMessage = (info: { url: string; name: string; type: string; duration: number }) => {
+    onSendMessage("", info, replyingTo || undefined);
+    if (onCancelReply) {
+      onCancelReply();
+    }
+  };
+
+  useEffect(() => {
+    if (textAreaRef.current) {
+      textAreaRef.current.focus();
+    }
+  }, []);
 
   return (
-    <form onSubmit={handleSubmit} className="fixed bottom-0 left-0 right-0 bg-background border-t">
+    <div className="p-4 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t">
       {replyingTo && (
-        <ReplyPreview
-          message={replyingTo}
-          onCancelReply={onCancelReply || (() => {})}
-        />
-      )}
-      <div className="relative flex items-center gap-2 p-4 max-w-7xl mx-auto">
-        <div className="flex items-center gap-2">
-          <FileUploadButton onFileUpload={handleFileSelect} />
-          <VoiceMessageButton onVoiceMessage={(fileInfo) => onSendMessage("", fileInfo)} />
+        <div className="mb-2">
+          <ReplyPreview replyTo={replyingTo} />
         </div>
-        <TextArea
-          ref={textareaRef}
-          value={message}
-          onChange={(e) => {
-            setMessage(e.target.value);
-            onTyping?.(e.target.value.length > 0);
-          }}
-          placeholder={t("type_message")}
-          rows={1}
-          className="flex-1"
-        />
-        <SendButton isLoading={isLoading} />
+      )}
+      <div className="flex items-end gap-2">
+        <FileUploadButton onFileSelect={handleFileSelect} isLoading={isLoading} />
+        <VoiceMessageRecorder onRecordingComplete={handleVoiceMessage} />
+        <div className="flex-1">
+          <TextArea
+            ref={textAreaRef}
+            value={content}
+            onChange={(e) => {
+              setContent(e.target.value);
+              if (onTyping) {
+                onTyping(e.target.value.length > 0);
+              }
+            }}
+            onKeyDown={handleKeyPress}
+            placeholder="Type a message..."
+            disabled={isLoading}
+          />
+        </div>
+        <Button
+          size="icon"
+          onClick={handleSend}
+          disabled={(!content.trim() && !fileInfo) || isLoading}
+        >
+          <Send className="h-5 w-5" />
+        </Button>
       </div>
-    </form>
+    </div>
   );
 };

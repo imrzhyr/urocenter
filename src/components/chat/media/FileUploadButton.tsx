@@ -1,54 +1,63 @@
+import React, { useRef } from 'react';
 import { Button } from "@/components/ui/button";
-import { ImagePlus, Loader2 } from "lucide-react";
-import { useState, useRef } from "react";
+import { Paperclip } from "lucide-react";
+import { toast } from "sonner";
 
 interface FileUploadButtonProps {
-  onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onFileSelect: (fileInfo: { url: string; name: string; type: string }) => void;
+  isLoading?: boolean;
 }
 
-export const FileUploadButton = ({ onFileUpload }: FileUploadButtonProps) => {
-  const [isUploading, setIsUploading] = useState(false);
+export const FileUploadButton: React.FC<FileUploadButtonProps> = ({
+  onFileSelect,
+  isLoading
+}) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleClick = () => {
     fileInputRef.current?.click();
   };
 
-  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    setIsUploading(true);
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    console.log('Selected file:', file);
+
     try {
-      await onFileUpload(e);
-    } finally {
-      setIsUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+      const { uploadFile } = await import('@/utils/fileUpload');
+      const fileInfo = await uploadFile(file);
+      onFileSelect(fileInfo);
+      toast.success('File uploaded successfully');
+    } catch (error) {
+      console.error('File upload error:', error);
+      toast.error('Failed to upload file');
+    }
+
+    // Clear the input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <>
       <input
         type="file"
         ref={fileInputRef}
-        onChange={handleChange}
-        accept="image/jpeg,image/png,image/webp,audio/mpeg,audio/ogg,audio/webm"
+        onChange={handleFileChange}
         className="hidden"
+        accept="image/*,video/*,audio/*,.pdf,.doc,.docx"
       />
-      {isUploading ? (
-        <Button disabled variant="ghost" size="icon" className="h-10 w-10">
-          <Loader2 className="h-5 w-5 animate-spin" />
-        </Button>
-      ) : (
-        <Button
-          onClick={handleClick}
-          variant="ghost"
-          size="icon"
-          className="h-10 w-10"
-        >
-          <ImagePlus className="h-5 w-5 text-muted-foreground" />
-        </Button>
-      )}
-    </div>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-9 w-9"
+        onClick={handleClick}
+        disabled={isLoading}
+      >
+        <Paperclip className="h-5 w-5" />
+      </Button>
+    </>
   );
 };

@@ -1,65 +1,47 @@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-const ALLOWED_MIME_TYPES = [
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-  'audio/mpeg',
-  'audio/ogg',
-  'audio/webm'
-];
-
 export const uploadFile = async (file: File) => {
   try {
-    // Validate file type
-    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
-      throw new Error(`Unsupported file type. Allowed types: ${ALLOWED_MIME_TYPES.join(', ')}`);
+    console.log('Starting file upload:', file);
+
+    if (!file) {
+      throw new Error('No file provided');
     }
 
-    console.log('Uploading file:', {
-      name: file.name,
-      type: file.type,
-      size: file.size
-    });
-
-    // Generate unique filename while preserving extension
+    // Create a unique file name
     const fileExt = file.name.split('.').pop();
-    const fileName = `${crypto.randomUUID()}.${fileExt}`;
+    const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
 
-    // Upload file with explicit content type
+    // Upload to the raw_uploads bucket
     const { data, error } = await supabase.storage
       .from('raw_uploads')
       .upload(fileName, file, {
-        contentType: file.type,
         cacheControl: '3600',
+        contentType: file.type, // Explicitly set the content type
         upsert: false
       });
 
     if (error) {
-      console.error('Storage upload error:', error);
+      console.error('Upload error:', error);
       throw error;
     }
 
+    console.log('Upload successful:', data);
+
     // Get the public URL
-    const { data: publicUrlData } = supabase.storage
+    const { data: { publicUrl } } = supabase.storage
       .from('raw_uploads')
       .getPublicUrl(fileName);
 
-    console.log('Upload successful:', {
-      fileName,
-      contentType: file.type,
-      url: publicUrlData.publicUrl
-    });
-
     return {
-      url: publicUrlData.publicUrl,
+      url: publicUrl,
       name: file.name,
-      type: file.type,
+      type: file.type
     };
   } catch (error: any) {
-    console.error('Error uploading file:', error);
-    toast.error(error.message || 'Failed to upload file. Please try again.');
+    console.error('File upload failed:', error);
+    toast.error('Failed to upload file');
     throw error;
   }
 };
