@@ -3,11 +3,13 @@ import { toast } from "sonner";
 
 export const uploadFile = async (file: File) => {
   try {
-    // Determine correct MIME type based on file extension
-    let mimeType = file.type;
+    // Get the file extension and convert to lowercase
     const fileExt = file.name.split('.').pop()?.toLowerCase();
     
-    // Handle common image formats
+    // Determine the correct MIME type based on file extension
+    let mimeType;
+    
+    // Handle image formats
     if (fileExt === 'jpg' || fileExt === 'jpeg') {
       mimeType = 'image/jpeg';
     } else if (fileExt === 'png') {
@@ -28,14 +30,19 @@ export const uploadFile = async (file: File) => {
     // Handle video formats
     else if (fileExt === 'mp4') {
       mimeType = 'video/mp4';
+    } else {
+      throw new Error('Unsupported file type');
     }
 
     const fileName = `${crypto.randomUUID()}.${fileExt}`;
     const filePath = fileName;
 
+    // Create a new Blob with the correct MIME type
+    const fileBlob = new Blob([await file.arrayBuffer()], { type: mimeType });
+
     const { data, error } = await supabase.storage
       .from('chat_attachments')
-      .upload(filePath, file, {
+      .upload(filePath, fileBlob, {
         contentType: mimeType,
         cacheControl: '3600',
         upsert: false
@@ -52,7 +59,7 @@ export const uploadFile = async (file: File) => {
     return {
       url: publicUrl,
       name: file.name,
-      type: mimeType // Use the corrected MIME type
+      type: mimeType
     };
   } catch (error) {
     console.error('Error uploading file:', error);
