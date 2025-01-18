@@ -11,7 +11,7 @@ export const ChatInputTools = ({ onFileUpload, onVoiceMessage, disabled }: ChatI
   return (
     <div className="flex items-center gap-2">
       <ImageUploadButton onImageUpload={onFileUpload} disabled={disabled} />
-      <VoiceMessageButton onRecordingComplete={onVoiceMessage} />
+      <VoiceMessageButton onVoiceMessage={onVoiceMessage} />
     </div>
   );
 };
