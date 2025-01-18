@@ -34,14 +34,19 @@ export const MessageInput = ({
     if (!file) return;
 
     try {
-      console.log('Uploading file:', file.type); // Log the file type
+      // Log initial file details
+      console.log('Initial file details:', {
+        type: file.type,
+        size: file.size,
+        name: file.name
+      });
 
+      // Test 1: Direct file upload
+      console.log('Test 1: Attempting direct file upload');
       const fileExt = file.name.split('.').pop();
-      const fileName = `test_${crypto.randomUUID()}.${fileExt}`;
+      const fileName = `test1_${crypto.randomUUID()}.${fileExt}`;
       
-      console.log('Starting upload to Supabase with fileName:', fileName);
-      
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { data: uploadData1, error: uploadError1 } = await supabase.storage
         .from('chat_attachments')
         .upload(fileName, file, {
           contentType: file.type,
@@ -49,17 +54,55 @@ export const MessageInput = ({
           upsert: false
         });
 
-      if (uploadError) {
-        console.error('Upload error:', uploadError);
-        throw uploadError;
+      if (uploadError1) {
+        console.error('Test 1 upload error:', uploadError1);
+      } else {
+        console.log('Test 1 successful:', uploadData1);
       }
 
-      const { data: { publicUrl } } = supabase.storage
+      // Test 2: FormData approach
+      console.log('Test 2: Attempting FormData upload');
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const fileName2 = `test2_${crypto.randomUUID()}.${fileExt}`;
+      
+      const { data: uploadData2, error: uploadError2 } = await supabase.storage
         .from('chat_attachments')
-        .getPublicUrl(fileName);
+        .upload(fileName2, formData.get('file') as File, {
+          contentType: file.type,
+          cacheControl: '3600',
+          upsert: false
+        });
 
-      console.log('Upload successful. Public URL:', publicUrl);
-      toast.success('Test upload successful');
+      if (uploadError2) {
+        console.error('Test 2 upload error:', uploadError2);
+      } else {
+        console.log('Test 2 successful:', uploadData2);
+      }
+
+      // Test 3: Binary upload
+      console.log('Test 3: Attempting binary upload');
+      const arrayBuffer = await file.arrayBuffer();
+      const uint8Array = new Uint8Array(arrayBuffer);
+      
+      const fileName3 = `test3_${crypto.randomUUID()}.${fileExt}`;
+      
+      const { data: uploadData3, error: uploadError3 } = await supabase.storage
+        .from('chat_attachments')
+        .upload(fileName3, uint8Array, {
+          contentType: file.type,
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError3) {
+        console.error('Test 3 upload error:', uploadError3);
+      } else {
+        console.log('Test 3 successful:', uploadData3);
+      }
+
+      toast.success('Test uploads completed - check console for results');
       
     } catch (error) {
       console.error('Test upload error:', error);
