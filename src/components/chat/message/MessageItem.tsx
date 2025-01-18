@@ -2,7 +2,7 @@ import { Message } from "@/types/profile";
 import { motion, PanInfo } from "framer-motion";
 import { MessageContent } from "./MessageContent";
 import { ReplyPreview } from "@/components/chat/reply/ReplyPreview";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,6 +17,7 @@ interface MessageItemProps {
 export const MessageItem = ({ message, fromCurrentUser, onDragEnd }: MessageItemProps) => {
   const [showUnsend, setShowUnsend] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const messageRef = useRef<HTMLDivElement>(null);
 
   const handleLongPress = () => {
     if (fromCurrentUser) {
@@ -44,8 +45,29 @@ export const MessageItem = ({ message, fromCurrentUser, onDragEnd }: MessageItem
     }
   };
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (messageRef.current && !messageRef.current.contains(event.target as Node)) {
+        setShowUnsend(false);
+      }
+    };
+
+    const handleScroll = () => {
+      setShowUnsend(false);
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('scroll', handleScroll, true);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('scroll', handleScroll, true);
+    };
+  }, []);
+
   return (
     <motion.div
+      ref={messageRef}
       key={message.id}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
@@ -92,18 +114,22 @@ export const MessageItem = ({ message, fromCurrentUser, onDragEnd }: MessageItem
             />
           )}
           <div className={`flex ${fromCurrentUser ? 'justify-end' : 'justify-start'} w-full group relative`}>
-            {showUnsend && fromCurrentUser && (
-              <Button
-                variant="destructive"
-                size="icon"
-                className="h-8 w-8 absolute -top-4 -right-4 z-10"
-                onClick={handleUnsend}
-                disabled={isDeleting}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            )}
-            <MessageContent message={message} fromCurrentUser={fromCurrentUser} />
+            <div className="relative">
+              {showUnsend && fromCurrentUser && (
+                <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 transform z-10 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-1 animate-in fade-in slide-in-from-top-2">
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={handleUnsend}
+                    disabled={isDeleting}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+              <MessageContent message={message} fromCurrentUser={fromCurrentUser} />
+            </div>
           </div>
         </div>
       </div>
