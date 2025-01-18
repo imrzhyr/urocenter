@@ -21,7 +21,7 @@ interface CallContextType {
   acceptCall: (callId: string) => Promise<void>;
   rejectCall: (callId: string) => Promise<void>;
   endCall: () => Promise<void>;
-  initiateCall: (receiverId: string, recipientName: string) => Promise<void>;
+  initiateCall: (receiverId: string, receiverName: string) => Promise<void>;
   toggleMute: () => boolean;
   toggleSpeaker: () => Promise<boolean>;
 }
@@ -30,7 +30,7 @@ const CallContext = createContext<CallContextType | null>(null);
 
 export const CallProvider = ({ children }: { children: React.ReactNode }) => {
   const { profile } = useProfile();
-  const recipientNameRef = useRef<string>('');
+  const receiverNameRef = useRef<string>('');
   const notificationRef = useRef<Notification | null>(null);
   const {
     isInCall,
@@ -211,7 +211,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const initiateCall = async (receiverId: string, recipientName: string) => {
+  const initiateCall = async (receiverId: string, receiverName: string) => {
     if (!profile?.id) {
       toast.error('You must be logged in to make calls');
       return;
@@ -240,7 +240,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       if (error) throw error;
 
       setCurrentCallId(call.id);
-      recipientNameRef.current = recipientName;
+      receiverNameRef.current = receiverName;
       setIsCalling(true);
 
       const joined = await joinChannel(call.id);
@@ -279,7 +279,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
             open={!!incomingCall}
           />
         )}
-        {isCalling && <CallingUI recipientName={recipientNameRef.current} />}
+        {isCalling && <CallingUI receiverName={receiverNameRef.current} onCancel={endCall} />}
         {(isInCall || isCallEnded) && <ActiveCallUI />}
       </Portal>
     </CallContext.Provider>
