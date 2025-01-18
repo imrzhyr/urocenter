@@ -13,10 +13,10 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
 
   return (
     <div className="w-full px-4">
-      <div className="relative flex justify-between">
+      <div className="relative">
         {/* Progress bar background */}
         <div 
-          className="absolute top-[1.125rem] left-[4%] right-[4%] h-0.5 bg-gray-100 dark:bg-gray-700" 
+          className="absolute top-[1.125rem] left-0 right-0 h-0.5 bg-gray-100 dark:bg-gray-700" 
           style={{ zIndex: 0 }}
         />
         
@@ -26,12 +26,12 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
           style={{ 
             ...(isRTL 
               ? { 
-                  right: '4%',
-                  width: `${(currentStep / (steps.length - 1)) * 92}%`,
+                  right: '0',
+                  width: `${(currentStep / (steps.length - 1)) * 100}%`,
                 }
               : {
-                  left: '4%',
-                  width: `${(currentStep / (steps.length - 1)) * 92}%`,
+                  left: '0',
+                  width: `${(currentStep / (steps.length - 1)) * 100}%`,
                 }
             ),
             zIndex: 1 
@@ -39,7 +39,13 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
         />
 
         {/* Steps */}
-        <div className="relative flex justify-between w-full" style={{ zIndex: 2 }}>
+        <div 
+          className="relative grid"
+          style={{ 
+            gridTemplateColumns: `repeat(${steps.length}, 1fr)`,
+            zIndex: 2 
+          }}
+        >
           {steps.map((step, index) => (
             <div
               key={step}
