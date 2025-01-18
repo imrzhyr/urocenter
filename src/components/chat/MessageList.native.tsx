@@ -4,8 +4,6 @@ import { Message } from '@/types/profile';
 import { format, isToday, isYesterday } from 'date-fns';
 import { useProfile } from '@/hooks/useProfile';
 import { MessageStatus } from './MessageStatus.native';
-import { AudioPlayer } from './audio/AudioPlayer.native';
-import { MediaGallery } from './media/MediaGallery.native';
 
 interface MessageListProps {
   messages: Message[];
@@ -54,27 +52,12 @@ export const MessageList = ({ messages }: MessageListProps) => {
                 styles.messageBubble,
                 isFromCurrentUser ? styles.sentBubble : styles.receivedBubble
               ]}>
-                {message.file_type?.startsWith("audio/") ? (
-                  <AudioPlayer
-                    audioUrl={message.file_url || ""}
-                    messageId={message.id}
-                    duration={message.duration}
-                  />
-                ) : message.file_type?.startsWith("image/") ||
-                  message.file_type?.startsWith("video/") ? (
-                  <MediaGallery
-                    url={message.file_url || ""}
-                    type={message.file_type}
-                    name={message.file_name || ""}
-                  />
-                ) : (
-                  <Text style={[
-                    styles.messageText,
-                    isFromCurrentUser ? styles.sentText : styles.receivedText
-                  ]}>
-                    {message.content}
-                  </Text>
-                )}
+                <Text style={[
+                  styles.messageText,
+                  isFromCurrentUser ? styles.sentText : styles.receivedText
+                ]}>
+                  {message.content}
+                </Text>
                 <View style={styles.messageFooter}>
                   <Text style={styles.timestamp}>
                     {format(new Date(message.created_at), 'hh:mm a')}
