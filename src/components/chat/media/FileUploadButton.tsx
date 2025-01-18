@@ -24,12 +24,7 @@ export const FileUploadButton = ({ onFileUpload }: FileUploadButtonProps) => {
 
     try {
       setIsUploading(true);
-      // Create a new File object with explicit type
-      const fileWithType = new File([file], file.name, {
-        type: file.type
-      });
-      
-      const uploadedFile = await uploadFile(fileWithType);
+      const uploadedFile = await uploadFile(file);
       onFileUpload(uploadedFile);
       toast.success('File uploaded successfully');
     } catch (error) {
