@@ -46,7 +46,7 @@ export const MessageItem = ({ message, fromCurrentUser, onDragEnd }: MessageItem
                 is_read: true,
                 status: 'seen'
               }} 
-              onCancelReply={() => {}}
+              onCancel={() => {}}
             />
           )}
           <div className={`flex ${fromCurrentUser ? 'justify-end' : 'justify-start'} w-full`}>

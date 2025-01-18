@@ -1,75 +1,50 @@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { logger } from "./logger";
-
-// Define allowed MIME types
-const ALLOWED_MIME_TYPES = {
-  // Images
-  'image/jpeg': true,
-  'image/png': true,
-  'image/gif': true,
-  'image/webp': true,
-  // Audio
-  'audio/mpeg': true,
-  'audio/wav': true,
-  'audio/ogg': true,
-  'audio/webm': true,
-};
+import { logger } from '@/utils/logger';
 
 export const uploadFile = async (file: File) => {
   try {
-    // Log file details
     logger.info('FileUpload', 'Starting file upload', {
       name: file.name,
       type: file.type,
-      size: file.size,
-      isFile: file instanceof File
+      size: file.size
     });
 
-    if (!file) {
-      throw new Error('No file provided');
-    }
-
-    // Validate file type
-    if (!ALLOWED_MIME_TYPES[file.type as keyof typeof ALLOWED_MIME_TYPES]) {
-      logger.warn('FileUpload', 'Invalid file type', { type: file.type });
-      throw new Error('Only image and audio files are allowed');
+    if (!file.type.startsWith('image/') && 
+        !file.type.startsWith('audio/') && 
+        !file.type.startsWith('video/')) {
+      throw new Error('Only images, audio, and video files are supported');
     }
 
     // Create a unique file name
     const fileExt = file.name.split('.').pop()?.toLowerCase();
-    const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+    const fileName = `${crypto.randomUUID()}.${fileExt}`;
 
-    // Log upload configuration
-    logger.info('FileUpload', 'Upload configuration', {
+    logger.info('FileUpload', 'Uploading file', {
       fileName,
-      contentType: file.type,
-      fileExtension: fileExt
+      contentType: file.type
     });
 
     // Upload file with explicit content type
     const { data, error } = await supabase.storage
-      .from('raw_uploads')
+      .from('medical_reports')
       .upload(fileName, file, {
-        cacheControl: '3600',
         contentType: file.type,
+        cacheControl: '3600',
         upsert: false
       });
 
     if (error) {
-      logger.error('FileUpload', 'Upload failed', error);
+      logger.error('FileUpload', 'Upload error:', error);
       throw error;
     }
 
-    logger.info('FileUpload', 'Upload successful', { data });
-
     // Get the public URL
     const { data: { publicUrl } } = supabase.storage
-      .from('raw_uploads')
+      .from('medical_reports')
       .getPublicUrl(fileName);
 
-    // Log final result
-    logger.info('FileUpload', 'File processing complete', {
+    logger.info('FileUpload', 'Upload successful', {
       url: publicUrl,
       name: file.name,
       type: file.type
@@ -80,8 +55,8 @@ export const uploadFile = async (file: File) => {
       name: file.name,
       type: file.type
     };
-  } catch (error: any) {
-    logger.error('FileUpload', 'Error in uploadFile', error);
+  } catch (error) {
+    logger.error('FileUpload', 'Error in uploadFile:', error);
     toast.error('Failed to upload file');
     throw error;
   }
