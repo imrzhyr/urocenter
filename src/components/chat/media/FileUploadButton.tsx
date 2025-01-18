@@ -16,7 +16,11 @@ export const FileUploadButton = ({ onFileUpload }: FileUploadButtonProps) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    console.log('Selected file type:', file.type);
+    console.log('Selected file:', {
+      name: file.name,
+      type: file.type,
+      size: file.size
+    });
 
     try {
       setIsUploading(true);

@@ -10,18 +10,21 @@ export const uploadFile = async (file: File) => {
       throw new Error('Only images, audio, and video files are supported');
     }
 
-    console.log('Original file type:', file.type);
-    console.log('Original file name:', file.name);
+    console.log('Uploading file:', {
+      name: file.name,
+      type: file.type,
+      size: file.size
+    });
 
-    // Generate a unique file name while preserving the extension
+    // Generate unique filename while preserving extension
     const fileExt = file.name.split('.').pop() || '';
     const fileName = `${crypto.randomUUID()}.${fileExt}`;
 
-    // Upload with explicit content type
+    // Upload directly with proper content type
     const { data, error } = await supabase.storage
       .from('chat_attachments')
       .upload(fileName, file, {
-        contentType: file.type,
+        contentType: file.type, // Explicitly set the content type
         cacheControl: '3600',
         upsert: false
       });
@@ -35,6 +38,12 @@ export const uploadFile = async (file: File) => {
     const { data: publicUrlData } = supabase.storage
       .from('chat_attachments')
       .getPublicUrl(fileName);
+
+    console.log('Upload successful:', {
+      fileName,
+      contentType: file.type,
+      url: publicUrlData.publicUrl
+    });
 
     return {
       url: publicUrlData.publicUrl,
