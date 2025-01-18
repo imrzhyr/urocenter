@@ -24,14 +24,16 @@ export const uploadFile = async (file: File) => {
     });
 
     // Generate unique filename while preserving extension
-    const fileExt = file.name.split('.').pop() || '';
     const fileName = `${crypto.randomUUID()}-${file.name}`;
 
-    // Upload file with correct content type
+    // Create a Blob with the correct MIME type
+    const blob = new Blob([await file.arrayBuffer()], { type: file.type });
+
+    // Upload file with explicit content type
     const { data, error } = await supabase.storage
       .from('chat_attachments')
-      .upload(fileName, file, {
-        contentType: file.type, // Explicitly set the content type
+      .upload(fileName, blob, {
+        contentType: file.type,
         cacheControl: '3600',
         upsert: false
       });
@@ -57,7 +59,7 @@ export const uploadFile = async (file: File) => {
       name: file.name,
       type: file.type,
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error uploading file:', error);
     toast.error(error.message || 'Failed to upload file. Please try again.');
     throw error;
