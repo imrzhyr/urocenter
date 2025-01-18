@@ -2,20 +2,28 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { logger } from '@/utils/logger';
 
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+export const validateFile = (file: File) => {
+  if (file.size > MAX_FILE_SIZE) {
+    throw new Error('File size exceeds 10MB limit');
+  }
+
+  if (!file.type.match(/^(image|audio|video)\//)) {
+    throw new Error('Only images, audio, and video files are supported');
+  }
+};
+
 export const uploadFile = async (file: File) => {
   try {
+    validateFile(file);
+
     // Log the original file details
     logger.info('FileUpload', 'Starting file upload', {
       name: file.name,
       type: file.type,
       size: file.size
     });
-
-    if (!file.type.startsWith('image/') && 
-        !file.type.startsWith('audio/') && 
-        !file.type.startsWith('video/')) {
-      throw new Error('Only images, audio, and video files are supported');
-    }
 
     // Create a unique file name
     const fileExt = file.name.split('.').pop()?.toLowerCase();
@@ -28,7 +36,7 @@ export const uploadFile = async (file: File) => {
 
     // Upload file with explicit content type
     const { data, error } = await supabase.storage
-      .from('medical_reports')
+      .from('chat_attachments')
       .upload(fileName, file, {
         contentType: file.type,
         cacheControl: '3600',
@@ -42,7 +50,7 @@ export const uploadFile = async (file: File) => {
 
     // Get the public URL
     const { data: { publicUrl } } = supabase.storage
-      .from('medical_reports')
+      .from('chat_attachments')
       .getPublicUrl(fileName);
 
     logger.info('FileUpload', 'Upload successful', {
