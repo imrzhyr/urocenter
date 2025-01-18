@@ -8,6 +8,7 @@ import { useDoctorChat } from "./hooks/useDoctorChat";
 import { useProfile } from "@/hooks/useProfile";
 import { CallProvider } from '../call/CallProvider';
 import { Message } from "@/types/profile";
+import { FileInfo } from "@/types/chat";
 
 export const DoctorChatContainer = () => {
   const { userId } = useParams();
@@ -15,14 +16,14 @@ export const DoctorChatContainer = () => {
   const { patientProfile } = useDoctorChat(userId);
   const { profile } = useProfile();
 
-  const handleSendMessage = async (content: string, replyTo?: Message) => {
+  const handleSendMessage = async (content: string, fileInfo?: FileInfo, replyTo?: Message) => {
     if (!userId || !profile?.id) {
       toast.error("Unable to send message");
       return;
     }
 
     try {
-      await sendMessage(content, undefined, replyTo);
+      await sendMessage(content, fileInfo, replyTo);
       refreshMessages();
     } catch (error) {
       console.error("Error sending message:", error);

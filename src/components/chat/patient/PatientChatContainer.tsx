@@ -4,6 +4,7 @@ import { MessageInput } from "../MessageInput";
 import { PatientChatHeader } from "./PatientChatHeader";
 import { usePatientChat } from "./hooks/usePatientChat";
 import { Message } from "@/types/profile";
+import { FileInfo } from "@/types/chat";
 
 export const PatientChatContainer = () => {
   const { profile } = useProfile();
@@ -13,8 +14,8 @@ export const PatientChatContainer = () => {
     return null;
   }
 
-  const handleSendMessage = (content: string, replyTo?: Message) => {
-    sendMessage(content);
+  const handleSendMessage = (content: string, fileInfo?: FileInfo) => {
+    sendMessage(content, fileInfo);
   };
 
   return (
