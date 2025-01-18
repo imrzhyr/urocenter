@@ -8,10 +8,11 @@ interface MediaGalleryProps {
   fileType?: string | null;
   fileName?: string | null;
   duration?: number | null;
+  messageId?: string;  // Added messageId prop
   className?: string;
 }
 
-export const MediaGallery = ({ fileUrl, fileType, fileName, duration, className }: MediaGalleryProps) => {
+export const MediaGallery = ({ fileUrl, fileType, fileName, duration, messageId, className }: MediaGalleryProps) => {
   const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
 
   if (!fileUrl || !fileType) return null;
@@ -55,9 +56,10 @@ export const MediaGallery = ({ fileUrl, fileType, fileName, duration, className 
           />
         </div>
       )}
-      {isAudio && (
+      {isAudio && messageId && (
         <AudioPlayer
           url={fileUrl}
+          messageId={messageId}
           duration={duration}
           className="w-[200px]"
         />
