@@ -1,29 +1,31 @@
-import React from 'react';
-import { Volume2 } from 'lucide-react';
-import { formatTime } from '@/utils/audioUtils';
-
 interface AudioProgressProps {
   currentTime: number;
   duration: number;
-  progress: number;
+  onSeek?: (time: number) => void;
 }
 
-export const AudioProgress = ({ currentTime, duration, progress }: AudioProgressProps) => {
-  const validDuration = isFinite(duration) ? duration : 0;
-  const validCurrentTime = isFinite(currentTime) ? currentTime : 0;
+export const AudioProgress = ({ currentTime, duration, onSeek }: AudioProgressProps) => {
+  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
+
+  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!onSeek) return;
+    
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const percentage = x / rect.width;
+    const newTime = percentage * duration;
+    onSeek(newTime);
+  };
 
   return (
-    <div className="flex items-center gap-2 flex-1">
-      <div className="relative flex-1 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-        <div 
-          className="absolute left-0 top-0 h-full bg-primary transition-all duration-100"
-          style={{ width: `${progress}%` }}
-        />
-      </div>
-      <span className="text-xs text-gray-600 dark:text-gray-300 min-w-[70px] text-right font-medium tabular-nums">
-        {formatTime(validCurrentTime)} / {formatTime(validDuration)}
-      </span>
-      <Volume2 className="w-4 h-4 text-gray-500" />
+    <div 
+      className="relative w-full h-1 bg-gray-200 rounded cursor-pointer"
+      onClick={handleClick}
+    >
+      <div 
+        className="absolute h-full bg-primary rounded"
+        style={{ width: `${progress}%` }}
+      />
     </div>
   );
 };

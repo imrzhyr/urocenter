@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Pause } from "lucide-react";
-import { AudioProgress } from "./AudioProgress";
 import { cn } from "@/lib/utils";
+import { AudioProgress } from "./AudioProgress";
 
 interface AudioPlayerProps {
   url: string;
@@ -54,6 +54,12 @@ export const AudioPlayer = ({ url, duration, className }: AudioPlayerProps) => {
     setIsPlaying(!isPlaying);
   };
 
+  const handleSeek = (time: number) => {
+    if (!audioRef.current) return;
+    audioRef.current.currentTime = time;
+    setCurrentTime(time);
+  };
+
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
@@ -77,12 +83,7 @@ export const AudioPlayer = ({ url, duration, className }: AudioPlayerProps) => {
       <AudioProgress
         currentTime={currentTime}
         duration={audioDuration}
-        onSeek={(time) => {
-          if (audioRef.current) {
-            audioRef.current.currentTime = time;
-            setCurrentTime(time);
-          }
-        }}
+        onSeek={handleSeek}
       />
       <span className="text-xs min-w-[40px]">
         {formatTime(currentTime)} / {formatTime(audioDuration)}
