@@ -6,9 +6,10 @@ import { ReplyPreview } from "./reply/ReplyPreview";
 import { TextArea } from "./input/TextArea";
 import { uploadFile } from "@/utils/fileUpload";
 import { toast } from "sonner";
+import { FileInfo } from "@/types/chat";
 
 interface MessageInputProps {
-  onSendMessage: (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }) => void;
+  onSendMessage: (content: string, fileInfo?: FileInfo) => void;
   isLoading?: boolean;
   replyingTo?: Message | null;
   onCancelReply?: () => void;
@@ -29,7 +30,7 @@ export const MessageInput = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (message.trim()) {
-      onSendMessage(message.trim(), undefined, replyingTo || undefined);
+      onSendMessage(message.trim());
       setMessage("");
       if (onCancelReply) {
         onCancelReply();
@@ -73,7 +74,7 @@ export const MessageInput = ({
       {replyingTo && (
         <ReplyPreview
           message={replyingTo}
-          onCancelReply={onCancelReply || (() => {})}
+          onCancel={onCancelReply || (() => {})}
         />
       )}
       <div className="relative flex items-center gap-2 p-4 max-w-7xl mx-auto">

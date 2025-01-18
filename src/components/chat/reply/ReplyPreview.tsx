@@ -2,7 +2,7 @@ import { Message } from "@/types/profile";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-interface ReplyPreviewProps {
+export interface ReplyPreviewProps {
   message: Message;
   onCancel: () => void;
 }

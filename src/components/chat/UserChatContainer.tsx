@@ -5,18 +5,19 @@ import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useChat } from "@/hooks/useChat";
 import { CallProvider } from "@/components/chat/call/CallProvider";
 import { Message } from "@/types/profile";
+import { FileInfo } from "@/types/chat";
 
 export const UserChatContainer = () => {
   const { profile } = useProfile();
   const { messages, isLoading, sendMessage } = useChat(profile?.id);
   useAuthRedirect();
 
-  const handleSendMessage = async (content: string, replyTo?: Message) => {
+  const handleSendMessage = async (content: string, fileInfo?: FileInfo, replyTo?: Message) => {
     if (!profile?.id) {
       console.error('No profile ID found');
       return;
     }
-    await sendMessage(content, undefined, replyTo);
+    await sendMessage(content, fileInfo, replyTo);
   };
 
   if (!profile?.id) {

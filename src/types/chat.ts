@@ -1,5 +1,3 @@
-import { Message } from "@/types/profile";
-
 export interface MessageInputProps {
   onSendMessage: (content: string, fileInfo?: FileInfo) => void;
   isLoading?: boolean;

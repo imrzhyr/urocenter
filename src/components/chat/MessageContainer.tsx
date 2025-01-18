@@ -3,10 +3,11 @@ import { MessageList } from './MessageList';
 import { MessageInput } from './MessageInput';
 import { Message } from '@/types/profile';
 import { TypingIndicator } from './TypingIndicator';
+import { FileInfo } from '@/types/chat';
 
 interface MessageContainerProps {
   messages: Message[];
-  onSendMessage: (content: string, replyTo?: Message) => void;
+  onSendMessage: (content: string, fileInfo?: FileInfo, replyTo?: Message) => void;
   onTyping?: (isTyping: boolean) => void;
   isLoading: boolean;
   header: React.ReactNode;
@@ -61,7 +62,7 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
 
       <div className="absolute bottom-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#1A2433]/80 backdrop-blur-lg border-t border-gray-200 dark:border-gray-700/50">
         <MessageInput 
-          onSendMessage={onSendMessage}
+          onSendMessage={(content, fileInfo) => onSendMessage(content, fileInfo, replyingTo)}
           isLoading={isLoading}
           replyingTo={replyingTo}
           onCancelReply={() => setReplyingTo(null)}
