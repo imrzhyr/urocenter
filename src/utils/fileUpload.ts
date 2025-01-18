@@ -11,21 +11,27 @@ export const uploadFile = async (file: File) => {
     }
 
     console.log('Original file type:', file.type);
+    console.log('Original file name:', file.name);
 
-    // Generate a unique file name
-    const fileName = `${crypto.randomUUID()}-${file.name}`;
+    // Generate a unique file name while preserving the extension
+    const fileExt = file.name.split('.').pop() || '';
+    const fileName = `${crypto.randomUUID()}.${fileExt}`;
 
-    // Upload with original MIME type
+    // Upload with explicit content type and cacheControl
     const { data, error } = await supabase.storage
       .from('chat_attachments')
       .upload(fileName, file, {
-        contentType: file.type, // Use original MIME type
+        contentType: file.type,
+        cacheControl: '3600',
+        upsert: false
       });
 
     if (error) {
+      console.error('Storage upload error:', error);
       throw error;
     }
 
+    // Get the public URL
     const { data: publicUrlData } = supabase.storage
       .from('chat_attachments')
       .getPublicUrl(fileName);
@@ -33,7 +39,7 @@ export const uploadFile = async (file: File) => {
     return {
       url: publicUrlData.publicUrl,
       name: file.name,
-      type: file.type, // Use original MIME type
+      type: file.type,
     };
   } catch (error) {
     console.error('Error uploading file:', error);

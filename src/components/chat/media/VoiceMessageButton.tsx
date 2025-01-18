@@ -35,7 +35,7 @@ export const VoiceMessageButton = ({ onVoiceMessage }: VoiceMessageButtonProps) 
         setIsUploading(true);
         try {
           const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
-          console.log('Audio blob type:', audioBlob.type); // Debug MIME type
+          console.log('Audio blob type:', audioBlob.type);
 
           // Get audio duration
           const arrayBuffer = await audioBlob.arrayBuffer();
@@ -47,7 +47,7 @@ export const VoiceMessageButton = ({ onVoiceMessage }: VoiceMessageButtonProps) 
           const file = new File([audioBlob], `voice-message-${Date.now()}.webm`, { 
             type: 'audio/webm'
           });
-          console.log('File type before upload:', file.type); // Debug file type
+          console.log('File type before upload:', file.type);
 
           const uploadedFile = await uploadFile(file);
           onVoiceMessage({
