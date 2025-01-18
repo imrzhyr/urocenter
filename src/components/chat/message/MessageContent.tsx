@@ -1,6 +1,7 @@
 import { Message } from "@/types/profile";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { MessageStatus } from "../MessageStatus";
 
 interface MessageContentProps {
   message: Message;
@@ -15,12 +16,11 @@ export const MessageContent = ({ message, fromCurrentUser }: MessageContentProps
         ? "bg-primary text-primary-foreground"
         : "bg-secondary text-secondary-foreground"
     )}>
-      {message.content && (
-        <p className="whitespace-pre-wrap">{message.content}</p>
-      )}
+      <p className="whitespace-pre-wrap">{message.content}</p>
       
-      <div className="text-xs opacity-70 text-right mt-1">
+      <div className="flex items-center gap-1 mt-1 justify-end text-xs opacity-70">
         {format(new Date(message.created_at), 'HH:mm')}
+        {fromCurrentUser && <MessageStatus message={message} />}
       </div>
     </div>
   );
