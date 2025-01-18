@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, { useRef, useEffect } from 'react';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { MessageList } from './MessageList.native';
 import { MessageInput } from './MessageInput.native';
 import { Message } from '@/types/profile';
 
 interface MessageContainerProps {
   messages: Message[];
-  onSendMessage: (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }) => void;
+  onSendMessage: (message: string, fileInfo?: { url: string; name: string; type: string; duration?: number }) => void;
   isLoading: boolean;
-  header?: React.ReactNode;
+  header: React.ReactNode;
   userId: string;
 }
 
@@ -19,34 +19,27 @@ export const MessageContainer = ({
   header,
   userId
 }: MessageContainerProps) => {
-  const handleSendMessage = async (
-    content: string, 
-    fileInfo?: { url: string; name: string; type: string; duration?: number }
-  ) => {
-    try {
-      // Send the file info directly without any JSON transformation
-      await onSendMessage(
-        content,
-        fileInfo ? {
-          url: fileInfo.url,
-          name: fileInfo.name,
-          type: fileInfo.type,
-          duration: fileInfo.duration
-        } : undefined
-      );
-    } catch (error) {
-      console.error('Error sending message:', error);
-    }
-  };
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    scrollViewRef.current?.scrollToEnd({ animated: true });
+  }, [messages]);
 
   return (
     <View style={styles.container}>
-      {header}
-      <MessageList messages={messages} />
-      <MessageInput
-        onSendMessage={handleSendMessage}
-        isLoading={isLoading}
-      />
+      <View style={styles.header}>
+        {header}
+      </View>
+      <ScrollView 
+        ref={scrollViewRef}
+        style={styles.messageList}
+        contentContainerStyle={styles.messageListContent}
+      >
+        <MessageList messages={messages} />
+      </ScrollView>
+      <View style={styles.inputContainer}>
+        <MessageInput onSendMessage={onSendMessage} isLoading={isLoading} />
+      </View>
     </View>
   );
 };
@@ -55,5 +48,28 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff'
+  },
+  header: {
+    backgroundColor: '#7c3aed',
+    paddingTop: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  messageList: {
+    flex: 1
+  },
+  messageListContent: {
+    padding: 16
+  },
+  inputContainer: {
+    borderTopWidth: 1,
+    borderTopColor: '#e5e7eb',
+    padding: 16
   }
 });
