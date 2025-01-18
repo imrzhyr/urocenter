@@ -2,7 +2,6 @@ import { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Mic, Square, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { uploadFile } from "@/utils/fileUpload";
 import { supabase } from "@/integrations/supabase/client";
 
 interface VoiceMessageRecorderProps {
@@ -16,16 +15,15 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout>();
-  const startTimeRef = useRef<number>(0);
   const audioContextRef = useRef<AudioContext>();
-  const audioBufferRef = useRef<AudioBuffer>();
 
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
+      mediaRecorderRef.current = new MediaRecorder(stream, {
+        mimeType: 'audio/webm' // Use WebM format for better compatibility
+      });
       chunksRef.current = [];
-      startTimeRef.current = Date.now();
 
       mediaRecorderRef.current.ondataavailable = (e) => {
         if (e.data.size > 0) {
@@ -34,26 +32,46 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
       };
 
       mediaRecorderRef.current.onstop = async () => {
-        const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
         setIsUploading(true);
         try {
-          const arrayBuffer = await audioBlob.arrayBuffer();
-          audioContextRef.current = new AudioContext();
-          audioBufferRef.current = await audioContextRef.current.decodeAudioData(arrayBuffer);
-          const audioDuration = Math.round(audioBufferRef.current.duration);
-
-          const file = new File([audioBlob], `voice-message-${Date.now()}.webm`, { type: 'audio/webm' });
-          const uploadedFile = await uploadFile(file);
+          const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
           
+          // Create a copy of the ArrayBuffer to prevent detachment
+          const arrayBuffer = await audioBlob.arrayBuffer();
+          const uint8Array = new Uint8Array(arrayBuffer.slice(0));
+          
+          // Get audio duration using AudioContext
+          audioContextRef.current = new AudioContext();
+          const audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
+          const audioDuration = Math.round(audioBuffer.duration);
+          
+          const fileName = `voice-${Date.now()}.webm`;
+          
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('chat_attachments')
+            .upload(fileName, uint8Array, {
+              contentType: 'audio/webm',
+              cacheControl: '3600',
+              upsert: false
+            });
+
+          if (uploadError) throw uploadError;
+
+          const { data: { publicUrl } } = supabase.storage
+            .from('chat_attachments')
+            .getPublicUrl(fileName);
+
           onRecordingComplete({
-            url: uploadedFile.url,
-            name: uploadedFile.name,
-            type: uploadedFile.type,
+            url: publicUrl,
+            name: fileName,
+            type: 'audio/webm',
             duration: audioDuration
           });
+          
+          toast.success('Voice message recorded successfully');
         } catch (error) {
-          console.error('Error uploading voice message:', error);
-          toast.error('Failed to upload voice message');
+          console.error('Error processing voice message:', error);
+          toast.error('Failed to process voice message');
         } finally {
           setIsUploading(false);
           setDuration(0);
@@ -69,7 +87,7 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
       
       timerRef.current = setInterval(() => {
         setDuration(prev => {
-          if (prev >= 60) {
+          if (prev >= 120) { // 2 minute limit
             stopRecording();
             return prev;
           }
@@ -105,7 +123,7 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
             onClick={stopRecording}
             variant="ghost"
             size="icon"
-            className="h-10 w-10 bg-red-50 hover:bg-red-100"
+            className="h-10 w-10 bg-red-50 hover:bg-red-100 dark:bg-red-900/10 dark:hover:bg-red-900/20"
           >
             <Square className="h-5 w-5 text-red-500" />
           </Button>
