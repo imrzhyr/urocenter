@@ -42,13 +42,13 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
   }, []);
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-[#f0f7ff] dark:bg-[#1A2433]">
-      <div className="absolute top-0 left-0 right-0 z-50 bg-[#0066CC] text-white">
+    <div className="fixed inset-0 flex flex-col bg-[#f0f7ff] dark:bg-[#1A2433] w-full max-w-full overflow-hidden">
+      <div className="absolute top-0 left-0 right-0 z-50 bg-[#0066CC] text-white w-full">
         {header}
       </div>
       
-      <div className="absolute inset-0 top-[56px] bottom-[64px] chat-background">
-        <div className="h-full overflow-y-auto">
+      <div className="absolute inset-0 top-[56px] bottom-[64px] chat-background w-full">
+        <div className="h-full overflow-y-auto overflow-x-hidden w-full">
           <MessageList
             messages={messages}
             currentUserId={userId}
@@ -59,7 +59,7 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
         </div>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#1A2433]/80 backdrop-blur-lg border-t border-gray-200 dark:border-gray-700/50">
+      <div className="absolute bottom-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#1A2433]/80 backdrop-blur-lg border-t border-gray-200 dark:border-gray-700/50 w-full">
         <MessageInput 
           onSendMessage={onSendMessage}
           isLoading={isLoading}

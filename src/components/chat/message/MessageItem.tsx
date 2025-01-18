@@ -1,7 +1,7 @@
 import { Message } from "@/types/profile";
 import { motion, PanInfo } from "framer-motion";
 import { MessageContent } from "./MessageContent";
-import { ReplyPreview } from "./ReplyPreview";
+import { ReplyPreview } from "../reply/ReplyPreview";
 
 interface MessageItemProps {
   message: Message;
@@ -22,7 +22,7 @@ export const MessageItem = ({ message, fromCurrentUser, onDragEnd }: MessageItem
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
       onDragEnd={(_, info) => onDragEnd(message, info)}
-      className="w-full px-2 sm:px-4"
+      className="w-full px-2 sm:px-4 max-w-full overflow-hidden"
     >
       <div className={`flex flex-col ${fromCurrentUser ? "items-end" : "items-start"} w-full`}>
         {message.sender_name && (
