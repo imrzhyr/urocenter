@@ -15,8 +15,45 @@ export const supabase = createClient<Database>(
     },
     global: {
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json', // This is for general requests, not file uploads
       },
     },
   }
 );
+
+// Function to get MIME type based on file extension
+function getMimeType(fileName: string): string {
+  const extension = fileName.split('.').pop()?.toLowerCase();
+  switch (extension) {
+    case 'png': return 'image/png';
+    case 'jpg':
+    case 'jpeg': return 'image/jpeg';
+    case 'gif': return 'image/gif';
+    case 'webp': return 'image/webp';
+    case 'webm': return 'video/webm';
+    case 'mp3': return 'audio/mpeg';
+    case 'wav': return 'audio/wav';
+    case 'ogg': return 'audio/ogg';
+    // Add more cases as needed
+    default: return 'application/octet-stream'; // Default MIME type
+  }
+}
+
+// Example function to upload a file
+export async function uploadFile(file: File) {
+  const mimeType = getMimeType(file.name);
+  const { data, error } = await supabase.storage
+    .from('your-bucket-name')
+    .upload(`public/${file.name}`, file, {
+      cacheControl: '3600',
+      upsert: false,
+      contentType: mimeType, // Set the appropriate MIME type for the file
+    });
+
+  if (error) {
+    console.error('Error uploading file:', error);
+    return null;
+  }
+
+  return data;
+}

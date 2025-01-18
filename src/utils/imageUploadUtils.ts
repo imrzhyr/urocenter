@@ -19,12 +19,10 @@ export const uploadImage = async (file: File) => {
       throw new Error('File size too large. Please upload an image smaller than 5MB.');
     }
 
-    const fileName = `${crypto.randomUUID()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
-
     const { data, error } = await supabase.storage
       .from('chat_attachments')
-      .upload(fileName, file, {
-        contentType: file.type,
+      .upload(`public/${file.name}`, file, {
+        contentType: file.type, // Ensure the correct content type is set
         cacheControl: '3600',
         upsert: false
       });
@@ -34,15 +32,7 @@ export const uploadImage = async (file: File) => {
       throw error;
     }
 
-    const { data: publicUrlData } = supabase.storage
-      .from('chat_attachments')
-      .getPublicUrl(fileName);
-
-    return {
-      url: publicUrlData.publicUrl,
-      name: file.name,
-      type: file.type
-    };
+    return data;
   } catch (error: any) {
     console.error('Error uploading image:', error);
     toast.error(error.message || 'Failed to upload image. Please try again.');

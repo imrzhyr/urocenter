@@ -15,19 +15,19 @@ export const ImageUploadButton = ({ onImageUpload, disabled }: ImageUploadButton
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file) return;
-
-    try {
-      setIsUploading(true);
-      const uploadedFile = await uploadImage(file);
-      onImageUpload(uploadedFile);
-      toast.success('Image uploaded successfully');
-    } catch (error) {
-      console.error('Image upload error:', error);
-    } finally {
-      setIsUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+    if (file) {
+      try {
+        setIsUploading(true);
+        const uploadedFile = await uploadImage(file);
+        onImageUpload(uploadedFile);
+        toast.success('Image uploaded successfully');
+      } catch (error) {
+        console.error('Image upload error:', error);
+      } finally {
+        setIsUploading(false);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
       }
     }
   };
