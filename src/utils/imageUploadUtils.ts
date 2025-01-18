@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { uploadImage as uploadToStorage } from '../api/StorageFileApi';
 
 const ALLOWED_IMAGE_TYPES = [
   'image/jpeg',
@@ -39,3 +40,14 @@ export const uploadImage = async (file: File) => {
     throw error;
   }
 };
+
+async function handleFileSelect(event: Event) {
+    // ...existing code...
+    try {
+        const response = await uploadToStorage(file);
+        console.log('Image uploaded successfully:', response);
+    } catch (error) {
+        console.error('Image upload error:', error);
+    }
+    // ...existing code...
+}
