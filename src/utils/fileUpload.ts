@@ -26,13 +26,10 @@ export const uploadFile = async (file: File) => {
     // Generate unique filename while preserving extension
     const fileName = `${crypto.randomUUID()}-${file.name}`;
 
-    // Create a Blob with the correct MIME type
-    const blob = new Blob([await file.arrayBuffer()], { type: file.type });
-
     // Upload file with explicit content type
     const { data, error } = await supabase.storage
       .from('chat_attachments')
-      .upload(fileName, blob, {
+      .upload(fileName, file, {
         contentType: file.type,
         cacheControl: '3600',
         upsert: false
