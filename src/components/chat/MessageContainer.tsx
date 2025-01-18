@@ -3,7 +3,7 @@ import { Message } from '@/types/profile';
 import { TypingIndicator } from './TypingIndicator';
 import { Mic, Image, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ChatBubble, ChatBubbleAvatar, ChatBubbleMessage } from "@/components/ui/chat-bubble";
+import { ChatBubble, ChatBubbleMessage } from "@/components/ui/chat-bubble";
 import { ChatMessageList } from "@/components/ui/chat-message-list";
 import { ChatInput } from "@/components/ui/chat-input";
 import { useProfile } from '@/hooks/useProfile';
@@ -30,22 +30,12 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
   header,
   userId
 }) => {
-  const [message, setMessage] = useState("");
   const { profile } = useProfile();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   
   const typingUsers = messages && messages.length > 0 ? 
     messages[messages.length - 1]?.typing_users || [] : 
     [];
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (message.trim()) {
-      onSendMessage(message.trim());
-      setMessage("");
-      onTyping?.(false);
-    }
-  };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -123,10 +113,6 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
                 key={msg.id}
                 variant={fromCurrentUser ? "sent" : "received"}
               >
-                <ChatBubbleAvatar
-                  className="h-8 w-8 shrink-0"
-                  fallback={msg.is_from_doctor ? "D" : "P"}
-                />
                 <div className="flex flex-col gap-1 max-w-[75%]">
                   <ChatBubbleMessage
                     variant={fromCurrentUser ? "sent" : "received"}
@@ -146,7 +132,7 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
       </div>
 
       <div className="absolute bottom-0 left-0 right-0 z-50 bg-[#1F2937] dark:bg-[#1F2937] w-full py-2 px-4">
-        <form onSubmit={handleSubmit} className="flex items-center gap-2">
+        <form className="flex items-center gap-2">
           <input
             type="file"
             ref={fileInputRef}

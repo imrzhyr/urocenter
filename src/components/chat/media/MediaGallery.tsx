@@ -27,17 +27,13 @@ export const MediaGallery = ({
     <div className={cn("relative", className)}>
       {isImage && (
         <>
-          <div 
-            className="relative max-w-[200px] rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
+          <img
+            src={fileUrl}
+            alt={fileName || 'Image'}
+            className="max-w-[200px] w-full h-auto rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
             onClick={() => setIsImageViewerOpen(true)}
-          >
-            <img
-              src={fileUrl}
-              alt={fileName || 'Image'}
-              className="w-full h-auto object-cover rounded-lg"
-              loading="lazy"
-            />
-          </div>
+            loading="lazy"
+          />
           <ImageViewer
             isOpen={isImageViewerOpen}
             onClose={() => setIsImageViewerOpen(false)}
@@ -47,13 +43,11 @@ export const MediaGallery = ({
         </>
       )}
       {isVideo && (
-        <div className="max-w-[200px] rounded-lg overflow-hidden">
-          <video
-            src={fileUrl}
-            controls
-            className="w-full h-auto rounded-lg"
-          />
-        </div>
+        <video
+          src={fileUrl}
+          controls
+          className="max-w-[200px] w-full h-auto rounded-lg"
+        />
       )}
     </div>
   );
