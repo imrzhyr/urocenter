@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Message } from '@/types/profile';
 import { TypingIndicator } from './TypingIndicator';
-import { Mic, Image } from "lucide-react";
+import { Mic, Image, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ChatBubble, ChatBubbleAvatar, ChatBubbleMessage } from "@/components/ui/chat-bubble";
 import { ChatMessageList } from "@/components/ui/chat-message-list";
