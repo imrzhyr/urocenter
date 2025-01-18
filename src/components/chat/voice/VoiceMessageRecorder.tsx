@@ -35,13 +35,15 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
         setIsUploading(true);
         try {
           const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
+          
+          // Create a copy of the ArrayBuffer to prevent detachment
           const arrayBuffer = await audioBlob.arrayBuffer();
+          const uint8Array = new Uint8Array(arrayBuffer.slice(0));
+          
+          // Get audio duration using AudioContext
           audioContextRef.current = new AudioContext();
           const audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
           const audioDuration = Math.round(audioBuffer.duration);
-
-          // Convert file to binary data for upload
-          const uint8Array = new Uint8Array(arrayBuffer);
           
           const fileName = `voice-${Date.now()}.webm`;
           
