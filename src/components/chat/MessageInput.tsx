@@ -42,7 +42,7 @@ export const MessageInput = ({
       {replyingTo && (
         <ReplyPreview
           message={replyingTo}
-          onCancelReply={onCancelReply || (() => {})}
+          onCancel={onCancelReply || (() => {})}
         />
       )}
       <div className="relative flex items-center gap-2 p-4 max-w-7xl mx-auto">

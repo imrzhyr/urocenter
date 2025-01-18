@@ -13,7 +13,7 @@ export const PatientChatContainer = () => {
     return null;
   }
 
-  const handleSendMessage = (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }, replyTo?: Message) => {
+  const handleSendMessage = (content: string, replyTo?: Message) => {
     sendMessage(content);
   };
 
