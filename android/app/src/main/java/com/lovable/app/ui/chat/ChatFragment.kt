@@ -71,7 +71,6 @@ class ChatFragment : BaseFragment() {
                             put("table", "messages")
                         }
                     ) { response ->
-                        // Handle real-time updates
                         fetchMessages()
                     }
                     .subscribe()

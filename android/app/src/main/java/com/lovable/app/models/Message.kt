@@ -10,10 +10,6 @@ data class Message(
     val isFromDoctor: Boolean,
     val isRead: Boolean,
     val createdAt: String,
-    val fileUrl: String? = null,
-    val fileName: String? = null,
-    val fileType: String? = null,
-    val duration: Int? = null,
     val status: String = "not_seen",
     val deliveredAt: String? = null,
     val seenAt: String? = null,
@@ -25,7 +21,5 @@ data class Message(
 @Serializable
 data class ReplyMessage(
     val content: String,
-    val fileType: String? = null,
-    val fileUrl: String? = null,
     val senderName: String? = null
 )

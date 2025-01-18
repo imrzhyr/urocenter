@@ -6,7 +6,7 @@ import { TypingIndicator } from './TypingIndicator';
 
 interface MessageContainerProps {
   messages: Message[];
-  onSendMessage: (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }, replyTo?: Message) => void;
+  onSendMessage: (content: string, replyTo?: Message) => void;
   onTyping?: (isTyping: boolean) => void;
   isLoading: boolean;
   header: React.ReactNode;

@@ -106,50 +106,11 @@ export type Database = {
           },
         ]
       }
-      medical_reports: {
-        Row: {
-          created_at: string
-          file_name: string
-          file_path: string
-          file_type: string | null
-          id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          file_name: string
-          file_path: string
-          file_type?: string | null
-          id?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          file_name?: string
-          file_path?: string
-          file_type?: string | null
-          id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "medical_reports_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       messages: {
         Row: {
           content: string
           created_at: string | null
           delivered_at: string | null
-          duration: number | null
-          file_name: string | null
-          file_type: string | null
-          file_url: string | null
           id: string
           is_from_doctor: boolean | null
           is_read: boolean | null
@@ -167,10 +128,6 @@ export type Database = {
           content: string
           created_at?: string | null
           delivered_at?: string | null
-          duration?: number | null
-          file_name?: string | null
-          file_type?: string | null
-          file_url?: string | null
           id?: string
           is_from_doctor?: boolean | null
           is_read?: boolean | null
@@ -188,10 +145,6 @@ export type Database = {
           content?: string
           created_at?: string | null
           delivered_at?: string | null
-          duration?: number | null
-          file_name?: string | null
-          file_type?: string | null
-          file_url?: string | null
           id?: string
           is_from_doctor?: boolean | null
           is_read?: boolean | null

@@ -1,107 +1,72 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
-import { FileUploadButton } from "./media/FileUploadButton";
-import { VoiceMessageRecorder } from "./VoiceMessageRecorder";
 import { Message } from "@/types/profile";
 import { ReplyPreview } from "./reply/ReplyPreview";
 import { TextArea } from "./input/TextArea";
 
 interface MessageInputProps {
-  onSendMessage: (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }, replyTo?: Message) => void;
+  onSendMessage: (content: string, replyTo?: Message) => void;
   isLoading?: boolean;
   replyingTo?: Message | null;
   onCancelReply?: () => void;
   onTyping?: (isTyping: boolean) => void;
 }
 
-export const MessageInput: React.FC<MessageInputProps> = ({
+export const MessageInput = ({
   onSendMessage,
   isLoading,
   replyingTo,
   onCancelReply,
-  onTyping,
-}) => {
-  const [content, setContent] = useState("");
-  const [fileInfo, setFileInfo] = useState<{ url: string; name: string; type: string } | null>(null);
-  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  onTyping
+}: MessageInputProps) => {
+  const [message, setMessage] = useState("");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleSend = () => {
-    if (content.trim() || fileInfo) {
-      onSendMessage(content.trim(), fileInfo || undefined, replyingTo || undefined);
-      setContent("");
-      setFileInfo(null);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (message.trim()) {
+      onSendMessage(message.trim(), replyingTo || undefined);
+      setMessage("");
       if (onCancelReply) {
         onCancelReply();
       }
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
-
-  const handleFileSelect = (info: { url: string; name: string; type: string }) => {
-    setFileInfo(info);
-    // Automatically send the message if it's a file-only message
-    if (!content.trim()) {
-      onSendMessage("", info, replyingTo || undefined);
-      setFileInfo(null);
-      if (onCancelReply) {
-        onCancelReply();
+      if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto';
       }
     }
   };
-
-  const handleVoiceMessage = (info: { url: string; name: string; type: string; duration: number }) => {
-    onSendMessage("", info, replyingTo || undefined);
-    if (onCancelReply) {
-      onCancelReply();
-    }
-  };
-
-  useEffect(() => {
-    if (textAreaRef.current) {
-      textAreaRef.current.focus();
-    }
-  }, []);
 
   return (
-    <div className="p-4 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t">
+    <form onSubmit={handleSubmit} className="fixed bottom-0 left-0 right-0 bg-background border-t">
       {replyingTo && (
-        <div className="mb-2">
-          <ReplyPreview message={replyingTo} onCancel={onCancelReply} />
-        </div>
+        <ReplyPreview
+          message={replyingTo}
+          onCancelReply={onCancelReply || (() => {})}
+        />
       )}
-      <div className="flex items-end gap-2">
-        <FileUploadButton onFileSelect={handleFileSelect} isLoading={isLoading} />
-        <VoiceMessageRecorder onRecordingComplete={handleVoiceMessage} />
-        <div className="flex-1">
-          <TextArea
-            ref={textAreaRef}
-            value={content}
-            onChange={(e) => {
-              setContent(e.target.value);
-              if (onTyping) {
-                onTyping(e.target.value.length > 0);
-              }
-            }}
-            onKeyDown={handleKeyPress}
-            placeholder="Type a message..."
-            disabled={isLoading}
-          />
-        </div>
-        <Button
+      <div className="relative flex items-center gap-2 p-4 max-w-7xl mx-auto">
+        <TextArea
+          ref={textareaRef}
+          value={message}
+          onChange={(e) => {
+            setMessage(e.target.value);
+            if (onTyping) {
+              onTyping(e.target.value.length > 0);
+            }
+          }}
+          placeholder="Type a message..."
+          rows={1}
+          className="flex-1"
+        />
+        <Button 
+          type="submit" 
           size="icon"
-          onClick={handleSend}
-          disabled={(!content.trim() && !fileInfo) || isLoading}
+          disabled={!message.trim() || isLoading}
         >
           <Send className="h-5 w-5" />
         </Button>
       </div>
-    </div>
+    </form>
   );
 };
