@@ -13,21 +13,23 @@ interface MessageContentProps {
 export const MessageContent = ({ message, fromCurrentUser }: MessageContentProps) => {
   return (
     <div className={cn(
-      "max-w-[85%] sm:max-w-[70%] md:max-w-[60%] rounded-lg p-3 space-y-1 shadow-sm break-words",
+      "max-w-[85%] sm:max-w-[70%] md:max-w-[60%] rounded-lg p-2 space-y-1 shadow-sm break-words",
       fromCurrentUser
         ? "bg-[#0066CC] text-white ml-auto" 
         : "bg-white dark:bg-[#1A2433] dark:border dark:border-gray-700/50 text-gray-800 dark:text-white"
     )}>
       {message.file_url && message.file_type?.startsWith('audio/') && (
-        <AudioPlayer
-          audioUrl={message.file_url}
-          messageId={message.id}
-          duration={message.duration}
-        />
+        <div className="max-w-[200px]">
+          <AudioPlayer
+            audioUrl={message.file_url}
+            messageId={message.id}
+            duration={message.duration}
+          />
+        </div>
       )}
       
       {message.file_url && (message.file_type?.startsWith('image/') || message.file_type?.startsWith('video/')) && (
-        <div className="mb-2">
+        <div className="max-w-[200px] mb-2">
           <MediaGallery
             url={message.file_url}
             type={message.file_type}

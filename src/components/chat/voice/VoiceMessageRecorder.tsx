@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Mic, Square, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { uploadFile } from "@/utils/fileUpload";
 
 interface VoiceMessageRecorderProps {
   onRecordingComplete: (fileInfo: { url: string; name: string; type: string; duration: number }) => void;
@@ -20,9 +20,7 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream, {
-        mimeType: 'audio/webm' // Use WebM format for better compatibility
-      });
+      mediaRecorderRef.current = new MediaRecorder(stream);
       chunksRef.current = [];
 
       mediaRecorderRef.current.ondataavailable = (e) => {
@@ -67,8 +65,6 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
             type: 'audio/webm',
             duration: audioDuration
           });
-          
-          toast.success('Voice message recorded successfully');
         } catch (error) {
           console.error('Error processing voice message:', error);
           toast.error('Failed to process voice message');
@@ -109,23 +105,23 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center">
       {isUploading ? (
-        <Button disabled variant="ghost" size="icon" className="h-10 w-10">
-          <Loader2 className="h-5 w-5 animate-spin" />
+        <Button disabled variant="ghost" size="icon" className="h-8 w-8">
+          <Loader2 className="h-4 w-4 animate-spin" />
         </Button>
       ) : isRecording ? (
         <>
-          <span className="text-sm text-red-500 animate-pulse">
+          <span className="text-xs text-red-500 animate-pulse mr-2">
             {Math.floor(duration / 60)}:{(duration % 60).toString().padStart(2, '0')}
           </span>
           <Button
             onClick={stopRecording}
             variant="ghost"
             size="icon"
-            className="h-10 w-10 bg-red-50 hover:bg-red-100 dark:bg-red-900/10 dark:hover:bg-red-900/20"
+            className="h-8 w-8"
           >
-            <Square className="h-5 w-5 text-red-500" />
+            <Square className="h-4 w-4 text-red-500" />
           </Button>
         </>
       ) : (
@@ -133,9 +129,9 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
           onClick={startRecording}
           variant="ghost"
           size="icon"
-          className="h-10 w-10"
+          className="h-8 w-8"
         >
-          <Mic className="h-5 w-5 text-primary" />
+          <Mic className="h-4 w-4" />
         </Button>
       )}
     </div>
