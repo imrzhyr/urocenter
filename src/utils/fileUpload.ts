@@ -25,13 +25,9 @@ export const uploadFile = async (file: File) => {
     }
 
     // Get the public URL of the uploaded file
-    const { data: publicUrlData, error: urlError } = supabase.storage
+    const { data: publicUrlData } = supabase.storage
       .from('chat_attachments')
       .getPublicUrl(fileName);
-
-    if (urlError) {
-      throw urlError;
-    }
 
     // Return the file's public URL, name, and type
     return {
