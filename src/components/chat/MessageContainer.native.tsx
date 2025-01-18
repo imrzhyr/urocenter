@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Platform, Dimensions } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { MessageList } from './MessageList.native';
 import { MessageInput } from './MessageInput.native';
 import { Message } from '@/types/profile';
@@ -47,12 +47,11 @@ export const MessageContainer = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    height: Platform.OS === 'web' ? Dimensions.get('window').height : '100%',
+    backgroundColor: '#fff'
   },
   header: {
     backgroundColor: '#7c3aed',
-    paddingTop: Platform.OS === 'ios' ? 44 : 20,
+    paddingTop: 20,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -63,17 +62,14 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   messageList: {
-    flex: 1,
+    flex: 1
   },
   messageListContent: {
-    padding: 16,
-    paddingBottom: Platform.OS === 'web' ? 80 : 16,
+    padding: 16
   },
   inputContainer: {
     borderTopWidth: 1,
     borderTopColor: '#e5e7eb',
-    padding: 16,
-    paddingBottom: Platform.OS === 'ios' ? 34 : 16,
-    backgroundColor: '#fff',
+    padding: 16
   }
 });
