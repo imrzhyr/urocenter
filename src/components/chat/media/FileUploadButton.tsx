@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { Button } from "@/components/ui/button";
-import { Paperclip } from "lucide-react";
+import { Paperclip, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { uploadFile } from '@/utils/fileUpload';
 import { logger } from '@/utils/logger';
