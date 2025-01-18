@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Message } from "@/types/profile";
+import { FileInfo } from "@/types/chat";
 
 export const usePatientChat = (userPhone?: string | null) => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -95,7 +96,7 @@ export const usePatientChat = (userPhone?: string | null) => {
     };
   }, [userPhone]);
 
-  const sendMessage = async (content: string) => {
+  const sendMessage = async (content: string, fileInfo?: FileInfo) => {
     if (!userPhone) return;
 
     const { data: profileData } = await supabase
@@ -116,7 +117,11 @@ export const usePatientChat = (userPhone?: string | null) => {
         content: content.trim(),
         user_id: profileData.id,
         is_from_doctor: false,
-        status: 'sent'
+        status: 'sent',
+        file_url: fileInfo?.url,
+        file_name: fileInfo?.name,
+        file_type: fileInfo?.type,
+        duration: fileInfo?.duration
       });
 
     if (error) {

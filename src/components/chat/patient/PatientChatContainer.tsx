@@ -3,7 +3,6 @@ import { MessageList } from "../MessageList";
 import { MessageInput } from "../MessageInput";
 import { PatientChatHeader } from "./PatientChatHeader";
 import { usePatientChat } from "./hooks/usePatientChat";
-import { Message } from "@/types/profile";
 import { FileInfo } from "@/types/chat";
 
 export const PatientChatContainer = () => {
