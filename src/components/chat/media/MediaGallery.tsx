@@ -14,12 +14,12 @@ export const MediaGallery = ({ url, type, name }: MediaGalleryProps) => {
   return (
     <>
       <div 
-        className="relative rounded-lg overflow-hidden max-w-[120px] cursor-pointer"
+        className="relative rounded-lg overflow-hidden max-w-[200px] cursor-pointer hover:opacity-95 transition-opacity"
         onClick={() => !isVideo && setIsImageViewerOpen(true)}
       >
         {isVideo ? (
           <video 
-            className="w-full h-full object-cover max-h-[120px]"
+            className="w-full h-full object-cover rounded-lg max-h-[200px]"
             controls
             poster={`${url}#t=0.1`}
           >
@@ -30,7 +30,7 @@ export const MediaGallery = ({ url, type, name }: MediaGalleryProps) => {
           <img 
             src={url} 
             alt={name || 'Media'} 
-            className="w-full h-full object-cover max-h-[120px]"
+            className="w-full h-full object-cover rounded-lg max-h-[200px]"
           />
         )}
       </div>

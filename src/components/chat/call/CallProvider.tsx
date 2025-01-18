@@ -81,6 +81,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
         stopDurationTimer();
         callSoundUtils.stopCallSound();
 
+        // Show end call UI for 3 seconds for both parties
         setTimeout(() => {
           setIsInCall(false);
           setIsCalling(false);
@@ -113,7 +114,6 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     if (!currentCallId || !profile?.id) return;
 
     try {
-      await updateCallStatus(currentCallId, 'ended', true);
       await leaveChannel();
       setIsCallEnded(true);
       stopDurationTimer();
@@ -121,38 +121,43 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
 
       const { data: callData } = await supabase
         .from('calls')
-        .select('caller_id, receiver_id')
+        .select('caller_id, receiver_id, started_at')
         .eq('id', currentCallId)
         .single();
 
       if (callData) {
-        const otherParticipantId = callData.caller_id === profile.id 
+        const otherUserId = callData.caller_id === profile.id 
           ? callData.receiver_id 
           : callData.caller_id;
 
-        const profileExists = await verifyProfile(otherParticipantId);
-        
-        if (!profileExists) {
-          console.error('Other participant profile not found');
-          toast.error('Failed to send call end signal');
-          return;
-        }
+        const duration = Math.floor(
+          (Date.now() - new Date(callData.started_at).getTime()) / 1000
+        );
 
-        const { error } = await supabase
-          .from('call_signals')
-          .insert({
-            call_id: currentCallId,
-            from_user: profile.id,
-            to_user: otherParticipantId,
-            type: 'end_call',
-            data: { duration: callDuration }
-          });
+        await supabase
+          .from('calls')
+          .update({
+            status: 'ended',
+            ended_at: new Date().toISOString()
+          })
+          .eq('id', currentCallId);
 
-        if (error) {
+        try {
+          await supabase
+            .from('call_signals')
+            .insert({
+              call_id: currentCallId,
+              from_user: profile.id,
+              to_user: otherUserId,
+              type: 'end_call',
+              data: { duration }
+            });
+        } catch (error) {
           console.error('Error sending end call signal:', error);
           toast.error('Failed to send call end signal');
         }
 
+        // Show end call UI for 3 seconds for both parties
         setTimeout(() => {
           setIsInCall(false);
           setIsCalling(false);

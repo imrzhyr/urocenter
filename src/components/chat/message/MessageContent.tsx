@@ -28,11 +28,13 @@ export const MessageContent = ({ message, fromCurrentUser }: MessageContentProps
           duration={message.duration}
         />
       ) : message.file_url && (message.file_type?.startsWith('image/') || message.file_type?.startsWith('video/')) ? (
-        <MediaGallery
-          url={message.file_url}
-          type={message.file_type}
-          name={message.file_name || ''}
-        />
+        <div className="mb-2">
+          <MediaGallery
+            url={message.file_url}
+            type={message.file_type}
+            name={message.file_name || ''}
+          />
+        </div>
       ) : null}
       
       {message.content && (
