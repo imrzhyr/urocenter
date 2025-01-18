@@ -7,6 +7,7 @@ import { TextArea } from "./input/TextArea";
 import { toast } from "sonner";
 import { FileInfo } from "@/types/chat";
 import { supabase } from "@/integrations/supabase/client";
+import { VoiceMessageRecorder } from "./voice/VoiceMessageRecorder";
 
 interface MessageInputProps {
   onSendMessage: (content: string, fileInfo?: FileInfo) => void;
@@ -180,6 +181,7 @@ export const MessageInput = ({
         >
           <FileImage className="h-5 w-5" />
         </Button>
+        <VoiceMessageRecorder onRecordingComplete={(fileInfo) => onSendMessage("", fileInfo)} />
         <TextArea
           ref={textareaRef}
           value={message}

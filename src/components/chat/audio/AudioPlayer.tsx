@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Play, Pause } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { formatTime } from '@/utils/audioUtils';
 
 interface AudioPlayerProps {
   audioUrl: string;
@@ -35,6 +34,13 @@ export const AudioPlayer = ({ audioUrl, messageId, duration }: AudioPlayerProps)
       audio.removeEventListener('ended', handleEnded);
     };
   }, []);
+
+  const formatTime = (seconds: number): string => {
+    if (!isFinite(seconds)) return '0:00';
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
 
   const togglePlayPause = () => {
     if (!audioRef.current) return;
