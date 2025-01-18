@@ -67,67 +67,47 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   useEffect(() => {
-    if ('Notification' in window) {
-      Notification.requestPermission();
-    }
-  }, []);
+    const handleEndCallSignal = async (payload: {
+      new: {
+        type: string;
+        call_id: string;
+        from_user: string;
+        data: { duration: number };
+      };
+    }) => {
+      if (payload.new.type === 'end_call' && payload.new.call_id === currentCallId) {
+        await leaveChannel();
+        setIsCallEnded(true);
+        stopDurationTimer();
+        callSoundUtils.stopCallSound();
 
-  useEffect(() => {
-    if (incomingCall) {
-      if ('Notification' in window && Notification.permission === 'granted') {
-        notificationRef.current = new Notification('Incoming Call', {
-          body: `${incomingCall.callerName} is calling you`,
-          icon: '/favicon.ico',
-          tag: 'call-notification',
-          requireInteraction: true
-        });
-
-        notificationRef.current.onclick = () => {
-          window.focus();
-          notificationRef.current?.close();
-        };
+        setTimeout(() => {
+          setIsInCall(false);
+          setIsCalling(false);
+          setIsCallEnded(false);
+          setCurrentCallId(null);
+        }, 3000);
       }
+    };
 
-      callSoundUtils.playCallSound();
-    } else {
-      notificationRef.current?.close();
-      callSoundUtils.stopCallSound();
-    }
+    const subscription = supabase
+      .channel('call_signals')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'call_signals',
+          filter: `to_user=eq.${profile?.id}`
+        },
+        handleEndCallSignal
+      )
+      .subscribe();
 
     return () => {
-      notificationRef.current?.close();
-      callSoundUtils.stopCallSound();
+      subscription.unsubscribe();
     };
-  }, [incomingCall]);
-
-  const acceptCall = async (callId: string) => {
-    if (!profile?.id) return;
-
-    try {
-      const success = await setupAgoraClient();
-      if (!success) {
-        toast.error('Failed to initialize call');
-        return;
-      }
-
-      clearCallTimeout();
-      setCurrentCallId(callId);
-      setIncomingCall(null);
-      setIsCallEnded(false);
-
-      const joined = await joinChannel(callId);
-      if (!joined) {
-        throw new Error('Failed to join call');
-      }
-
-      await updateCallStatus(callId, 'active');
-      startDurationTimer();
-      toast.success('Call connected');
-    } catch (error) {
-      console.error('Error accepting call:', error);
-      toast.error('Failed to accept call');
-    }
-  };
+  }, [currentCallId, profile?.id, leaveChannel, setIsCallEnded, setIsInCall, setIsCalling, stopDurationTimer, setCurrentCallId]);
 
   const endCall = async () => {
     if (!currentCallId || !profile?.id) return;
@@ -138,13 +118,6 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       setIsCallEnded(true);
       stopDurationTimer();
       callSoundUtils.stopCallSound();
-
-      // Keep the end call UI visible for 3 seconds
-      setTimeout(() => {
-        setIsInCall(false);
-        setIsCalling(false);
-        setIsCallEnded(false);
-      }, 3000);
 
       const { data: callData } = await supabase
         .from('calls')
@@ -179,10 +152,46 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
           console.error('Error sending end call signal:', error);
           toast.error('Failed to send call end signal');
         }
+
+        setTimeout(() => {
+          setIsInCall(false);
+          setIsCalling(false);
+          setIsCallEnded(false);
+          setCurrentCallId(null);
+        }, 3000);
       }
     } catch (error) {
       console.error('Error ending call:', error);
       toast.error('Failed to end call');
+    }
+  };
+
+  const acceptCall = async (callId: string) => {
+    if (!profile?.id) return;
+
+    try {
+      const success = await setupAgoraClient();
+      if (!success) {
+        toast.error('Failed to initialize call');
+        return;
+      }
+
+      clearCallTimeout();
+      setCurrentCallId(callId);
+      setIncomingCall(null);
+      setIsCallEnded(false);
+
+      const joined = await joinChannel(callId);
+      if (!joined) {
+        throw new Error('Failed to join call');
+      }
+
+      await updateCallStatus(callId, 'active');
+      startDurationTimer();
+      toast.success('Call connected');
+    } catch (error) {
+      console.error('Error accepting call:', error);
+      toast.error('Failed to accept call');
     }
   };
 
