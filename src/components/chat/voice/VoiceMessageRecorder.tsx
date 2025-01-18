@@ -15,16 +15,13 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout>();
-  const startTimeRef = useRef<number>(0);
   const audioContextRef = useRef<AudioContext>();
-  const audioBufferRef = useRef<AudioBuffer>();
 
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaRecorderRef.current = new MediaRecorder(stream);
       chunksRef.current = [];
-      startTimeRef.current = Date.now();
 
       mediaRecorderRef.current.ondataavailable = (e) => {
         if (e.data.size > 0) {
@@ -33,27 +30,29 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
       };
 
       mediaRecorderRef.current.onstop = async () => {
-        const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
         setIsUploading(true);
         try {
+          const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
           const arrayBuffer = await audioBlob.arrayBuffer();
-          const copiedBuffer = arrayBuffer.slice(0);
+          
+          // Create a copy of the ArrayBuffer for upload
+          const bufferForUpload = arrayBuffer.slice(0);
+          
+          // Use the original buffer for audio duration calculation
           audioContextRef.current = new AudioContext();
-          audioBufferRef.current = await audioContextRef.current.decodeAudioData(copiedBuffer);
-          const audioDuration = Math.round(audioBufferRef.current.duration);
+          const audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
+          const audioDuration = Math.round(audioBuffer.duration);
 
-          const file = new File([audioBlob], `voice-message-${Date.now()}.webm`, { type: 'audio/webm' });
+          const file = new File([bufferForUpload], `voice-message-${Date.now()}.webm`, { type: 'audio/webm' });
           const uploadedFile = await uploadFile(file);
           
           onRecordingComplete({
-            url: uploadedFile.url,
-            name: uploadedFile.name,
-            type: uploadedFile.type,
+            ...uploadedFile,
             duration: audioDuration
           });
         } catch (error) {
-          console.error('Error uploading voice message:', error);
-          toast.error('Failed to upload voice message');
+          console.error('Error processing voice message:', error);
+          toast.error('Failed to process voice message');
         } finally {
           setIsUploading(false);
           setDuration(0);
@@ -105,7 +104,7 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
             onClick={stopRecording}
             variant="ghost"
             size="icon"
-            className="h-8 w-8 bg-red-50 hover:bg-red-100"
+            className="h-8 w-8 bg-red-50 hover:bg-red-100 dark:bg-red-900/10 dark:hover:bg-red-900/20"
           >
             <Square className="h-4 w-4 text-red-500" />
           </Button>
