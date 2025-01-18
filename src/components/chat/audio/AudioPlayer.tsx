@@ -1,48 +1,42 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from 'react';
+import { Play, Pause } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { Play, Pause } from "lucide-react";
+import { formatTime } from '@/utils/audioUtils';
 import { cn } from "@/lib/utils";
-import { AudioProgress } from "./AudioProgress";
 
 interface AudioPlayerProps {
   url: string;
-  messageId: string; // Added this prop
-  duration?: number | null;
+  messageId: string;
+  duration?: number;
   className?: string;
 }
 
 export const AudioPlayer = ({ url, messageId, duration, className }: AudioPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
-  const [audioDuration, setAudioDuration] = useState(duration || 0);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
-    audioRef.current = new Audio(url);
-    audioRef.current.addEventListener('loadedmetadata', () => {
-      if (audioRef.current) {
-        setAudioDuration(audioRef.current.duration);
-      }
-    });
-    audioRef.current.addEventListener('timeupdate', () => {
-      if (audioRef.current) {
-        setCurrentTime(audioRef.current.currentTime);
-      }
-    });
-    audioRef.current.addEventListener('ended', () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const handleTimeUpdate = () => {
+      setCurrentTime(audio.currentTime);
+    };
+
+    const handleEnded = () => {
       setIsPlaying(false);
       setCurrentTime(0);
-    });
+    };
+
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('ended', handleEnded);
 
     return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.removeEventListener('loadedmetadata', () => {});
-        audioRef.current.removeEventListener('timeupdate', () => {});
-        audioRef.current.removeEventListener('ended', () => {});
-      }
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('ended', handleEnded);
     };
-  }, [url]);
+  }, []);
 
   const togglePlayPause = () => {
     if (!audioRef.current) return;
@@ -55,20 +49,9 @@ export const AudioPlayer = ({ url, messageId, duration, className }: AudioPlayer
     setIsPlaying(!isPlaying);
   };
 
-  const handleSeek = (time: number) => {
-    if (!audioRef.current) return;
-    audioRef.current.currentTime = time;
-    setCurrentTime(time);
-  };
-
-  const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  };
-
   return (
-    <div className={cn("flex items-center gap-2 bg-secondary p-2 rounded-lg", className)}>
+    <div className={cn("flex items-center gap-2 min-w-[200px]", className)}>
+      <audio ref={audioRef} src={url} preload="metadata" />
       <Button
         variant="ghost"
         size="icon"
@@ -81,14 +64,9 @@ export const AudioPlayer = ({ url, messageId, duration, className }: AudioPlayer
           <Play className="h-4 w-4" />
         )}
       </Button>
-      <AudioProgress
-        currentTime={currentTime}
-        duration={audioDuration}
-        onSeek={handleSeek}
-      />
-      <span className="text-xs min-w-[40px]">
-        {formatTime(currentTime)} / {formatTime(audioDuration)}
-      </span>
+      <div className="text-[12px] leading-4 opacity-80">
+        {formatTime(currentTime)} / {formatTime(duration || 0)}
+      </div>
     </div>
   );
 };
