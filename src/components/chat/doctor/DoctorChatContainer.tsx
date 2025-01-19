@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { DoctorChatHeader } from './DoctorChatHeader';
 import { MessageContainer } from '../MessageContainer';
 import { useChat } from "@/hooks/useChat";
@@ -15,6 +15,10 @@ export const DoctorChatContainer = () => {
   const { userId: patientId } = useParams();
   const { messages, sendMessage, isLoading, refreshMessages } = useChat(patientId);
   const { profile } = useProfile();
+
+  useEffect(() => {
+    console.log('DoctorChatContainer mounted with patientId:', patientId);
+  }, [patientId]);
 
   // Fetch patient profile data
   const { data: patientProfile, isLoading: isLoadingPatient } = useQuery({
@@ -44,6 +48,12 @@ export const DoctorChatContainer = () => {
     enabled: !!patientId,
   });
 
+  useEffect(() => {
+    if (messages) {
+      console.log('Current messages in chat:', messages);
+    }
+  }, [messages]);
+
   const handleSendMessage = async (content: string, fileInfo?: FileInfo, replyTo?: Message) => {
     if (!patientId || !profile?.id) {
       toast.error("Unable to send message");
@@ -51,6 +61,7 @@ export const DoctorChatContainer = () => {
     }
 
     try {
+      console.log('Sending message to patient:', patientId);
       await sendMessage(content, fileInfo, replyTo);
       refreshMessages();
     } catch (error) {

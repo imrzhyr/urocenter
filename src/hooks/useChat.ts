@@ -46,6 +46,7 @@ export const useChat = (userId?: string) => {
       ) || [];
 
       if (unseenMessages.length > 0) {
+        console.log('Marking messages as seen:', unseenMessages.length);
         const { error: updateError } = await supabase
           .from('messages')
           .update({ 
