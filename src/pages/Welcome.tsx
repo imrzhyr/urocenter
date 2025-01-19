@@ -28,7 +28,7 @@ const Welcome = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen flex flex-col bg-gradient-to-br from-primary/5 via-background to-background dark:from-primary/20 dark:via-[#1A1F2C] dark:to-[#1A1F2C]"
+      className="min-h-screen flex flex-col bg-gradient-to-br from-white via-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900"
     >
       <div className="p-4 flex justify-between items-center bg-white/80 dark:bg-[#1A1F2C]/80 backdrop-blur-sm border-b border-gray-100 dark:border-gray-800">
         <div className="flex items-center">
