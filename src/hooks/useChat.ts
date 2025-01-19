@@ -35,7 +35,7 @@ export const useChat = (userId?: string) => {
         throw messagesError;
       }
 
-      console.log('Fetched messages for patient:', messages);
+      console.log('Fetched messages:', messages);
       setMessages(messages as Message[]);
 
       // Mark messages as seen if they're from the other party
@@ -83,20 +83,20 @@ export const useChat = (userId?: string) => {
         user_id: userId,
         is_from_doctor: profile.role === 'admin',
         status: 'not_seen',
-        file_url: fileInfo?.url || null,
-        file_name: fileInfo?.name || null,
-        file_type: fileInfo?.type || null,
-        duration: fileInfo?.duration || null,
+        file_url: fileInfo?.url,
+        file_name: fileInfo?.name,
+        file_type: fileInfo?.type,
+        duration: fileInfo?.duration,
         sender_name: profile.full_name || 'Unknown User',
-        referenced_message: replyTo ? {
-          id: replyTo.id,
+        replyTo: replyTo ? {
           content: replyTo.content,
-          sender_name: replyTo.sender_name,
-          file_type: replyTo.file_type
+          file_type: replyTo.file_type,
+          file_url: replyTo.file_url,
+          sender_name: replyTo.sender_name
         } : null
       };
 
-      console.log('Sending message with data:', messageData);
+      console.log('Sending message:', messageData);
 
       const { data, error } = await supabase
         .from('messages')

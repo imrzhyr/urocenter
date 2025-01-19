@@ -22,6 +22,7 @@ export const DoctorChatContainer = () => {
     queryFn: async () => {
       if (!patientId) return null;
       
+      console.log('Fetching patient profile for ID:', patientId);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -37,7 +38,8 @@ export const DoctorChatContainer = () => {
       console.log('Fetched patient profile:', data);
       return data;
     },
-    enabled: !!patientId
+    enabled: !!patientId,
+    staleTime: 30000, // Consider data fresh for 30 seconds
   });
 
   const handleSendMessage = async (content: string, fileInfo?: FileInfo, replyTo?: Message) => {
@@ -72,13 +74,13 @@ export const DoctorChatContainer = () => {
           isLoading={isLoading}
           header={
             <DoctorChatHeader
-              patientId={patientId}
+              patientId={patientId || ''}
               patientName={patientProfile.full_name || "Unknown Patient"}
               patientPhone={patientProfile.phone}
               onRefresh={refreshMessages}
             />
           }
-          userId={patientId}
+          userId={patientId || ''}
         />
       </CallProvider>
     </div>
