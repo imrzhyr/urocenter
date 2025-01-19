@@ -32,14 +32,14 @@ export const MessageList = ({ messages, currentUserId, onReply }: MessageListPro
   const { profile } = useProfile();
   const [calls, setCalls] = useState<Call[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
   
+  // Initialize audio element
   useEffect(() => {
-    // Initialize audio element with absolute path
     const audio = new Audio(`${window.location.origin}/message-sound.mp3`);
     audio.preload = 'auto';
     audioRef.current = audio;
     
-    // Test if audio can be loaded
     audio.addEventListener('error', (e) => {
       console.error('Audio loading error:', e);
     });
@@ -51,7 +51,8 @@ export const MessageList = ({ messages, currentUserId, onReply }: MessageListPro
       }
     };
   }, []);
-  
+
+  // Fetch calls
   useEffect(() => {
     const fetchCalls = async () => {
       const { data, error } = await supabase
@@ -74,7 +75,6 @@ export const MessageList = ({ messages, currentUserId, onReply }: MessageListPro
         schema: 'public', 
         table: 'calls' 
       }, (payload) => {
-        // Only update if the call involves the current user
         const call = payload.new as Call;
         if (call.caller_id === currentUserId || call.receiver_id === currentUserId) {
           fetchCalls();
@@ -87,18 +87,31 @@ export const MessageList = ({ messages, currentUserId, onReply }: MessageListPro
     };
   }, [currentUserId]);
 
+  // Auto-scroll effect
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollIntoView({ behavior: "smooth" });
-    }
+    const scrollToBottom = () => {
+      if (scrollRef.current) {
+        scrollRef.current.scrollIntoView({ behavior: "smooth" });
+      }
+      
+      // Also scroll the ScrollArea to the bottom
+      if (scrollAreaRef.current) {
+        const scrollElement = scrollAreaRef.current;
+        scrollElement.scrollTop = scrollElement.scrollHeight;
+      }
+    };
+
+    // Scroll on initial load and when messages change
+    scrollToBottom();
     
+    // Play sound if new message arrived
     if (messages.length > prevMessagesLength.current && audioRef.current) {
-      // Reset audio position and play
       audioRef.current.currentTime = 0;
       audioRef.current.play().catch(error => {
         console.error('Error playing message sound:', error);
       });
     }
+    
     prevMessagesLength.current = messages.length;
   }, [messages]);
 
@@ -160,7 +173,7 @@ export const MessageList = ({ messages, currentUserId, onReply }: MessageListPro
   });
 
   return (
-    <ScrollArea className="h-full chat-background">
+    <ScrollArea ref={scrollAreaRef} className="h-full chat-background">
       <div className="flex flex-col space-y-2 py-4 px-2 sm:px-4 min-h-full w-full overflow-x-hidden">
         {timeline.map((item) => (
           item.type === 'call' ? (
