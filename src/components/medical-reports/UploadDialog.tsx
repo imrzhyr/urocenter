@@ -12,8 +12,7 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { logger } from '@/utils/logger';
-import { PostgrestError } from "@supabase/supabase-js";
-import { StorageError } from "@supabase/storage-js";
+import { uploadMedicalFile } from "@/utils/medicalFileUpload";
 
 interface UploadDialogProps {
   open: boolean;
@@ -80,33 +79,15 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
         return;
       }
 
-      const fileName = `${profileData.id}/${crypto.randomUUID()}-${file.name}`;
-      
-      logger.info('FileUpload', 'Starting upload', {
-        fileName,
-        contentType: file.type
-      });
-
-      const { error: uploadError } = await supabase.storage
-        .from('medical_reports')
-        .upload(fileName, file, {
-          contentType: file.type,
-          cacheControl: '3600',
-          upsert: false
-        });
-
-      if (uploadError) {
-        logger.error("Storage upload error", uploadError.message, uploadError);
-        throw uploadError;
-      }
+      const { url, name, type } = await uploadMedicalFile(file);
 
       const { error: dbError } = await supabase
         .from('medical_reports')
         .insert({
           user_id: profileData.id,
-          file_name: file.name,
-          file_path: fileName,
-          file_type: file.type,
+          file_name: name,
+          file_path: url.split('/').pop() || '',
+          file_type: type,
         });
 
       if (dbError) {
