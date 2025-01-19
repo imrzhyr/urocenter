@@ -121,31 +121,34 @@ export const useChat = (userId?: string) => {
   };
 
   useEffect(() => {
-    fetchMessages();
+    if (userId) {
+      console.log('Setting up chat for userId:', userId);
+      fetchMessages();
 
-    // Subscribe to message updates
-    const messageChannel = supabase
-      .channel(`messages_${userId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'messages',
-          filter: `user_id=eq.${userId}`
-        },
-        async (payload) => {
-          console.log('Received real-time update:', payload);
-          await fetchMessages();
-        }
-      )
-      .subscribe();
+      // Subscribe to message updates for this specific user
+      const messageChannel = supabase
+        .channel(`messages_${userId}`)
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'messages',
+            filter: `user_id=eq.${userId}`
+          },
+          async (payload) => {
+            console.log('Received real-time update:', payload);
+            await fetchMessages();
+          }
+        )
+        .subscribe();
 
-    return () => {
-      console.log('Cleaning up subscriptions');
-      supabase.removeChannel(messageChannel);
-    };
-  }, [userId, profile?.id, navigate]);
+      return () => {
+        console.log('Cleaning up chat subscription for userId:', userId);
+        supabase.removeChannel(messageChannel);
+      };
+    }
+  }, [userId, profile?.id]);
 
   return {
     messages,

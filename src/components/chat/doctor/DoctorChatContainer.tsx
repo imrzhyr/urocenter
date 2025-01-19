@@ -20,7 +20,10 @@ export const DoctorChatContainer = () => {
   const { data: patientProfile, isLoading: isLoadingPatient } = useQuery({
     queryKey: ['patient', patientId],
     queryFn: async () => {
-      if (!patientId) return null;
+      if (!patientId) {
+        console.error('No patient ID provided');
+        return null;
+      }
       
       console.log('Fetching patient profile for ID:', patientId);
       const { data, error } = await supabase
@@ -39,7 +42,6 @@ export const DoctorChatContainer = () => {
       return data;
     },
     enabled: !!patientId,
-    staleTime: 30000 // Consider data fresh for 30 seconds
   });
 
   const handleSendMessage = async (content: string, fileInfo?: FileInfo, replyTo?: Message) => {
