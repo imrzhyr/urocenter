@@ -48,12 +48,6 @@ export const DoctorChatContainer = () => {
     enabled: !!patientId,
   });
 
-  useEffect(() => {
-    if (messages) {
-      console.log('Current messages in chat:', messages);
-    }
-  }, [messages]);
-
   const handleSendMessage = async (content: string, fileInfo?: FileInfo, replyTo?: Message) => {
     if (!patientId || !profile?.id) {
       toast.error("Unable to send message");
@@ -93,7 +87,7 @@ export const DoctorChatContainer = () => {
               onRefresh={refreshMessages}
             />
           }
-          userId={patientId}
+          userId={profile?.id || ''}
         />
       </CallProvider>
     </div>

@@ -22,14 +22,14 @@ export const DoctorChatHeader = ({
   const { t } = useLanguage();
 
   return (
-    <div className="flex items-center justify-between p-2 bg-primary text-white">
-      <div className="flex items-center gap-2">
+    <div className="flex items-center justify-between p-4 bg-primary text-white">
+      <div className="flex items-center gap-4">
         <BackButton customRoute="/dashboard" />
         <div>
-          <h3 className="font-medium text-sm">
+          <h3 className="font-medium">
             {patientName}
           </h3>
-          <p className="text-xs text-white/80">
+          <p className="text-sm text-white/80">
             {patientPhone || t('no_phone')}
           </p>
         </div>
