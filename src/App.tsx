@@ -4,15 +4,18 @@ import { I18nextProvider } from 'react-i18next';
 import i18n from './i18n/config';
 import { Toaster } from '@/components/ui/sonner';
 import { CallProvider } from '@/components/chat/call/CallProvider';
+import { BrowserRouter } from 'react-router-dom';
 
 function App() {
   return (
     <I18nextProvider i18n={i18n}>
       <LanguageProvider>
-        <CallProvider>
-          <AppRoutes />
-          <Toaster />
-        </CallProvider>
+        <BrowserRouter>
+          <CallProvider>
+            <AppRoutes />
+            <Toaster />
+          </CallProvider>
+        </BrowserRouter>
       </LanguageProvider>
     </I18nextProvider>
   );

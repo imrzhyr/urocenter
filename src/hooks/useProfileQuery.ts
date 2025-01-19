@@ -3,20 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Profile } from "@/types/profile";
 import { toast } from "sonner";
 import { useProfileState } from "./useProfileState";
-import { useLocation } from "react-router-dom";
 
 export const useProfileQuery = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { setState } = useProfileState();
-  const location = useLocation();
 
   const fetchProfile = async () => {
     try {
-      if (location.pathname === '/signup' || location.pathname === '/signin' || location.pathname === '/') {
-        setIsLoading(false);
-        return;
-      }
-
       const userPhone = localStorage.getItem('userPhone');
       if (!userPhone) {
         setIsLoading(false);
@@ -78,7 +71,7 @@ export const useProfileQuery = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [location.pathname]);
+  }, []);
 
   return {
     isLoading,
