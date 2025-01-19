@@ -16,10 +16,6 @@ export const DoctorChatContainer = () => {
   const { messages, sendMessage, isLoading, refreshMessages } = useChat(patientId);
   const { profile } = useProfile();
 
-  useEffect(() => {
-    console.log('DoctorChatContainer mounted with patientId:', patientId);
-  }, [patientId]);
-
   // Fetch patient profile data
   const { data: patientProfile, isLoading: isLoadingPatient } = useQuery({
     queryKey: ['patient', patientId],
@@ -29,7 +25,6 @@ export const DoctorChatContainer = () => {
         return null;
       }
       
-      console.log('Fetching patient profile for ID:', patientId);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -42,7 +37,6 @@ export const DoctorChatContainer = () => {
         return null;
       }
       
-      console.log('Fetched patient profile:', data);
       return data;
     },
     enabled: !!patientId,
@@ -55,7 +49,6 @@ export const DoctorChatContainer = () => {
     }
 
     try {
-      console.log('Sending message to patient:', patientId);
       await sendMessage(content, fileInfo, replyTo);
       refreshMessages();
     } catch (error) {
@@ -82,7 +75,7 @@ export const DoctorChatContainer = () => {
           header={
             <DoctorChatHeader
               patientId={patientId}
-              patientName={patientProfile.full_name || "Unknown Patient"}
+              patientName={patientProfile.full_name || "Patient"}
               patientPhone={patientProfile.phone}
               onRefresh={refreshMessages}
             />

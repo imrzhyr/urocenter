@@ -5,6 +5,7 @@ import { PatientInfoContainer } from '../PatientInfoContainer';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { User } from "lucide-react";
+import { CallButton } from '../call/CallButton';
 
 interface DoctorChatHeaderProps {
   patientId?: string;
@@ -22,8 +23,8 @@ export const DoctorChatHeader = ({
   const { t } = useLanguage();
 
   return (
-    <div className="flex items-center justify-between p-4 bg-primary text-white">
-      <div className="flex items-center gap-4">
+    <div className="flex items-center justify-between p-2 bg-primary text-white">
+      <div className="flex items-center gap-2">
         <BackButton customRoute="/dashboard" />
         <div>
           <h3 className="font-medium">
@@ -35,22 +36,31 @@ export const DoctorChatHeader = ({
         </div>
       </div>
 
-      {patientId && (
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
+      <div className="flex items-center gap-2">
+        {patientId && (
+          <>
+            <CallButton 
+              receiverId={patientId} 
+              recipientName={patientName}
               className="text-white hover:bg-primary-foreground/10"
-            >
-              <User className="h-5 w-5" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent className="w-full sm:max-w-lg">
-            <PatientInfoContainer patientId={patientId} />
-          </SheetContent>
-        </Sheet>
-      )}
+            />
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-white hover:bg-primary-foreground/10"
+                >
+                  <User className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent className="w-full sm:max-w-lg">
+                <PatientInfoContainer patientId={patientId} />
+              </SheetContent>
+            </Sheet>
+          </>
+        )}
+      </div>
     </div>
   );
 };

@@ -1,5 +1,9 @@
 export const chatTranslations = {
   en: {
+    "patient_information": "Patient Information",
+    "mark_resolved": "Mark Resolved",
+    "mark_unresolved": "Mark Unresolved",
+    "no_phone": "No phone number",
     "chat": "Chat",
     "messages": "Messages",
     "new_message": "New Message",
@@ -37,6 +41,10 @@ export const chatTranslations = {
     "missed_call": "Missed call"
   },
   ar: {
+    "patient_information": "معلومات المريض",
+    "mark_resolved": "وضع علامة محلول",
+    "mark_unresolved": "وضع علامة غير محلول",
+    "no_phone": "لا يوجد رقم هاتف",
     "chat": "المحادثة",
     "messages": "الرسائل",
     "new_message": "رسالة جديدة",
