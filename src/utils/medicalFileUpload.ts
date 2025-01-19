@@ -27,7 +27,7 @@ export const uploadMedicalFile = async (file: File) => {
 
     // Convert file to binary array buffer
     const arrayBuffer = await file.arrayBuffer();
-    const fileBuffer = new Uint8Array(arrayBuffer);
+    const uint8Array = new Uint8Array(arrayBuffer);
 
     const fileExt = file.name.split('.').pop()?.toLowerCase();
     const filePath = `${crypto.randomUUID()}.${fileExt}`;
@@ -39,7 +39,7 @@ export const uploadMedicalFile = async (file: File) => {
 
     const { data, error: uploadError } = await supabase.storage
       .from('medical_reports')
-      .uploadBinary(filePath, fileBuffer, {
+      .upload(filePath, uint8Array, {
         contentType: file.type,
         upsert: false
       });
