@@ -39,7 +39,7 @@ export const DoctorChatContainer = () => {
       return data;
     },
     enabled: !!patientId,
-    staleTime: 30000, // Consider data fresh for 30 seconds
+    staleTime: 30000 // Consider data fresh for 30 seconds
   });
 
   const handleSendMessage = async (content: string, fileInfo?: FileInfo, replyTo?: Message) => {
@@ -74,13 +74,13 @@ export const DoctorChatContainer = () => {
           isLoading={isLoading}
           header={
             <DoctorChatHeader
-              patientId={patientId || ''}
+              patientId={patientId}
               patientName={patientProfile.full_name || "Unknown Patient"}
               patientPhone={patientProfile.phone}
               onRefresh={refreshMessages}
             />
           }
-          userId={patientId || ''}
+          userId={patientId}
         />
       </CallProvider>
     </div>
