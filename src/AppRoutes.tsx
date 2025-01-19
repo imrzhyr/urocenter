@@ -22,130 +22,129 @@ const AdminPayments = lazy(() => import("@/pages/AdminPayments"));
 
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: (
-      <Suspense fallback={<LoadingScreen />}>
-        <Welcome />
-      </Suspense>
-    ),
-  },
-  {
-    path: "/signin",
-    element: (
-      <Suspense fallback={<LoadingScreen />}>
-        <SignIn />
-      </Suspense>
-    ),
-  },
-  {
-    element: <OnboardingLayout />,
+    element: <CallProvider />,
     children: [
       {
-        path: "/signup",
+        path: "/",
         element: (
           <Suspense fallback={<LoadingScreen />}>
-            <SignUp />
+            <Welcome />
           </Suspense>
         ),
       },
       {
-        path: "/profile",
+        path: "/signin",
         element: (
           <Suspense fallback={<LoadingScreen />}>
-            <Profile />
+            <SignIn />
           </Suspense>
         ),
       },
       {
-        path: "/medical-information",
+        element: <OnboardingLayout />,
+        children: [
+          {
+            path: "/signup",
+            element: (
+              <Suspense fallback={<LoadingScreen />}>
+                <SignUp />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/profile",
+            element: (
+              <Suspense fallback={<LoadingScreen />}>
+                <Profile />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/medical-information",
+            element: (
+              <Suspense fallback={<LoadingScreen />}>
+                <MedicalInformation />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/payment",
+            element: (
+              <Suspense fallback={<LoadingScreen />}>
+                <Payment />
+              </Suspense>
+            ),
+          },
+        ],
+      },
+      {
+        path: "/payment-verification",
         element: (
           <Suspense fallback={<LoadingScreen />}>
-            <MedicalInformation />
+            <PaymentVerification />
           </Suspense>
         ),
       },
       {
-        path: "/payment",
+        path: "/dashboard",
         element: (
           <Suspense fallback={<LoadingScreen />}>
-            <Payment />
+            <Dashboard />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/chat",
+        element: (
+          <Suspense fallback={<LoadingScreen />}>
+            <UserChat />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/chat/:userId",
+        element: (
+          <Suspense fallback={<LoadingScreen />}>
+            <Chat />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/settings",
+        element: (
+          <Suspense fallback={<LoadingScreen />}>
+            <Settings />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/admin",
+        element: (
+          <Suspense fallback={<LoadingScreen />}>
+            <AdminDashboard />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/admin/statistics",
+        element: (
+          <Suspense fallback={<LoadingScreen />}>
+            <AdminStatistics />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/admin/payments",
+        element: (
+          <Suspense fallback={<LoadingScreen />}>
+            <AdminPayments />
           </Suspense>
         ),
       },
     ],
   },
-  {
-    path: "/payment-verification",
-    element: (
-      <Suspense fallback={<LoadingScreen />}>
-        <PaymentVerification />
-      </Suspense>
-    ),
-  },
-  {
-    path: "/dashboard",
-    element: (
-      <Suspense fallback={<LoadingScreen />}>
-        <Dashboard />
-      </Suspense>
-    ),
-  },
-  {
-    path: "/chat",
-    element: (
-      <Suspense fallback={<LoadingScreen />}>
-        <UserChat />
-      </Suspense>
-    ),
-  },
-  {
-    path: "/chat/:userId",
-    element: (
-      <Suspense fallback={<LoadingScreen />}>
-        <Chat />
-      </Suspense>
-    ),
-  },
-  {
-    path: "/settings",
-    element: (
-      <Suspense fallback={<LoadingScreen />}>
-        <Settings />
-      </Suspense>
-    ),
-  },
-  {
-    path: "/admin",
-    element: (
-      <Suspense fallback={<LoadingScreen />}>
-        <AdminDashboard />
-      </Suspense>
-    ),
-  },
-  {
-    path: "/admin/statistics",
-    element: (
-      <Suspense fallback={<LoadingScreen />}>
-        <AdminStatistics />
-      </Suspense>
-    ),
-  },
-  {
-    path: "/admin/payments",
-    element: (
-      <Suspense fallback={<LoadingScreen />}>
-        <AdminPayments />
-      </Suspense>
-    ),
-  },
 ]);
 
 export const AppRoutes = () => {
-  return (
-    <RouterProvider router={router}>
-      <CallProvider>
-        {router}
-      </CallProvider>
-    </RouterProvider>
-  );
+  return <RouterProvider router={router} />;
 };
