@@ -1,169 +1,73 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { lazy, Suspense } from "react";
-import { LoadingScreen } from "@/components/LoadingScreen";
-import { OnboardingLayout } from "@/components/layouts/OnboardingLayout";
+import SignIn from "@/pages/SignIn";
+import SignUp from "@/pages/SignUp";
+import Profile from "@/pages/Profile";
+import Chat from "@/pages/Chat";
+import MedicalInformation from "@/pages/MedicalInformation";
+import Payment from "@/pages/Payment";
+import PaymentVerification from "@/pages/PaymentVerification";
+import Dashboard from "@/pages/Dashboard";
+import AdminDashboard from "@/pages/AdminDashboard";
+import AdminStatistics from "@/pages/AdminStatistics";
+import AdminPayments from "@/pages/AdminPayments";
+import UserChat from "@/pages/UserChat";
 import { CallProvider } from "@/components/chat/call/CallProvider";
-
-// Lazy load components
-const Welcome = lazy(() => import("@/pages/Welcome"));
-const SignIn = lazy(() => import("@/pages/SignIn"));
-const SignUp = lazy(() => import("@/pages/SignUp"));
-const Profile = lazy(() => import("@/pages/Profile"));
-const MedicalInformation = lazy(() => import("@/pages/MedicalInformation"));
-const Payment = lazy(() => import("@/pages/Payment"));
-const PaymentVerification = lazy(() => import("@/pages/PaymentVerification"));
-const Dashboard = lazy(() => import("@/pages/Dashboard"));
-const UserChat = lazy(() => import("@/pages/UserChat"));
-const Chat = lazy(() => import("@/pages/Chat"));
-const Settings = lazy(() => import("@/pages/Settings"));
-const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"));
-const AdminStatistics = lazy(() => import("@/pages/AdminStatistics"));
-const AdminPayments = lazy(() => import("@/pages/AdminPayments"));
 
 const router = createBrowserRouter([
   {
-    element: (
-      <CallProvider>
-        <Suspense fallback={<LoadingScreen />}>
-          <Welcome />
-        </Suspense>
-      </CallProvider>
-    ),
     path: "/",
+    element: <SignIn />,
   },
   {
-    element: (
-      <CallProvider>
-        <Suspense fallback={<LoadingScreen />}>
-          <SignIn />
-        </Suspense>
-      </CallProvider>
-    ),
     path: "/signin",
+    element: <SignIn />,
   },
   {
-    element: (
-      <CallProvider>
-        <OnboardingLayout />
-      </CallProvider>
-    ),
-    children: [
-      {
-        path: "/signup",
-        element: (
-          <Suspense fallback={<LoadingScreen />}>
-            <SignUp />
-          </Suspense>
-        ),
-      },
-      {
-        path: "/profile",
-        element: (
-          <Suspense fallback={<LoadingScreen />}>
-            <Profile />
-          </Suspense>
-        ),
-      },
-      {
-        path: "/medical-information",
-        element: (
-          <Suspense fallback={<LoadingScreen />}>
-            <MedicalInformation />
-          </Suspense>
-        ),
-      },
-      {
-        path: "/payment",
-        element: (
-          <Suspense fallback={<LoadingScreen />}>
-            <Payment />
-          </Suspense>
-        ),
-      },
-    ],
+    path: "/signup",
+    element: <SignUp />,
   },
   {
-    element: (
-      <CallProvider>
-        <Suspense fallback={<LoadingScreen />}>
-          <PaymentVerification />
-        </Suspense>
-      </CallProvider>
-    ),
-    path: "/payment-verification",
+    path: "/profile",
+    element: <Profile />,
   },
   {
-    element: (
-      <CallProvider>
-        <Suspense fallback={<LoadingScreen />}>
-          <Dashboard />
-        </Suspense>
-      </CallProvider>
-    ),
-    path: "/dashboard",
-  },
-  {
-    element: (
-      <CallProvider>
-        <Suspense fallback={<LoadingScreen />}>
-          <UserChat />
-        </Suspense>
-      </CallProvider>
-    ),
     path: "/chat",
+    element: <UserChat />,
   },
   {
-    element: (
-      <CallProvider>
-        <Suspense fallback={<LoadingScreen />}>
-          <Chat />
-        </Suspense>
-      </CallProvider>
-    ),
-    path: "/chat/:userId",
+    path: "/medical-information",
+    element: <MedicalInformation />,
   },
   {
-    element: (
-      <CallProvider>
-        <Suspense fallback={<LoadingScreen />}>
-          <Settings />
-        </Suspense>
-      </CallProvider>
-    ),
-    path: "/settings",
+    path: "/payment",
+    element: <Payment />,
   },
   {
-    element: (
-      <CallProvider>
-        <Suspense fallback={<LoadingScreen />}>
-          <AdminDashboard />
-        </Suspense>
-      </CallProvider>
-    ),
+    path: "/payment-verification",
+    element: <PaymentVerification />,
+  },
+  {
+    path: "/dashboard",
+    element: <Dashboard />,
+  },
+  {
     path: "/admin",
+    element: <AdminDashboard />,
   },
   {
-    element: (
-      <CallProvider>
-        <Suspense fallback={<LoadingScreen />}>
-          <AdminStatistics />
-        </Suspense>
-      </CallProvider>
-    ),
     path: "/admin/statistics",
+    element: <AdminStatistics />,
   },
   {
-    element: (
-      <CallProvider>
-        <Suspense fallback={<LoadingScreen />}>
-          <AdminPayments />
-        </Suspense>
-      </CallProvider>
-    ),
     path: "/admin/payments",
+    element: <AdminPayments />,
   },
 ]);
 
-export const AppRoutes = () => {
-  return <RouterProvider router={router} />;
-};
+export default function AppRoutes() {
+  return (
+    <CallProvider>
+      <RouterProvider router={router} />
+    </CallProvider>
+  );
+}
