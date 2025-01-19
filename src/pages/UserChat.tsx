@@ -1,12 +1,22 @@
-import { UserChatContainer } from "@/components/chat/UserChatContainer";
-import { useAuthRedirect } from "@/hooks/useAuthRedirect";
+import { useParams } from 'react-router-dom';
+import { DoctorChatContainer } from '@/components/chat/doctor/DoctorChatContainer';
+import { useProfile } from '@/hooks/useProfile';
 
 const UserChat = () => {
-  useAuthRedirect();
+  const { userId } = useParams();
+  const { profile } = useProfile();
+
+  if (!userId) {
+    return <div>No user ID provided</div>;
+  }
 
   return (
-    <div className="min-h-screen bg-white">
-      <UserChatContainer />
+    <div className="min-h-screen bg-background">
+      {profile?.role === 'admin' ? (
+        <DoctorChatContainer />
+      ) : (
+        <div>Access denied</div>
+      )}
     </div>
   );
 };
