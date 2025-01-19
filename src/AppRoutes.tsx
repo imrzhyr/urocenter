@@ -2,6 +2,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { OnboardingLayout } from "@/components/layouts/OnboardingLayout";
+import { CallProvider } from "@/components/chat/call/CallProvider";
 
 // Lazy load components
 const Welcome = lazy(() => import("@/pages/Welcome"));
@@ -140,5 +141,11 @@ const router = createBrowserRouter([
 ]);
 
 export const AppRoutes = () => {
-  return <RouterProvider router={router} />;
+  return (
+    <RouterProvider router={router}>
+      <CallProvider>
+        {router}
+      </CallProvider>
+    </RouterProvider>
+  );
 };
