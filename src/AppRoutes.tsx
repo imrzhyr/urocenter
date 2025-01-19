@@ -64,10 +64,12 @@ const router = createBrowserRouter([
   },
 ]);
 
-export default function AppRoutes() {
+function AppRoutes() {
   return (
     <CallProvider>
       <RouterProvider router={router} />
     </CallProvider>
   );
 }
+
+export default AppRoutes;
