@@ -82,7 +82,7 @@ export const PatientChatPrompt = () => {
   return (
     <div 
       onClick={handleChatNavigation}
-      className="w-full cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors p-4 rounded-lg border dark:border-gray-700"
+      className="w-full cursor-pointer bg-white hover:bg-gray-50 dark:bg-gray-900 dark:hover:bg-gray-800 transition-colors p-4 rounded-lg border dark:border-gray-700"
     >
       <div className="flex items-center gap-3 mb-2">
         <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
