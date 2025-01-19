@@ -66,9 +66,14 @@ const router = createBrowserRouter([
 
 function AppRoutes() {
   return (
-    <CallProvider>
-      <RouterProvider router={router} />
-    </CallProvider>
+    <RouterProvider 
+      router={router} 
+      fallbackElement={
+        <div className="flex items-center justify-center min-h-screen">
+          Loading...
+        </div>
+      }
+    />
   );
 }
 
