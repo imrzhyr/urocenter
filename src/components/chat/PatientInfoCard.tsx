@@ -113,12 +113,7 @@ export const PatientInfoCard = ({
 
         <PatientActions
           isResolved={isResolvedState}
-          reportsCount={reportsCount}
           onToggleResolved={handleResolveToggle}
-          onViewReports={() => {
-            setShowReports(true);
-            fetchReports();
-          }}
         />
 
         <ViewReportsDialog 
