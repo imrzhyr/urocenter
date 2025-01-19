@@ -19,9 +19,9 @@ export const PatientChatHeader = () => {
         <BackButton customRoute="/dashboard" />
         <div>
           <h3 className="font-medium text-white text-sm">
-            {t('doctor_name')}
+            Dr. Ali Kamal
           </h3>
-          <p className="text-xs text-white/80">{t('doctor_title')}</p>
+          <p className="text-xs text-white/80">Consultant Urologist</p>
         </div>
       </div>
       <Button
