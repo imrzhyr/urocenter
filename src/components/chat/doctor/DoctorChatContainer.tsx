@@ -13,11 +13,12 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const DoctorChatContainer = () => {
   const { userId } = useParams();
+  // Use the patient's userId for fetching messages
   const { messages, sendMessage, isLoading, refreshMessages } = useChat(userId);
   const { profile } = useProfile();
 
   // Fetch patient profile data
-  const { data: patientProfile } = useQuery({
+  const { data: patientProfile, isLoading: isLoadingPatient } = useQuery({
     queryKey: ['patient', userId],
     queryFn: async () => {
       if (!userId) return null;
@@ -34,6 +35,7 @@ export const DoctorChatContainer = () => {
         return null;
       }
       
+      console.log('Fetched patient profile:', data);
       return data;
     },
     enabled: !!userId
@@ -54,8 +56,12 @@ export const DoctorChatContainer = () => {
     }
   };
 
+  if (isLoadingPatient) {
+    return <div className="flex items-center justify-center h-full">Loading patient information...</div>;
+  }
+
   if (!patientProfile) {
-    return null;
+    return <div className="flex items-center justify-center h-full">Patient not found</div>;
   }
 
   return (
