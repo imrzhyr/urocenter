@@ -4,7 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { PatientInfoContainer } from '../PatientInfoContainer';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { FileText, User } from "lucide-react";
+import { User } from "lucide-react";
 
 interface DoctorChatHeaderProps {
   patientId?: string;

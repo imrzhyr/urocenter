@@ -87,7 +87,7 @@ export const DoctorChatContainer = () => {
               onRefresh={refreshMessages}
             />
           }
-          userId={profile?.id || ''}
+          userId={patientId || ''}
         />
       </CallProvider>
     </div>
