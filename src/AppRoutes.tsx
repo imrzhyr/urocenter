@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import SignIn from "@/pages/SignIn";
 import SignUp from "@/pages/SignUp";
 import Profile from "@/pages/Profile";
@@ -11,69 +11,23 @@ import AdminDashboard from "@/pages/AdminDashboard";
 import AdminStatistics from "@/pages/AdminStatistics";
 import AdminPayments from "@/pages/AdminPayments";
 import UserChat from "@/pages/UserChat";
-import { CallProvider } from "@/components/chat/call/CallProvider";
-
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <SignIn />,
-  },
-  {
-    path: "/signin",
-    element: <SignIn />,
-  },
-  {
-    path: "/signup",
-    element: <SignUp />,
-  },
-  {
-    path: "/profile",
-    element: <Profile />,
-  },
-  {
-    path: "/chat",
-    element: <UserChat />,
-  },
-  {
-    path: "/medical-information",
-    element: <MedicalInformation />,
-  },
-  {
-    path: "/payment",
-    element: <Payment />,
-  },
-  {
-    path: "/payment-verification",
-    element: <PaymentVerification />,
-  },
-  {
-    path: "/dashboard",
-    element: <Dashboard />,
-  },
-  {
-    path: "/admin",
-    element: <AdminDashboard />,
-  },
-  {
-    path: "/admin/statistics",
-    element: <AdminStatistics />,
-  },
-  {
-    path: "/admin/payments",
-    element: <AdminPayments />,
-  },
-]);
 
 function AppRoutes() {
   return (
-    <RouterProvider 
-      router={router} 
-      fallbackElement={
-        <div className="flex items-center justify-center min-h-screen">
-          Loading...
-        </div>
-      }
-    />
+    <Routes>
+      <Route path="/" element={<SignIn />} />
+      <Route path="/signin" element={<SignIn />} />
+      <Route path="/signup" element={<SignUp />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/chat" element={<UserChat />} />
+      <Route path="/medical-information" element={<MedicalInformation />} />
+      <Route path="/payment" element={<Payment />} />
+      <Route path="/payment-verification" element={<PaymentVerification />} />
+      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/admin" element={<AdminDashboard />} />
+      <Route path="/admin/statistics" element={<AdminStatistics />} />
+      <Route path="/admin/payments" element={<AdminPayments />} />
+    </Routes>
   );
 }
 
