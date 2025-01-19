@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Camera, Upload } from "lucide-react";
 import { toast } from "sonner";
-import { uploadFile } from "@/utils/fileUpload";
+import { uploadMedicalFile } from "@/utils/medicalFileUpload";
 
 export const MedicalReportUpload = () => {
   const [isUploading, setIsUploading] = useState(false);
@@ -10,7 +10,7 @@ export const MedicalReportUpload = () => {
   const handleFileUpload = async (file: File) => {
     try {
       setIsUploading(true);
-      await uploadFile(file);
+      await uploadMedicalFile(file);
       toast.success("File uploaded successfully");
     } catch (error) {
       toast.error("Failed to upload file");

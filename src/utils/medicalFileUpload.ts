@@ -9,8 +9,9 @@ export const validateMedicalFile = (file: File) => {
     throw new Error('File size exceeds 10MB limit');
   }
 
-  if (!file.type.match(/^image\/jpeg$/)) {
-    throw new Error('Only JPEG files are supported');
+  const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+  if (!allowedTypes.includes(file.type)) {
+    throw new Error('File type not supported. Please upload JPEG, PNG, PDF, or DOC files.');
   }
 };
 
@@ -24,33 +25,33 @@ export const uploadMedicalFile = async (file: File) => {
       size: file.size
     });
 
+    // Convert file to binary array buffer
+    const arrayBuffer = await file.arrayBuffer();
+    const fileBuffer = new Uint8Array(arrayBuffer);
+
     const fileExt = file.name.split('.').pop()?.toLowerCase();
-    const fileName = `${crypto.randomUUID()}.${fileExt}`;
+    const filePath = `${crypto.randomUUID()}.${fileExt}`;
 
     logger.info('MedicalFileUpload', 'Uploading medical file', {
-      fileName,
+      fileName: filePath,
       contentType: file.type
     });
 
-    const formData = new FormData();
-    formData.append('file', file);
-
-    const { data, error } = await supabase.storage
-      .from('medical_attachments')
-      .upload(fileName, file, {
+    const { data, error: uploadError } = await supabase.storage
+      .from('medical_reports')
+      .uploadBinary(filePath, fileBuffer, {
         contentType: file.type,
-        cacheControl: '3600',
         upsert: false
       });
 
-    if (error) {
-      logger.error('MedicalFileUpload', 'Upload error:', error);
-      throw error;
+    if (uploadError) {
+      logger.error('MedicalFileUpload', 'Upload error:', uploadError);
+      throw uploadError;
     }
 
     const { data: { publicUrl } } = supabase.storage
-      .from('medical_attachments')
-      .getPublicUrl(fileName);
+      .from('medical_reports')
+      .getPublicUrl(filePath);
 
     logger.info('MedicalFileUpload', 'Upload successful', {
       url: publicUrl,
