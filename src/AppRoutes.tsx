@@ -22,126 +22,145 @@ const AdminPayments = lazy(() => import("@/pages/AdminPayments"));
 
 const router = createBrowserRouter([
   {
-    element: <CallProvider />,
+    element: (
+      <CallProvider>
+        <Suspense fallback={<LoadingScreen />}>
+          <Welcome />
+        </Suspense>
+      </CallProvider>
+    ),
+    path: "/",
+  },
+  {
+    element: (
+      <CallProvider>
+        <Suspense fallback={<LoadingScreen />}>
+          <SignIn />
+        </Suspense>
+      </CallProvider>
+    ),
+    path: "/signin",
+  },
+  {
+    element: (
+      <CallProvider>
+        <OnboardingLayout />
+      </CallProvider>
+    ),
     children: [
       {
-        path: "/",
+        path: "/signup",
         element: (
           <Suspense fallback={<LoadingScreen />}>
-            <Welcome />
+            <SignUp />
           </Suspense>
         ),
       },
       {
-        path: "/signin",
+        path: "/profile",
         element: (
           <Suspense fallback={<LoadingScreen />}>
-            <SignIn />
+            <Profile />
           </Suspense>
         ),
       },
       {
-        element: <OnboardingLayout />,
-        children: [
-          {
-            path: "/signup",
-            element: (
-              <Suspense fallback={<LoadingScreen />}>
-                <SignUp />
-              </Suspense>
-            ),
-          },
-          {
-            path: "/profile",
-            element: (
-              <Suspense fallback={<LoadingScreen />}>
-                <Profile />
-              </Suspense>
-            ),
-          },
-          {
-            path: "/medical-information",
-            element: (
-              <Suspense fallback={<LoadingScreen />}>
-                <MedicalInformation />
-              </Suspense>
-            ),
-          },
-          {
-            path: "/payment",
-            element: (
-              <Suspense fallback={<LoadingScreen />}>
-                <Payment />
-              </Suspense>
-            ),
-          },
-        ],
-      },
-      {
-        path: "/payment-verification",
+        path: "/medical-information",
         element: (
           <Suspense fallback={<LoadingScreen />}>
-            <PaymentVerification />
+            <MedicalInformation />
           </Suspense>
         ),
       },
       {
-        path: "/dashboard",
+        path: "/payment",
         element: (
           <Suspense fallback={<LoadingScreen />}>
-            <Dashboard />
-          </Suspense>
-        ),
-      },
-      {
-        path: "/chat",
-        element: (
-          <Suspense fallback={<LoadingScreen />}>
-            <UserChat />
-          </Suspense>
-        ),
-      },
-      {
-        path: "/chat/:userId",
-        element: (
-          <Suspense fallback={<LoadingScreen />}>
-            <Chat />
-          </Suspense>
-        ),
-      },
-      {
-        path: "/settings",
-        element: (
-          <Suspense fallback={<LoadingScreen />}>
-            <Settings />
-          </Suspense>
-        ),
-      },
-      {
-        path: "/admin",
-        element: (
-          <Suspense fallback={<LoadingScreen />}>
-            <AdminDashboard />
-          </Suspense>
-        ),
-      },
-      {
-        path: "/admin/statistics",
-        element: (
-          <Suspense fallback={<LoadingScreen />}>
-            <AdminStatistics />
-          </Suspense>
-        ),
-      },
-      {
-        path: "/admin/payments",
-        element: (
-          <Suspense fallback={<LoadingScreen />}>
-            <AdminPayments />
+            <Payment />
           </Suspense>
         ),
       },
     ],
+  },
+  {
+    element: (
+      <CallProvider>
+        <Suspense fallback={<LoadingScreen />}>
+          <PaymentVerification />
+        </Suspense>
+      </CallProvider>
+    ),
+    path: "/payment-verification",
+  },
+  {
+    element: (
+      <CallProvider>
+        <Suspense fallback={<LoadingScreen />}>
+          <Dashboard />
+        </Suspense>
+      </CallProvider>
+    ),
+    path: "/dashboard",
+  },
+  {
+    element: (
+      <CallProvider>
+        <Suspense fallback={<LoadingScreen />}>
+          <UserChat />
+        </Suspense>
+      </CallProvider>
+    ),
+    path: "/chat",
+  },
+  {
+    element: (
+      <CallProvider>
+        <Suspense fallback={<LoadingScreen />}>
+          <Chat />
+        </Suspense>
+      </CallProvider>
+    ),
+    path: "/chat/:userId",
+  },
+  {
+    element: (
+      <CallProvider>
+        <Suspense fallback={<LoadingScreen />}>
+          <Settings />
+        </Suspense>
+      </CallProvider>
+    ),
+    path: "/settings",
+  },
+  {
+    element: (
+      <CallProvider>
+        <Suspense fallback={<LoadingScreen />}>
+          <AdminDashboard />
+        </Suspense>
+      </CallProvider>
+    ),
+    path: "/admin",
+  },
+  {
+    element: (
+      <CallProvider>
+        <Suspense fallback={<LoadingScreen />}>
+          <AdminStatistics />
+        </Suspense>
+      </CallProvider>
+    ),
+    path: "/admin/statistics",
+  },
+  {
+    element: (
+      <CallProvider>
+        <Suspense fallback={<LoadingScreen />}>
+          <AdminPayments />
+        </Suspense>
+      </CallProvider>
+    ),
+    path: "/admin/payments",
   },
 ]);
 
