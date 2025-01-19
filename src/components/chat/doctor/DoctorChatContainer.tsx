@@ -12,21 +12,20 @@ import { FileInfo } from "@/types/chat";
 import { supabase } from "@/integrations/supabase/client";
 
 export const DoctorChatContainer = () => {
-  const { userId } = useParams();
-  // Use the patient's userId for fetching messages
-  const { messages, sendMessage, isLoading, refreshMessages } = useChat(userId);
+  const { userId: patientId } = useParams();
+  const { messages, sendMessage, isLoading, refreshMessages } = useChat(patientId);
   const { profile } = useProfile();
 
   // Fetch patient profile data
   const { data: patientProfile, isLoading: isLoadingPatient } = useQuery({
-    queryKey: ['patient', userId],
+    queryKey: ['patient', patientId],
     queryFn: async () => {
-      if (!userId) return null;
+      if (!patientId) return null;
       
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', userId)
+        .eq('id', patientId)
         .single();
         
       if (error) {
@@ -38,11 +37,11 @@ export const DoctorChatContainer = () => {
       console.log('Fetched patient profile:', data);
       return data;
     },
-    enabled: !!userId
+    enabled: !!patientId
   });
 
   const handleSendMessage = async (content: string, fileInfo?: FileInfo, replyTo?: Message) => {
-    if (!userId || !profile?.id) {
+    if (!patientId || !profile?.id) {
       toast.error("Unable to send message");
       return;
     }
@@ -73,13 +72,13 @@ export const DoctorChatContainer = () => {
           isLoading={isLoading}
           header={
             <DoctorChatHeader
-              patientId={userId || ''}
+              patientId={patientId}
               patientName={patientProfile.full_name || "Unknown Patient"}
               patientPhone={patientProfile.phone}
               onRefresh={refreshMessages}
             />
           }
-          userId={userId || ''}
+          userId={patientId}
         />
       </CallProvider>
     </div>
