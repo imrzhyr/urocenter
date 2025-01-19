@@ -14,29 +14,16 @@ export const PatientChatHeader = () => {
   const { profile } = useProfile();
   const { id: patientId } = useParams();
 
-  const { data: patientProfile } = useQuery({
-    queryKey: ['patient', patientId],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', patientId)
-        .single();
-      return data;
-    },
-    enabled: !!patientId
-  });
-
   return (
     <div className="flex items-center justify-between p-2">
       <div className="flex items-center gap-2">
         <BackButton customRoute="/dashboard" />
         <div>
           <h3 className="font-medium text-white text-sm">
-            {patientProfile?.full_name || "Loading..."}
+            Dr. Ali Kamal
           </h3>
           <p className="text-xs text-white/80">
-            {patientProfile?.phone || "Loading..."}
+            Consultant Urologist
           </p>
         </div>
       </div>
