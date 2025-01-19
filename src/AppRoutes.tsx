@@ -11,6 +11,7 @@ import AdminDashboard from "@/pages/AdminDashboard";
 import AdminStatistics from "@/pages/AdminStatistics";
 import AdminPayments from "@/pages/AdminPayments";
 import UserChat from "@/pages/UserChat";
+import { DoctorChatContainer } from "@/components/chat/doctor/DoctorChatContainer";
 
 function AppRoutes() {
   return (
@@ -20,6 +21,7 @@ function AppRoutes() {
       <Route path="/signup" element={<SignUp />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/chat" element={<UserChat />} />
+      <Route path="/chat/:userId" element={<DoctorChatContainer />} />
       <Route path="/medical-information" element={<MedicalInformation />} />
       <Route path="/payment" element={<Payment />} />
       <Route path="/payment-verification" element={<PaymentVerification />} />
