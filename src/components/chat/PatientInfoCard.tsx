@@ -1,112 +1,135 @@
-import { useState, useEffect } from "react";
-import { Card } from "@/components/ui/card";
-import { format } from "date-fns";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { PatientActions } from "./patient-info/PatientActions";
-import { PatientBasicInfo } from "./patient-info/PatientBasicInfo";
-import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { User, FileText } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { ImageViewer } from "../chat/media/ImageViewer";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { PatientBasicInfo } from "./patient-info/PatientBasicInfo";
+import { MedicalReportsList } from "./patient-info/MedicalReportsList";
+import { PatientActions } from "./patient-info/PatientActions";
+import { ViewReportsDialog } from "../medical-reports/ViewReportsDialog";
 
 interface PatientInfoCardProps {
-  userId: string;
-  complaint?: string;
-  reportsCount?: number;
-  fullName?: string;
-  age?: string;
-  gender?: string;
+  complaint: string;
+  reportsCount: number;
+  fullName: string;
+  age: string;
+  gender: string;
+  patientId: string;
   isResolved?: boolean;
   phone?: string;
   createdAt?: string;
 }
 
-export const PatientInfoCard = ({ 
-  userId,
+export const PatientInfoCard = ({
   complaint,
   reportsCount,
   fullName,
   age,
   gender,
-  isResolved: initialIsResolved,
+  patientId,
+  isResolved = false,
   phone,
-  createdAt 
+  createdAt
 }: PatientInfoCardProps) => {
+  const [isResolvedState, setIsResolvedState] = useState(isResolved);
+  const [reports, setReports] = useState<any[]>([]);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [showReports, setShowReports] = useState(false);
   const { t } = useLanguage();
-  const [profile, setProfile] = useState<any>(null);
-  const [isResolved, setIsResolved] = useState(initialIsResolved || false);
 
-  useEffect(() => {
-    if (!fullName) {
-      fetchPatientInfo();
-    }
-  }, [userId, fullName]);
-
-  const fetchPatientInfo = async () => {
-    try {
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-
-      if (error) throw error;
-      setProfile(profile);
-
-      // Check if there are any unresolved messages
-      const { data: messages } = await supabase
-        .from('messages')
-        .select('is_resolved')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(1);
-
-      setIsResolved(messages?.[0]?.is_resolved ?? false);
-    } catch (error) {
-      console.error('Error fetching patient info:', error);
-      toast.error(t('error_loading_patient_info'));
-    }
-  };
-
-  const handleToggleResolved = async () => {
+  const handleResolveToggle = async () => {
     try {
       const { error } = await supabase
         .from('messages')
-        .update({ is_resolved: !isResolved })
-        .eq('user_id', userId);
+        .update({ is_resolved: !isResolvedState })
+        .eq('user_id', patientId);
 
       if (error) throw error;
 
-      setIsResolved(!isResolved);
-      toast.success(t(isResolved ? 'marked_as_unresolved' : 'marked_as_resolved'));
+      setIsResolvedState(!isResolvedState);
+      toast.success(isResolvedState ? t('chat_unresolved') : t('chat_resolved'));
     } catch (error) {
-      console.error('Error toggling resolved status:', error);
-      toast.error(t('error_updating_status'));
+      console.error('Error updating resolution status:', error);
+      toast.error(t('failed_resolve'));
     }
   };
 
-  const displayProfile = profile || {
-    full_name: fullName,
-    age,
-    gender,
-    phone,
-    created_at: createdAt
+  const fetchReports = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('medical_reports')
+        .select('*')
+        .eq('user_id', patientId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setReports(data || []);
+    } catch (error) {
+      console.error('Error fetching reports:', error);
+      toast.error(t('failed_load_reports'));
+    }
   };
 
-  if (!displayProfile) return null;
-
   return (
-    <Card className="p-4 space-y-4">
-      <PatientBasicInfo
-        fullName={displayProfile.full_name}
-        age={displayProfile.age}
-        gender={displayProfile.gender}
-        phone={displayProfile.phone}
-        createdAt={displayProfile.created_at}
-      />
+    <Card>
+      <CardHeader className="space-y-1">
+        <CardTitle className="text-2xl flex items-center gap-2">
+          <User className="h-5 w-5" />
+          {t('patient_information')}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <PatientBasicInfo
+          fullName={fullName}
+          age={age}
+          gender={gender}
+          phone={phone}
+          createdAt={createdAt}
+        />
 
-      <PatientActions
-        isResolved={isResolved}
-        onToggleResolved={handleToggleResolved}
-      />
+        <Tabs defaultValue="complaint" className="w-full" onValueChange={(value) => {
+          if (value === "reports") {
+            fetchReports();
+          }
+        }}>
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="complaint">{t('medical_complaint')}</TabsTrigger>
+            <TabsTrigger value="reports">{t('medical_reports')}</TabsTrigger>
+          </TabsList>
+          <TabsContent value="complaint" className="space-y-1">
+            <h3 className="font-medium">{t('medical_complaint')}</h3>
+            <p className="text-sm text-muted-foreground">{complaint || t('no_complaint')}</p>
+          </TabsContent>
+          <TabsContent value="reports" className="space-y-4">
+            <MedicalReportsList
+              reports={reports}
+              onImageSelect={setSelectedImage}
+            />
+          </TabsContent>
+        </Tabs>
+
+        <PatientActions
+          isResolved={isResolvedState}
+          onToggleResolved={handleResolveToggle}
+        />
+
+        <ViewReportsDialog 
+          open={showReports} 
+          onOpenChange={setShowReports}
+          userId={patientId}
+        />
+
+        {selectedImage && (
+          <ImageViewer
+            isOpen={!!selectedImage}
+            onClose={() => setSelectedImage(null)}
+            url={selectedImage}
+          />
+        )}
+      </CardContent>
     </Card>
   );
 };

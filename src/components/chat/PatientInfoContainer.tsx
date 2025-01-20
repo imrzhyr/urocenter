@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PatientInfoCard } from "@/components/chat/PatientInfoCard";
 import { toast } from "sonner";
@@ -52,20 +53,20 @@ export const PatientInfoContainer = ({ patientId }: PatientInfoContainerProps) =
       }
     },
     enabled: !!patientId,
-    staleTime: 30000,
-    gcTime: 5 * 60 * 1000
+    staleTime: 30000, // Consider data fresh for 30 seconds
+    gcTime: 5 * 60 * 1000 // Keep data in cache for 5 minutes (previously cacheTime)
   });
 
   if (!patientId || !patientInfo) return null;
 
   return (
     <PatientInfoCard 
-      userId={patientId}
       complaint={patientInfo.complaint}
       reportsCount={patientInfo.reportsCount}
       fullName={patientInfo.fullName}
       age={patientInfo.age}
       gender={patientInfo.gender}
+      patientId={patientId}
       isResolved={patientInfo.isResolved}
       phone={patientInfo.phone}
       createdAt={patientInfo.createdAt}

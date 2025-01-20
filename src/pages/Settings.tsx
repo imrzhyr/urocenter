@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Globe, Bell, HelpCircle, Info, LogOut } from "lucide-react";
+import { Moon, Sun, Globe, Bell, HelpCircle, Info, LogOut } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSelector } from "@/components/LanguageSelector";
@@ -8,20 +8,28 @@ import { motion } from "framer-motion";
 import { BackButton } from "@/components/BackButton";
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { toast } from "sonner";
 
 const Settings = () => {
   const { t, language } = useLanguage();
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const isRTL = language === 'ar';
   const navigate = useNavigate();
-  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+
+  useEffect(() => {
+    const isDark = document.documentElement.classList.contains('dark');
+    setIsDarkMode(isDark);
+  }, []);
+
+  const toggleDarkMode = () => {
+    const newMode = !isDarkMode;
+    setIsDarkMode(newMode);
+    document.documentElement.classList.toggle('dark');
+    localStorage.setItem('darkMode', newMode ? 'dark' : 'light');
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('userPhone');
-    setShowLogoutDialog(false);
-    navigate('/');
-    toast.success(t('logged_out_successfully'));
+    navigate('/signin');
   };
 
   const settingsSections = [
@@ -60,6 +68,24 @@ const Settings = () => {
           transition={{ duration: 0.3 }}
           className="space-y-6"
         >
+          <Card className="p-6">
+            <h2 className="text-lg font-medium mb-4">{t('appearance')}</h2>
+            <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
+              <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                {isDarkMode ? (
+                  <Moon className="h-5 w-5" />
+                ) : (
+                  <Sun className="h-5 w-5" />
+                )}
+                <span>{t('dark_mode')}</span>
+              </div>
+              <Switch
+                checked={isDarkMode}
+                onCheckedChange={toggleDarkMode}
+              />
+            </div>
+          </Card>
+
           <Card className="p-6">
             <h2 className="text-lg font-medium mb-4">{t('language')}</h2>
             <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
@@ -100,32 +126,13 @@ const Settings = () => {
           <Button
             variant="destructive"
             className="w-full"
-            onClick={() => setShowLogoutDialog(true)}
+            onClick={handleLogout}
           >
             <LogOut className="h-5 w-5 mr-2" />
             {t('logout')}
           </Button>
         </motion.div>
       </div>
-
-      <Dialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogTitle className="text-center text-xl font-semibold">
-            {t('confirm_logout')}
-          </DialogTitle>
-          <DialogDescription className="text-center">
-            {t('logout_confirmation_message')}
-          </DialogDescription>
-          <DialogFooter className="flex gap-2 justify-center">
-            <Button variant="outline" onClick={() => setShowLogoutDialog(false)}>
-              {t('cancel')}
-            </Button>
-            <Button variant="destructive" onClick={handleLogout}>
-              {t('confirm')}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
