@@ -3,21 +3,42 @@ import { Card } from "@/components/ui/card";
 import { format } from "date-fns";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PatientActions } from "./patient-info/PatientActions";
+import { PatientBasicInfo } from "./patient-info/PatientBasicInfo";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 interface PatientInfoCardProps {
   userId: string;
+  complaint?: string;
+  reportsCount?: number;
+  fullName?: string;
+  age?: string;
+  gender?: string;
+  isResolved?: boolean;
+  phone?: string;
+  createdAt?: string;
 }
 
-export const PatientInfoCard = ({ userId }: PatientInfoCardProps) => {
+export const PatientInfoCard = ({ 
+  userId,
+  complaint,
+  reportsCount,
+  fullName,
+  age,
+  gender,
+  isResolved: initialIsResolved,
+  phone,
+  createdAt 
+}: PatientInfoCardProps) => {
   const { t } = useLanguage();
   const [profile, setProfile] = useState<any>(null);
-  const [isResolved, setIsResolved] = useState(false);
+  const [isResolved, setIsResolved] = useState(initialIsResolved || false);
 
   useEffect(() => {
-    fetchPatientInfo();
-  }, [userId]);
+    if (!fullName) {
+      fetchPatientInfo();
+    }
+  }, [userId, fullName]);
 
   const fetchPatientInfo = async () => {
     try {
@@ -62,16 +83,25 @@ export const PatientInfoCard = ({ userId }: PatientInfoCardProps) => {
     }
   };
 
-  if (!profile) return null;
+  const displayProfile = profile || {
+    full_name: fullName,
+    age,
+    gender,
+    phone,
+    created_at: createdAt
+  };
+
+  if (!displayProfile) return null;
 
   return (
     <Card className="p-4 space-y-4">
-      <div className="space-y-2">
-        <h3 className="text-lg font-semibold">{profile.full_name}</h3>
-        <p className="text-sm text-muted-foreground">
-          {t('member_since')}: {format(new Date(profile.created_at), 'MMM dd, yyyy')}
-        </p>
-      </div>
+      <PatientBasicInfo
+        fullName={displayProfile.full_name}
+        age={displayProfile.age}
+        gender={displayProfile.gender}
+        phone={displayProfile.phone}
+        createdAt={displayProfile.created_at}
+      />
 
       <PatientActions
         isResolved={isResolved}
