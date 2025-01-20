@@ -20,6 +20,11 @@ export const CallingUI = ({ recipientName }: CallingUIProps) => {
     };
   }, []);
 
+  const handleEndCall = () => {
+    callSoundUtils.stopCallingSound();
+    endCall();
+  };
+
   if (isMinimized) {
     return <MinimizedCallUI onMaximize={() => setIsMinimized(false)} />;
   }
@@ -48,7 +53,7 @@ export const CallingUI = ({ recipientName }: CallingUIProps) => {
           variant="destructive"
           size="lg"
           className="rounded-full p-6"
-          onClick={endCall}
+          onClick={handleEndCall}
         >
           <PhoneOff className="w-6 h-6" />
         </Button>

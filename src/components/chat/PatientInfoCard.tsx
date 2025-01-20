@@ -1,135 +1,82 @@
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { User, FileText } from "lucide-react";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
-import { ImageViewer } from "../chat/media/ImageViewer";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useState, useEffect } from "react";
+import { Card } from "@/components/ui/card";
+import { format } from "date-fns";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { PatientBasicInfo } from "./patient-info/PatientBasicInfo";
-import { MedicalReportsList } from "./patient-info/MedicalReportsList";
 import { PatientActions } from "./patient-info/PatientActions";
-import { ViewReportsDialog } from "../medical-reports/ViewReportsDialog";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface PatientInfoCardProps {
-  complaint: string;
-  reportsCount: number;
-  fullName: string;
-  age: string;
-  gender: string;
-  patientId: string;
-  isResolved?: boolean;
-  phone?: string;
-  createdAt?: string;
+  userId: string;
 }
 
-export const PatientInfoCard = ({
-  complaint,
-  reportsCount,
-  fullName,
-  age,
-  gender,
-  patientId,
-  isResolved = false,
-  phone,
-  createdAt
-}: PatientInfoCardProps) => {
-  const [isResolvedState, setIsResolvedState] = useState(isResolved);
-  const [reports, setReports] = useState<any[]>([]);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [showReports, setShowReports] = useState(false);
+export const PatientInfoCard = ({ userId }: PatientInfoCardProps) => {
   const { t } = useLanguage();
+  const [profile, setProfile] = useState<any>(null);
+  const [isResolved, setIsResolved] = useState(false);
 
-  const handleResolveToggle = async () => {
+  useEffect(() => {
+    fetchPatientInfo();
+  }, [userId]);
+
+  const fetchPatientInfo = async () => {
+    try {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) throw error;
+      setProfile(profile);
+
+      // Check if there are any unresolved messages
+      const { data: messages } = await supabase
+        .from('messages')
+        .select('is_resolved')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      setIsResolved(messages?.[0]?.is_resolved ?? false);
+    } catch (error) {
+      console.error('Error fetching patient info:', error);
+      toast.error(t('error_loading_patient_info'));
+    }
+  };
+
+  const handleToggleResolved = async () => {
     try {
       const { error } = await supabase
         .from('messages')
-        .update({ is_resolved: !isResolvedState })
-        .eq('user_id', patientId);
+        .update({ is_resolved: !isResolved })
+        .eq('user_id', userId);
 
       if (error) throw error;
 
-      setIsResolvedState(!isResolvedState);
-      toast.success(isResolvedState ? t('chat_unresolved') : t('chat_resolved'));
+      setIsResolved(!isResolved);
+      toast.success(t(isResolved ? 'marked_as_unresolved' : 'marked_as_resolved'));
     } catch (error) {
-      console.error('Error updating resolution status:', error);
-      toast.error(t('failed_resolve'));
+      console.error('Error toggling resolved status:', error);
+      toast.error(t('error_updating_status'));
     }
   };
 
-  const fetchReports = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('medical_reports')
-        .select('*')
-        .eq('user_id', patientId)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setReports(data || []);
-    } catch (error) {
-      console.error('Error fetching reports:', error);
-      toast.error(t('failed_load_reports'));
-    }
-  };
+  if (!profile) return null;
 
   return (
-    <Card>
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl flex items-center gap-2">
-          <User className="h-5 w-5" />
-          {t('patient_information')}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <PatientBasicInfo
-          fullName={fullName}
-          age={age}
-          gender={gender}
-          phone={phone}
-          createdAt={createdAt}
-        />
+    <Card className="p-4 space-y-4">
+      <div className="space-y-2">
+        <h3 className="text-lg font-semibold">{profile.full_name}</h3>
+        <p className="text-sm text-muted-foreground">
+          {t('member_since')}: {format(new Date(profile.created_at), 'MMM dd, yyyy')}
+        </p>
+      </div>
 
-        <Tabs defaultValue="complaint" className="w-full" onValueChange={(value) => {
-          if (value === "reports") {
-            fetchReports();
-          }
-        }}>
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="complaint">{t('medical_complaint')}</TabsTrigger>
-            <TabsTrigger value="reports">{t('medical_reports')}</TabsTrigger>
-          </TabsList>
-          <TabsContent value="complaint" className="space-y-1">
-            <h3 className="font-medium">{t('medical_complaint')}</h3>
-            <p className="text-sm text-muted-foreground">{complaint || t('no_complaint')}</p>
-          </TabsContent>
-          <TabsContent value="reports" className="space-y-4">
-            <MedicalReportsList
-              reports={reports}
-              onImageSelect={setSelectedImage}
-            />
-          </TabsContent>
-        </Tabs>
-
-        <PatientActions
-          isResolved={isResolvedState}
-          onToggleResolved={handleResolveToggle}
-        />
-
-        <ViewReportsDialog 
-          open={showReports} 
-          onOpenChange={setShowReports}
-          userId={patientId}
-        />
-
-        {selectedImage && (
-          <ImageViewer
-            isOpen={!!selectedImage}
-            onClose={() => setSelectedImage(null)}
-            url={selectedImage}
-          />
-        )}
-      </CardContent>
+      <PatientActions
+        isResolved={isResolved}
+        onToggleResolved={handleToggleResolved}
+      />
     </Card>
   );
 };
