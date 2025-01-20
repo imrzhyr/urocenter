@@ -114,10 +114,14 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     if (!currentCallId || !profile?.id) return;
 
     try {
+      // Immediately stop sounds and hide calling UI
+      callSoundUtils.stopCallingSound();
+      callSoundUtils.stopCallSound();
+      setIsCalling(false);
+      
       await leaveChannel();
       setIsCallEnded(true);
       stopDurationTimer();
-      callSoundUtils.stopCallSound();
 
       const { data: callData } = await supabase
         .from('calls')
@@ -160,7 +164,6 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
         // Show end call UI for 3 seconds for both parties
         setTimeout(() => {
           setIsInCall(false);
-          setIsCalling(false);
           setIsCallEnded(false);
           setCurrentCallId(null);
         }, 3000);

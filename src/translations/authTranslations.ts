@@ -37,7 +37,11 @@ export const authTranslations = {
     "already_have_account": "Already have an account?",
     "sign_in_continue": "Sign in to continue",
     "signing_in": "Signing in...",
-    "invalid_credentials": "Invalid credentials"
+    "invalid_credentials": "Invalid credentials",
+    "confirm_logout": "Confirm Logout",
+    "logout_confirmation_message": "Are you sure you want to log out? You will need to sign in again to access your account.",
+    "confirm": "Confirm",
+    "cancel": "Cancel"
   },
   ar: {
     "sign_in": "تسجيل الدخول",
@@ -77,6 +81,10 @@ export const authTranslations = {
     "already_have_account": "لديك حساب بالفعل؟",
     "sign_in_continue": "سجل دخول للمتابعة",
     "signing_in": "جاري تسجيل الدخول...",
-    "invalid_credentials": "بيانات الدخول غير صحيحة"
+    "invalid_credentials": "بيانات الدخول غير صحيحة",
+    "confirm_logout": "تأكيد تسجيل الخروج",
+    "logout_confirmation_message": "هل أنت متأكد أنك تريد تسجيل الخروج؟ ستحتاج إلى تسجيل الدخول مرة أخرى للوصول إلى حسابك.",
+    "confirm": "تأكيد",
+    "cancel": "إلغاء"
   }
 };
