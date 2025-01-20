@@ -28,15 +28,17 @@ const Payment = () => {
 
       if (error) throw error;
 
-      const paymentMethods = {
+      const paymentMethods: { [key: string]: string } = {
         qicard: "Qi Card",
         fastpay: "FastPay",
         fib: "First Iraqi Bank",
         zaincash: "ZainCash"
       };
 
+      const selectedMethodName = paymentMethods[selectedMethod];
+      const messageTemplate = t("payment_message");
       const message = encodeURIComponent(
-        t("payment_message").replace("{method}", paymentMethods[selectedMethod as keyof typeof paymentMethods])
+        messageTemplate.replace("{method}", selectedMethodName)
       );
       
       window.open(`https://wa.me/9647702428154?text=${message}`, '_blank');
@@ -49,8 +51,8 @@ const Payment = () => {
   };
 
   return (
-    <div className="flex-1 flex flex-col items-center">
-      <div className="w-full max-w-md space-y-6">
+    <>
+      <div className="px-4 py-6">
         <div className="space-y-2 text-center">
           <h1 className="text-2xl font-semibold tracking-tight">
             {t("payment_details")}
@@ -60,14 +62,14 @@ const Payment = () => {
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-primary rounded-xl p-6 text-white shadow-lg"
+          className="bg-primary rounded-xl p-6 text-white shadow-lg mt-6"
         >
           <p className="text-sm opacity-90">{t("amount_to_pay")}</p>
           <h2 className="text-3xl font-bold mt-1">25,000 IQD</h2>
           <p className="text-sm opacity-90 mt-1">{t("medical_consultation_fee")}</p>
         </motion.div>
 
-        <div className="space-y-4">
+        <div className="mt-6 space-y-4">
           <h3 className="text-lg font-medium">
             {t("select_payment_method")}
           </h3>
@@ -102,16 +104,14 @@ const Payment = () => {
                 logo: "/lovable-uploads/292e06cf-9fcf-475a-9497-a045233f8b4d.png"
               }
             ].map((method) => (
-              <motion.button
+              <div
                 key={method.id}
                 onClick={() => setSelectedMethod(method.id)}
-                className={`w-full flex items-center justify-between p-4 rounded-lg border ${
+                className={`w-full flex items-center justify-between p-4 rounded-lg border cursor-pointer ${
                   selectedMethod === method.id
                     ? "border-primary bg-primary/5"
                     : "border-gray-200 dark:border-gray-700"
-                } hover:border-primary/50 transition-all`}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                } active:scale-[0.98] hover:border-primary/50 transition-all`}
               >
                 <div className={cn("flex items-center gap-3", isRTL && "flex-row-reverse")}>
                   <img
@@ -129,24 +129,22 @@ const Payment = () => {
                   </div>
                 </div>
                 <ChevronRight className={cn("w-5 h-5 text-gray-400", isRTL && "rotate-180")} />
-              </motion.button>
+              </div>
             ))}
           </div>
+        </div>
 
+        <div className="mt-6">
           <Button
             onClick={handleSupportContact}
-            className="w-full mt-6 py-6 text-base font-medium"
+            className="w-full h-[44px] text-[17px] font-medium rounded-xl bg-primary hover:bg-primary/90 text-white shadow-lg"
             disabled={!selectedMethod}
           >
             {t("contact_for_payment")}
           </Button>
-
-          <p className="text-sm text-center text-gray-600 dark:text-gray-400 mt-4">
-            {t("support_available")}
-          </p>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

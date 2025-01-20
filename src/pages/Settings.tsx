@@ -44,21 +44,15 @@ const Settings = () => {
   ];
 
   return (
-    <div className={`min-h-screen bg-background ${isRTL ? 'rtl' : 'ltr'}`}>
+    <div className="min-h-screen bg-background font-sans">
       <div className="container max-w-4xl mx-auto p-4">
-        <div className="flex items-center mb-6 justify-between">
-          {isRTL ? (
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-semibold">{t('settings')}</h1>
-              <BackButton />
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <BackButton />
-              <h1 className="text-2xl font-semibold">{t('settings')}</h1>
-            </div>
-          )}
-        </div>
+        {/* Header */}
+        <header className="w-full mb-6">
+          <div className="flex items-center gap-2">
+            <BackButton />
+            <h1 className="text-2xl font-semibold">{t('settings')}</h1>
+          </div>
+        </header>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -68,8 +62,8 @@ const Settings = () => {
         >
           <Card className="p-6">
             <h2 className="text-lg font-medium mb-4">{t('language')}</h2>
-            <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
-              <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
                 <Globe className="h-5 w-5" />
                 <span>{t('select_language')}</span>
               </div>
@@ -79,8 +73,8 @@ const Settings = () => {
 
           <Card className="p-6">
             <h2 className="text-lg font-medium mb-4">{t('notifications')}</h2>
-            <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
-              <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
                 <Bell className="h-5 w-5" />
                 <span>{t('push_notifications')}</span>
               </div>
@@ -95,7 +89,7 @@ const Settings = () => {
                 className="p-4 cursor-pointer hover:bg-accent transition-colors"
                 onClick={section.onClick}
               >
-                <div className={`flex items-center gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <div className="flex items-center gap-3">
                   <section.icon className="h-5 w-5" />
                   <span>{section.title}</span>
                 </div>
@@ -104,11 +98,10 @@ const Settings = () => {
           </div>
 
           <Button
-            variant="destructive"
-            className="w-full"
             onClick={() => setShowLogoutDialog(true)}
+            className="w-full bg-red-500 hover:bg-red-600 text-white"
           >
-            <LogOut className="h-5 w-5 mr-2" />
+            <LogOut className="w-4 h-4 mr-2" />
             {t('logout')}
           </Button>
         </motion.div>
@@ -124,8 +117,11 @@ const Settings = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleLogout}>
-              {t('confirm')}
+            <AlertDialogAction
+              onClick={handleLogout}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              {t('logout')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

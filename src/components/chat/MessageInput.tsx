@@ -33,12 +33,23 @@ export const MessageInput = ({
     if (!file) return;
 
     try {
+      console.log('Starting file upload:', {
+        name: file.name,
+        type: file.type,
+        size: file.size
+      });
+
       const arrayBuffer = await file.arrayBuffer();
       const uint8Array = new Uint8Array(arrayBuffer);
       
       const fileExt = file.name.split('.').pop();
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
       
+      console.log('Uploading to Supabase:', {
+        fileName,
+        contentType: file.type
+      });
+
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('chat_attachments')
         .upload(fileName, uint8Array, {
@@ -47,26 +58,43 @@ export const MessageInput = ({
           upsert: false
         });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Supabase upload error:', uploadError);
+        throw uploadError;
+      }
+
+      console.log('Upload successful:', uploadData);
 
       const { data: { publicUrl } } = supabase.storage
         .from('chat_attachments')
         .getPublicUrl(fileName);
 
+      console.log('Got public URL:', publicUrl);
+
+      // Get the general file type (image, audio, video, etc.)
+      const generalType = file.type.split('/')[0];
+      
       const fileInfo = {
         url: publicUrl,
         name: file.name,
-        type: file.type
+        type: file.type,
+        file_type: generalType,
+        mime_type: file.type
       };
 
+      console.log('Sending message with file:', fileInfo);
       onSendMessage("", fileInfo);
       
       if (onCancelReply) {
         onCancelReply();
       }
     } catch (error) {
-      console.error('File upload error:', error);
-      toast.error('Failed to upload file');
+      console.error('Detailed file upload error:', error);
+      if (error.error?.message) {
+        toast.error(`Upload failed: ${error.error.message}`);
+      } else {
+        toast.error('Failed to upload file');
+      }
     }
 
     if (fileInputRef.current) {

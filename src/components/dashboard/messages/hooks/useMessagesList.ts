@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PatientMessage } from "@/types/messages";
 import { toast } from "sonner";
@@ -8,6 +8,7 @@ export const useMessagesList = () => {
   const [messages, setMessages] = useState<PatientMessage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { profile } = useProfile();
+  const isMounted = useRef(true);
 
   const fetchMessages = async () => {
     try {
@@ -37,7 +38,7 @@ export const useMessagesList = () => {
         return;
       }
 
-      if (!messagesData) {
+      if (!messagesData || !isMounted.current) {
         setMessages([]);
         setIsLoading(false);
         return;
@@ -71,16 +72,21 @@ export const useMessagesList = () => {
 
       const formattedMessages = Object.values(userMessages);
       console.log('Formatted messages:', formattedMessages);
-      setMessages(formattedMessages);
+      if (isMounted.current) {
+        setMessages(formattedMessages);
+      }
     } catch (error) {
       console.error('Error in fetchMessages:', error);
       toast.error("Failed to load messages");
     } finally {
-      setIsLoading(false);
+      if (isMounted.current) {
+        setIsLoading(false);
+      }
     }
   };
 
   useEffect(() => {
+    isMounted.current = true;
     fetchMessages();
 
     const channel = supabase
@@ -93,12 +99,15 @@ export const useMessagesList = () => {
           table: 'messages'
         },
         () => {
-          fetchMessages();
+          if (isMounted.current) {
+            fetchMessages();
+          }
         }
       )
       .subscribe();
 
     return () => {
+      isMounted.current = false;
       console.log('Cleaning up subscription');
       supabase.removeChannel(channel);
     };

@@ -68,7 +68,7 @@ export const useChat = (userId?: string) => {
 
   const sendMessage = async (
     content: string,
-    fileInfo?: { url: string; name: string; type: string; duration?: number },
+    fileInfo?: { url: string; name: string; type: string; file_type?: string; mime_type?: string; duration?: number },
     replyTo?: Message
   ) => {
     if (!userId || !profile?.id) {
@@ -79,6 +79,10 @@ export const useChat = (userId?: string) => {
     try {
       setIsLoading(true);
 
+      // Get the general file type from MIME type
+      const generalType = fileInfo?.type ? fileInfo.type.split('/')[0] : undefined;
+
+      // Only include fields that exist in the database schema
       const messageData = {
         content: content.trim(),
         user_id: userId,
@@ -86,7 +90,7 @@ export const useChat = (userId?: string) => {
         status: 'not_seen',
         file_url: fileInfo?.url,
         file_name: fileInfo?.name,
-        file_type: fileInfo?.type,
+        file_type: fileInfo?.type, // Keep the full MIME type in file_type
         duration: fileInfo?.duration,
         sender_name: profile.full_name || 'Unknown User',
         replyTo: replyTo ? {

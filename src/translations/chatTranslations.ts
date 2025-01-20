@@ -38,7 +38,13 @@ export const chatTranslations = {
     "call_ended": "Call ended",
     "call_rejected": "Call rejected",
     "incoming_call": "Incoming call",
-    "missed_call": "Missed call"
+    "missed_call": "Missed call",
+    "sent_attachment": "Sent an attachment",
+    "sent_photo": "Sent a photo",
+    "sent_voice_message": "Sent a voice message",
+    "replying_to": "Replying to",
+    "replying_to_unknown": "Replying to Unknown",
+    "cancel_reply": "Cancel reply"
   },
   ar: {
     "patient_information": "معلومات المريض",
@@ -79,6 +85,12 @@ export const chatTranslations = {
     "call_ended": "انتهت المكالمة",
     "call_rejected": "تم رفض المكالمة",
     "incoming_call": "مكالمة واردة",
-    "missed_call": "مكالمة فائتة"
+    "missed_call": "مكالمة فائتة",
+    "sent_attachment": "أرسل مرفقاً",
+    "sent_photo": "أرسل صورة",
+    "sent_voice_message": "أرسل رسالة صوتية",
+    "replying_to": "الرد على",
+    "replying_to_unknown": "الرد على مجهول",
+    "cancel_reply": "إلغاء الرد"
   }
 };

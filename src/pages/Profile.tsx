@@ -16,7 +16,7 @@ export const ProfilePage = () => {
   const { t } = useLanguage();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [profile, setProfile] = useState<Profile>({
-    id: '',
+    id: localStorage.getItem('profileId') || '',
     full_name: '',
     gender: '',
     age: '',
@@ -27,14 +27,18 @@ export const ProfilePage = () => {
 
   useEffect(() => {
     if (initialProfile && !isLoading) {
-      setProfile(initialProfile);
+      setProfile({
+        ...initialProfile,
+        phone: localStorage.getItem('userPhone') || initialProfile.phone || ''
+      });
     }
   }, [initialProfile, isLoading]);
 
   const handleProfileChange = useCallback((field: keyof Profile, value: string) => {
     setProfile(prev => ({
       ...prev,
-      [field]: value
+      [field]: value,
+      phone: localStorage.getItem('userPhone') || prev.phone || ''
     }));
   }, []);
 
@@ -73,28 +77,36 @@ export const ProfilePage = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          {t('complete_profile')}
-        </h1>
-        <p className="text-muted-foreground">
-          {t('profile_subtitle')}
-        </p>
+    <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900">
+      <div className="flex-1 overflow-y-auto relative">
+        <div className="px-4 py-6">
+          <div className="max-w-md mx-auto">
+            <div className="space-y-2">
+              <h1 className="text-2xl font-semibold tracking-tight">
+                {t('complete_profile')}
+              </h1>
+              <p className="text-muted-foreground">
+                {t('profile_subtitle')}
+              </p>
+            </div>
+
+            <ProfileForm 
+              profile={profile}
+              onProfileChange={handleProfileChange}
+            />
+
+            <div className="mt-6">
+              <Button
+                onClick={handleSubmit}
+                className="w-full h-[44px] text-[17px] font-medium rounded-xl"
+                disabled={!isFormValid() || isSubmitting}
+              >
+                {isSubmitting ? t('updating') : t('continue')}
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
-
-      <ProfileForm 
-        profile={profile}
-        onProfileChange={handleProfileChange}
-      />
-
-      <Button
-        onClick={handleSubmit}
-        disabled={!isFormValid() || isSubmitting}
-        className="w-full bg-primary hover:bg-primary/90"
-      >
-        {isSubmitting ? t('updating') : t('continue')}
-      </Button>
     </div>
   );
 };

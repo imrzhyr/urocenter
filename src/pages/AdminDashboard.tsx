@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { MessagesCard } from "@/components/dashboard/MessagesCard";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { AdminNavigation } from "@/components/dashboard/admin/AdminNavigation";
+import { AdminMessagesCard } from "@/components/dashboard/admin/AdminMessagesCard";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -13,9 +13,10 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     const checkAdminAccess = async () => {
-      const userPhone = localStorage.getItem('userPhone');
+      const profileId = localStorage.getItem('profileId');
       
-      if (!userPhone) {
+      if (!profileId) {
+        console.log("No profile ID found, redirecting to signin");
         navigate("/signin", { replace: true });
         return;
       }
@@ -23,12 +24,22 @@ const AdminDashboard = () => {
       const { data: profile, error } = await supabase
         .from('profiles')
         .select('role')
-        .eq('phone', userPhone)
-        .maybeSingle();
+        .eq('id', profileId)
+        .single();
 
-      if (error || !profile || profile.role !== 'admin') {
-        navigate("/dashboard", { replace: true });
+      if (error) {
+        console.error("Error fetching profile:", error);
+        navigate("/signin", { replace: true });
+        return;
       }
+
+      if (!profile || profile.role !== 'admin') {
+        console.log("User is not admin, redirecting to dashboard");
+        navigate("/dashboard", { replace: true });
+        return;
+      }
+
+      console.log("Admin access confirmed");
     };
 
     checkAdminAccess();
@@ -44,7 +55,7 @@ const AdminDashboard = () => {
           transition={{ duration: 0.5 }}
           className="max-w-7xl mx-auto space-y-8 pb-28"
         >
-          <MessagesCard />
+          <AdminMessagesCard />
         </motion.div>
       </main>
       <AdminNavigation />

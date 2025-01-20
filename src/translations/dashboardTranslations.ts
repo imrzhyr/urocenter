@@ -12,6 +12,8 @@ export const dashboardTranslations = {
     view_doctor_profile: "View doctor's profile and qualifications",
     start_consultation: "Start Your Consultation",
     doctor_surgery: "Connect with Dr. Ali Kamal, our expert urologist",
+    test_version: "TEST VERSION - Updated at",
+    payment_approval_pending: "Your payment is pending approval",
   },
   ar: {
     welcome: "مرحباً",
@@ -26,5 +28,7 @@ export const dashboardTranslations = {
     view_doctor_profile: "عرض الملف الشخصي ومؤهلات الطبيب",
     start_consultation: "ابدأ استشارتك",
     doctor_surgery: "تواصل مع د. علي كمال، أخصائي المسالك البولية",
+    test_version: "نسخة تجريبية - تم التحديث في",
+    payment_approval_pending: "دفعتك قيد المراجعة",
   }
 };

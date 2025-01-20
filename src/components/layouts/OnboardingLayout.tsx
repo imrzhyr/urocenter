@@ -52,10 +52,10 @@ export const OnboardingLayout = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <header className="sticky top-0 z-50 w-full bg-white border-b border-gray-100 dark:bg-gray-900 dark:border-gray-800">
-        <div className="container max-w-4xl mx-auto p-4 flex justify-between items-center">
-          <BackButton />
-          <WhatsAppSupport />
-          <LanguageSelector />
+        <div className="container max-w-4xl mx-auto p-4 flex items-center">
+          <div className="w-[72px]"><BackButton /></div>
+          <div className="flex-1 flex justify-center"><WhatsAppSupport /></div>
+          <div className="w-[72px] flex justify-end"><LanguageSelector /></div>
         </div>
         <div className="container max-w-4xl mx-auto px-4 pb-6">
           <ProgressSteps 
@@ -65,8 +65,8 @@ export const OnboardingLayout = () => {
         </div>
       </header>
 
-      <main className="flex-1 container max-w-4xl mx-auto p-4">
-        <div className="flex-1">
+      <main className="flex-1 overflow-y-auto">
+        <div className="container max-w-4xl mx-auto">
           <Outlet />
         </div>
       </main>

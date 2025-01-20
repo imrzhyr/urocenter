@@ -1,0 +1,19 @@
+{
+  "terms": {
+    "title": "الشروط والأحكام",
+    "lastUpdated": "آخر تحديث: 1 مارس 2024",
+    "accept": "أوافق على الشروط والأحكام",
+    "readMore": "قراءة الشروط والأحكام"
+  },
+  "auth": {
+    "signUp": "إنشاء حساب",
+    "signIn": "تسجيل الدخول",
+    "continueToProfile": "المتابعة إلى الملف الشخصي",
+    "createPassword": "إنشاء كلمة المرور",
+    "confirmPassword": "تأكيد كلمة المرور",
+    "alreadyHaveAccount": "هل لديك حساب بالفعل؟",
+    "passwordMinChars": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل",
+    "repeatPassword": "تكرار كلمة المرور",
+    "phoneNumber": "رقم الهاتف"
+  }
+} 

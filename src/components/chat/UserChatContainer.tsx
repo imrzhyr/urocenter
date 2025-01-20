@@ -1,15 +1,17 @@
-import { useProfile } from "@/hooks/useProfile";
+import { useAuth } from "@/contexts/AuthContext";
 import { MessageContainer } from "./MessageContainer";
 import { PatientChatHeader } from "./patient/PatientChatHeader";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useChat } from "@/hooks/useChat";
-import { CallProvider } from "@/components/chat/call/CallProvider";
 import { Message } from "@/types/profile";
 import { FileInfo } from "@/types/chat";
+import { LoadingScreen } from "@/components/LoadingScreen";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const UserChatContainer = () => {
-  const { profile } = useProfile();
-  const { messages, isLoading, sendMessage } = useChat(profile?.id);
+  const { profile, isLoading } = useAuth();
+  const { messages, isLoading: isChatLoading, sendMessage } = useChat(profile?.id);
+  const { t } = useLanguage();
   useAuthRedirect();
 
   const handleSendMessage = async (content: string, fileInfo?: FileInfo, replyTo?: Message) => {
@@ -20,6 +22,10 @@ export const UserChatContainer = () => {
     await sendMessage(content, fileInfo, replyTo);
   };
 
+  if (isLoading) {
+    return <LoadingScreen message={t('loading')} />;
+  }
+
   if (!profile?.id) {
     console.log('No profile ID found, not rendering chat');
     return null;
@@ -29,7 +35,7 @@ export const UserChatContainer = () => {
     <MessageContainer
       messages={messages}
       onSendMessage={handleSendMessage}
-      isLoading={isLoading}
+      isLoading={isChatLoading}
       header={<PatientChatHeader />}
       userId={profile.id}
     />

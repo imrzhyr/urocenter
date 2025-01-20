@@ -21,5 +21,8 @@
 
 /* Gradient text utility */
 .gradient-text {
-  @apply bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent;
+  background: linear-gradient(to right, #0066FF, #0052CC);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }

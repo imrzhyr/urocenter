@@ -52,6 +52,7 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
       }
 
       localStorage.setItem('userPhone', formattedPhone);
+      localStorage.setItem('profileId', profile.id);
       toast.success(t('signin_success'));
 
       if (profile.role === 'admin') {

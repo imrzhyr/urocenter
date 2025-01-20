@@ -65,6 +65,9 @@ export const MessageItem = ({ message, fromCurrentUser, onDragEnd }: MessageItem
     };
   }, []);
 
+  // Show reply preview to both users, but only allow deletion for the user who made the reply
+  const canDeleteReply = message.replyTo && fromCurrentUser;
+
   return (
     <motion.div
       ref={messageRef}
@@ -110,7 +113,9 @@ export const MessageItem = ({ message, fromCurrentUser, onDragEnd }: MessageItem
                 is_read: true,
                 status: 'seen'
               }} 
-              onCancel={() => {}}
+              onCancel={canDeleteReply ? () => {
+                // Empty function for now
+              } : undefined}
             />
           )}
           <div className={`flex ${fromCurrentUser ? 'justify-end' : 'justify-start'} w-full group relative`}>

@@ -2,9 +2,8 @@
 html, body, #root {
   margin: 0;
   padding: 0;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
+  width: 100%;
+  min-height: 100vh;
 }
 
 /* Base styles */
@@ -14,6 +13,7 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-overflow-scrolling: touch; /* Enable momentum scrolling on iOS */
 }
 
 /* Optimize images */

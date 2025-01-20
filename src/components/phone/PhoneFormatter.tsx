@@ -9,6 +9,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface PhoneFormatterProps {
   value: string;
@@ -17,7 +19,7 @@ interface PhoneFormatterProps {
 
 export const PhoneFormatter = ({ value, onChange }: PhoneFormatterProps) => {
   const [touched, setTouched] = useState(false);
-  const { t, language } = useLanguage();
+  const { t, language, isRTL } = useLanguage();
   const [countryCode, setCountryCode] = useState("+964");
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,14 +55,30 @@ export const PhoneFormatter = ({ value, onChange }: PhoneFormatterProps) => {
 
   return (
     <div className="space-y-2">
-      <div className="flex" dir="ltr">
+      <div className={cn(
+        "flex",
+        "h-[44px]", // iOS minimum touch target
+        isRTL ? "flex-row-reverse" : "flex-row"
+      )} dir="ltr">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button 
-              variant="outline" 
-              className="px-3 rounded-r-none border-r-0"
+              variant="ghost"
+              className={cn(
+                "h-[44px]", // iOS minimum touch target
+                "px-4",
+                isRTL ? "rounded-l-none border-l-0" : "rounded-r-none border-r-0",
+                "bg-white/80 dark:bg-[#1C1C1E]/80",
+                "backdrop-blur-xl",
+                "border-[#3C3C43]/20 dark:border-white/10",
+                "text-[17px]", // iOS body text
+                "text-[#000000] dark:text-white",
+                "hover:bg-[#F2F2F7] dark:hover:bg-[#2C2C2E]",
+                "focus:ring-1 focus:ring-[#007AFF] dark:focus:ring-[#0A84FF]",
+                "transition-colors"
+              )}
             >
-              <Globe className="w-4 h-4 mr-2" />
+              <Globe className="w-5 h-5 mr-2 text-[#8E8E93] dark:text-[#98989D]" />
               {countryCode}
             </Button>
           </DropdownMenuTrigger>
@@ -75,17 +93,41 @@ export const PhoneFormatter = ({ value, onChange }: PhoneFormatterProps) => {
           value={displayValue}
           onChange={handleChange}
           placeholder={t('enter_phone')}
-          className={`rounded-l-none text-left ${
-            showError ? 'border-red-500 focus-visible:ring-red-500' : ''
-          }`}
+          className={cn(
+            "flex-1",
+            "h-[44px]", // iOS minimum touch target
+            "px-4",
+            isRTL ? "rounded-r-none" : "rounded-l-none",
+            "bg-white/80 dark:bg-[#1C1C1E]/80",
+            "backdrop-blur-xl",
+            "border-[#3C3C43]/20 dark:border-white/10",
+            "text-[17px]", // iOS body text
+            "text-[#000000] dark:text-white",
+            "placeholder:text-[#3C3C43]/60 dark:placeholder:text-[#98989D]/60",
+            "focus:border-[#007AFF] dark:focus:border-[#0A84FF]",
+            "focus:ring-1 focus:ring-[#007AFF] dark:focus:ring-[#0A84FF]",
+            showError && "border-[#FF453A] focus:border-[#FF453A] focus:ring-[#FF453A]"
+          )}
           dir="ltr"
         />
       </div>
-      {showError && (
-        <p className="text-sm text-red-500 mt-1">
-          {t('invalid_phone')}
-        </p>
-      )}
+      <AnimatePresence>
+        {showError && (
+          <motion.p 
+            className={cn(
+              "text-[13px]", // iOS caption text
+              "text-[#FF453A]", // iOS system red
+              "mt-1"
+            )}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+          >
+            {t('invalid_phone')}
+          </motion.p>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -4,6 +4,9 @@ import { toast } from "sonner";
 import { Message } from "@/types/profile";
 import { FileInfo } from "@/types/chat";
 
+// Admin's UUID for the doctor
+const DOCTOR_ID = "8d231b24-7163-4390-8361-4edb6f5f69d3";
+
 export const usePatientChat = (userPhone?: string | null) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -20,10 +23,13 @@ export const usePatientChat = (userPhone?: string | null) => {
 
       if (!profileData?.id) return;
 
+      // Fetch messages where either:
+      // 1. user_id is the patient's ID and is_from_doctor is false (patient's messages)
+      // 2. user_id is the doctor's ID and is_from_doctor is true (doctor's messages)
       const { data, error } = await supabase
         .from('messages')
         .select('*')
-        .eq('user_id', profileData.id)
+        .or(`and(user_id.eq.${profileData.id},is_from_doctor.eq.false),and(user_id.eq.${DOCTOR_ID},is_from_doctor.eq.true)`)
         .order('created_at', { ascending: true });
 
       if (error) {
@@ -60,7 +66,8 @@ export const usePatientChat = (userPhone?: string | null) => {
         {
           event: '*',
           schema: 'public',
-          table: 'messages'
+          table: 'messages',
+          filter: `or(user_id.eq.${DOCTOR_ID},user_id.eq.${profileData?.id})`
         },
         async (payload) => {
           if (payload.eventType === 'INSERT') {

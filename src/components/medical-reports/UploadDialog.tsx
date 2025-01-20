@@ -13,6 +13,7 @@ import { motion } from "framer-motion";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { logger } from '@/utils/logger';
 import { uploadMedicalFile } from "@/utils/medicalFileUpload";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface UploadDialogProps {
   open: boolean;
@@ -20,45 +21,47 @@ interface UploadDialogProps {
   onUploadSuccess: () => void;
 }
 
-const documentTypes = [
-  {
-    title: "Diagnostic Imaging",
-    items: [
-      "Ultrasound scans of kidneys, bladder, and prostate",
-      "CT scans of the urinary tract",
-      "MRI reports of the pelvic area",
-      "X-rays of the urinary system",
-      "Nuclear medicine scan results",
-    ],
-  },
-  {
-    title: "Laboratory Results",
-    items: [
-      "PSA (Prostate-Specific Antigen) test results",
-      "Urinalysis reports",
-      "Blood test results",
-      "Kidney function tests",
-      "Hormone level assessments",
-    ],
-  },
-  {
-    title: "Medical Documentation",
-    items: [
-      "Previous consultation notes",
-      "Surgical reports and post-operative notes",
-      "Treatment plans and protocols",
-      "Medication prescriptions and history",
-      "Hospital discharge summaries",
-    ],
-  },
-];
-
 export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDialogProps) => {
+  const { t } = useLanguage();
+
+  const documentTypes = [
+    {
+      title: t('diagnostic_imaging'),
+      items: [
+        t('ultrasound_scans'),
+        t('ct_scans'),
+        t('mri_reports'),
+        t('xrays'),
+        t('nuclear_medicine_scans'),
+      ],
+    },
+    {
+      title: t('laboratory_results'),
+      items: [
+        t('psa_test'),
+        t('urinalysis'),
+        t('blood_test'),
+        t('kidney_function'),
+        t('hormone_levels'),
+      ],
+    },
+    {
+      title: t('medical_documentation'),
+      items: [
+        t('consultation_notes'),
+        t('surgical_reports'),
+        t('treatment_plans'),
+        t('medication_history'),
+        t('discharge_summaries'),
+      ],
+    },
+  ];
+
   const handleFileUpload = async (file: File) => {
     try {
       const userPhone = localStorage.getItem('userPhone');
       if (!userPhone) {
-        toast.error("Please sign in to upload files");
+        toast.error(t('sign_in_to_upload'));
         return;
       }
 
@@ -70,12 +73,12 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
 
       if (profileError) {
         logger.error("Profile error", "Failed to fetch profile", profileError);
-        toast.error("Error accessing profile");
+        toast.error(t('error_accessing_profile'));
         return;
       }
 
       if (!profileData) {
-        toast.error("Profile not found");
+        toast.error(t('profile_not_found'));
         return;
       }
 
@@ -95,12 +98,12 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
         throw dbError;
       }
 
-      toast.success("File uploaded successfully");
+      toast.success(t('file_upload_success'));
       onUploadSuccess();
       onOpenChange(false);
     } catch (error) {
       logger.error("Upload error", error instanceof Error ? error.message : 'Unknown error', error);
-      toast.error("Failed to upload file");
+      toast.error(t('file_upload_failed'));
     }
   };
 
@@ -136,9 +139,9 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Add Medical Report</DialogTitle>
+          <DialogTitle>{t('add_medical_report')}</DialogTitle>
           <DialogDescription>
-            Upload your medical documents or take pictures. Please ensure all documents are clear and readable.
+            {t('upload_documents_description')}
           </DialogDescription>
         </DialogHeader>
         
@@ -169,7 +172,7 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
               className="flex-1 flex items-center justify-center gap-2 hover:bg-primary hover:text-primary-foreground transition-all duration-300"
             >
               <Upload className="w-4 h-4" />
-              Upload Files
+              {t('upload_files')}
             </Button>
             <Button
               variant="outline"
@@ -177,14 +180,14 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
               className="flex-1 flex items-center justify-center gap-2 hover:bg-primary hover:text-primary-foreground transition-all duration-300"
             >
               <Camera className="w-4 h-4" />
-              Take Picture
+              {t('take_picture')}
             </Button>
           </div>
 
           <div className="bg-muted p-4 rounded-lg">
             <p className="text-sm text-muted-foreground">
               <Info className="w-4 h-4 inline-block mr-2" />
-              We accept files in PDF, JPG, JPEG, and PNG formats. Each file should be less than 10MB.
+              {t('file_format_info')}
             </p>
           </div>
         </div>

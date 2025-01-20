@@ -3,13 +3,25 @@ import { supabase } from "@/integrations/supabase/client";
 import { PatientInfoCard } from "@/components/chat/PatientInfoCard";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { AnimatePresence } from "framer-motion";
+import { Dialog } from "@/components/ui/dialog";
 
 interface PatientInfoContainerProps {
   patientId?: string;
+  onClose?: () => void;
 }
 
-export const PatientInfoContainer = ({ patientId }: PatientInfoContainerProps) => {
-  const { data: patientInfo, isLoading } = useQuery({
+export const PatientInfoContainer = ({ patientId, onClose }: PatientInfoContainerProps) => {
+  const { t } = useLanguage();
+  const [isOpen, setIsOpen] = useState(true);
+
+  const handleClose = () => {
+    setIsOpen(false);
+    onClose?.();
+  };
+
+  const { data: patientInfo, isLoading, refetch } = useQuery({
     queryKey: ['patient', patientId],
     queryFn: async () => {
       try {
@@ -17,7 +29,22 @@ export const PatientInfoContainer = ({ patientId }: PatientInfoContainerProps) =
 
         const { data: profileData } = await supabase
           .from('profiles')
-          .select('id, complaint, full_name, age, gender, phone, created_at')
+          .select(`
+            id,
+            complaint,
+            age,
+            gender,
+            phone,
+            created_at,
+            updated_at,
+            auth_method,
+            last_login,
+            role,
+            payment_status,
+            payment_method,
+            payment_date,
+            payment_approval_status
+          `)
           .eq('id', patientId)
           .single();
 
@@ -37,39 +64,64 @@ export const PatientInfoContainer = ({ patientId }: PatientInfoContainerProps) =
           return {
             complaint: profileData.complaint || "",
             reportsCount: reports?.length || 0,
-            fullName: profileData.full_name || "",
             age: profileData.age || "",
             gender: profileData.gender || "",
             isResolved: messageData?.is_resolved || false,
-            phone: profileData.phone || "",
-            createdAt: profileData.created_at || ""
+            phone: profileData.phone || ""
           };
         }
         return null;
       } catch (error) {
         console.error('Error fetching patient info:', error);
-        toast.error("Failed to load patient information");
+        toast.error(t("failed_load_patient_info"));
         return null;
       }
     },
     enabled: !!patientId,
-    staleTime: 30000, // Consider data fresh for 30 seconds
-    gcTime: 5 * 60 * 1000 // Keep data in cache for 5 minutes (previously cacheTime)
+    staleTime: 30000,
+    gcTime: 5 * 60 * 1000
   });
+
+  useEffect(() => {
+    if (!patientId) return;
+
+    const channel = supabase
+      .channel(`profile_${patientId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'profiles',
+          filter: `id=eq.${patientId}`
+        },
+        () => {
+          refetch();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [patientId, refetch]);
 
   if (!patientId || !patientInfo) return null;
 
   return (
-    <PatientInfoCard 
-      complaint={patientInfo.complaint}
-      reportsCount={patientInfo.reportsCount}
-      fullName={patientInfo.fullName}
-      age={patientInfo.age}
-      gender={patientInfo.gender}
-      patientId={patientId}
-      isResolved={patientInfo.isResolved}
-      phone={patientInfo.phone}
-      createdAt={patientInfo.createdAt}
-    />
+    <AnimatePresence mode="wait">
+      {isOpen && (
+        <PatientInfoCard 
+          complaint={patientInfo.complaint}
+          reportsCount={patientInfo.reportsCount}
+          age={patientInfo.age}
+          gender={patientInfo.gender}
+          patientId={patientId}
+          isResolved={patientInfo.isResolved}
+          phone={patientInfo.phone}
+          onClose={handleClose}
+        />
+      )}
+    </AnimatePresence>
   );
 };

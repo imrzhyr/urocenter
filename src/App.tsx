@@ -1,4 +1,5 @@
 import { LanguageProvider } from '@/contexts/LanguageContext';
+import { AuthProvider } from '@/contexts/AuthContext';
 import AppRoutes from './AppRoutes';
 import { I18nextProvider } from 'react-i18next';
 import i18n from './i18n/config';
@@ -11,10 +12,12 @@ function App() {
     <I18nextProvider i18n={i18n}>
       <LanguageProvider>
         <BrowserRouter>
-          <CallProvider>
-            <AppRoutes />
-            <Toaster />
-          </CallProvider>
+          <AuthProvider>
+            <CallProvider>
+              <AppRoutes />
+              <Toaster />
+            </CallProvider>
+          </AuthProvider>
         </BrowserRouter>
       </LanguageProvider>
     </I18nextProvider>

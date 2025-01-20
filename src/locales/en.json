@@ -1,0 +1,19 @@
+{
+  "terms": {
+    "title": "Terms and Conditions",
+    "lastUpdated": "Last Updated: February 1, 2025",
+    "accept": "I accept the Terms and Conditions",
+    "readMore": "Read Terms and Conditions"
+  },
+  "auth": {
+    "signUp": "Sign Up",
+    "signIn": "Sign In",
+    "continueToProfile": "Continue to Profile",
+    "createPassword": "Create password",
+    "confirmPassword": "Confirm password",
+    "alreadyHaveAccount": "Already have an account?",
+    "passwordMinChars": "Password must be at least 6 characters",
+    "repeatPassword": "Repeat password",
+    "phoneNumber": "Phone number"
+  }
+} 

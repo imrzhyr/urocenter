@@ -1,8 +1,8 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { MessageStatusBadge } from "../MessageStatusBadge";
 import { motion } from "framer-motion";
 import { PatientMessage } from "@/types/messages";
+import { cn } from "@/lib/utils";
 
 interface MessageItemProps {
   patient: PatientMessage;
@@ -11,6 +11,28 @@ interface MessageItemProps {
 }
 
 export const MessageItem = ({ patient, index, onPatientClick }: MessageItemProps) => {
+  const getStatusConfig = () => {
+    switch (patient.status) {
+      case 'seen':
+        return {
+          label: 'seen',
+          className: 'bg-green-500 hover:bg-green-600'
+        };
+      case 'not_seen':
+        return {
+          label: patient.unread_count > 0 ? 'new' : 'not_seen',
+          className: patient.unread_count > 0 ? 'bg-[#FF3B30] hover:bg-[#FF453A]' : 'bg-[#FF9500] hover:bg-[#FF9F0A]'
+        };
+      default:
+        return {
+          label: patient.status,
+          className: 'bg-gray-500 hover:bg-gray-600'
+        };
+    }
+  };
+
+  const status = getStatusConfig();
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -34,13 +56,15 @@ export const MessageItem = ({ patient, index, onPatientClick }: MessageItemProps
               <div className="flex items-center gap-2">
                 {patient.is_resolved && (
                   <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
-                    Resolved
+                    resolved
                   </span>
                 )}
-                <MessageStatusBadge 
-                  status={patient.status} 
-                  unreadCount={patient.unread_count}
-                />
+                <span className={cn(
+                  "text-xs text-white px-2 py-1 rounded-full",
+                  status.className
+                )}>
+                  {status.label}
+                </span>
               </div>
             </div>
             <p className="text-sm text-muted-foreground truncate mt-1">

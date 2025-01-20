@@ -20,15 +20,33 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguage] = useState<Language>('en');
+  const [language, setLanguage] = useState<Language>(() => {
+    const savedLang = localStorage.getItem('language') as Language;
+    return savedLang || 'en';
+  });
   const isRTL = language === 'ar';
 
+  // Force a re-render of the entire app when language changes
   useEffect(() => {
-    const savedLang = localStorage.getItem('language') as Language;
-    if (savedLang) {
-      setLanguage(savedLang);
+    // Set HTML dir attribute
+    document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
+    document.documentElement.lang = language;
+    
+    // Add/remove RTL class from body for global RTL styles
+    if (isRTL) {
+      document.body.classList.add('rtl-layout');
+      document.documentElement.classList.add('font-noto-sans-arabic');
+    } else {
+      document.body.classList.remove('rtl-layout');
+      document.documentElement.classList.remove('font-noto-sans-arabic');
     }
-  }, []);
+
+    // Force layout recalculation
+    document.body.style.display = 'none';
+    document.body.offsetHeight; // Trigger reflow
+    document.body.style.display = '';
+    
+  }, [language, isRTL]);
 
   const t = (key: string): string => {
     const translations = {
@@ -67,18 +85,20 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const handleSetLanguage = (lang: Language) => {
+    // Clear any existing RTL-related classes first
+    document.body.classList.remove('rtl-layout');
+    document.documentElement.classList.remove('font-noto-sans-arabic');
+    
+    // Update language
     setLanguage(lang);
     localStorage.setItem('language', lang);
-    if (lang === 'ar') {
-      document.documentElement.dir = 'rtl';
-    } else {
-      document.documentElement.dir = 'ltr';
-    }
   };
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage: handleSetLanguage, t, isRTL }}>
-      {children}
+      <div className={`app-root ${isRTL ? 'rtl-layout' : ''}`}>
+        {children}
+      </div>
     </LanguageContext.Provider>
   );
 };

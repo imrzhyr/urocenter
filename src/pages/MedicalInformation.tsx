@@ -17,7 +17,8 @@ const MedicalInformation = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleCameraCapture = () => {
-    if (!profile?.id) {
+    const profileId = localStorage.getItem('profileId');
+    if (!profileId) {
       toast.error(t("complete_profile_first"));
       return;
     }
@@ -37,7 +38,8 @@ const MedicalInformation = () => {
   };
 
   const handleFileSelect = () => {
-    if (!profile?.id) {
+    const profileId = localStorage.getItem('profileId');
+    if (!profileId) {
       toast.error(t("complete_profile_first"));
       return;
     }
@@ -59,28 +61,34 @@ const MedicalInformation = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <MedicalInformationHeader uploadCount={uploadCount} />
-      <DocumentTypes />
-      <UploadSection
-        onCameraCapture={handleCameraCapture}
-        onFileSelect={handleFileSelect}
-        isUploading={isUploading}
-      />
-      <input
-        type="file"
-        ref={fileInputRef}
-        className="hidden"
-        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.mp4,.mov,.mp3,.wav"
-        multiple
-      />
-      <div className="flex justify-center mt-6">
-        <Button
-          onClick={() => navigate("/payment")}
-          className="w-48 h-12 text-lg font-medium"
-        >
-          {t("continue")}
-        </Button>
+    <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900">
+      <div className="flex-1 overflow-y-auto relative">
+        <div className="px-4 py-6">
+          <div className="max-w-md mx-auto">
+            <MedicalInformationHeader uploadCount={uploadCount} />
+            <DocumentTypes />
+            <UploadSection
+              onCameraCapture={handleCameraCapture}
+              onFileSelect={handleFileSelect}
+              isUploading={isUploading}
+            />
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.mp4,.mov,.mp3,.wav"
+              multiple
+            />
+            <div className="mt-6">
+              <Button
+                onClick={() => navigate("/payment")}
+                className="w-full h-[44px] text-[17px] font-medium rounded-xl"
+              >
+                {t("continue")}
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

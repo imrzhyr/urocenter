@@ -1,22 +1,39 @@
-import { useParams } from 'react-router-dom';
+import { useParams, Navigate } from 'react-router-dom';
 import { DoctorChatContainer } from '@/components/chat/doctor/DoctorChatContainer';
 import { useProfile } from '@/hooks/useProfile';
+import { LoadingScreen } from '@/components/LoadingScreen';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const UserChat = () => {
-  const { userId } = useParams();
-  const { profile } = useProfile();
+  const params = useParams<{ userId: string }>();
+  const { profile, isLoading } = useProfile();
+  const { t } = useLanguage();
 
-  if (!userId) {
-    return <div>No user ID provided</div>;
+  if (isLoading) {
+    return <LoadingScreen message={t('loading')} />;
+  }
+
+  if (!profile) {
+    return <Navigate to="/signin" replace />;
+  }
+
+  // First check if user is admin
+  if (profile.role !== 'admin') {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  if (!params.userId) {
+    return <Navigate to="/admin" replace />;
+  }
+
+  // Ensure we're not trying to chat with ourselves
+  if (params.userId === profile.id) {
+    return <Navigate to="/admin" replace />;
   }
 
   return (
     <div className="min-h-screen bg-background">
-      {profile?.role === 'admin' ? (
-        <DoctorChatContainer />
-      ) : (
-        <div>Access denied</div>
-      )}
+      <DoctorChatContainer />
     </div>
   );
 };

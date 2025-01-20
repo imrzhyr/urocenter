@@ -64,7 +64,7 @@ export const AdminMessagesList = () => {
         statusFilter={statusFilter}
         onStatusChange={(value: MessageStatus | "all") => setStatusFilter(value)}
       />
-      <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
+      <div className="space-y-2">
         {filteredMessages.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             No messages found

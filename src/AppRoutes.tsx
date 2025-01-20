@@ -14,6 +14,51 @@ import AdminDashboard from '@/pages/AdminDashboard';
 import AdminPayments from '@/pages/AdminPayments';
 import AdminStatistics from '@/pages/AdminStatistics';
 import UserChat from '@/pages/UserChat';
+import Terms from '@/pages/Terms';
+import { useProfile } from '@/hooks/useProfile';
+import { LoadingScreen } from '@/components/LoadingScreen';
+import { useLanguage } from '@/contexts/LanguageContext';
+
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { profile, isLoading } = useProfile();
+  const pathname = window.location.pathname;
+
+  console.log('ProtectedRoute: Current pathname:', pathname);
+  console.log('ProtectedRoute: Loading state:', isLoading);
+  console.log('ProtectedRoute: Profile data:', profile);
+
+  if (isLoading) {
+    console.log('ProtectedRoute: Still loading profile data, showing loading screen');
+    return <LoadingScreen />;
+  }
+
+  if (!profile) {
+    console.log('ProtectedRoute: No profile found, redirecting to signin');
+    return <Navigate to="/signin" replace />;
+  }
+
+  console.log('ProtectedRoute: User role:', profile.role);
+  console.log('ProtectedRoute: Checking route access...');
+
+  // Block non-admins from admin routes
+  if (profile.role !== 'admin' && pathname.startsWith('/admin')) {
+    console.log('ProtectedRoute: ❌ Non-admin trying to access admin route');
+    console.log('ProtectedRoute: Redirecting to /dashboard');
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  // Block admins from user routes (except chat)
+  if (profile.role === 'admin' && (pathname === '/dashboard' || pathname === '/settings')) {
+    console.log('ProtectedRoute: ❌ Admin trying to access user route');
+    console.log('ProtectedRoute: Current pathname:', pathname);
+    console.log('ProtectedRoute: Redirecting to /admin');
+    return <Navigate to="/admin" replace />;
+  }
+
+  console.log('ProtectedRoute: ✅ Access granted to:', pathname);
+  console.log('ProtectedRoute: Rendering requested route');
+  return <>{children}</>;
+};
 
 const AppRoutes = () => {
   return (
@@ -31,17 +76,18 @@ const AppRoutes = () => {
       {/* Auth Routes */}
       <Route path="/signin" element={<SignIn />} />
       <Route path="/payment-verification" element={<PaymentVerification />} />
+      <Route path="/terms" element={<Terms />} />
       
-      {/* App Routes */}
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/chat" element={<Chat />} />
-      <Route path="/chat/:userId" element={<UserChat />} />
-      <Route path="/settings" element={<Settings />} />
+      {/* Protected Routes */}
+      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+      <Route path="/chat/:userId" element={<ProtectedRoute><UserChat /></ProtectedRoute>} />
+      <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
       
       {/* Admin Routes */}
-      <Route path="/admin" element={<AdminDashboard />} />
-      <Route path="/admin/payments" element={<AdminPayments />} />
-      <Route path="/admin/statistics" element={<AdminStatistics />} />
+      <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+      <Route path="/admin/payments" element={<ProtectedRoute><AdminPayments /></ProtectedRoute>} />
+      <Route path="/admin/statistics" element={<ProtectedRoute><AdminStatistics /></ProtectedRoute>} />
       
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
