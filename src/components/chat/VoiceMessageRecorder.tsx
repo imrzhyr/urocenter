@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Mic, Square, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -12,13 +12,62 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
   const [isRecording, setIsRecording] = useState(false);
   const [duration, setDuration] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout>();
   const audioContextRef = useRef<AudioContext>();
 
+  // Check for microphone permission on mount
+  useEffect(() => {
+    checkMicrophonePermission();
+  }, []);
+
+  const checkMicrophonePermission = async () => {
+    try {
+      const result = await navigator.permissions.query({ name: 'microphone' as PermissionName });
+      setHasPermission(result.state === 'granted');
+      
+      // Listen for permission changes
+      result.addEventListener('change', () => {
+        setHasPermission(result.state === 'granted');
+      });
+    } catch (error) {
+      console.error('Error checking microphone permission:', error);
+      setHasPermission(null); // Unknown state
+    }
+  };
+
+  const requestMicrophonePermission = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach(track => track.stop()); // Stop the stream immediately
+      setHasPermission(true);
+      return true;
+    } catch (error) {
+      console.error('Error requesting microphone permission:', error);
+      if (error instanceof DOMException) {
+        if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+          toast.error('Please allow microphone access to send voice messages');
+        } else if (error.name === 'NotFoundError') {
+          toast.error('No microphone found. Please connect a microphone and try again');
+        } else {
+          toast.error('Unable to access microphone');
+        }
+      }
+      setHasPermission(false);
+      return false;
+    }
+  };
+
   const startRecording = async () => {
     try {
+      // If we don't have permission yet, request it
+      if (!hasPermission) {
+        const granted = await requestMicrophonePermission();
+        if (!granted) return;
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaRecorderRef.current = new MediaRecorder(stream, {
         mimeType: 'audio/webm' // Use WebM format for better compatibility
@@ -74,7 +123,17 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
       }, 1000);
     } catch (error) {
       console.error('Error starting recording:', error);
-      toast.error('Failed to access microphone');
+      if (error instanceof DOMException) {
+        if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+          toast.error('Please allow microphone access to send voice messages');
+        } else if (error.name === 'NotFoundError') {
+          toast.error('No microphone found. Please connect a microphone and try again');
+        } else {
+          toast.error('Unable to access microphone');
+        }
+      } else {
+        toast.error('Failed to start recording');
+      }
     }
   };
 
@@ -89,8 +148,8 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
   return (
     <div className="flex items-center gap-2">
       {isUploading ? (
-        <Button disabled variant="ghost" size="icon" className="h-10 w-10">
-          <Loader2 className="h-5 w-5 animate-spin" />
+        <Button disabled variant="ghost" size="icon" className="h-8 w-8">
+          <Loader2 className="h-4 w-4 animate-spin" />
         </Button>
       ) : isRecording ? (
         <>
@@ -101,9 +160,9 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
             onClick={stopRecording}
             variant="ghost"
             size="icon"
-            className="h-10 w-10 bg-red-50 hover:bg-red-100 dark:bg-red-900/10 dark:hover:bg-red-900/20"
+            className="h-8 w-8 bg-red-50 hover:bg-red-100 dark:bg-red-900/10 dark:hover:bg-red-900/20"
           >
-            <Square className="h-5 w-5 text-red-500" />
+            <Square className="h-4 w-4 text-red-500" />
           </Button>
         </>
       ) : (
@@ -111,9 +170,9 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
           onClick={startRecording}
           variant="ghost"
           size="icon"
-          className="h-10 w-10"
+          className="h-8 w-8"
         >
-          <Mic className="h-5 w-5 text-primary" />
+          <Mic className="h-4 w-4" />
         </Button>
       )}
     </div>

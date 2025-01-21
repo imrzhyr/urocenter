@@ -57,10 +57,23 @@ export const medicalTranslations = {
     "file_upload_success": "File uploaded successfully",
     "file_upload_failed": "Failed to upload file",
     "file_deleted_successfully": "File deleted successfully",
-    "error_deleting_file": "Error deleting file",
+    "error_deleting_file": "Error deleting file. Please try again.",
     "upload_information": "Upload Information",
     "medical_information": "Medical Information",
-    "medical_information_description": "View and manage your medical records, test results, and reports"
+    "medical_information_description": "View and manage your medical records, test results, and reports",
+    "upload_guidelines": "How to Upload",
+    "upload_guideline_1_title": "Clear & Readable",
+    "upload_guideline_1": "Take photos in good lighting. Ensure all text is sharp and easy to read.",
+    "upload_guideline_2_title": "Important Documents",
+    "upload_guideline_2": "Include lab results, prescriptions, X-rays, MRIs, ultrasounds, and doctor's notes.",
+    "upload_guideline_3_title": "Stay Updated",
+    "upload_guideline_3": "Keep your medical history current by uploading new documents promptly.",
+    "continue_to_payment": "Continue to Payment",
+    "view_medical_reports": "View and manage your medical reports",
+    "medical_reports_description": "Access and organize your medical documents, test results, and reports",
+    "confirm_logout": "Sign Out",
+    "logout_confirmation_message": "Are you sure you want to sign out?",
+    "sign_out": "Sign Out"
   },
   ar: {
     "medical_information_title": "المعلومات الطبية",
@@ -123,6 +136,19 @@ export const medicalTranslations = {
     "error_deleting_file": "خطأ في حذف الملف",
     "upload_information": "معلومات التحميل",
     "medical_information": "المعلومات الطبية",
-    "medical_information_description": "عرض وإدارة سجلاتك الطبية ونتائج الفحوصات والتقارير"
+    "medical_information_description": "عرض وإدارة سجلاتك الطبية ونتائج الفحوصات والتقارير",
+    "upload_guidelines": "كيفية التحميل",
+    "upload_guideline_1_title": "واضح ومقروء",
+    "upload_guideline_1": "التقط الصور في إضاءة جيدة. تأكد من أن جميع النصوص واضحة وسهلة القراءة.",
+    "upload_guideline_2_title": "المستندات المهمة",
+    "upload_guideline_2": "تضمين نتائج المختبر والوصفات والأشعة السينية والرنين المغناطيسي والموجات فوق الصوتية وملاحظات الطبيب.",
+    "upload_guideline_3_title": "البقاء محدثًا",
+    "upload_guideline_3": "حافظ على تحديث سجلك الطبي من خلال تحميل المستندات الجديدة فور استلامها.",
+    "continue_to_payment": "متابعة إلى الدفع",
+    "view_medical_reports": "عرض وإدارة تقاريرك الطبية",
+    "medical_reports_description": "الوصول إلى وتنظيم مستنداتك الطبية ونتائج الفحوصات والتقارير",
+    "confirm_logout": "تسجيل الخروج",
+    "logout_confirmation_message": "هل أنت متأكد أنك تريد تسجيل الخروج؟",
+    "sign_out": "تسجيل الخروج"
   }
 };

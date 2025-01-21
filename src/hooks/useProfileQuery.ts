@@ -10,10 +10,14 @@ export const useProfileQuery = () => {
 
   const fetchProfile = async (force = false) => {
     try {
-      // Only use cache for subsequent refreshes, not initial load
-      if (cachedProfile?.role && !force) {
-        setIsLoading(false);
-        return;
+      // Don't use cache on force refresh or if we don't have a complete profile
+      if (!force && cachedProfile?.id && cachedProfile?.role) {
+        const profileId = localStorage.getItem('profileId');
+        // Only use cache if the IDs match
+        if (profileId === cachedProfile.id) {
+          setIsLoading(false);
+          return;
+        }
       }
 
       // First try to get profile by ID
@@ -34,8 +38,8 @@ export const useProfileQuery = () => {
             complaint: profileData.complaint || "",
             phone: profileData.phone || "",
             role: profileData.role,
-            payment_status: profileData.payment_status || "unpaid",
-            payment_approval_status: profileData.payment_approval_status || "pending",
+            payment_status: profileData.payment_status,
+            payment_approval_status: profileData.payment_approval_status,
             payment_method: profileData.payment_method,
             payment_date: profileData.payment_date
           };
@@ -62,6 +66,10 @@ export const useProfileQuery = () => {
         .single();
 
       if (profileError) {
+        // If no profile found, clear the state
+        if (profileError.code === 'PGRST116') {
+          setState({ profile: initialProfileState });
+        }
         throw profileError;
       }
 
@@ -74,8 +82,8 @@ export const useProfileQuery = () => {
           complaint: profileData.complaint || "",
           phone: profileData.phone || "",
           role: profileData.role,
-          payment_status: profileData.payment_status || "unpaid",
-          payment_approval_status: profileData.payment_approval_status || "pending",
+          payment_status: profileData.payment_status,
+          payment_approval_status: profileData.payment_approval_status,
           payment_method: profileData.payment_method,
           payment_date: profileData.payment_date
         };
@@ -83,7 +91,10 @@ export const useProfileQuery = () => {
       }
     } catch (error) {
       console.error("Error in fetchProfile:", error);
-      toast.error("Failed to load profile");
+      // Only show error toast if it's not a "no profile found" error
+      if (error.code !== 'PGRST116') {
+        toast.error("Failed to load profile");
+      }
     } finally {
       setIsLoading(false);
     }

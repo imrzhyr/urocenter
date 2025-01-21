@@ -1,6 +1,6 @@
 import { useProfile } from "@/hooks/useProfile";
-import { MessageContainer } from "../MessageContainer/MessageContainer";
-import { PatientChatHeader } from "../patient/PatientChatHeader";
+import { MessageContainer } from "@/components/chat/MessageContainer";
+import { PatientChatHeader } from "@/components/chat/patient/PatientChatHeader";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useChat } from "../../hooks/useChat";
 

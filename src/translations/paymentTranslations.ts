@@ -41,7 +41,8 @@ export const paymentTranslations = {
     "first_iraqi_bank": "First Iraqi Bank",
     "mobile_wallet_zain": "Mobile Wallet by Zain Iraq",
     "support_available": "Our Support Team Is Available 24/7",
-    "contact_for_payment": "Contact Support For Payment"
+    "contact_for_payment": "Contact Support For Payment",
+    "help_message": "Hello, I need assistance with the UroCenter app. Can you please help me?"
   },
   ar: {
     "payment": "الدفع",
@@ -85,6 +86,7 @@ export const paymentTranslations = {
     "first_iraqi_bank": "المصرف العراقي الأول",
     "mobile_wallet_zain": "المحفظة الإلكترونية من زين العراق",
     "support_available": "فريق الدعم متاح على مدار الساعة",
-    "contact_for_payment": "تواصل مع الدعم للدفع"
+    "contact_for_payment": "تواصل مع الدعم للدفع",
+    "help_message": "مرحباً، أحتاج إلى مساعدة في تطبيق مركز المسالك البولية. هل يمكنك مساعدتي؟"
   }
 };

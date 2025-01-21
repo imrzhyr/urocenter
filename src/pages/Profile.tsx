@@ -98,7 +98,7 @@ export const ProfilePage = () => {
             <div className="mt-6">
               <Button
                 onClick={handleSubmit}
-                className="w-full h-[44px] text-[17px] font-medium rounded-xl"
+                className="w-full h-[44px] text-[17px] font-medium rounded-xl bg-[#007AFF] hover:bg-[#0071E3] text-white"
                 disabled={!isFormValid() || isSubmitting}
               >
                 {isSubmitting ? t('updating') : t('continue')}

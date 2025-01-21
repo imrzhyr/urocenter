@@ -8,21 +8,20 @@ export interface Message {
   user_id: string;
   is_from_doctor: boolean;
   is_read: boolean;
+  // Single file fields (legacy support)
   file_url?: string;
   file_name?: string;
   file_type?: string;
+  // Multiple file fields
+  file_urls?: string[];
+  file_names?: string[];
+  file_types?: string[];
   status: string;
   delivered_at?: string;
   seen_at?: string;
   duration?: number;
   is_resolved?: boolean;
   sender_name?: string;
-  replyTo?: {
-    content: string;
-    file_type?: string | null;
-    file_url?: string | null;
-    sender_name?: string;
-  } | null;
   typing_users?: string[];
   referenced_message?: {
     id: string;

@@ -1,20 +1,19 @@
 import { Message } from "@/types/profile";
-import { motion, PanInfo } from "framer-motion";
+import { motion } from "framer-motion";
 import { MessageContent } from "./MessageContent";
-import { ReplyPreview } from "@/components/chat/reply/ReplyPreview";
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface MessageItemProps {
   message: Message;
   fromCurrentUser: boolean;
-  onDragEnd: (message: Message, info: PanInfo) => void;
+  previousMessage?: Message;
 }
 
-export const MessageItem = ({ message, fromCurrentUser, onDragEnd }: MessageItemProps) => {
+export const MessageItem = ({ message, fromCurrentUser, previousMessage }: MessageItemProps) => {
   const [showUnsend, setShowUnsend] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const messageRef = useRef<HTMLDivElement>(null);
@@ -65,22 +64,18 @@ export const MessageItem = ({ message, fromCurrentUser, onDragEnd }: MessageItem
     };
   }, []);
 
-  // Show reply preview to both users, but only allow deletion for the user who made the reply
-  const canDeleteReply = message.replyTo && fromCurrentUser;
-
   return (
     <motion.div
       ref={messageRef}
       key={message.id}
+      id={`message-${message.id}`}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ 
-        duration: 0.15,
-        ease: [0.4, 0, 0.2, 1]
+        type: "spring",
+        stiffness: 400,
+        damping: 30
       }}
-      drag="x"
-      dragConstraints={{ left: 0, right: 0 }}
-      onDragEnd={(_, info) => onDragEnd(message, info)}
       onContextMenu={(e) => {
         e.preventDefault();
         handleLongPress();
@@ -89,49 +84,46 @@ export const MessageItem = ({ message, fromCurrentUser, onDragEnd }: MessageItem
         const timer = setTimeout(handleLongPress, 500);
         return () => clearTimeout(timer);
       }}
-      className="w-full px-2 sm:px-4 relative"
+      className="w-full px-2 sm:px-4 relative py-1 group"
     >
       <div className={`flex flex-col ${fromCurrentUser ? "items-end" : "items-start"} w-full`}>
         {message.sender_name && (
-          <span className={`text-sm mb-1 ${
-            fromCurrentUser ? "text-right text-[#0066CC]" : "text-left text-gray-600 dark:text-gray-300"
-          }`}>
+          <motion.span 
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`text-[13px] mb-1 ${
+              fromCurrentUser ? "text-right text-[#0066CC]" : "text-left text-[#0066CC]"
+            }`}
+          >
             {message.sender_name}
-          </span>
+          </motion.span>
         )}
-        
+
         <div className="relative w-full flex flex-col">
-          {message.replyTo && (
-            <ReplyPreview 
-              message={{
-                ...message.replyTo,
-                id: 'reply-' + message.id,
-                created_at: message.created_at,
-                updated_at: message.updated_at,
-                user_id: message.user_id,
-                is_from_doctor: message.is_from_doctor,
-                is_read: true,
-                status: 'seen'
-              }} 
-              onCancel={canDeleteReply ? () => {
-                // Empty function for now
-              } : undefined}
-            />
-          )}
-          <div className={`flex ${fromCurrentUser ? 'justify-end' : 'justify-start'} w-full group relative`}>
+          <div className={`flex ${fromCurrentUser ? 'justify-end' : 'justify-start'} w-full relative`}>
             <div className="relative">
               {showUnsend && fromCurrentUser && (
-                <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 transform z-10 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-1 animate-in fade-in slide-in-from-top-2">
-                  <Button
-                    variant="destructive"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={handleUnsend}
-                    disabled={isDeleting}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className={cn(
+                    "absolute top-1/2 -translate-y-1/2 z-10",
+                    "right-full mr-2"
+                  )}
+                >
+                  <div className="bg-white dark:bg-[#1C1C1E] rounded-full shadow-lg overflow-hidden">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleUnsend}
+                      disabled={isDeleting}
+                      className="h-8 px-3 text-[#FF3B30] hover:bg-[#FF3B30]/10 transition-colors"
+                    >
+                      <span className="text-[13px] font-medium">Unsend</span>
+                    </Button>
+                  </div>
+                </motion.div>
               )}
               <MessageContent message={message} fromCurrentUser={fromCurrentUser} />
             </div>

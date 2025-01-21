@@ -4,7 +4,7 @@ import { Globe, Bell, HelpCircle, Info, LogOut } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSelector } from "@/components/LanguageSelector";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { BackButton } from "@/components/BackButton";
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
@@ -18,6 +18,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { cn } from "@/lib/utils";
 
 const Settings = () => {
   const { t, language } = useLanguage();
@@ -99,33 +100,98 @@ const Settings = () => {
 
           <Button
             onClick={() => setShowLogoutDialog(true)}
-            className="w-full bg-red-500 hover:bg-red-600 text-white"
+            className={cn(
+              "w-full h-11",
+              "rounded-xl",
+              "text-[17px]",
+              "font-normal",
+              "bg-[#FF3B30] dark:bg-[#FF453A]",
+              "hover:bg-[#FF3B30]/90 dark:hover:bg-[#FF453A]/90",
+              "active:bg-[#FF3B30]/80 dark:active:bg-[#FF453A]/80",
+              "text-white",
+              "transition-colors duration-200",
+              "flex items-center gap-2"
+            )}
           >
-            <LogOut className="w-4 h-4 mr-2" />
+            <LogOut className="w-4 h-4" />
             {t('logout')}
           </Button>
         </motion.div>
       </div>
 
-      <AlertDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t('confirm_logout')}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t('logout_confirmation_message')}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleLogout}
-              className="bg-red-500 hover:bg-red-600"
-            >
-              {t('logout')}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <AnimatePresence>
+        {showLogoutDialog && (
+          <AlertDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+            <AlertDialogContent className={cn(
+              "bg-[#F2F2F7]/95 dark:bg-[#1C1C1E]/95",
+              "backdrop-blur-xl",
+              "border border-[#C6C6C8] dark:border-[#38383A]",
+              "rounded-2xl",
+              "shadow-xl",
+              "p-0",
+              "max-w-[320px]",
+              isRTL ? "rtl" : "ltr"
+            )}>
+              <AlertDialogHeader className="p-6 pb-4">
+                <AlertDialogTitle className={cn(
+                  "text-[17px]",
+                  "font-semibold",
+                  "text-[#1C1C1E] dark:text-white",
+                  "text-center",
+                  "mb-1"
+                )}>
+                  {t('confirm_logout')}
+                </AlertDialogTitle>
+                <AlertDialogDescription className={cn(
+                  "text-[13px]",
+                  "text-[#8E8E93] dark:text-[#98989D]",
+                  "text-center"
+                )}>
+                  {t('logout_confirmation_message')}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <div className="p-4 pt-0">
+                <AlertDialogFooter className="flex flex-row gap-2">
+                  <AlertDialogCancel className={cn(
+                    "flex-1",
+                    "h-11",
+                    "rounded-xl",
+                    "text-[17px]",
+                    "font-normal",
+                    "bg-[#F2F2F7] dark:bg-[#2C2C2E]",
+                    "hover:bg-[#E5E5EA] dark:hover:bg-[#3A3A3C]",
+                    "active:bg-[#D1D1D6] dark:active:bg-[#48484A]",
+                    "border-[#C6C6C8] dark:border-[#38383A]",
+                    "text-[#007AFF] dark:text-[#0A84FF]",
+                    "transition-colors duration-200",
+                    "m-0"
+                  )}>
+                    {t('cancel')}
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleLogout}
+                    className={cn(
+                      "flex-1",
+                      "h-11",
+                      "rounded-xl",
+                      "text-[17px]",
+                      "font-normal",
+                      "bg-[#FF3B30] dark:bg-[#FF453A]",
+                      "hover:bg-[#FF3B30]/90 dark:hover:bg-[#FF453A]/90",
+                      "active:bg-[#FF3B30]/80 dark:active:bg-[#FF453A]/80",
+                      "text-white",
+                      "transition-colors duration-200",
+                      "m-0"
+                    )}
+                  >
+                    {t('logout')}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </div>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -29,16 +29,18 @@ const Dashboard = () => {
         const profileId = localStorage.getItem('profileId');
         
         if (!profileId) {
+          navigate("/signin", { replace: true });
           return;
         }
 
         const { data: profileData, error } = await supabase
           .from('profiles')
-          .select('payment_status, payment_approval_status, role')
+          .select('payment_status, payment_approval_status, role, full_name, gender, age')
           .eq('id', profileId)
           .single();
 
         if (error || !profileData) {
+          navigate("/signin", { replace: true });
           return;
         }
 
@@ -49,20 +51,32 @@ const Dashboard = () => {
           return;
         }
 
-        // Check payment status for regular users
-        const isPaid = profileData.payment_status === 'paid';
-        const isApproved = profileData.payment_approval_status === 'approved';
-        
-        console.log("Payment verification:", { isPaid, isApproved });
-
-        if (!isPaid || !isApproved) {
-          console.log("User not paid or approved, redirecting to payment");
-          navigate("/payment", { replace: true });
+        // Check if profile is complete
+        const isProfileComplete = Boolean(profileData.full_name && profileData.gender && profileData.age);
+        if (!isProfileComplete) {
+          navigate("/profile", { replace: true });
           return;
         }
 
-        setIsInitialLoad(false);
-        setHasCheckedPayment(true);
+        // Check payment status for regular users
+        const isPaid = profileData.payment_status === 'paid';
+        const isApproved = profileData.payment_approval_status === 'approved';
+        const isPending = profileData.payment_approval_status === 'pending';
+
+        if (isPending) {
+          navigate("/payment-verification", { replace: true });
+          return;
+        }
+
+        if (isPaid && isApproved) {
+          setIsInitialLoad(false);
+          setHasCheckedPayment(true);
+          return;
+        }
+
+        // If no payment status or not paid/approved, go to payment
+        navigate("/payment", { replace: true });
+        return;
 
       } catch (error) {
         console.error("Error checking payment status:", error);
@@ -84,11 +98,24 @@ const Dashboard = () => {
         },
         (payload: RealtimePostgresChangesPayload<Profile>) => {
           const updatedProfile = payload.new as Profile;
+          
+          // Check if profile is complete
+          const isProfileComplete = Boolean(
+            updatedProfile.full_name && 
+            updatedProfile.gender && 
+            updatedProfile.age
+          );
+
+          if (!isProfileComplete) {
+            navigate("/profile", { replace: true });
+            return;
+          }
+
           const paymentStatus = updatedProfile.payment_status || 'unpaid';
           const approvalStatus = updatedProfile.payment_approval_status || 'pending';
           
-          if (paymentStatus !== 'paid' || approvalStatus !== 'approved') {
-            toast.info(t('payment_approval_pending'));
+          if (paymentStatus !== 'paid') {
+            toast.info(t('payment_required'));
             navigate("/payment", { replace: true });
           }
         }

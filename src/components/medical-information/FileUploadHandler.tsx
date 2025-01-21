@@ -30,12 +30,16 @@ export const useFileUploadHandler = () => {
         return;
       }
 
-      const fileName = `${profileData.id}/${crypto.randomUUID()}-${file.name}`;
+      const arrayBuffer = await file.arrayBuffer();
+      const uint8Array = new Uint8Array(arrayBuffer);
       
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${profileData.id}/${crypto.randomUUID()}.${fileExt}`;
+
       const { error: uploadError } = await supabase.storage
         .from('medical_reports')
-        .upload(fileName, file, {
-          cacheControl: '3600',
+        .upload(fileName, uint8Array, {
+          contentType: file.type,
           upsert: false
         });
 

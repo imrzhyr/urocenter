@@ -142,48 +142,50 @@ export const ViewReportsDialog = ({ open, onOpenChange, userId }: ViewReportsDia
     <>
       <Dialog open={open && !selectedImage} onOpenChange={onOpenChange}>
         <DialogContent className={cn(
-          "bg-[#F2F2F7]/80 dark:bg-[#1C1C1E]/80",
-          "backdrop-blur-xl",
-          "border border-[#C6C6C8] dark:border-[#38383A]",
+          "bg-white dark:bg-[#1C1C1E]",
+          "border-0",
           "text-[#1C1C1E] dark:text-white",
           "rounded-2xl shadow-lg",
-          "sm:max-w-[425px]"
+          "w-[85vw] max-w-[320px]",
+          "mx-auto",
+          "my-8",
+          "p-6"
         )}>
-          <DialogHeader>
-            <DialogTitle className="text-lg font-semibold">
+          <DialogHeader className="space-y-2">
+            <DialogTitle className="text-[22px] font-semibold text-center">
               {t('medical_reports')}
             </DialogTitle>
-            <DialogDescription className="text-sm text-gray-500">
-              {t('view_your_medical_reports')}
+            <DialogDescription className="text-[17px] text-[#8E8E93] dark:text-[#98989D] text-center">
+              {t('view_medical_reports')}
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-6">
+          <div className="space-y-6 mt-4">
             <div className="space-y-1.5">
-              <p className="text-sm text-muted-foreground">
-                {t('view_reports_description')}
+              <p className="text-[15px] text-[#8E8E93] dark:text-[#98989D] text-center">
+                {t('medical_reports_description')}
               </p>
             </div>
 
             {reports.length === 0 ? (
-              <div className="min-h-[200px] flex items-center justify-center rounded-lg border-2 border-dashed">
-                <p className="text-base text-muted-foreground">
+              <div className="min-h-[160px] flex items-center justify-center rounded-xl border-2 border-dashed border-[#C6C6C8] dark:border-[#38383A]">
+                <p className="text-[17px] text-[#8E8E93] dark:text-[#98989D]">
                   {t('no_medical_reports')}
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 {reports.map((report) => (
                   <div
                     key={report.id}
                     className={cn(
-                      "group relative aspect-square rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800",
-                      "min-h-[44px] min-w-[44px]", // Minimum touch target size
-                      "hover:ring-2 hover:ring-primary/50 transition-all"
+                      "group relative aspect-square rounded-xl overflow-hidden bg-[#F2F2F7] dark:bg-[#2C2C2E]",
+                      "min-h-[44px] min-w-[44px]",
+                      "hover:ring-2 hover:ring-[#007AFF] dark:hover:ring-[#0A84FF] transition-all"
                     )}
                   >
                     <img
                       src={report.url}
-                      alt={report.file_name}
+                      alt={t('medical_report')}
                       className="w-full h-full object-cover cursor-pointer transition-opacity"
                       onClick={() => handleImageClick(report.url)}
                     />
@@ -193,14 +195,14 @@ export const ViewReportsDialog = ({ open, onOpenChange, userId }: ViewReportsDia
                       size="icon"
                       className={cn(
                         "absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity",
-                        "h-11 w-11 rounded-full", // 44x44 touch target
+                        "h-11 w-11 rounded-full",
                         "bg-red-600/90 hover:bg-red-700 shadow-lg"
                       )}
                       onClick={() => handleDelete(report.id, report.file_path)}
                       disabled={isDeleting}
                     >
                       <Trash2 className="h-5 w-5" />
-                      <span className="sr-only">Delete report</span>
+                      <span className="sr-only">{t('delete_report')}</span>
                     </Button>
                   </div>
                 ))}

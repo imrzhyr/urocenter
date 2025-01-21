@@ -16,11 +16,28 @@ const initialProfileState: Profile = {
   payment_date: undefined
 };
 
-let profileState: Profile | null = null;
+// Use sessionStorage to persist state within a tab but not across tabs
+const getStoredProfile = (): Profile => {
+  try {
+    const stored = sessionStorage.getItem('profileState');
+    return stored ? JSON.parse(stored) : initialProfileState;
+  } catch {
+    return initialProfileState;
+  }
+};
+
+const setStoredProfile = (profile: Profile) => {
+  try {
+    sessionStorage.setItem('profileState', JSON.stringify(profile));
+  } catch {
+    // Ignore storage errors
+  }
+};
+
 let listeners: ((profile: Profile) => void)[] = [];
 
 export const useProfileState = () => {
-  const [profile, setProfile] = useState<Profile>(() => profileState || initialProfileState);
+  const [profile, setProfile] = useState<Profile>(getStoredProfile);
 
   useEffect(() => {
     listeners.push(setProfile);
@@ -30,13 +47,16 @@ export const useProfileState = () => {
   }, []);
 
   const setState = (newState: { profile: Profile }) => {
-    profileState = newState.profile;
-    listeners.forEach(listener => listener(profileState));
+    setStoredProfile(newState.profile);
+    listeners.forEach(listener => listener(newState.profile));
   };
 
   const clearState = () => {
-    profileState = initialProfileState;
-    listeners.forEach(listener => listener(profileState));
+    sessionStorage.removeItem('profileState');
+    localStorage.removeItem('userPhone');
+    localStorage.removeItem('userPassword');
+    localStorage.removeItem('profileId');
+    listeners.forEach(listener => listener(initialProfileState));
   };
 
   return {

@@ -24,6 +24,22 @@
   animation: fadeIn 0.2s ease-out;
 }
 
+/* Message highlight animation */
+@keyframes highlight {
+  0% {
+    background-color: rgba(0, 122, 255, 0.1);
+    transform: scale(1.02);
+  }
+  100% {
+    background-color: transparent;
+    transform: scale(1);
+  }
+}
+
+.message-highlight {
+  animation: highlight 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 /* Smooth transitions */
 .transition-all {
   transition-property: all;

@@ -6,26 +6,39 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Globe } from "lucide-react";
 
 export const LanguageSelector = () => {
-  const { language, setLanguage, t } = useLanguage();
+  const { language, setLanguage } = useLanguage();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="relative group h-8 px-2">
-          <span className="text-sm">{language === 'en' ? 'English' : 'العربية'}</span>
+        <Button 
+          variant="ghost" 
+          className="h-[32px] min-w-0 px-3 text-[15px] font-medium rounded-lg bg-white dark:bg-gray-900 border border-[#3C3C43]/20 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-gray-800 shadow-sm"
+        >
+          {language === 'en' ? 'EN' : 'عر'}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[120px] bg-background">
-        <DropdownMenuItem onClick={() => setLanguage('en')} className="cursor-pointer h-8 text-sm">
-          <img src="https://flagcdn.com/w20/us.png" alt="USA" className="w-4 h-3 mr-2" />
-          English
+      <DropdownMenuContent 
+        align="end" 
+        sideOffset={8}
+        alignOffset={-24}
+        className="min-w-[80px] p-1 mx-6 bg-white dark:bg-gray-900 border border-[#3C3C43]/20 dark:border-white/10 shadow-lg"
+      >
+        <DropdownMenuItem 
+          onClick={() => setLanguage('en')} 
+          className="h-[32px] px-3 text-[15px] cursor-pointer rounded-md flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800"
+        >
+          <span>English</span>
+          {language === 'en' && <div className="w-1.5 h-1.5 rounded-full bg-[#007AFF] dark:bg-[#0A84FF] ml-3" />}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setLanguage('ar')} className="cursor-pointer h-8 text-sm">
-          <img src="https://flagcdn.com/w20/iq.png" alt="Iraq" className="w-4 h-3 mr-2" />
-          العربية
+        <DropdownMenuItem 
+          onClick={() => setLanguage('ar')} 
+          className="h-[32px] px-3 text-[15px] cursor-pointer rounded-md flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800"
+        >
+          <span>العربية</span>
+          {language === 'ar' && <div className="w-1.5 h-1.5 rounded-full bg-[#007AFF] dark:bg-[#0A84FF] ml-3" />}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

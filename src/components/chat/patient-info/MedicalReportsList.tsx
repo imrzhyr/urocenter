@@ -36,7 +36,7 @@ export const MedicalReportsList = ({ reports, onImageSelect }: MedicalReportsLis
             >
               <img
                 src={fileUrl}
-                alt={report.file_name}
+                alt={t('medical_report')}
                 className="w-full h-32 object-cover"
               />
               <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">

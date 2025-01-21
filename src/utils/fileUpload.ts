@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { logger } from '@/utils/logger';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_TOTAL_SIZE = 50 * 1024 * 1024; // 50MB for multiple files
 
 export const validateFile = (file: File) => {
   if (file.size > MAX_FILE_SIZE) {
@@ -14,7 +15,16 @@ export const validateFile = (file: File) => {
   }
 };
 
-export const uploadFile = async (file: File) => {
+export const validateFiles = (files: File[]) => {
+  const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+  if (totalSize > MAX_TOTAL_SIZE) {
+    throw new Error('Total file size exceeds 50MB limit');
+  }
+
+  files.forEach(validateFile);
+};
+
+export const uploadFile = async (file: File, onProgress?: (progress: number) => void) => {
   try {
     validateFile(file);
 
@@ -70,6 +80,29 @@ export const uploadFile = async (file: File) => {
   } catch (error) {
     logger.error('FileUpload', 'Error in uploadFile:', error);
     toast.error('Failed to upload file');
+    throw error;
+  }
+};
+
+export const uploadFiles = async (files: File[], onProgress?: (progress: number) => void) => {
+  try {
+    validateFiles(files);
+
+    const totalFiles = files.length;
+    let completedFiles = 0;
+
+    const uploadPromises = files.map(async (file) => {
+      const result = await uploadFile(file);
+      completedFiles++;
+      onProgress?.(completedFiles / totalFiles);
+      return result;
+    });
+
+    const results = await Promise.all(uploadPromises);
+    return results;
+  } catch (error) {
+    logger.error('FileUpload', 'Error in uploadFiles:', error);
+    toast.error('Failed to upload files');
     throw error;
   }
 };

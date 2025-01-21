@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { PhoneInput } from "@/components/PhoneInput";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -79,25 +79,108 @@ const SignIn = () => {
     }
   };
 
+  const pageVariants = {
+    initial: { 
+      opacity: 0,
+      y: 20,
+    },
+    animate: { 
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 30,
+        mass: 1,
+      }
+    },
+    exit: { 
+      opacity: 0,
+      y: -20,
+      transition: {
+        duration: 0.2,
+      }
+    }
+  };
+
+  const inputVariants = {
+    focus: { 
+      scale: 1.02,
+      transition: {
+        type: "spring",
+        stiffness: 400,
+        damping: 25
+      }
+    },
+    tap: { 
+      scale: 0.98,
+      transition: {
+        type: "spring",
+        stiffness: 400,
+        damping: 25
+      }
+    }
+  };
+
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <header className="sticky top-0 z-50 w-full bg-white border-b border-gray-100 dark:bg-gray-900 dark:border-gray-800">
+    <motion.div 
+      className="min-h-screen flex flex-col bg-background"
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      variants={pageVariants}
+    >
+      <motion.header 
+        className="sticky top-0 z-50 w-full bg-white border-b border-gray-100 dark:bg-gray-900 dark:border-gray-800"
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      >
         <div className="container max-w-4xl mx-auto p-4 flex items-center">
-          <div className="w-[72px]"><BackButton /></div>
-          <div className="flex-1 flex justify-center"><WhatsAppSupport /></div>
-          <div className="w-[72px] flex justify-end"><LanguageSelector /></div>
+          <motion.div 
+            className="w-[72px]"
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+          >
+            <BackButton />
+          </motion.div>
+          <motion.div 
+            className="flex-1 flex justify-center"
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.1, type: "spring", stiffness: 300, damping: 30 }}
+          >
+            <WhatsAppSupport />
+          </motion.div>
+          <motion.div 
+            className="w-[72px] flex justify-end"
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+          >
+            <LanguageSelector />
+          </motion.div>
         </div>
-      </header>
+      </motion.header>
 
       <main className="flex-1 overflow-y-auto">
         <div className="container max-w-4xl mx-auto">
           <div className="flex-1 flex flex-col p-4 max-w-md w-full mx-auto">
-            <h1 className="text-3xl font-bold mb-8">
+            <motion.h1 
+              className="text-3xl font-bold mb-8"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 300, damping: 30 }}
+            >
               {t("sign_in")}
-            </h1>
+            </motion.h1>
 
             <div className="space-y-6">
-              <div className="space-y-1">
+              <motion.div 
+                className="space-y-1"
+                whileTap="tap"
+                whileFocus="focus"
+                variants={inputVariants}
+              >
                 <label className="text-sm text-gray-600">
                   {t("phoneNumber")}
                 </label>
@@ -105,9 +188,14 @@ const SignIn = () => {
                   value={phone}
                   onChange={setPhone}
                 />
-              </div>
+              </motion.div>
 
-              <div className="space-y-1">
+              <motion.div 
+                className="space-y-1"
+                whileTap="tap"
+                whileFocus="focus"
+                variants={inputVariants}
+              >
                 <label className="text-sm text-gray-600">
                   {t("enter_password")}
                 </label>
@@ -119,64 +207,88 @@ const SignIn = () => {
                     placeholder={t("enter_password")}
                     className={cn(
                       "h-12 text-base rounded-lg bg-[#F1F5F9] border-0 pr-10",
-                      "focus:border-primary focus:ring-1 focus:ring-primary"
+                      "focus:border-primary focus:ring-1 focus:ring-primary",
+                      "transition-all duration-200"
                     )}
                   />
-                  <button
+                  <motion.button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                    whileTap={{ scale: 0.9 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
+                  </motion.button>
                 </div>
-              </div>
+              </motion.div>
 
-              <Button
-                onClick={handleSignIn}
-                disabled={!isValid || isLoading}
-                className={cn(
-                  "w-full",
-                  "h-[44px]", // iOS minimum touch target
-                  "text-[17px] font-medium", // iOS body text
-                  "rounded-xl", // iOS corner radius
-                  "shadow-sm",
-                  "transition-all duration-200",
-                  "disabled:opacity-50",
-                  "active:scale-[0.97]", // iOS press animation
-                  isValid && !isLoading
-                    ? "bg-[#007AFF] dark:bg-[#0A84FF] hover:bg-[#0071E3] dark:hover:bg-[#0A84FF]/90 text-white"
-                    : "bg-[#F2F2F7] dark:bg-[#1C1C1E] text-[#8E8E93] dark:text-[#98989D] cursor-not-allowed"
-                )}
+              <motion.div
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
               >
-                <span className={cn(
-                  "flex items-center justify-center gap-2",
-                  isLoading && "opacity-0"
-                )}>
-                  {t('sign_in')}
-                </span>
-                {isLoading && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  </div>
-                )}
-              </Button>
+                <Button
+                  onClick={handleSignIn}
+                  disabled={!isValid || isLoading}
+                  className={cn(
+                    "w-full",
+                    "h-[44px]",
+                    "text-[17px] font-medium",
+                    "rounded-xl",
+                    "shadow-sm",
+                    "transition-all duration-200",
+                    "disabled:opacity-50",
+                    "active:scale-[0.97]",
+                    isValid && !isLoading
+                      ? "bg-[#007AFF] dark:bg-[#0A84FF] hover:bg-[#0071E3] dark:hover:bg-[#0A84FF]/90 text-white"
+                      : "bg-[#F2F2F7] dark:bg-[#1C1C1E] text-[#8E8E93] dark:text-[#98989D] cursor-not-allowed"
+                  )}
+                >
+                  <span className={cn(
+                    "flex items-center justify-center gap-2",
+                    isLoading && "opacity-0"
+                  )}>
+                    {t('sign_in')}
+                  </span>
+                  {isLoading && (
+                    <motion.div 
+                      className="absolute inset-0 flex items-center justify-center"
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.8, opacity: 0 }}
+                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    >
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    </motion.div>
+                  )}
+                </Button>
+              </motion.div>
 
-              <p className="text-center text-sm text-gray-500">
+              <motion.p 
+                className="text-center text-sm text-gray-500"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+              >
                 {t("dont_have_account")}{" "}
                 <Link to="/signup" className="text-primary hover:underline">
                   {t("sign_up")}
                 </Link>
-              </p>
+              </motion.p>
             </div>
           </div>
         </div>
       </main>
 
-      <footer className="p-4 text-center text-sm text-muted-foreground bg-white dark:bg-gray-900">
+      <motion.footer 
+        className="p-4 text-center text-sm text-muted-foreground bg-white dark:bg-gray-900"
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.4, type: "spring", stiffness: 300, damping: 30 }}
+      >
         © 2025 All rights reserved
-      </footer>
-    </div>
+      </motion.footer>
+    </motion.div>
   );
 };
 

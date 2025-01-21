@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { WhatsAppSupport } from "@/components/WhatsAppSupport";
 
 const Payment = () => {
   const navigate = useNavigate();
@@ -15,8 +16,18 @@ const Payment = () => {
   const { t, isRTL } = useLanguage();
   const { profile } = useProfile();
 
+  useEffect(() => {
+    // Check if user should be in verification page
+    if (profile?.payment_approval_status === 'pending') {
+      navigate('/payment-verification', { replace: true });
+    }
+  }, [profile, navigate]);
+
   const handleSupportContact = async () => {
+    if (!selectedMethod) return;
+    
     try {
+      // First time setting payment status when user clicks contact support
       const { error } = await supabase
         .from('profiles')
         .update({
@@ -36,10 +47,7 @@ const Payment = () => {
       };
 
       const selectedMethodName = paymentMethods[selectedMethod];
-      const messageTemplate = t("payment_message");
-      const message = encodeURIComponent(
-        messageTemplate.replace("{method}", selectedMethodName)
-      );
+      const message = encodeURIComponent(t("payment_message", { method: selectedMethodName }));
       
       window.open(`https://wa.me/9647702428154?text=${message}`, '_blank');
       navigate('/payment-verification', { replace: true });
@@ -137,10 +145,14 @@ const Payment = () => {
         <div className="mt-6">
           <Button
             onClick={handleSupportContact}
-            className="w-full h-[44px] text-[17px] font-medium rounded-xl bg-primary hover:bg-primary/90 text-white shadow-lg"
+            className={cn(
+              "w-full h-[44px] text-[17px] font-medium rounded-xl",
+              "bg-primary hover:bg-primary/90 text-white shadow-lg",
+              !selectedMethod && "opacity-50 cursor-not-allowed"
+            )}
             disabled={!selectedMethod}
           >
-            {t("contact_for_payment")}
+            {selectedMethod ? t("contact_for_payment_with_method", { method: paymentMethods[selectedMethod] }) : t("contact_for_payment")}
           </Button>
         </div>
       </div>
