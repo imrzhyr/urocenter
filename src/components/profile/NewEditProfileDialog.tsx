@@ -15,9 +15,10 @@ export const NewEditProfileDialog = ({ open, onClose }: NewEditProfileDialogProp
   const handleProfileChange = async (field: keyof Profile, value: string) => {
     if (!profile) return;
     
-    const updatedProfile = {
+    const updatedProfile: Profile = {
       ...profile,
       [field]: value,
+      password: profile.password || "" // Ensure password is included
     };
     
     const success = await updateProfile(updatedProfile);
@@ -39,6 +40,7 @@ export const NewEditProfileDialog = ({ open, onClose }: NewEditProfileDialogProp
             complaint: "",
             phone: "",
             role: "patient",
+            password: "" // Add required password field
           }}
           onProfileChange={handleProfileChange}
         />

@@ -5,6 +5,8 @@ interface ProfileState {
   profile: Profile | null;
   setProfile: (profile: Profile | null) => void;
   updateProfile: (updates: Partial<Profile>) => void;
+  clearState: () => void;
+  setState: (state: Partial<ProfileState>) => void;
 }
 
 export const useProfileState = create<ProfileState>((set) => ({
@@ -14,4 +16,6 @@ export const useProfileState = create<ProfileState>((set) => ({
     set((state) => ({
       profile: state.profile ? { ...state.profile, ...updates } : null
     })),
+  clearState: () => set({ profile: null }),
+  setState: (newState) => set(newState)
 }));
