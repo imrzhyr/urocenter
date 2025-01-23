@@ -16,7 +16,8 @@ const Payment = () => {
     if (!profile) return;
 
     try {
-      const updateData: Partial<Profile> = {
+      const updateData: Profile = {
+        ...profile, // Spread existing profile to keep all required fields
         payment_method: selectedMethod,
         payment_status: "pending"
       };
