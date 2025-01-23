@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { MessageStatus } from "../MessageStatus";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import Image from "next/image";
 
 export interface PhotoMessageProps {
   message: Message;
@@ -44,11 +43,10 @@ export const PhotoMessage = ({
             className="relative aspect-square cursor-pointer overflow-hidden rounded-lg"
             onClick={() => handleImageClick(url)}
           >
-            <Image
+            <img
               src={url}
               alt={fileNames?.[index] || 'Image'}
-              fill
-              className="object-cover transition-transform hover:scale-105"
+              className="h-full w-full object-cover transition-transform hover:scale-105"
             />
           </div>
         ))}
@@ -75,11 +73,10 @@ export const PhotoMessage = ({
         <DialogContent className="max-w-3xl p-0 overflow-hidden bg-transparent border-none">
           {selectedImage && (
             <div className="relative w-full aspect-auto">
-              <Image
+              <img
                 src={selectedImage}
                 alt="Full size image"
-                fill
-                className="object-contain"
+                className="w-full h-full object-contain"
                 onClick={handleCloseDialog}
               />
             </div>

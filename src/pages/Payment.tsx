@@ -6,7 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
 import type { Profile } from "@/types/profile";
 
-export const Payment = () => {
+const Payment = () => {
   const [selectedMethod, setSelectedMethod] = useState("");
   const navigate = useNavigate();
   const { t } = useLanguage();
@@ -16,8 +16,7 @@ export const Payment = () => {
     if (!profile) return;
 
     try {
-      const updateData: Profile = {
-        ...profile,
+      const updateData: Partial<Profile> = {
         payment_method: selectedMethod,
         payment_status: "pending"
       };
@@ -33,10 +32,13 @@ export const Payment = () => {
   return (
     <div>
       <h1>{t("payment")}</h1>
-      <PaymentMethods selectedMethod={selectedMethod} onSelectMethod={setSelectedMethod} />
-      <button onClick={handleContinuePayment} disabled={!selectedMethod}>
-        {t("pay_now")}
-      </button>
+      <PaymentMethods 
+        selectedMethod={selectedMethod} 
+        onSelectMethod={setSelectedMethod}
+        onContinuePayment={handleContinuePayment}
+      />
     </div>
   );
 };
+
+export default Payment;
