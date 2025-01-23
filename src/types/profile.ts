@@ -63,3 +63,7 @@ export interface Profile {
   payment_date?: string;
   payment_approval_status?: string;
 }
+
+export interface ProfileUpdate extends Partial<Profile> {
+  password?: string;
+}
