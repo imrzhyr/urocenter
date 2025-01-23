@@ -18,15 +18,11 @@ export const EditProfileForm = () => {
     complaint: "",
     phone: "",
     role: "patient",
-    password: "" // Add required password field
   });
 
   useEffect(() => {
     if (initialProfile) {
-      setFormData({
-        ...initialProfile,
-        password: initialProfile.password || "" // Ensure password is included
-      });
+      setFormData(initialProfile);
     }
   }, [initialProfile]);
 

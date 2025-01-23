@@ -23,7 +23,6 @@ export const MessageContent = ({ message, fromCurrentUser }: MessageContentProps
       console.log('Rendering photo message:', { urls, types, names });
       return (
         <PhotoMessage
-          message={message}
           urls={urls}
           fileNames={names}
           content={message.content}

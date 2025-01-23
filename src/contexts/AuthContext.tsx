@@ -42,12 +42,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       if (data) {
-        // Ensure profileId is stored in localStorage immediately when we get the data
-        localStorage.setItem('profileId', data.id);
+        // Always ensure profileId is in sync
+        if (!profileId) {
+          localStorage.setItem('profileId', data.id);
+        }
         setProfile(data);
-        
-        // Log the profile data being set
-        console.log('Profile data set in context:', data);
       }
     } catch (error) {
       console.error('Error in fetchProfile:', error);
@@ -57,23 +56,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // Initial profile fetch
   useEffect(() => {
     fetchProfile();
-  }, []);
 
-  // Set up real-time subscription for profile updates
-  useEffect(() => {
-    if (profile?.id) {
+    // Subscribe to profile changes
+    const profileId = localStorage.getItem('profileId');
+    if (profileId) {
       const channel = supabase
-        .channel(`profile_${profile.id}`)
+        .channel(`profile_${profileId}`)
         .on(
           'postgres_changes',
           {
             event: '*',
             schema: 'public',
             table: 'profiles',
-            filter: `id=eq.${profile.id}`
+            filter: `id=eq.${profileId}`
           },
           () => {
             fetchProfile();
@@ -85,7 +82,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         supabase.removeChannel(channel);
       };
     }
-  }, [profile?.id]);
+  }, []);
 
   const value = {
     profile,
@@ -102,4 +99,4 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-};
+}; 
