@@ -7,7 +7,7 @@ import { LoadingScreen } from "@/components/LoadingScreen";
 import { toast } from "sonner";
 import type { Profile } from "@/types/profile";
 
-const Payment = () => {
+export const Payment = () => {
   const [selectedMethod, setSelectedMethod] = useState("");
   const navigate = useNavigate();
   const { t } = useLanguage();
@@ -29,11 +29,12 @@ const Payment = () => {
   const handleContinuePayment = async () => {
     try {
       const updateData: Partial<Profile> = {
+        ...profile,
         payment_method: selectedMethod,
         payment_status: "pending"
       };
       
-      await updateProfile(updateData);
+      await updateProfile(updateData as Profile);
       navigate("/payment-verification");
     } catch (error) {
       console.error("Payment error:", error);

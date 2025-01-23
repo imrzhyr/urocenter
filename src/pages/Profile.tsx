@@ -15,14 +15,15 @@ export const ProfilePage = () => {
   const { updateProfile } = useProfile();
   const { t } = useLanguage();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [profile, setProfile] = useState<Profile>({
+  const [profile, setProfile] = useState<Partial<Profile>>({
     id: localStorage.getItem('profileId') || '',
     full_name: '',
     gender: '',
     age: '',
     complaint: '',
     phone: localStorage.getItem('userPhone') || '',
-    role: 'patient'
+    role: 'patient',
+    password: '' // Add default password
   });
 
   useEffect(() => {
@@ -58,7 +59,7 @@ export const ProfilePage = () => {
 
     setIsSubmitting(true);
     try {
-      const success = await updateProfile(profile);
+      const success = await updateProfile(profile as Profile);
       if (success) {
         await refetch();
         navigate("/medical-information");
@@ -91,7 +92,7 @@ export const ProfilePage = () => {
             </div>
 
             <ProfileForm 
-              profile={profile}
+              profile={profile as Profile}
               onProfileChange={handleProfileChange}
             />
 
