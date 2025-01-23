@@ -23,6 +23,12 @@ export interface Message {
   is_resolved?: boolean;
   sender_name?: string;
   typing_users?: string[];
+  replyTo?: {
+    id: string;
+    content: string;
+    sender_name?: string;
+    file_type?: string;
+  };
   referenced_message?: {
     id: string;
     content: string;
@@ -39,23 +45,4 @@ export interface Message {
     ended_at: string | null;
     created_at: string;
   };
-}
-
-export interface Profile {
-  id: string;
-  full_name: string;
-  gender: string;
-  age: string;
-  complaint: string;
-  phone: string;
-  role: "admin" | "patient";
-  auth_method?: string;
-  last_login?: string;
-  password?: string;
-  created_at?: string;
-  updated_at?: string;
-  payment_status?: string;
-  payment_method?: string;
-  payment_date?: string;
-  payment_approval_status?: string;
 }

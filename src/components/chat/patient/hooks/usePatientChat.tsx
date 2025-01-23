@@ -1,144 +1,65 @@
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useState, useCallback } from 'react';
+import { Message } from '@/types/profile';
+import { chatService } from '@/services/api/chat';
 import { toast } from "sonner";
-import { Message } from "@/types/profile";
-import { FileInfo } from "@/types/chat";
+import { useProfile } from '@/hooks/useProfile';
 
-// Admin's UUID for the doctor
-const DOCTOR_ID = "8d231b24-7163-4390-8361-4edb6f5f69d3";
-
-export const usePatientChat = (userPhone?: string | null) => {
+export const usePatientChat = (userId?: string) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { profile } = useProfile();
 
-  useEffect(() => {
-    if (!userPhone) return;
+  const fetchMessages = useCallback(async () => {
+    if (!userId) return;
+    
+    try {
+      setIsLoading(true);
+      const messages = await chatService.fetchMessages(userId);
+      setMessages(messages);
 
-    const fetchMessages = async () => {
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('phone', userPhone)
-        .single();
-
-      if (!profileData?.id) return;
-
-      // Fetch messages where either:
-      // 1. user_id is the patient's ID and is_from_doctor is false (patient's messages)
-      // 2. user_id is the doctor's ID and is_from_doctor is true (doctor's messages)
-      const { data, error } = await supabase
-        .from('messages')
-        .select('*')
-        .or(`and(user_id.eq.${profileData.id},is_from_doctor.eq.false),and(user_id.eq.${DOCTOR_ID},is_from_doctor.eq.true)`)
-        .order('created_at', { ascending: true });
-
-      if (error) {
-        console.error('Error fetching messages:', error);
-        toast.error("Failed to load messages");
-        return;
-      }
-
-      setMessages(data as Message[]);
-
-      // Mark messages as seen
-      const unseenMessages = data?.filter(m => !m.seen_at && m.is_from_doctor) || [];
+      const unseenMessages = messages.filter(m => !m.seen_at);
       if (unseenMessages.length > 0) {
-        const { error: updateError } = await supabase
-          .from('messages')
-          .update({ 
-            seen_at: new Date().toISOString(),
-            status: 'seen'
-          })
-          .in('id', unseenMessages.map(m => m.id));
-
-        if (updateError) {
-          console.error('Error marking messages as seen:', updateError);
-        }
+        await chatService.markMessagesAsSeen(userId, unseenMessages.map(m => m.id));
       }
-    };
+    } catch (error) {
+      toast.error("Failed to load messages");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [userId]);
 
-    fetchMessages();
-
-    const channel = supabase
-      .channel('messages_channel')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'messages',
-          filter: `or(user_id.eq.${DOCTOR_ID},user_id.eq.${profileData?.id})`
-        },
-        async (payload) => {
-          if (payload.eventType === 'INSERT') {
-            const newMessage = payload.new as Message;
-            setMessages(prev => [...prev, newMessage]);
-            
-            if (newMessage.is_from_doctor) {
-              const { error: updateError } = await supabase
-                .from('messages')
-                .update({ 
-                  delivered_at: new Date().toISOString(),
-                  status: 'delivered'
-                })
-                .eq('id', newMessage.id);
-
-              if (updateError) {
-                console.error('Error marking message as delivered:', updateError);
-              }
-            }
-          } else if (payload.eventType === 'UPDATE') {
-            setMessages(prev => 
-              prev.map(msg => 
-                msg.id === payload.new.id ? { ...msg, ...payload.new } : msg
-              )
-            );
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [userPhone]);
-
-  const sendMessage = async (content: string, fileInfo?: FileInfo) => {
-    if (!userPhone) return;
-
-    const { data: profileData } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('phone', userPhone)
-      .single();
-
-    if (!profileData?.id) {
-      toast.error("Could not send message");
+  const sendMessage = useCallback(async (content: string, fileInfo?: { url: string; name: string; type: string; duration?: number }) => {
+    if (!userId || !profile) {
+      toast.error("Unable to send message");
       return;
     }
 
-    setIsLoading(true);
-    const { error } = await supabase
-      .from('messages')
-      .insert({
+    try {
+      setIsLoading(true);
+      const message = await chatService.sendMessage({
         content: content.trim(),
-        user_id: profileData.id,
-        is_from_doctor: false,
-        status: 'sent',
+        user_id: userId,
         file_url: fileInfo?.url,
         file_name: fileInfo?.name,
         file_type: fileInfo?.type,
-        duration: fileInfo?.duration
+        duration: fileInfo?.duration,
+        status: 'not_seen'
       });
 
-    if (error) {
-      console.error('Error sending message:', error);
+      setMessages(prev => [...prev, message]);
+      return message;
+    } catch (error) {
       toast.error("Failed to send message");
-    } else {
-      toast.success("Message sent");
+      throw error;
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
-  };
+  }, [userId, profile]);
 
-  return { messages, isLoading, sendMessage };
+  return {
+    messages,
+    isLoading,
+    sendMessage,
+    fetchMessages
+  };
 };

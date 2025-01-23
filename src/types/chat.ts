@@ -3,6 +3,9 @@ import { Message } from "@/types/profile";
 export interface MessageInputProps {
   onSendMessage: (content: string, fileInfo?: FileInfo) => void;
   isLoading?: boolean;
+  replyingTo?: Message | null;
+  onCancelReply?: () => void;
+  onTyping?: (isTyping: boolean) => void;
 }
 
 export interface FileInfo {
@@ -10,6 +13,9 @@ export interface FileInfo {
   name: string;
   type: string;
   duration?: number;
+  urls?: string[];
+  names?: string[];
+  types?: string[];
 }
 
 export interface ChatState {
