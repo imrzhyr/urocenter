@@ -1,4 +1,4 @@
-import { Camera, Upload, Info } from "lucide-react";
+import { Camera, Upload, Info, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,11 +9,13 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
+import { motion, useAnimation } from "framer-motion";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { logger } from '@/utils/logger';
 import { uploadMedicalFile } from "@/utils/medicalFileUpload";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useEffect, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface UploadDialogProps {
   open: boolean;
@@ -23,6 +25,12 @@ interface UploadDialogProps {
 
 export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDialogProps) => {
   const { t } = useLanguage();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [isAutoScrolling, setIsAutoScrolling] = useState(true);
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const [maxScroll, setMaxScroll] = useState(0);
+  const autoScrollTimerRef = useRef<NodeJS.Timeout>();
+  const animationFrameRef = useRef<number>();
 
   const documentTypes = [
     {
@@ -56,6 +64,90 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
       ],
     },
   ];
+
+  useEffect(() => {
+    if (!open) return;
+
+    const scrollElement = scrollRef.current;
+    if (!scrollElement) return;
+
+    const updateMaxScroll = () => {
+      setMaxScroll(scrollElement.scrollHeight - scrollElement.clientHeight);
+    };
+
+    // Update maxScroll after a short delay to ensure content is rendered
+    setTimeout(updateMaxScroll, 100);
+
+    const startAutoScroll = () => {
+      if (!isAutoScrolling) return;
+      
+      const duration = 15000; // 15 seconds for full scroll
+      const startTime = Date.now();
+      const startScroll = scrollPosition;
+      
+      const animate = () => {
+        if (!isAutoScrolling) return;
+        
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        if (scrollElement) {
+          const newPosition = startScroll + (maxScroll - startScroll) * progress;
+          scrollElement.scrollTop = newPosition;
+          setScrollPosition(newPosition);
+          
+          if (progress < 1) {
+            animationFrameRef.current = requestAnimationFrame(animate);
+          } else {
+            // Reset to top after reaching bottom
+            autoScrollTimerRef.current = setTimeout(() => {
+              scrollElement.scrollTop = 0;
+              setScrollPosition(0);
+              startAutoScroll();
+            }, 1000);
+          }
+        }
+      };
+      
+      animationFrameRef.current = requestAnimationFrame(animate);
+    };
+
+    // Start auto-scroll after a short delay
+    const initTimer = setTimeout(() => {
+      startAutoScroll();
+    }, 500);
+
+    return () => {
+      if (autoScrollTimerRef.current) {
+        clearTimeout(autoScrollTimerRef.current);
+      }
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      clearTimeout(initTimer);
+    };
+  }, [open, isAutoScrolling, maxScroll]);
+
+  const handleScroll = () => {
+    const scrollElement = scrollRef.current;
+    if (!scrollElement) return;
+
+    const newPosition = scrollElement.scrollTop;
+    setScrollPosition(newPosition);
+
+    // Only stop auto-scroll if the scroll was initiated by the user
+    if (Math.abs(newPosition - scrollPosition) > 1) {
+      setIsAutoScrolling(false);
+
+      // Resume auto-scroll after 2 seconds of no manual scrolling
+      if (autoScrollTimerRef.current) {
+        clearTimeout(autoScrollTimerRef.current);
+      }
+      autoScrollTimerRef.current = setTimeout(() => {
+        setIsAutoScrolling(true);
+      }, 2000);
+    }
+  };
 
   const handleFileUpload = async (file: File) => {
     try {
@@ -146,24 +238,58 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
         </DialogHeader>
         
         <div className="grid gap-6">
-          <ScrollArea className="h-[300px] pr-4 rounded-md border p-4">
-            <div className="space-y-6">
-              {documentTypes.map((category) => (
-                <div key={category.title} className="animate-fade-in">
-                  <h3 className="font-semibold text-lg text-primary mb-2">
-                    {category.title}
-                  </h3>
-                  <ul className="list-disc pl-5 space-y-1.5">
-                    {category.items.map((item) => (
-                      <li key={item} className="text-muted-foreground">
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
+          <div className="relative">
+            <ScrollArea 
+              ref={scrollRef}
+              onScrollCapture={handleScroll}
+              className="h-[300px] pr-4 rounded-md border p-4 overflow-hidden"
+            >
+              <div className="space-y-6">
+                {documentTypes.map((category, index) => (
+                  <motion.div 
+                    key={category.title}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="relative"
+                  >
+                    <h3 className="font-semibold text-lg text-primary mb-2 flex items-center gap-2">
+                      {category.title}
+                    </h3>
+                    <ul className="list-disc pl-5 space-y-1.5">
+                      {category.items.map((item) => (
+                        <li key={item} className="text-muted-foreground">
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </motion.div>
+                ))}
+              </div>
+            </ScrollArea>
+
+            {/* Scroll indicator */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: isAutoScrolling ? 1 : 0 }}
+              transition={{ duration: 0.2 }}
+              className="absolute bottom-2 left-1/2 -translate-x-1/2 flex flex-col items-center"
+            >
+              <ChevronDown className="w-5 h-5 text-primary animate-bounce" />
+              <span className="text-xs text-muted-foreground">
+                {isAutoScrolling ? t('auto_scrolling') : t('manual_scrolling')}
+              </span>
+            </motion.div>
+
+            {/* Progress bar */}
+            <motion.div
+              className="absolute bottom-0 left-0 h-0.5 bg-primary"
+              style={{
+                width: `${(scrollPosition / (maxScroll || 1)) * 100}%`,
+                opacity: isAutoScrolling ? 1 : 0.3
+              }}
+            />
+          </div>
 
           <div className="flex flex-col sm:flex-row gap-4">
             <Button

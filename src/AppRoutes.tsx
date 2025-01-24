@@ -15,6 +15,7 @@ import AdminPayments from '@/pages/AdminPayments';
 import AdminStatistics from '@/pages/AdminStatistics';
 import UserChat from '@/pages/UserChat';
 import Terms from '@/pages/Terms';
+import StartupScreen from '@/pages/StartupScreen';
 import { useProfile } from '@/hooks/useProfile';
 import { LoadingScreen } from '@/components/LoadingScreen';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -63,7 +64,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<Welcome />} />
+      <Route path="/" element={<StartupScreen />} />
+      <Route path="/welcome" element={<Welcome />} />
       
       {/* Onboarding Routes */}
       <Route element={<OnboardingLayout />}>

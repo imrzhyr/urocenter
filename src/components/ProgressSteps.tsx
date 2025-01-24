@@ -25,42 +25,34 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
   const progress = getProgress(currentStep);
 
   const stepVariants = {
-    inactive: { 
+    inactive: {
       scale: 1,
-      backgroundColor: "rgb(229, 231, 235)",
-      color: "rgb(107, 114, 128)"
+      backgroundColor: "#1C1C1E",
+      borderColor: "rgba(255, 255, 255, 0.08)",
+      color: "#98989D"
     },
-    active: { 
-      scale: 1.1,
-      backgroundColor: "#007AFF",
-      color: "white",
+    active: {
+      scale: 1.05,
+      backgroundColor: "#0A84FF",
+      borderColor: "#0A84FF",
+      color: "#FFFFFF",
       transition: {
         type: "spring",
         stiffness: 300,
-        damping: 25
+        damping: 30
       }
     }
   };
 
   const checkmarkVariants = {
-    initial: { 
-      scale: 0,
-      opacity: 0 
-    },
+    initial: { scale: 0, opacity: 0 },
     animate: { 
-      scale: 1,
+      scale: 1, 
       opacity: 1,
       transition: {
         type: "spring",
-        stiffness: 400,
+        stiffness: 300,
         damping: 25
-      }
-    },
-    exit: { 
-      scale: 0,
-      opacity: 0,
-      transition: {
-        duration: 0.2
       }
     }
   };
@@ -87,7 +79,7 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
       <div className="grid relative" style={{ gridTemplateColumns: `repeat(${steps.length}, minmax(0, 1fr))` }}>
         {/* Background line */}
         <div 
-          className="absolute top-[18px] h-[2px] bg-gray-200 -z-10" 
+          className="absolute top-[18px] h-[2px] bg-[#1C1C1E] -z-10" 
           style={{
             left: '50%',
             transform: 'translateX(-50%)',
@@ -95,19 +87,19 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
             width: '75%'
           }}
         />
-
+        
         {/* Active progress line */}
-        <motion.div
-          className="absolute top-[18px] h-[2px] -z-10" 
+        <motion.div 
+          className="absolute top-[18px] h-[2px] bg-[#0A84FF] -z-10" 
           style={{
-            left: '12.5%',  // Start from the left edge (50% - 75%/2)
+            left: isRTL ? undefined : '12.5%',
+            right: isRTL ? '12.5%' : undefined,
             width: '75%',
-            backgroundColor: "#007AFF",
-            transformOrigin: 'left'
+            transformOrigin: isRTL ? 'right' : 'left'
           }}
           initial={{ scaleX: 0 }}
           animate={{ 
-            scaleX: 0.66,
+            scaleX: progress,
             transition: {
               type: "spring",
               stiffness: 120,
@@ -116,64 +108,73 @@ export const ProgressSteps = ({ steps, currentStep }: ProgressStepsProps) => {
           }}
         />
 
-        {/* Steps */}
-        {steps.map((step, index) => {
-          const stepNumber = index + 1;
-          const isActive = stepNumber <= currentStep;
-          const isCompleted = stepNumber < currentStep;
-          
-          return (
-            <div key={index} className="flex flex-col items-center">
-              <motion.div
-                className={cn(
-                  "w-[36px] h-[36px] rounded-full flex items-center justify-center text-sm font-medium",
-                  "transition-shadow duration-300",
-                  isActive && "shadow-[0_2px_8px_rgba(0,122,255,0.25)]"
-                )}
-                initial="inactive"
-                animate={isActive ? "active" : "inactive"}
-                variants={stepVariants}
-                whileTap={isActive ? { scale: 0.95 } : {}}
-              >
-                <AnimatePresence mode="wait">
-                  {isCompleted ? (
-                    <motion.div
-                      key="checkmark"
-                      variants={checkmarkVariants}
-                      initial="initial"
-                      animate="animate"
-                      exit="exit"
-                    >
-                      <Check className="w-4 h-4" />
-                    </motion.div>
-                  ) : (
-                    <motion.span
-                      key="number"
-                      variants={checkmarkVariants}
-                      initial="initial"
-                      animate="animate"
-                      exit="exit"
-                    >
-                      {stepNumber}
-                    </motion.span>
+        {steps.map((step, index) => (
+          <div key={index} className="flex flex-col items-center gap-3">
+            <motion.div
+              className={cn(
+                "w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-medium",
+                "transition-shadow duration-200",
+                index + 1 <= currentStep && "shadow-lg shadow-[#0A84FF]/20"
+              )}
+              initial="inactive"
+              animate={index + 1 <= currentStep ? "active" : "inactive"}
+              variants={stepVariants}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              {index + 1 < currentStep ? (
+                <motion.svg
+                  key="checkmark"
+                  variants={checkmarkVariants}
+                  initial="initial"
+                  animate="animate"
+                  className="w-4 h-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </motion.svg>
+              ) : (
+                <motion.span
+                  key="number"
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ 
+                    scale: 1, 
+                    opacity: 1,
+                    transition: {
+                      type: "spring",
+                      stiffness: 300,
+                      damping: 25
+                    }
+                  }}
+                  className={cn(
+                    "font-medium",
+                    index + 1 === currentStep && "text-white text-[15px]"
                   )}
-                </AnimatePresence>
-              </motion.div>
-              <motion.span 
-                className={cn(
-                  "mt-2 text-sm text-center",
-                  isActive && "text-[#007AFF]"
-                )}
-                variants={labelVariants}
-                initial="initial"
-                animate="animate"
-                transition={{ delay: index * 0.1 }}
-              >
-                {step}
-              </motion.span>
-            </div>
-          );
-        })}
+                >
+                  {index + 1}
+                </motion.span>
+              )}
+            </motion.div>
+            <motion.div
+              variants={labelVariants}
+              initial="initial"
+              animate="animate"
+              className={cn(
+                "text-sm text-center transition-colors duration-200",
+                index + 1 <= currentStep 
+                  ? "text-white bg-gradient-to-r from-[#0055D4]/10 to-[#00A3FF]/10 px-3 py-1 rounded-full backdrop-blur-sm" 
+                  : "text-[#98989D]"
+              )}
+            >
+              {step}
+            </motion.div>
+          </div>
+        ))}
       </div>
     </div>
   );

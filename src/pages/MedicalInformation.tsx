@@ -5,6 +5,8 @@ import { useFileUploadHandler } from "@/components/medical-information/FileUploa
 import { UploadSection } from "@/components/medical-information/UploadSection";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface UploadedFile {
   id: string;
@@ -17,10 +19,11 @@ interface UploadedFile {
 
 const MedicalInformation = () => {
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { isUploading, handleFileUpload, uploadCount } = useFileUploadHandler();
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const isRTL = language === 'ar';
 
   useEffect(() => {
     fetchFiles();
@@ -85,34 +88,27 @@ const MedicalInformation = () => {
 
   const handleDeleteFile = async (id: string) => {
     try {
-      const fileToDelete = files.find(f => f.id === id);
-      if (!fileToDelete) return;
+      const file = files.find(f => f.id === id);
+      if (!file) return;
 
-      // Delete from storage first
-      const { error: storageError } = await supabase.storage
+      const { error: deleteStorageError } = await supabase.storage
         .from('medical_reports')
-        .remove([fileToDelete.file_path]);
+        .remove([file.file_path]);
 
-      if (storageError) throw storageError;
+      if (deleteStorageError) throw deleteStorageError;
 
-      // Then delete from database
-      const { error: dbError } = await supabase
+      const { error: deleteRecordError } = await supabase
         .from('medical_reports')
         .delete()
         .eq('id', id);
 
-      if (dbError) throw dbError;
+      if (deleteRecordError) throw deleteRecordError;
 
-      // Update local state
       setFiles(files.filter(f => f.id !== id));
-      toast.success(t("file_deleted_successfully"), {
-        position: "top-center"
-      });
+      toast.success(t("file_deleted"));
     } catch (error) {
       console.error("Error deleting file:", error);
-      toast.error(t("error_deleting_file"), {
-        position: "top-center"
-      });
+      toast.error(t("error_deleting_file"));
     }
   };
 
@@ -147,14 +143,51 @@ const MedicalInformation = () => {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+        <motion.div 
+          animate={{ 
+            scale: [1, 1.2, 1],
+            opacity: [0.5, 1, 0.5]
+          }}
+          transition={{
+            duration: 1.5,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          className={cn(
+            "w-3 h-3",
+            "rounded-full",
+            "bg-[#0A84FF]"
+          )}
+        />
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">{t("medical_information")}</h1>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 20 }}
+      transition={{
+        type: "spring",
+        stiffness: 300,
+        damping: 30
+      }}
+      className={cn(
+        "container mx-auto px-4 py-8",
+        "min-h-screen",
+        "bg-[#000B1D]"
+      )}
+    >
+      <h1 className={cn(
+        "text-[28px]", // iOS large title
+        "font-bold",
+        "mb-6",
+        "text-[#0A84FF]",
+        isRTL ? "text-right" : "text-left"
+      )}>
+        {t("medical_information")}
+      </h1>
       <UploadSection
         onCameraCapture={handleCameraCapture}
         onFileSelect={handleFileSelect}
@@ -162,8 +195,8 @@ const MedicalInformation = () => {
         files={files}
         onDeleteFile={handleDeleteFile}
       />
-    </div>
+    </motion.div>
   );
-};
+}
 
 export default MedicalInformation;

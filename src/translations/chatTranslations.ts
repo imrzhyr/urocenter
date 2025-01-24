@@ -44,7 +44,15 @@ export const chatTranslations = {
     "sent_voice_message": "Sent a voice message",
     "replying_to": "Replying to",
     "replying_to_unknown": "Replying to Unknown",
-    "cancel_reply": "Cancel reply"
+    "cancel_reply": "Cancel reply",
+    "unsend": "Unsend",
+    "message_unsent": "Message unsent",
+    "failed_to_unsend": "Failed to unsend message",
+    "scroll_for_more": "Scroll for more",
+    "patient_testimonials": "Patient Testimonials",
+    "testimonial_rating": "Rating",
+    "testimonial_from": "from",
+    "testimonial_verified": "Verified Patient"
   },
   ar: {
     "patient_information": "معلومات المريض",
@@ -91,6 +99,14 @@ export const chatTranslations = {
     "sent_voice_message": "أرسل رسالة صوتية",
     "replying_to": "الرد على",
     "replying_to_unknown": "الرد على مجهول",
-    "cancel_reply": "إلغاء الرد"
+    "cancel_reply": "إلغاء الرد",
+    "unsend": "إلغاء الإرسال",
+    "message_unsent": "تم إلغاء إرسال الرسالة",
+    "failed_to_unsend": "فشل في إلغاء إرسال الرسالة",
+    "scroll_for_more": "اسحب للمزيد",
+    "patient_testimonials": "آراء المرضى",
+    "testimonial_rating": "التقييم",
+    "testimonial_from": "من",
+    "testimonial_verified": "مريض موثق"
   }
 };

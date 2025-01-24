@@ -8,9 +8,10 @@ interface PhoneInputProps {
   value: string;
   onChange: (value: string) => void;
   error?: string;
+  className?: string;
 }
 
-export const PhoneInput = ({ value, onChange, error }: PhoneInputProps) => {
+export const PhoneInput = ({ value, onChange, error, className }: PhoneInputProps) => {
   const { t, isRTL } = useLanguage();
   const [touched, setTouched] = useState(false);
 
@@ -54,12 +55,17 @@ export const PhoneInput = ({ value, onChange, error }: PhoneInputProps) => {
   const displayValue = formatPhoneNumber(value);
 
   return (
-    <div className="space-y-1">
-      <div className="relative">
+    <div className={cn("space-y-1", className)}>
+      <div className="relative flex">
         <div className={cn(
-          "absolute inset-y-0 flex items-center px-4 text-gray-500 bg-[#E5E9EF]",
-          isRTL ? "right-0" : "left-0",
-          "rounded-l-lg w-[90px] justify-center border-r border-gray-200"
+          "flex items-center justify-center",
+          "text-white",
+          "bg-[#1C1C1E]",
+          "w-[90px] h-12",
+          "rounded-l-xl",
+          "border border-r-0 border-white/[0.08]",
+          "font-medium text-[15px]",
+          "shadow-lg shadow-black/5"
         )}>
           +964
         </div>
@@ -68,13 +74,18 @@ export const PhoneInput = ({ value, onChange, error }: PhoneInputProps) => {
           value={displayValue}
           onChange={handleChange}
           className={cn(
-            isRTL ? "pl-3 pr-[90px]" : "pl-[98px] pr-3",
-            "h-12 text-base rounded-lg bg-[#F1F5F9]",
-            showError ? "border-red-500 focus:border-red-500 focus:ring-red-500" : "border-0",
-            "focus:border-primary focus:ring-1 focus:ring-primary",
+            "flex-1",
+            "h-12 text-base rounded-l-none rounded-r-xl",
+            "bg-[#1C1C1E] backdrop-blur-xl border border-white/[0.08] text-white",
+            "hover:bg-[#1C1C1E]/70",
+            "focus:outline-none focus:ring-0 focus:border-white/[0.08]",
+            "transition-all duration-200",
+            "placeholder:text-[#98989D]",
+            "shadow-lg shadow-black/5",
+            showError && "border-red-500/50",
             "tracking-wide" // Adds slight spacing between characters
           )}
-          placeholder=""
+          placeholder="7XX XXX XXXX"
         />
       </div>
       <AnimatePresence>
@@ -83,7 +94,7 @@ export const PhoneInput = ({ value, onChange, error }: PhoneInputProps) => {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="text-sm text-red-500 mt-1"
+            className="text-sm text-red-500/90"
           >
             {t("invalid_phone")}
           </motion.p>

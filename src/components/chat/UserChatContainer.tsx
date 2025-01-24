@@ -7,12 +7,20 @@ import { Message } from "@/types/profile";
 import { FileInfo } from "@/types/chat";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useEffect } from "react";
 
 export const UserChatContainer = () => {
-  const { profile, isLoading } = useAuth();
+  const { profile, isLoading, refetchProfile } = useAuth();
   const { messages, isLoading: isChatLoading, sendMessage } = useChat(profile?.id);
   const { t } = useLanguage();
   useAuthRedirect();
+
+  // Ensure profile is loaded when component mounts
+  useEffect(() => {
+    if (!profile?.id) {
+      refetchProfile();
+    }
+  }, [profile?.id, refetchProfile]);
 
   const handleSendMessage = async (content: string, fileInfo?: FileInfo, replyTo?: Message) => {
     if (!profile?.id) {
@@ -28,7 +36,7 @@ export const UserChatContainer = () => {
 
   if (!profile?.id) {
     console.log('No profile ID found, not rendering chat');
-    return null;
+    return <LoadingScreen message={t('loading_profile')} />;
   }
 
   return (

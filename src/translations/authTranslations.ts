@@ -46,7 +46,8 @@ export const authTranslations = {
     "please_fill_all_fields": "Please fill in all fields",
     "invalid_credentials": "Invalid phone number or password",
     "signin_error": "Error signing in",
-    "dont_have_account": "Don't have an account?"
+    "dont_have_account": "Don't have an account?",
+    "logout_warning": "Are you sure you want to sign out? You will need to sign in again to access your account."
   },
   ar: {
     "sign_in": "تسجيل الدخول",
@@ -95,6 +96,7 @@ export const authTranslations = {
     "please_fill_all_fields": "يرجى ملء جميع الحقول",
     "invalid_credentials": "رقم الهاتف أو كلمة المرور غير صحيحة",
     "signin_error": "خطأ في تسجيل الدخول",
-    "dont_have_account": "ليس لديك حساب؟"
+    "dont_have_account": "ليس لديك حساب؟",
+    "logout_warning": "هل أنت متأكد أنك تريد تسجيل الخروج؟ ستحتاج إلى تسجيل الدخول مرة أخرى للوصول إلى حسابك."
   }
 };

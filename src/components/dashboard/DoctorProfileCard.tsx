@@ -3,8 +3,13 @@ import { Calendar, Clock, Award, Star, MapPin, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Card } from "@/components/ui/card";
 
-export const DoctorProfileCard = () => {
+interface DoctorProfileCardProps {
+  className?: string;
+}
+
+export const DoctorProfileCard = ({ className }: DoctorProfileCardProps) => {
   const navigate = useNavigate();
   const { language, t } = useLanguage();
 
@@ -20,12 +25,7 @@ export const DoctorProfileCard = () => {
   ];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5 }}
-      className="bg-white dark:bg-[#1A1F2C] rounded-2xl p-6 shadow-lg space-y-6"
-    >
+    <Card className={`bg-white dark:bg-[#1A1F2C] rounded-2xl p-6 shadow-lg space-y-6 ${className || ''}`}>
       <div className="text-center space-y-4">
         <div className="relative w-32 h-32 mx-auto">
           <img
@@ -101,6 +101,6 @@ export const DoctorProfileCard = () => {
           {t('start_consultation')}
         </Button>
       </div>
-    </motion.div>
+    </Card>
   );
 };

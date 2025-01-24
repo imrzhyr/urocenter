@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 interface UploadedFile {
   id: string;
@@ -166,12 +167,28 @@ export const UploadSection = ({
       />
 
       {/* iOS-style Continue Button */}
-      <Button
-        className="w-full h-[44px] text-[17px] font-medium rounded-xl bg-[#007AFF] hover:bg-[#0071E3] text-white"
-        onClick={() => navigate("/payment")}
+      <motion.button
+        variants={buttonVariants}
+        whileTap="tap"
+        onClick={() => {
+          if (window.navigator && window.navigator.vibrate) {
+            window.navigator.vibrate(2);
+          }
+          navigate("/payment");
+        }}
+        className={cn(
+          "w-full h-[44px]",
+          "text-[17px] font-medium",
+          "rounded-xl",
+          "bg-[#0A84FF]",
+          "hover:bg-[#0A84FF]/90",
+          "active:bg-[#0A84FF]/80",
+          "text-white",
+          "transition-colors duration-200"
+        )}
       >
         {t("continue_to_payment")}
-      </Button>
+      </motion.button>
     </div>
   );
 };

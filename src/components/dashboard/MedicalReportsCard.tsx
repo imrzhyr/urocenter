@@ -17,7 +17,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
-export const MedicalReportsCard = () => {
+interface MedicalReportsCardProps {
+  className?: string;
+}
+
+export const MedicalReportsCard = ({ className }: MedicalReportsCardProps) => {
   const { t, language } = useLanguage();
   const [medicalReportsCount, setMedicalReportsCount] = useState(0);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
@@ -111,7 +115,8 @@ export const MedicalReportsCard = () => {
         "shadow-sm",
         "border border-[#C6C6C8] dark:border-[#38383A]",
         "rounded-2xl",
-        "overflow-hidden"
+        "overflow-hidden",
+        className
       )}>
         <CardHeader className={cn(
           "flex flex-row items-start justify-between",

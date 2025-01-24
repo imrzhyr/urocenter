@@ -11,7 +11,7 @@ export const paymentTranslations = {
     "payment_cancelled": "Payment Cancelled",
     "pay_now": "Pay Now",
     "processing_payment": "Processing Payment...",
-    "select_payment_method": "Select Payment Method",
+    "select_payment_method": "Select your preferred payment method",
     "card_number": "Card Number",
     "expiry_date": "Expiry Date",
     "cvv": "CVV",
@@ -42,6 +42,7 @@ export const paymentTranslations = {
     "mobile_wallet_zain": "Mobile Wallet by Zain Iraq",
     "support_available": "Our Support Team Is Available 24/7",
     "contact_for_payment": "Contact Support For Payment",
+    "contact_for_payment_with_method": "Contact Support For Payment with {method}",
     "help_message": "Hello, I need assistance with the UroCenter app. Can you please help me?"
   },
   ar: {
@@ -56,7 +57,7 @@ export const paymentTranslations = {
     "payment_cancelled": "تم إلغاء الدفع",
     "pay_now": "ادفع الآن",
     "processing_payment": "جاري معالجة الدفع...",
-    "select_payment_method": "اختر طريقة الدفع",
+    "select_payment_method": "اختر طريقة الدفع المفضلة لديك",
     "card_number": "رقم البطاقة",
     "expiry_date": "تاريخ الانتهاء",
     "cvv": "رمز التحقق",
@@ -87,6 +88,7 @@ export const paymentTranslations = {
     "mobile_wallet_zain": "المحفظة الإلكترونية من زين العراق",
     "support_available": "فريق الدعم متاح على مدار الساعة",
     "contact_for_payment": "تواصل مع الدعم للدفع",
+    "contact_for_payment_with_method": "تواصل مع الدعم للدفع باستخدام {method}",
     "help_message": "مرحباً، أحتاج إلى مساعدة في تطبيق مركز المسالك البولية. هل يمكنك مساعدتي؟"
   }
 };

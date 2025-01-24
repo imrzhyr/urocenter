@@ -121,7 +121,7 @@ export const PaymentApprovalsCard = () => {
           >
             <div>
               <p className="font-medium dark:text-white">
-                {payment.full_name || payment.phone}
+                {payment.phone}
               </p>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 {t("Payment Method")}: {payment.payment_method}

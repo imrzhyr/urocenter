@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Message } from "@/types/profile";
 import { toast } from "sonner";
@@ -11,13 +11,14 @@ export const useChat = (userId?: string) => {
   const { profile } = useProfile();
   const navigate = useNavigate();
 
-  const fetchMessages = async () => {
+  const fetchMessages = useCallback(async () => {
     if (!userId) {
       console.log('No userId provided to useChat');
       return;
     }
     
     try {
+      setIsLoading(true);
       console.log('Fetching messages for userId:', userId);
       
       const { data: messages, error: messagesError } = await supabase
@@ -63,8 +64,10 @@ export const useChat = (userId?: string) => {
     } catch (error) {
       console.error('Error in fetchMessages:', error);
       toast.error("Failed to load messages");
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [userId, profile?.role]);
 
   const sendMessage = async (
     content: string,
@@ -82,7 +85,6 @@ export const useChat = (userId?: string) => {
       // Get the general file type from MIME type
       const generalType = fileInfo?.type ? fileInfo.type.split('/')[0] : undefined;
 
-      // Only include fields that exist in the database schema
       const messageData = {
         content: content.trim(),
         user_id: userId,
@@ -90,7 +92,7 @@ export const useChat = (userId?: string) => {
         status: 'not_seen',
         file_url: fileInfo?.url,
         file_name: fileInfo?.name,
-        file_type: fileInfo?.type, // Keep the full MIME type in file_type
+        file_type: fileInfo?.type,
         duration: fileInfo?.duration,
         sender_name: profile.full_name || 'Unknown User',
         replyTo: replyTo ? {
@@ -125,35 +127,35 @@ export const useChat = (userId?: string) => {
     }
   };
 
+  // Set up message subscription
   useEffect(() => {
-    if (userId) {
-      console.log('Setting up chat for userId:', userId);
-      fetchMessages();
+    if (!userId) return;
 
-      // Subscribe to message updates for this specific user
-      const messageChannel = supabase
-        .channel(`messages_${userId}`)
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'messages',
-            filter: `user_id=eq.${userId}`
-          },
-          async (payload) => {
-            console.log('Received real-time update:', payload);
-            await fetchMessages();
-          }
-        )
-        .subscribe();
+    console.log('Setting up chat for userId:', userId);
+    fetchMessages();
 
-      return () => {
-        console.log('Cleaning up chat subscription for userId:', userId);
-        supabase.removeChannel(messageChannel);
-      };
-    }
-  }, [userId, profile?.id]);
+    const messageChannel = supabase
+      .channel(`messages_${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'messages',
+          filter: `user_id=eq.${userId}`
+        },
+        async (payload) => {
+          console.log('Received real-time update:', payload);
+          await fetchMessages();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log('Cleaning up chat subscription for userId:', userId);
+      supabase.removeChannel(messageChannel);
+    };
+  }, [userId, fetchMessages]);
 
   return {
     messages,

@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 import { Profile } from "@/types/profile";
 import { cn } from "@/lib/utils";
+import { LiveBackground } from "@/components/ui/LiveBackground";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -181,32 +182,14 @@ const Dashboard = () => {
 
   return (
     <div className={cn(
-      "flex flex-col h-screen",
+      "flex flex-col h-screen relative",
       "bg-[#F2F2F7] dark:bg-[#1C1C1E]", // iOS system background colors
       isRTL ? "rtl" : "ltr"
     )}>
+      <LiveBackground className="pointer-events-none" />
       <DashboardHeader />
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto relative">
         <div className="container max-w-lg mx-auto px-4 py-6">
-          <AnimatePresence>
-            {/* Test Indicator */}
-            <motion.div 
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{
-                type: "spring",
-                stiffness: 300,
-                damping: 25
-              }}
-              className="fixed top-20 left-0 right-0 z-50 px-4"
-            >
-              <div className="bg-red-500/90 backdrop-blur-xl text-white p-4 rounded-2xl text-center text-[17px] font-semibold shadow-lg">
-                🚀 {t('test_version')} {new Date().toLocaleTimeString()} 🚀
-              </div>
-            </motion.div>
-          </AnimatePresence>
-          
           <motion.div 
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -240,7 +223,7 @@ const Dashboard = () => {
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
             >
-              <MessagesCard />
+              <MessagesCard className="bg-white/80 dark:bg-[#2C2C2E]/80 backdrop-blur-xl shadow-lg shadow-black/5" />
             </motion.div>
             <motion.div 
               variants={item} 
@@ -248,7 +231,7 @@ const Dashboard = () => {
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
             >
-              <MedicalReportsCard />
+              <MedicalReportsCard className="bg-white/80 dark:bg-[#2C2C2E]/80 backdrop-blur-xl shadow-lg shadow-black/5" />
             </motion.div>
             <motion.div 
               variants={item} 
@@ -256,7 +239,7 @@ const Dashboard = () => {
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
             >
-              <DoctorProfileCard />
+              <DoctorProfileCard className="bg-white/80 dark:bg-[#2C2C2E]/80 backdrop-blur-xl shadow-lg shadow-black/5" />
             </motion.div>
           </motion.div>
         </div>

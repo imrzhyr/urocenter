@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -10,24 +10,24 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { WhatsAppSupport } from "@/components/WhatsAppSupport";
 
+const paymentMethods: { [key: string]: string } = {
+  qicard: "Qi Card",
+  fastpay: "Fastpay",
+  fib: "FIB",
+  zaincash: "ZainCash"
+};
+
 const Payment = () => {
   const navigate = useNavigate();
   const [selectedMethod, setSelectedMethod] = useState("");
   const { t, isRTL } = useLanguage();
   const { profile } = useProfile();
 
-  useEffect(() => {
-    // Check if user should be in verification page
-    if (profile?.payment_approval_status === 'pending') {
-      navigate('/payment-verification', { replace: true });
-    }
-  }, [profile, navigate]);
-
   const handleSupportContact = async () => {
     if (!selectedMethod) return;
     
     try {
-      // First time setting payment status when user clicks contact support
+      // Only set payment status to pending when user clicks contact support
       const { error } = await supabase
         .from('profiles')
         .update({
@@ -39,16 +39,10 @@ const Payment = () => {
 
       if (error) throw error;
 
-      const paymentMethods: { [key: string]: string } = {
-        qicard: "Qi Card",
-        fastpay: "FastPay",
-        fib: "First Iraqi Bank",
-        zaincash: "ZainCash"
-      };
-
       const selectedMethodName = paymentMethods[selectedMethod];
       const message = encodeURIComponent(t("payment_message", { method: selectedMethodName }));
       
+      // Open WhatsApp first, then navigate to verification
       window.open(`https://wa.me/9647702428154?text=${message}`, '_blank');
       navigate('/payment-verification', { replace: true });
       
@@ -81,9 +75,6 @@ const Payment = () => {
           <h3 className="text-lg font-medium">
             {t("select_payment_method")}
           </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            {t("choose_payment_method")}
-          </p>
 
           <div className="space-y-3">
             {[
@@ -111,15 +102,18 @@ const Payment = () => {
                 description: t("mobile_wallet_zain"),
                 logo: "/lovable-uploads/292e06cf-9fcf-475a-9497-a045233f8b4d.png"
               }
-            ].map((method) => (
+            ].map(method => (
               <div
                 key={method.id}
                 onClick={() => setSelectedMethod(method.id)}
-                className={`w-full flex items-center justify-between p-4 rounded-lg border cursor-pointer ${
+                className={cn(
+                  "w-full flex items-center justify-between p-4 rounded-lg border cursor-pointer",
+                  "transition-all duration-200",
+                  "active:scale-[0.98]",
                   selectedMethod === method.id
-                    ? "border-primary bg-primary/5"
-                    : "border-gray-200 dark:border-gray-700"
-                } active:scale-[0.98] hover:border-primary/50 transition-all`}
+                    ? "border-[#0A84FF] bg-[#0A84FF]/10"
+                    : "border-[#1C1C1E] bg-[#1C1C1E]/50 hover:border-[#0A84FF]/50",
+                )}
               >
                 <div className={cn("flex items-center gap-3", isRTL && "flex-row-reverse")}>
                   <img
@@ -128,36 +122,39 @@ const Payment = () => {
                     className="w-8 h-8 object-contain"
                   />
                   <div className={cn("text-left", isRTL && "text-right")}>
-                    <h4 className="font-medium text-gray-900 dark:text-gray-100">
+                    <h4 className="font-medium text-white">
                       {method.name}
                     </h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="text-sm text-[#98989D]">
                       {method.description}
                     </p>
                   </div>
                 </div>
-                <ChevronRight className={cn("w-5 h-5 text-gray-400", isRTL && "rotate-180")} />
+                <ChevronRight className={cn(
+                  "w-5 h-5",
+                  "text-[#98989D]",
+                  selectedMethod === method.id && "text-[#0A84FF]",
+                  isRTL && "rotate-180"
+                )} />
               </div>
             ))}
           </div>
         </div>
 
-        <div className="mt-6">
+        <div className="mt-8">
           <Button
             onClick={handleSupportContact}
-            className={cn(
-              "w-full h-[44px] text-[17px] font-medium rounded-xl",
-              "bg-primary hover:bg-primary/90 text-white shadow-lg",
-              !selectedMethod && "opacity-50 cursor-not-allowed"
-            )}
             disabled={!selectedMethod}
+            className="w-full bg-[#0A84FF] hover:bg-[#0A84FF]/90 text-white rounded-lg py-3 px-4 text-[15px] font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {selectedMethod ? t("contact_for_payment_with_method", { method: paymentMethods[selectedMethod] }) : t("contact_for_payment")}
+            <span className="truncate">
+              {t("contact_for_payment")}
+            </span>
           </Button>
         </div>
       </div>
     </>
   );
-};
+}
 
 export default Payment;

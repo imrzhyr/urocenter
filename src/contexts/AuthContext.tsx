@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Profile } from '@/types/profile';
 import { toast } from 'sonner';
@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       const profileId = localStorage.getItem('profileId');
       const userPhone = localStorage.getItem('userPhone');
@@ -38,14 +38,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (error) {
         console.error('Error fetching profile:', error);
+        // Only clear profile if it's a "not found" error
+        if (error.code === 'PGRST116') {
+          setProfile(null);
+          localStorage.removeItem('profileId');
+        }
         return;
       }
 
       if (data) {
         // Always ensure profileId is in sync
-        if (!profileId) {
-          localStorage.setItem('profileId', data.id);
-        }
+        localStorage.setItem('profileId', data.id);
         setProfile(data);
       }
     } catch (error) {
@@ -54,7 +57,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchProfile();
@@ -82,7 +85,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         supabase.removeChannel(channel);
       };
     }
-  }, []);
+  }, [fetchProfile]);
 
   const value = {
     profile,

@@ -3,29 +3,26 @@ import { PatientChatPrompt } from "./messages/PatientChatPrompt";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { Card } from "@/components/ui/card";
 
-export const MessagesCard = () => {
+interface MessagesCardProps {
+  className?: string;
+}
+
+export const MessagesCard = ({ className }: MessagesCardProps) => {
   const { t, language } = useLanguage();
   const isRTL = language === 'ar';
 
   return (
-    <motion.div 
-      className={cn(
-        "w-full",
-        "bg-white dark:bg-[#1C1C1E]",
-        "rounded-2xl",
-        "shadow-sm",
-        "border border-[#C6C6C8] dark:border-[#38383A]",
-        "overflow-hidden"
-      )}
-      whileHover={{ y: -2 }}
-      whileTap={{ scale: 0.98 }}
-      transition={{
-        type: "spring",
-        stiffness: 300,
-        damping: 30
-      }}
-    >
+    <Card className={cn(
+      "w-full",
+      "bg-white dark:bg-[#1C1C1E]",
+      "rounded-2xl",
+      "shadow-sm",
+      "border border-[#C6C6C8] dark:border-[#38383A]",
+      "overflow-hidden",
+      className
+    )}>
       <div className="p-4">
         <div className={cn(
           "flex items-start gap-4",
@@ -124,6 +121,6 @@ export const MessagesCard = () => {
           <PatientChatPrompt />
         </motion.div>
       </div>
-    </motion.div>
+    </Card>
   );
 };

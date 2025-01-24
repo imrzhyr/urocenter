@@ -40,7 +40,7 @@ export const PhotoMessage = ({
     <>
       <div 
         className={cn(
-          "max-w-[400px] md:max-w-[500px]",
+          "max-w-[300px] md:max-w-[330px]",
           "rounded-2xl overflow-hidden",
           "shadow-sm",
           fromCurrentUser ? "ml-auto" : "",
@@ -64,7 +64,7 @@ export const PhotoMessage = ({
               src={urls[0]}
               alt={fileNames?.[0] || 'Photo message'}
               className="w-full h-auto object-cover rounded-t-2xl"
-              style={{ maxHeight: '50vh' }}
+              style={{ maxHeight: '40vh' }}
             />
           </div>
 

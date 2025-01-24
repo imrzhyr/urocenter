@@ -1,75 +1,42 @@
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import { TestimonialCard } from "./TestimonialCard";
-import { motion } from "framer-motion";
-import { testimonials } from "./testimonials-data";
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import Autoplay from "embla-carousel-autoplay";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { TestimonialCard } from "./TestimonialCard";
+import { testimonials } from "./testimonials-data";
+import { cn } from "@/lib/utils";
 
 export const TestimonialsCarousel = () => {
   const { language } = useLanguage();
-  const [api] = useEmblaCarousel(
-    {
-      align: "start",
-      loop: true,
-      dragFree: true,
-      direction: language === 'ar' ? 'rtl' : 'ltr',
-      containScroll: "trimSnaps",
-    },
-    [
-      Autoplay({
-        delay: 4000,
-        stopOnInteraction: false,
-        stopOnMouseEnter: true,
-      }),
-    ]
-  );
+  
+  const [emblaRef] = useEmblaCarousel({
+    align: "start",
+    loop: true,
+    skipSnaps: false,
+    direction: language === 'ar' ? 'rtl' : 'ltr',
+  });
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.8 }}
-      className="w-full mt-8"
-      dir={language === 'ar' ? 'rtl' : 'ltr'}
-    >
-      <Carousel
-        opts={{
-          align: "start",
-          loop: true,
-          dragFree: true,
-          direction: language === 'ar' ? 'rtl' : 'ltr',
-          containScroll: "trimSnaps",
-        }}
-        plugins={[
-          Autoplay({
-            delay: 4000,
-            stopOnInteraction: false,
-            stopOnMouseEnter: true,
-          }),
-        ]}
-        className="w-full max-w-6xl mx-auto px-4"
+    <div className="w-full overflow-hidden">
+      <div 
+        ref={emblaRef} 
+        className="overflow-hidden"
       >
-        <CarouselContent className="-ml-2 md:-ml-4">
+        <div className={cn(
+          "flex",
+          language === 'ar' ? "flex-row-reverse" : "flex-row",
+          "backface-visibility-hidden",
+          "-ml-4 -mr-4"
+        )}>
           {testimonials.map((testimonial, index) => (
-            <CarouselItem 
-              key={index} 
-              className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
+            <div
+              key={index}
+              className="flex-[0_0_100%] pl-4 pr-4"
             >
-              <TestimonialCard {...testimonial} />
-            </CarouselItem>
+              <TestimonialCard {...testimonial} index={index} />
+            </div>
           ))}
-        </CarouselContent>
-        <CarouselPrevious className="hidden sm:flex -left-4 lg:-left-8" />
-        <CarouselNext className="hidden sm:flex -right-4 lg:-right-8" />
-      </Carousel>
-    </motion.div>
+        </div>
+      </div>
+    </div>
   );
 };
