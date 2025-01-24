@@ -77,15 +77,19 @@ export const PaymentVerification = () => {
           return;
         }
 
+        const isPaid = profileData.payment_status === 'paid';
+        const isApproved = profileData.payment_approval_status === 'approved';
+
+        // If paid and approved, go to dashboard
+        if (isPaid && isApproved) {
+          navigate('/dashboard', { replace: true });
+          return;
+        }
+
         // If no payment method selected or status isn't pending, redirect to payment
         if (!profileData.payment_method || profileData.payment_approval_status !== 'pending') {
           navigate('/payment', { replace: true });
           return;
-        }
-
-        // If paid and approved, go to dashboard
-        if (profileData.payment_status === 'paid' && profileData.payment_approval_status === 'approved') {
-          navigate('/dashboard', { replace: true });
         }
       } catch (error) {
         console.error('Error checking initial status:', error);
@@ -117,21 +121,23 @@ export const PaymentVerification = () => {
           return;
         }
 
-        // If no payment method selected or status isn't pending, redirect to payment
-        if (!profileData.payment_method || profileData.payment_approval_status !== 'pending') {
-          navigate('/payment', { replace: true });
-          return;
-        }
-
         const isPaid = profileData.payment_status === 'paid';
         const isApproved = profileData.payment_approval_status === 'approved';
         
         console.log('Payment verification:', { isPaid, isApproved });
 
+        // First check if payment is approved
         if (isPaid && isApproved) {
           console.log('Payment approved, redirecting to dashboard');
           toast.success(t('payment_approved'));
           navigate('/dashboard', { replace: true });
+          return;
+        }
+
+        // Then check if payment method is missing or status is not pending
+        if (!profileData.payment_method || profileData.payment_approval_status !== 'pending') {
+          navigate('/payment', { replace: true });
+          return;
         }
       } catch (error) {
         console.error('Error checking payment status:', error);

@@ -25,13 +25,7 @@ export const SignInButton = ({ phone, password }: SignInButtonProps) => {
     try {
       setIsLoading(true);
       
-      let formattedPhone = phone;
-      
-      if (phone === '7705449905' || phone === '7702428154') {
-        formattedPhone = `+964${phone}`;
-      } else {
-        formattedPhone = formatPhoneNumber(phone);
-      }
+      const formattedPhone = formatPhoneNumber(phone);
 
       const { data: profile, error } = await supabase
         .from('profiles')

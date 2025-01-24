@@ -15,7 +15,7 @@ export const PaymentApprovalsCard = () => {
       console.log('Fetching pending payments...');
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id, phone, payment_method, payment_status, payment_approval_status')
         .eq('payment_status', 'unpaid')
         .eq('payment_approval_status', 'pending')
         .not('payment_method', 'is', null);

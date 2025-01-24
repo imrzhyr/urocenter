@@ -128,38 +128,11 @@ const Dashboard = () => {
     };
   }, [navigate, t]);
 
-  // Enhanced animations with iOS spring physics
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-        type: "spring",
-        stiffness: 100,
-        damping: 15
-      },
-    },
-  };
-
-  const item = {
-    hidden: { y: 20, opacity: 0 },
-    show: { 
-      y: 0, 
-      opacity: 1,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-        damping: 15
-      }
-    },
-  };
-
   // Loading state with iOS-style animation
   if (isProfileLoading && isInitialLoad) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F2F2F7] dark:bg-[#1C1C1E]">
+      <div className="min-h-screen flex items-center justify-center bg-[#000B1D]">
+        <LiveBackground className="fixed inset-0" />
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -169,7 +142,7 @@ const Dashboard = () => {
             damping: 20
           }}
         >
-          <LoadingSpinner />
+          <LoadingSpinner className="text-[#0A84FF]" />
         </motion.div>
       </div>
     );
@@ -182,11 +155,11 @@ const Dashboard = () => {
 
   return (
     <div className={cn(
-      "flex flex-col h-screen relative",
-      "bg-[#F2F2F7] dark:bg-[#1C1C1E]", // iOS system background colors
+      "flex flex-col min-h-screen relative",
+      "bg-[#000B1D]",
       isRTL ? "rtl" : "ltr"
     )}>
-      <LiveBackground className="pointer-events-none" />
+      <LiveBackground className="fixed inset-0" />
       <DashboardHeader />
       <main className="flex-1 overflow-y-auto relative">
         <div className="container max-w-lg mx-auto px-4 py-6">
@@ -202,44 +175,49 @@ const Dashboard = () => {
             className="text-center mb-6"
           >
             <h1 className={cn(
-              "text-[22px] font-semibold", // iOS large title size
-              "bg-gradient-to-r from-[#007AFF] to-[#5856D6]", // iOS system gradient
-              "bg-clip-text text-transparent",
-              "dark:from-[#0A84FF] dark:to-[#5E5CE6]"
+              "text-[28px] font-bold",
+              "bg-gradient-to-r from-[#0055D4] to-[#00A3FF]",
+              "bg-clip-text text-transparent"
             )}>
               {t("virtual_consultation_welcome")}
             </h1>
           </motion.div>
           
           <motion.div 
-            variants={container}
-            initial="hidden"
-            animate="show"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6 }}
             className="space-y-4"
           >
             <motion.div 
-              variants={item} 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
               className="transform active:scale-[0.98] transition-transform duration-200"
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
             >
-              <MessagesCard className="bg-white/80 dark:bg-[#2C2C2E]/80 backdrop-blur-xl shadow-lg shadow-black/5" />
+              <MessagesCard className="bg-[#1C1C1E]/50 backdrop-blur-xl border border-white/[0.08] shadow-lg shadow-black/5" />
             </motion.div>
             <motion.div 
-              variants={item} 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
               className="transform active:scale-[0.98] transition-transform duration-200"
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
             >
-              <MedicalReportsCard className="bg-white/80 dark:bg-[#2C2C2E]/80 backdrop-blur-xl shadow-lg shadow-black/5" />
+              <MedicalReportsCard className="bg-[#1C1C1E]/50 backdrop-blur-xl border border-white/[0.08] shadow-lg shadow-black/5" />
             </motion.div>
             <motion.div 
-              variants={item} 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
               className="transform active:scale-[0.98] transition-transform duration-200"
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
             >
-              <DoctorProfileCard className="bg-white/80 dark:bg-[#2C2C2E]/80 backdrop-blur-xl shadow-lg shadow-black/5" />
+              <DoctorProfileCard className="bg-[#1C1C1E]/50 backdrop-blur-xl border border-white/[0.08] shadow-lg shadow-black/5" />
             </motion.div>
           </motion.div>
         </div>
