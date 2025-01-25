@@ -6,10 +6,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User, Settings, Moon, Sun, ChevronRight } from "lucide-react";
+import { LogOut, User, Settings, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import {
@@ -29,7 +28,6 @@ import { cn } from "@/lib/utils";
 export const UserMenu = () => {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
-  const { theme, setTheme } = useTheme();
   const { profile } = useAuth();
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const isRTL = language === 'ar';

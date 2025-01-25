@@ -24,17 +24,19 @@ interface UploadDialogProps {
 }
 
 export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDialogProps) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isAutoScrolling, setIsAutoScrolling] = useState(true);
   const [scrollPosition, setScrollPosition] = useState(0);
   const [maxScroll, setMaxScroll] = useState(0);
   const autoScrollTimerRef = useRef<NodeJS.Timeout>();
   const animationFrameRef = useRef<number>();
+  const isRTL = language === 'ar';
 
   const documentTypes = [
     {
       title: t('diagnostic_imaging'),
+      icon: "🔬",
       items: [
         t('ultrasound_scans'),
         t('ct_scans'),
@@ -45,6 +47,7 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
     },
     {
       title: t('laboratory_results'),
+      icon: "🧪",
       items: [
         t('psa_test'),
         t('urinalysis'),
@@ -55,6 +58,7 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
     },
     {
       title: t('medical_documentation'),
+      icon: "📋",
       items: [
         t('consultation_notes'),
         t('surgical_reports'),
@@ -81,7 +85,7 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
     const startAutoScroll = () => {
       if (!isAutoScrolling) return;
       
-      const duration = 15000; // 15 seconds for full scroll
+      const duration = 20000; // 20 seconds for full scroll
       const startTime = Date.now();
       const startScroll = scrollPosition;
       
@@ -92,19 +96,25 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
         const progress = Math.min(elapsed / duration, 1);
         
         if (scrollElement) {
-          const newPosition = startScroll + (maxScroll - startScroll) * progress;
+          // Add easing for smoother iOS-like scroll
+          const easeInOutCubic = (t: number) => 
+            t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+          
+          const newPosition = startScroll + (maxScroll - startScroll) * easeInOutCubic(progress);
           scrollElement.scrollTop = newPosition;
           setScrollPosition(newPosition);
           
           if (progress < 1) {
             animationFrameRef.current = requestAnimationFrame(animate);
           } else {
-            // Reset to top after reaching bottom
+            // Pause at bottom before resetting
             autoScrollTimerRef.current = setTimeout(() => {
-              scrollElement.scrollTop = 0;
+              // Smooth scroll back to top
+              scrollElement.scrollTo({ top: 0, behavior: 'smooth' });
               setScrollPosition(0);
-              startAutoScroll();
-            }, 1000);
+              // Wait for scroll to top to complete before restarting
+              setTimeout(startAutoScroll, 1000);
+            }, 2000);
           }
         }
       };
@@ -115,7 +125,7 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
     // Start auto-scroll after a short delay
     const initTimer = setTimeout(() => {
       startAutoScroll();
-    }, 500);
+    }, 1000);
 
     return () => {
       if (autoScrollTimerRef.current) {
@@ -153,7 +163,15 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
     try {
       const userPhone = localStorage.getItem('userPhone');
       if (!userPhone) {
-        toast.error(t('sign_in_to_upload'));
+        toast.error(t('sign_in_to_upload'), {
+          className: cn(
+            "bg-[#F2F2F7]/80 dark:bg-[#1C1C1E]/80",
+            "backdrop-blur-xl",
+            "border border-[#C6C6C8] dark:border-[#38383A]",
+            "text-[#1C1C1E] dark:text-white",
+            "rounded-2xl shadow-lg"
+          )
+        });
         return;
       }
 
@@ -165,12 +183,28 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
 
       if (profileError) {
         logger.error("Profile error", "Failed to fetch profile", profileError);
-        toast.error(t('error_accessing_profile'));
+        toast.error(t('error_accessing_profile'), {
+          className: cn(
+            "bg-[#F2F2F7]/80 dark:bg-[#1C1C1E]/80",
+            "backdrop-blur-xl",
+            "border border-[#C6C6C8] dark:border-[#38383A]",
+            "text-[#1C1C1E] dark:text-white",
+            "rounded-2xl shadow-lg"
+          )
+        });
         return;
       }
 
       if (!profileData) {
-        toast.error(t('profile_not_found'));
+        toast.error(t('profile_not_found'), {
+          className: cn(
+            "bg-[#F2F2F7]/80 dark:bg-[#1C1C1E]/80",
+            "backdrop-blur-xl",
+            "border border-[#C6C6C8] dark:border-[#38383A]",
+            "text-[#1C1C1E] dark:text-white",
+            "rounded-2xl shadow-lg"
+          )
+        });
         return;
       }
 
@@ -190,16 +224,35 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
         throw dbError;
       }
 
-      toast.success(t('file_upload_success'));
+      toast.success(t('file_upload_success'), {
+        className: cn(
+          "bg-[#F2F2F7]/80 dark:bg-[#1C1C1E]/80",
+          "backdrop-blur-xl",
+          "border border-[#C6C6C8] dark:border-[#38383A]",
+          "text-[#1C1C1E] dark:text-white",
+          "rounded-2xl shadow-lg"
+        )
+      });
       onUploadSuccess();
       onOpenChange(false);
     } catch (error) {
       logger.error("Upload error", error instanceof Error ? error.message : 'Unknown error', error);
-      toast.error(t('file_upload_failed'));
+      toast.error(t('file_upload_failed'), {
+        className: cn(
+          "bg-[#F2F2F7]/80 dark:bg-[#1C1C1E]/80",
+          "backdrop-blur-xl",
+          "border border-[#C6C6C8] dark:border-[#38383A]",
+          "text-[#1C1C1E] dark:text-white",
+          "rounded-2xl shadow-lg"
+        )
+      });
     }
   };
 
   const handleCameraCapture = () => {
+    if (window.navigator && window.navigator.vibrate) {
+      window.navigator.vibrate(2);
+    }
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
@@ -214,6 +267,9 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
   };
 
   const handleFileSelect = () => {
+    if (window.navigator && window.navigator.vibrate) {
+      window.navigator.vibrate(2);
+    }
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.pdf,.jpg,.jpeg,.png';
@@ -229,92 +285,149 @@ export const UploadDialog = ({ open, onOpenChange, onUploadSuccess }: UploadDial
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>{t('add_medical_report')}</DialogTitle>
-          <DialogDescription>
+      <DialogContent className={cn(
+        "bg-[#1A1F2C] dark:bg-[#1C1C1E]",
+        "border border-white/[0.08]",
+        "backdrop-blur-xl",
+        "rounded-2xl",
+        "p-6",
+        "max-w-lg",
+        "mx-auto",
+        "shadow-2xl",
+        isRTL ? "rtl" : "ltr"
+      )}>
+        <DialogHeader className="space-y-3">
+          <DialogTitle className={cn(
+            "text-2xl font-semibold text-white text-center"
+          )}>
+            {t('add_medical_report')}
+          </DialogTitle>
+          <DialogDescription className={cn(
+            "text-[#8E8E93] dark:text-[#98989D]",
+            "text-base text-center"
+          )}>
             {t('upload_documents_description')}
           </DialogDescription>
         </DialogHeader>
         
-        <div className="grid gap-6">
-          <div className="relative">
+        <div className="space-y-6 mt-4">
+          <div className="grid grid-cols-2 gap-3">
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleCameraCapture}
+              className={cn(
+                "flex flex-col items-center justify-center",
+                "bg-[#34C759]/10 dark:bg-[#32D74B]/10",
+                "backdrop-blur-xl",
+                "border border-[#34C759]/20 dark:border-[#32D74B]/20",
+                "rounded-xl",
+                "p-4",
+                "space-y-3",
+                "group",
+                "transition-colors duration-200",
+                "hover:bg-[#34C759]/20 dark:hover:bg-[#32D74B]/20"
+              )}
+            >
+              <div className={cn(
+                "w-12 h-12",
+                "bg-[#34C759]/20 dark:bg-[#32D74B]/20",
+                "rounded-xl",
+                "flex items-center justify-center",
+                "group-hover:bg-[#34C759]/30 dark:group-hover:bg-[#32D74B]/30",
+                "transition-colors duration-200"
+              )}>
+                <Camera className="w-6 h-6 text-[#34C759] dark:text-[#32D74B]" />
+              </div>
+              <span className="text-[#34C759] dark:text-[#32D74B] text-sm font-medium">
+                {t('take_photo')}
+              </span>
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleFileSelect}
+              className={cn(
+                "flex flex-col items-center justify-center",
+                "bg-[#0A84FF]/10",
+                "backdrop-blur-xl",
+                "border border-[#0A84FF]/20",
+                "rounded-xl",
+                "p-4",
+                "space-y-3",
+                "group",
+                "transition-colors duration-200",
+                "hover:bg-[#0A84FF]/20"
+              )}
+            >
+              <div className={cn(
+                "w-12 h-12",
+                "bg-[#0A84FF]/20",
+                "rounded-xl",
+                "flex items-center justify-center",
+                "group-hover:bg-[#0A84FF]/30",
+                "transition-colors duration-200"
+              )}>
+                <Upload className="w-6 h-6 text-[#0A84FF]" />
+              </div>
+              <span className="text-[#0A84FF] text-sm font-medium">
+                {t('choose_file')}
+              </span>
+            </motion.button>
+          </div>
+
+          <div className={cn(
+            "bg-[#2C2C2E]/50 dark:bg-[#2C2C2E]/30",
+            "backdrop-blur-xl",
+            "border border-white/[0.08]",
+            "rounded-xl",
+            "overflow-hidden"
+          )}>
+            <h3 className="text-white/90 text-sm font-medium p-4 border-b border-white/[0.08]">
+              {t('accepted_document_types')}
+            </h3>
             <ScrollArea 
               ref={scrollRef}
               onScrollCapture={handleScroll}
-              className="h-[300px] pr-4 rounded-md border p-4 overflow-hidden"
+              className="h-[200px] px-4 overflow-hidden ios-momentum-scroll"
+              style={{
+                WebkitOverflowScrolling: 'touch',
+              }}
             >
-              <div className="space-y-6">
+              <div className="space-y-4 py-4">
                 {documentTypes.map((category, index) => (
                   <motion.div 
                     key={category.title}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="relative"
+                    className="space-y-2"
                   >
-                    <h3 className="font-semibold text-lg text-primary mb-2 flex items-center gap-2">
-                      {category.title}
-                    </h3>
-                    <ul className="list-disc pl-5 space-y-1.5">
-                      {category.items.map((item) => (
-                        <li key={item} className="text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl">{category.icon}</span>
+                      <h4 className="text-white/90 font-medium">
+                        {category.title}
+                      </h4>
+                    </div>
+                    <ul className="space-y-2 text-[#8E8E93] dark:text-[#98989D] text-sm">
+                      {category.items.map((item, i) => (
+                        <motion.li
+                          key={item}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: (index * 0.1) + (i * 0.05) }}
+                          className="flex items-center gap-2 pl-8"
+                        >
+                          <div className="w-1 h-1 rounded-full bg-[#0A84FF]" />
                           {item}
-                        </li>
+                        </motion.li>
                       ))}
                     </ul>
                   </motion.div>
                 ))}
               </div>
             </ScrollArea>
-
-            {/* Scroll indicator */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: isAutoScrolling ? 1 : 0 }}
-              transition={{ duration: 0.2 }}
-              className="absolute bottom-2 left-1/2 -translate-x-1/2 flex flex-col items-center"
-            >
-              <ChevronDown className="w-5 h-5 text-primary animate-bounce" />
-              <span className="text-xs text-muted-foreground">
-                {isAutoScrolling ? t('auto_scrolling') : t('manual_scrolling')}
-              </span>
-            </motion.div>
-
-            {/* Progress bar */}
-            <motion.div
-              className="absolute bottom-0 left-0 h-0.5 bg-primary"
-              style={{
-                width: `${(scrollPosition / (maxScroll || 1)) * 100}%`,
-                opacity: isAutoScrolling ? 1 : 0.3
-              }}
-            />
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Button
-              variant="outline"
-              onClick={handleFileSelect}
-              className="flex-1 flex items-center justify-center gap-2 hover:bg-primary hover:text-primary-foreground transition-all duration-300"
-            >
-              <Upload className="w-4 h-4" />
-              {t('upload_files')}
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handleCameraCapture}
-              className="flex-1 flex items-center justify-center gap-2 hover:bg-primary hover:text-primary-foreground transition-all duration-300"
-            >
-              <Camera className="w-4 h-4" />
-              {t('take_picture')}
-            </Button>
-          </div>
-
-          <div className="bg-muted p-4 rounded-lg">
-            <p className="text-sm text-muted-foreground">
-              <Info className="w-4 h-4 inline-block mr-2" />
-              {t('file_format_info')}
-            </p>
           </div>
         </div>
       </DialogContent>

@@ -16,10 +16,16 @@ export default defineConfig(({ mode }) => ({
     componentTagger(),
   ].filter(Boolean),
   resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-      "react-native": "react-native-web",
-    },
+    alias: [
+      {
+        find: "@",
+        replacement: path.resolve(__dirname, "./src")
+      },
+      {
+        find: "react-native",
+        replacement: "react-native-web"
+      }
+    ],
     extensions: [".web.tsx", ".web.ts", ".tsx", ".ts", ".web.js", ".js"],
   },
 }));

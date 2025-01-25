@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Globe, Bell, HelpCircle, Info, LogOut, Moon, Sun } from "lucide-react";
+import { Globe, Bell, HelpCircle, Info, LogOut } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSelector } from "@/components/LanguageSelector";
@@ -19,11 +19,9 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
-import { useTheme } from "@/contexts/ThemeContext";
 
 const Settings = () => {
   const { t, language } = useLanguage();
-  const { theme, setTheme } = useTheme();
   const isRTL = language === 'ar';
   const navigate = useNavigate();
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
@@ -82,24 +80,6 @@ const Settings = () => {
                 <span>{t('push_notifications')}</span>
               </div>
               <Switch defaultChecked />
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <h2 className="text-lg font-medium mb-4">{t('appearance')}</h2>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {theme === 'dark' ? (
-                  <Moon className="h-5 w-5" />
-                ) : (
-                  <Sun className="h-5 w-5" />
-                )}
-                <span>{theme === 'dark' ? t('dark_mode') : t('light_mode')}</span>
-              </div>
-              <Switch 
-                checked={theme === 'dark'}
-                onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
-              />
             </div>
           </Card>
 

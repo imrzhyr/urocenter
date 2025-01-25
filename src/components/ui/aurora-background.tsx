@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useRef } from 'react';
 import { cn } from "@/lib/utils";
 import React, { ReactNode } from "react";
 
@@ -13,6 +14,84 @@ export const AuroraBackground = ({
   showRadialGradient = true,
   ...props
 }: AuroraBackgroundProps) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animationFrameId: number;
+    let gradientX = 0;
+    let gradientY = 0;
+    let targetX = canvas.width / 2;
+    let targetY = canvas.height / 2;
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    const createGradient = (x: number, y: number) => {
+      const gradient = ctx.createRadialGradient(
+        x, y, 0,
+        x, y, Math.max(canvas.width, canvas.height) * 0.5
+      );
+
+      // iOS-inspired colors
+      gradient.addColorStop(0, 'rgba(10, 132, 255, 0.03)'); // iOS blue
+      gradient.addColorStop(0.3, 'rgba(94, 92, 230, 0.02)'); // iOS purple
+      gradient.addColorStop(0.6, 'rgba(0, 179, 255, 0.01)'); // iOS light blue
+      gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+      return gradient;
+    };
+
+    const draw = () => {
+      if (!ctx || !canvas) return;
+
+      // Smooth movement
+      const dx = targetX - gradientX;
+      const dy = targetY - gradientY;
+      gradientX += dx * 0.02;
+      gradientY += dy * 0.02;
+
+      // Clear with a very subtle base color
+      ctx.fillStyle = 'rgba(248, 250, 252, 0.8)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Draw multiple overlapping gradients
+      const gradient1 = createGradient(gradientX, gradientY);
+      const gradient2 = createGradient(canvas.width - gradientX, canvas.height - gradientY);
+
+      ctx.fillStyle = gradient1;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = gradient2;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Update target position periodically
+      if (Math.random() < 0.002) {
+        targetX = Math.random() * canvas.width;
+        targetY = Math.random() * canvas.height;
+      }
+
+      animationFrameId = requestAnimationFrame(draw);
+    };
+
+    // Setup
+    window.addEventListener('resize', resize);
+    resize();
+    draw();
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('resize', resize);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
+
   return (
     <main>
       <div
@@ -23,8 +102,8 @@ export const AuroraBackground = ({
         {...props}
       >
         <div className="absolute inset-0 overflow-hidden">
-          <div
-            //   I'm sorry but this is what peak developer performance looks like // trigger warning
+          <canvas
+            ref={canvasRef}
             className={cn(
               `
             [--white-gradient:repeating-linear-gradient(100deg,var(--white)_0%,var(--white)_7%,var(--transparent)_10%,var(--transparent)_12%,var(--white)_16%)]
@@ -45,7 +124,10 @@ export const AuroraBackground = ({
               showRadialGradient &&
                 `[mask-image:radial-gradient(ellipse_at_100%_0%,black_10%,var(--transparent)_70%)]`
             )}
-          ></div>
+            style={{ 
+              WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.7) 100%)'
+            }}
+          ></canvas>
         </div>
         {children}
       </div>

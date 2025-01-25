@@ -167,9 +167,9 @@ export const MessageList = ({ messages, currentUserId, onReply }: MessageListPro
             <div key={item.id} className="flex items-center justify-center">
               <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/50 dark:bg-gray-800/50 backdrop-blur-lg text-sm">
                 {item.call && getCallIcon(item.call)}
-                <span className="text-gray-600 dark:text-gray-300">
-                  {format(new Date(item.created_at), 'MMM d, HH:mm')}
-                </span>
+                <div className="text-xs text-gray-500">
+                  {format(new Date(item.created_at), 'MMM d, h:mm a')}
+                </div>
                 {item.call && getCallDuration(item.call) && (
                   <span className="text-gray-500 dark:text-gray-400 ml-2">
                     {getCallDuration(item.call)}

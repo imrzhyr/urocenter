@@ -1,30 +1,24 @@
 import { Message } from "@/types/profile";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { MessageStatus } from "../MessageStatus";
 import { AudioPlayer } from "../audio/AudioPlayer";
 import { PhotoMessage } from "./PhotoMessage";
+import { memo } from 'react';
 
 interface MessageContentProps {
   message: Message;
   fromCurrentUser: boolean;
 }
 
-export const MessageContent = ({ message, fromCurrentUser }: MessageContentProps) => {
-  // Handle photo/video messages
-  if ((message.file_urls && message.file_types) || (message.file_url && message.file_type)) {
-    // Convert single file to array format
-    const urls = message.file_urls || (message.file_url ? [message.file_url] : []);
-    const types = message.file_types || (message.file_type ? [message.file_type] : []);
-    const names = message.file_names || (message.file_name ? [message.file_name] : []);
-
-    // Check if any of the files are images or videos
-    if (types.some(type => type?.startsWith('image/') || type?.startsWith('video/'))) {
-      console.log('Rendering photo message:', { urls, types, names });
+export const MessageContent = memo(({ message, fromCurrentUser }: MessageContentProps) => {
+  // Handle media messages (photos, videos, audio)
+  if (message.file_url && message.file_type) {
+    // Handle images and videos
+    if (message.file_type.startsWith('image/') || message.file_type.startsWith('video/')) {
       return (
         <PhotoMessage
-          urls={urls}
-          fileNames={names}
+          urls={[message.file_url]}
+          fileNames={[message.file_name || '']}
           content={message.content}
           timestamp={new Date(message.created_at)}
           fromCurrentUser={fromCurrentUser}
@@ -32,28 +26,11 @@ export const MessageContent = ({ message, fromCurrentUser }: MessageContentProps
         />
       );
     }
-  }
 
-  // Handle other message types
-  return (
-    <div 
-      className={cn(
-        // Base styles
-        "max-w-[320px] sm:max-w-[380px] md:max-w-[440px]",
-        "p-3",
-        "shadow-sm break-words",
-        "min-h-[44px]", // Minimum touch target height per iOS guidelines
-        // Conditional styles based on sender
-        fromCurrentUser
-          ? "bg-[#0066CC] text-white ml-auto rounded-l-xl rounded-tr-xl rounded-br-none" // Sharper edges for sent messages
-          : "bg-white text-[#1C1C1E] border-2 border-[#0066CC]/20 rounded-r-xl rounded-tl-none rounded-bl-xl", // Sharper edges for received messages
-        // Additional styles for proper spacing
-        "relative"
-      )}
-    >
-      {/* Audio message */}
-      {message.file_url && message.file_type?.startsWith('audio/') && (
-        <div className="min-h-[44px]"> {/* Minimum touch target */}
+    // Handle audio messages
+    if (message.file_type.startsWith('audio/')) {
+      return (
+        <div className="min-h-[44px] rounded-lg overflow-hidden">
           <AudioPlayer
             audioUrl={message.file_url}
             messageId={message.id}
@@ -61,35 +38,46 @@ export const MessageContent = ({ message, fromCurrentUser }: MessageContentProps
             isUserMessage={fromCurrentUser}
           />
         </div>
-      )}
-      
-      {/* Text content */}
+      );
+    }
+  }
+
+  // Text messages
+  return (
+    <div 
+      className={cn(
+        "max-w-[320px] sm:max-w-[380px] md:max-w-[440px]",
+        "p-3.5",
+        "shadow-lg",
+        "min-h-[44px]",
+        "backdrop-blur-xl",
+        "backdrop-saturate-150",
+        "bg-gradient-to-br",
+        fromCurrentUser
+          ? "from-[#0A84FF] to-[#0066CC] text-white ml-auto rounded-[20px] rounded-tr-[4px]"
+          : "from-white/90 to-white/80 dark:from-white/20 dark:to-white/10 text-gray-900 dark:text-white mr-auto rounded-[20px] rounded-tl-[4px]"
+      )}>
       {message.content && (
         <>
           <p className={cn(
-            "text-[15px] leading-[1.3]", // iOS standard message text size
-            "whitespace-pre-wrap break-words overflow-wrap-anywhere",
-            "select-text", // Allow text selection
-            "px-0.5" // Slight padding for text
+            "text-[15px] leading-[1.4]",
+            "whitespace-pre-wrap break-words",
+            fromCurrentUser ? "text-white/95" : "text-gray-900 dark:text-white/90"
           )}>
             {message.content}
           </p>
           
-          {/* Message metadata */}
           <div className={cn(
-            "flex items-center gap-1.5 mt-1",
-            "text-[11px] leading-none", // iOS minimum text size
+            "flex items-center gap-1.5 mt-1.5",
+            "text-[11px]",
             fromCurrentUser ? "justify-end" : "justify-start"
           )}>
-            <span className={cn(
-              fromCurrentUser ? "text-white/80" : "text-[#8E8E93]" // iOS secondary text color
-            )}>
-              {format(new Date(message.created_at), 'h:mm a')} {/* 12-hour format with am/pm */}
+            <span className={fromCurrentUser ? "text-white/70" : "text-gray-500/70 dark:text-gray-400/70"}>
+              {format(new Date(message.created_at), 'h:mm a')}
             </span>
-            {fromCurrentUser && <MessageStatus message={message} />}
           </div>
         </>
       )}
     </div>
   );
-};
+});

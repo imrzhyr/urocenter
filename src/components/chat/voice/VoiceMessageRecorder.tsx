@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Mic, Square, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { uploadFile } from "@/utils/fileUpload";
+import { cn } from "@/lib/utils";
 
 interface VoiceMessageRecorderProps {
   onRecordingComplete: (fileInfo: { url: string; name: string; type: string; duration: number }) => void;
@@ -89,29 +90,46 @@ export const VoiceMessageRecorder = ({ onRecordingComplete }: VoiceMessageRecord
   return (
     <div className="flex items-center gap-2">
       {isUploading ? (
-        <Button disabled variant="ghost" size="icon" className="h-8 w-8">
-          <Loader2 className="h-4 w-4 animate-spin" />
-        </Button>
+        <div className="voice-message group">
+          <div className="voice-message-play">
+            <Loader2 className="h-4 w-4 animate-spin text-white/80" />
+          </div>
+          <div className="voice-message-waveform">
+            <div className="voice-message-waveform-bg voice-message-loading" />
+          </div>
+          <div className="voice-message-duration text-white/60">
+            Processing...
+          </div>
+        </div>
       ) : isRecording ? (
-        <>
-          <span className="text-sm text-red-500 animate-pulse">
+        <div className="voice-recording">
+          <div className="voice-recording-indicator" />
+          <span className="voice-recording-time">
             {Math.floor(duration / 60)}:{(duration % 60).toString().padStart(2, '0')}
           </span>
           <Button
             onClick={stopRecording}
             variant="ghost"
             size="icon"
-            className="h-8 w-8 bg-red-50 hover:bg-red-100 dark:bg-red-900/10 dark:hover:bg-red-900/20"
+            className="voice-recording-cancel"
           >
-            <Square className="h-4 w-4 text-red-500" />
+            <Square className="h-4 w-4" />
           </Button>
-        </>
+        </div>
       ) : (
         <Button
           onClick={startRecording}
           variant="ghost"
           size="icon"
-          className="h-8 w-8"
+          className={cn(
+            "h-8 w-8",
+            "rounded-xl",
+            "bg-white/[0.08]",
+            "text-white/90",
+            "hover:bg-white/[0.12] active:bg-white/[0.16]",
+            "transition-all duration-200",
+            "backdrop-blur-sm"
+          )}
         >
           <Mic className="h-4 w-4" />
         </Button>

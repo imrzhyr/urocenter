@@ -60,7 +60,7 @@ export const MessageList = ({ messages }: MessageListProps) => {
                 </Text>
                 <View style={styles.messageFooter}>
                   <Text style={styles.timestamp}>
-                    {format(new Date(message.created_at), 'hh:mm a')}
+                    {format(new Date(message.created_at), 'h:mm a')}
                   </Text>
                   {isFromCurrentUser && <MessageStatus message={message} />}
                 </View>

@@ -1,74 +1,101 @@
-import React, { useState, useEffect } from 'react';
-import { MessageList } from './MessageList';
-import { MessageInput } from './MessageInput';
-import { Message } from '@/types/profile';
-import { TypingIndicator } from './TypingIndicator';
-import { FileInfo } from '@/types/chat';
+import React from 'react';
+import { MessageList } from './components/messages';
+import { MessageInput } from './components/input';
+import { TypingIndicator } from './components/status';
+import { DoctorChatHeader } from './components/header/DoctorChatHeader';
+import { PatientChatHeader } from './components/header/PatientChatHeader';
+import type { Message, FileInfo } from './types';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useProfile } from '@/hooks/useProfile';
+import { cn } from '@/lib/utils';
 
 interface MessageContainerProps {
-  messages: Message[];
-  onSendMessage: (content: string, fileInfo?: FileInfo, replyTo?: Message) => void;
-  onTyping?: (isTyping: boolean) => void;
-  isLoading: boolean;
+  messages?: Message[];
+  onSendMessage: (content: string, fileInfo?: FileInfo) => Promise<void>;
+  isLoading?: boolean;
   header: React.ReactNode;
-  userId: string;
+  otherPersonIsTyping?: boolean;
 }
 
-export const MessageContainer: React.FC<MessageContainerProps> = ({ 
+export const MessageContainer: React.FC<MessageContainerProps> = ({
   messages = [],
   onSendMessage,
-  onTyping,
-  isLoading,
+  isLoading = false,
   header,
-  userId
+  otherPersonIsTyping = false,
 }) => {
-  const [replyingTo, setReplyingTo] = useState<Message | null>(null);
-  
-  const typingUsers = messages && messages.length > 0 ? 
-    messages[messages.length - 1]?.typing_users || [] : 
-    [];
+  const [isTyping, setIsTyping] = React.useState(false);
+  const { t } = useLanguage();
+  const { profile } = useProfile();
+  const messagesEndRef = React.useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    document.body.style.position = 'fixed';
-    document.body.style.width = '100%';
-    document.body.style.height = '100%';
-    
-    return () => {
-      document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
-      document.body.style.height = '';
-    };
+  // Scroll to bottom when new messages arrive
+  const scrollToBottom = React.useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
 
-  return (
-    <div className="fixed inset-0 flex flex-col bg-[#f0f7ff] dark:bg-[#1A2433]">
-      <div className="absolute top-0 left-0 right-0 z-50 bg-[#0066CC] text-white">
-        {header}
-      </div>
-      
-      <div className="absolute inset-0 top-[56px] bottom-[64px] chat-background">
-        <div className="h-full overflow-y-auto">
-          <MessageList
-            messages={messages}
-            currentUserId={userId}
-            onReply={setReplyingTo}
-            replyingTo={replyingTo}
-          />
-          <TypingIndicator typingUsers={typingUsers} />
-        </div>
-      </div>
+  React.useEffect(() => {
+    scrollToBottom();
+  }, [messages, scrollToBottom]);
 
-      <div className="absolute bottom-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#1A2433]/80 backdrop-blur-lg border-t border-gray-200 dark:border-gray-700/50">
+  const handleReply = React.useCallback((message: Message) => {
+    // TODO: Implement reply
+    console.log('Replying to:', message);
+  }, []);
+
+  const handleMessageSeen = React.useCallback(async (messageId: string) => {
+    try {
+      const { error } = await supabase
+        .from('messages')
+        .update({ seen: true })
+        .eq('id', messageId);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error marking message as seen:', error);
+    }
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen p-4">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  return (
+    <div className={cn(
+      "flex flex-col h-screen",
+      "bg-[#F2F2F7] dark:bg-[#1C1C1E]"
+    )}>
+      {header}
+      <div className="flex-1 overflow-y-auto flex flex-col justify-end">
+        {!messages || messages.length === 0 ? (
+          <div className="flex-1 flex items-center justify-center text-[#8E8E93] dark:text-[#98989D]">
+            {t('no_messages_yet')}
+          </div>
+        ) : (
+          <MessageList 
+            messages={messages}
+            currentUserId={profile?.id}
+            onMessageSeen={handleMessageSeen}
+            onReply={handleReply}
+          />
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+      {/* Only show typing indicator if there are messages and the other person is typing */}
+      {otherPersonIsTyping && messages?.length > 0 && <TypingIndicator />}
+      <div className="sticky bottom-0 bg-[#F2F2F7] dark:bg-[#1C1C1E] p-4">
         <MessageInput 
-          onSendMessage={(content, fileInfo) => onSendMessage(content, fileInfo, replyingTo)}
+          onSendMessage={onSendMessage}
+          onTyping={setIsTyping}
           isLoading={isLoading}
-          replyingTo={replyingTo}
-          onCancelReply={() => setReplyingTo(null)}
-          onTyping={onTyping}
         />
       </div>
     </div>
   );
-};
+}; 

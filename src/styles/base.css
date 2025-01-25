@@ -3,23 +3,60 @@ html, body, #root {
   margin: 0;
   padding: 0;
   width: 100%;
-  min-height: 100vh;
+  height: 100%;
+  font-size: 14px;
 }
 
 /* Base styles */
 body {
-  min-height: 100vh;
   margin: 0;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-overflow-scrolling: touch; /* Enable momentum scrolling on iOS */
+  /* Enable momentum scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
+  /* Prevent text size adjustment on orientation change */
+  -webkit-text-size-adjust: 100%;
+  /* Ensure proper height on iOS */
+  min-height: -webkit-fill-available;
+  background-color: var(--background);
+}
+
+/* iOS Safari viewport height fix */
+html {
+  height: -webkit-fill-available;
+}
+
+/* Main app container */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  /* Use dynamic viewport units for iOS Safari */
+  min-height: 100dvh;
+  background-color: var(--background);
+}
+
+/* Scrollable content area */
+.page-content {
+  flex: 1;
+  position: relative;
+  /* Prevent content from being hidden under bottom bars */
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Fixed headers */
+.fixed-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  /* Account for iOS Safari status bar */
+  padding-top: env(safe-area-inset-top);
+  background-color: inherit;
 }
 
 /* Optimize images */
 img {
   max-width: 100%;
   height: auto;
+  -webkit-user-drag: none;
 }
 
 /* Custom scrollbar */

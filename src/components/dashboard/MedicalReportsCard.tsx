@@ -2,13 +2,6 @@ import { useState, useEffect } from "react";
 import { Eye, Plus, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { UploadDialog } from "@/components/medical-reports/UploadDialog";
 import { ViewReportsDialog } from "@/components/medical-reports/ViewReportsDialog";
 import { UploadInformationDialog } from "@/components/medical-reports/UploadInformationDialog";
@@ -109,169 +102,161 @@ export const MedicalReportsCard = ({ className }: MedicalReportsCardProps) => {
         stiffness: 300,
         damping: 30
       }}
-    >
-      <Card className={cn(
-        "bg-white dark:bg-[#1C1C1E]",
-        "shadow-sm",
-        "border border-[#C6C6C8] dark:border-[#38383A]",
+      className={cn(
+        "bg-[#1A1F2C] dark:bg-[#1C1C1E]",
         "rounded-2xl",
         "overflow-hidden",
+        "p-6",
+        "border border-white/[0.08]",
+        "backdrop-blur-xl",
         className
-      )}>
-        <CardHeader className={cn(
-          "flex flex-row items-start justify-between",
-          "space-y-0 pb-2 pt-6 px-6",
+      )}
+    >
+      <div className="space-y-6">
+        <div className={cn(
+          "flex items-start justify-between",
           isRTL ? "flex-row-reverse" : "flex-row"
         )}>
           <div className={cn(
-            "space-y-1.5",
+            "space-y-2",
             isRTL ? "text-right" : "text-left"
           )}>
-            <CardTitle className={cn(
-              "text-[20px]", // iOS headline
-              "font-semibold",
-              "text-[#1C1C1E] dark:text-white"
-            )}>
+            <motion.h2
+              initial={{ y: 10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.1 }}
+              className="text-2xl font-semibold text-white"
+            >
               {t('medical_documentation')}
-            </CardTitle>
-            <CardDescription className={cn(
-              "text-[15px]", // iOS subheadline
-              "text-[#8E8E93] dark:text-[#98989D]"
-            )}>
+            </motion.h2>
+            <motion.p
+              initial={{ y: 10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="text-[#8E8E93] dark:text-[#98989D] text-base"
+            >
               {t('manage_medical_records')}
-            </CardDescription>
+            </motion.p>
           </div>
-          <UploadInformationDialog />
-        </CardHeader>
-
-        <CardContent className="px-6 pb-6">
           <motion.div
-            className="space-y-6"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ 
-              type: "spring",
-              stiffness: 300,
-              damping: 30,
-              delay: 0.2 
-            }}
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.3 }}
           >
-            <div className={cn(
-              "flex items-center gap-3",
-              isRTL ? "flex-row-reverse" : "flex-row"
-            )}>
-              <motion.div 
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{
-                  type: "spring",
-                  stiffness: 300,
-                  damping: 25,
-                  delay: 0.3
-                }}
-                className={cn(
-                  "p-3",
-                  "bg-[#007AFF]/10 dark:bg-[#0A84FF]/10",
-                  "rounded-2xl"
-                )}
-              >
-                <FileText className="h-6 w-6 text-[#007AFF] dark:text-[#0A84FF]" />
-              </motion.div>
-              <motion.span 
-                initial={{ y: 10, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{
-                  type: "spring",
-                  stiffness: 300,
-                  damping: 25,
-                  delay: 0.4
-                }}
-                className={cn(
-                  "text-[22px]", // iOS large title
-                  "font-semibold",
-                  "text-[#007AFF] dark:text-[#0A84FF]"
-                )}
-              >
-                {medicalReportsCount}
-              </motion.span>
-            </div>
-
-            <div className={cn(
-              "grid grid-cols-2 gap-3",
-              isRTL ? "flex-row-reverse" : "flex-row"
-            )}>
-              <Button 
-                variant="outline" 
-                onClick={() => {
-                  if (window.navigator && window.navigator.vibrate) {
-                    window.navigator.vibrate(2);
-                  }
-                  setIsViewDialogOpen(true);
-                }}
-                className={cn(
-                  "h-11", // iOS button height
-                  "rounded-xl",
-                  "text-[17px]", // iOS body
-                  "font-normal",
-                  "bg-[#F2F2F7] dark:bg-[#2C2C2E]",
-                  "hover:bg-[#E5E5EA] dark:hover:bg-[#3A3A3C]",
-                  "active:bg-[#D1D1D6] dark:active:bg-[#48484A]",
-                  "border-[#C6C6C8] dark:border-[#38383A]",
-                  "text-[#007AFF] dark:text-[#0A84FF]",
-                  "transition-colors duration-200",
-                  "flex items-center justify-center gap-2",
-                  isRTL ? "flex-row-reverse" : "flex-row"
-                )}
-              >
-                <Eye className="w-[18px] h-[18px]" />
-                {t('view_records')}
-              </Button>
-              <Button 
-                variant="default"
-                onClick={() => {
-                  if (window.navigator && window.navigator.vibrate) {
-                    window.navigator.vibrate(2);
-                  }
-                  setIsUploadDialogOpen(true);
-                }}
-                className={cn(
-                  "h-11", // iOS button height
-                  "rounded-xl",
-                  "text-[17px]", // iOS body
-                  "font-normal",
-                  "bg-[#007AFF] dark:bg-[#0A84FF]",
-                  "hover:bg-[#0071E3] dark:hover:bg-[#0A84FF]/90",
-                  "active:bg-[#0051A2] dark:active:bg-[#0A84FF]/80",
-                  "text-white",
-                  "transition-colors duration-200",
-                  "flex items-center justify-center gap-2",
-                  isRTL ? "flex-row-reverse" : "flex-row"
-                )}
-              >
-                <Plus className="w-[18px] h-[18px]" />
-                {t('add_document')}
-              </Button>
-            </div>
+            <UploadInformationDialog />
           </motion.div>
-        </CardContent>
-      </Card>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className={cn(
+            "flex flex-col w-full",
+            "bg-[#2C2C2E]/50 dark:bg-[#2C2C2E]/30",
+            "backdrop-blur-xl",
+            "border border-white/[0.08]",
+            "rounded-xl",
+            "p-4"
+          )}
+        >
+          <div className={cn(
+            "flex items-center gap-4",
+            isRTL ? "flex-row-reverse" : "flex-row"
+          )}>
+            <div className={cn(
+              "w-12 h-12",
+              "bg-[#0A84FF]/10",
+              "rounded-xl",
+              "flex items-center justify-center"
+            )}>
+              <FileText className="w-6 h-6 text-[#0A84FF]" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-white/90 text-sm font-medium">
+                {t('total_reports')}
+              </span>
+              <span className="text-2xl font-semibold text-[#0A84FF]">
+                {medicalReportsCount}
+              </span>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className={cn(
+            "grid grid-cols-2 gap-3",
+            isRTL ? "flex-row-reverse" : "flex-row"
+          )}
+        >
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              if (window.navigator && window.navigator.vibrate) {
+                window.navigator.vibrate(2);
+              }
+              setIsViewDialogOpen(true);
+            }}
+            className={cn(
+              "h-12",
+              "rounded-xl",
+              "text-base font-medium",
+              "bg-[#2C2C2E]/50 dark:bg-[#2C2C2E]/30",
+              "hover:bg-[#2C2C2E]/70 dark:hover:bg-[#2C2C2E]/50",
+              "active:bg-[#2C2C2E]/90 dark:active:bg-[#2C2C2E]/70",
+              "border border-white/[0.08]",
+              "text-white",
+              "backdrop-blur-xl",
+              "transition-all duration-200",
+              "flex items-center justify-center gap-2",
+              isRTL ? "flex-row-reverse" : "flex-row"
+            )}
+          >
+            <Eye className="w-5 h-5" />
+            {t('view_records')}
+          </Button>
+          <Button 
+            variant="default"
+            onClick={() => {
+              if (window.navigator && window.navigator.vibrate) {
+                window.navigator.vibrate(2);
+              }
+              setIsUploadDialogOpen(true);
+            }}
+            className={cn(
+              "h-12",
+              "rounded-xl",
+              "text-base font-medium",
+              "bg-[#0A84FF]",
+              "hover:bg-[#0A84FF]/90",
+              "active:bg-[#0A84FF]/80",
+              "text-white",
+              "transition-all duration-200",
+              "flex items-center justify-center gap-2",
+              isRTL ? "flex-row-reverse" : "flex-row"
+            )}
+          >
+            <Plus className="w-5 h-5" />
+            {t('upload_report')}
+          </Button>
+        </motion.div>
+      </div>
 
       <AnimatePresence>
         {isUploadDialogOpen && (
-          <UploadDialog 
-            key="upload-dialog"
-            open={isUploadDialogOpen} 
+          <UploadDialog
+            open={isUploadDialogOpen}
             onOpenChange={setIsUploadDialogOpen}
             onUploadSuccess={fetchMedicalReports}
           />
         )}
-
         {isViewDialogOpen && (
           <ViewReportsDialog
-            key="view-dialog"
             open={isViewDialogOpen}
             onOpenChange={setIsViewDialogOpen}
-            userId={profileData?.id}
           />
         )}
       </AnimatePresence>

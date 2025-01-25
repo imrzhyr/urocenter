@@ -1,5 +1,5 @@
 import { useParams, Navigate } from 'react-router-dom';
-import { DoctorChatContainer } from '@/components/chat/doctor/DoctorChatContainer';
+import { DoctorChat as DoctorChatContainer } from '@/components/chat/containers';
 import { useProfile } from '@/hooks/useProfile';
 import { LoadingScreen } from '@/components/LoadingScreen';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -33,7 +33,7 @@ const UserChat = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <DoctorChatContainer />
+      <DoctorChatContainer userId={params.userId} />
     </div>
   );
 };

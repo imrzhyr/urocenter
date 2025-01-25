@@ -73,7 +73,12 @@ export const medicalTranslations = {
     "medical_reports_description": "Access and organize your medical documents, test results, and reports",
     "scroll_for_more": "Scroll for more",
     "auto_scrolling": "Auto-scrolling",
-    "manual_scrolling": "Manual scrolling"
+    "manual_scrolling": "Manual scrolling",
+    "total_reports": "Total Reports",
+    "upload_report": "Upload Report",
+    "take_photo": "Take Photo",
+    "choose_file": "Choose File",
+    "accepted_document_types": "Accepted Document Types"
   },
   ar: {
     "medical_information_title": "المعلومات الطبية",
@@ -149,6 +154,11 @@ export const medicalTranslations = {
     "medical_reports_description": "الوصول إلى مستنداتك الطبية ونتائج الفحوصات والتقارير وتنظيمها",
     "scroll_for_more": "اسحب للمزيد",
     "auto_scrolling": "تمرير تلقائي",
-    "manual_scrolling": "تمرير يدوي"
+    "manual_scrolling": "تمرير يدوي",
+    "total_reports": "إجمالي التقارير",
+    "upload_report": "تحميل تقرير",
+    "take_photo": "التقاط صورة",
+    "choose_file": "اختيار ملف",
+    "accepted_document_types": "أنواع المستندات المقبولة"
   }
 };

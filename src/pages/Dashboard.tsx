@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
-import { MessagesCard } from "@/components/dashboard/MessagesCard";
+import { ConsultationCard } from "@/components/dashboard/ConsultationCard";
 import { MedicalReportsCard } from "@/components/dashboard/MedicalReportsCard";
 import { DoctorProfileCard } from "@/components/dashboard/DoctorProfileCard";
 import { motion, AnimatePresence } from "framer-motion";
@@ -131,7 +131,7 @@ const Dashboard = () => {
   // Loading state with iOS-style animation
   if (isProfileLoading && isInitialLoad) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#000B1D]">
+      <div className="h-full flex items-center justify-center bg-[#000B1D]">
         <LiveBackground className="fixed inset-0" />
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
@@ -155,13 +155,13 @@ const Dashboard = () => {
 
   return (
     <div className={cn(
-      "flex flex-col min-h-screen relative",
+      "h-full flex flex-col relative",
       "bg-[#000B1D]",
       isRTL ? "rtl" : "ltr"
     )}>
       <LiveBackground className="fixed inset-0" />
-      <DashboardHeader />
-      <main className="flex-1 overflow-y-auto relative">
+      <DashboardHeader className="fixed-header" />
+      <main className="page-content">
         <div className="container max-w-lg mx-auto px-4 py-6">
           <motion.div 
             initial={{ opacity: 0, y: -20 }}
@@ -197,7 +197,7 @@ const Dashboard = () => {
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
             >
-              <MessagesCard className="bg-[#1C1C1E]/50 backdrop-blur-xl border border-white/[0.08] shadow-lg shadow-black/5" />
+              <ConsultationCard />
             </motion.div>
             <motion.div 
               initial={{ opacity: 0, y: 20 }}

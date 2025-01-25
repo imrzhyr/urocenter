@@ -123,7 +123,7 @@ export const OnboardingLayout = () => {
       <motion.div 
         key={language}
         className={cn(
-          "min-h-screen flex flex-col",
+          "h-full flex flex-col",
           "bg-[#000B1D] text-white",
           isRTL ? "rtl" : "ltr"
         )}
@@ -133,7 +133,11 @@ export const OnboardingLayout = () => {
         variants={pageVariants}
       >
         <motion.header 
-          className="sticky top-0 z-50 w-full bg-[#000B1D]/50 backdrop-blur-xl border-b border-white/[0.08]"
+          className={cn(
+            "fixed-header",
+            "w-full bg-[#000B1D]/50 backdrop-blur-xl",
+            "border-b border-white/[0.08]"
+          )}
           variants={contentVariants}
         >
           <div className="container max-w-4xl mx-auto p-4 flex items-center">
@@ -232,13 +236,13 @@ export const OnboardingLayout = () => {
         </motion.header>
 
         <motion.main 
-          className="flex-1 overflow-y-auto"
+          className="page-content"
           variants={contentVariants}
         >
           <AnimatePresence mode="wait">
             <motion.div 
               key={location.pathname}
-              className="container max-w-4xl mx-auto"
+              className="container max-w-4xl mx-auto px-4"
               initial="initial"
               animate="animate"
               exit="exit"
@@ -254,7 +258,8 @@ export const OnboardingLayout = () => {
             "p-4 text-center text-sm",
             "text-[#98989D]",
             "bg-[#000B1D]/50 backdrop-blur-xl",
-            "border-t border-white/[0.08]"
+            "border-t border-white/[0.08]",
+            "mt-auto"
           )}
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
