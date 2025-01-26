@@ -14,6 +14,7 @@ import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 import { Profile } from "@/types/profile";
 import { cn } from "@/lib/utils";
 import { LiveBackground } from "@/components/ui/LiveBackground";
+import { RootLayout } from "@/components/layouts/RootLayout";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -131,20 +132,22 @@ const Dashboard = () => {
   // Loading state with iOS-style animation
   if (isProfileLoading && isInitialLoad) {
     return (
-      <div className="h-full flex items-center justify-center bg-[#000B1D]">
-        <LiveBackground className="fixed inset-0" />
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{
-            type: "spring",
-            stiffness: 260,
-            damping: 20
-          }}
-        >
-          <LoadingSpinner className="text-[#0A84FF]" />
-        </motion.div>
-      </div>
+      <RootLayout>
+        <div className="h-full flex items-center justify-center bg-[#000B1D]">
+          <LiveBackground className="fixed inset-0" />
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{
+              type: "spring",
+              stiffness: 260,
+              damping: 20
+            }}
+          >
+            <LoadingSpinner className="text-[#0A84FF]" />
+          </motion.div>
+        </div>
+      </RootLayout>
     );
   }
 
@@ -154,75 +157,78 @@ const Dashboard = () => {
   }
 
   return (
-    <div className={cn(
-      "h-full flex flex-col relative",
-      "bg-[#000B1D]",
-      isRTL ? "rtl" : "ltr"
-    )}>
-      <LiveBackground className="fixed inset-0" />
-      <DashboardHeader className="fixed-header" />
-      <main className="page-content">
-        <div className="container max-w-lg mx-auto px-4 py-6">
-          <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ 
-              type: "spring",
-              stiffness: 300,
-              damping: 25,
-              delay: 0.1
-            }}
-            className="text-center mb-6"
-          >
-            <h1 className={cn(
-              "text-[28px] font-bold",
-              "bg-gradient-to-r from-[#0055D4] to-[#00A3FF]",
-              "bg-clip-text text-transparent"
-            )}>
-              {t("virtual_consultation_welcome")}
-            </h1>
-          </motion.div>
-          
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6 }}
-            className="space-y-4"
-          >
+    <RootLayout>
+      <div className={cn(
+        "min-h-full flex flex-col relative",
+        "bg-[#000B1D]",
+        isRTL ? "rtl" : "ltr"
+      )}>
+        <LiveBackground className="fixed inset-0" />
+        <DashboardHeader className="sticky top-0 z-10" />
+        
+        <main className="flex-1 overflow-auto">
+          <div className="container max-w-lg mx-auto px-4 py-6">
             <motion.div 
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="transform active:scale-[0.98] transition-transform duration-200"
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.98 }}
+              transition={{ 
+                type: "spring",
+                stiffness: 300,
+                damping: 25,
+                delay: 0.1
+              }}
+              className="text-center mb-6"
             >
-              <ConsultationCard />
+              <h1 className={cn(
+                "text-[28px] font-bold",
+                "bg-gradient-to-r from-[#0055D4] to-[#00A3FF]",
+                "bg-clip-text text-transparent"
+              )}>
+                {t("virtual_consultation_welcome")}
+              </h1>
             </motion.div>
+            
             <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="transform active:scale-[0.98] transition-transform duration-200"
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.98 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6 }}
+              className="space-y-4 pb-6"
             >
-              <MedicalReportsCard className="bg-[#1C1C1E]/50 backdrop-blur-xl border border-white/[0.08] shadow-lg shadow-black/5" />
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="transform active:scale-[0.98] transition-transform duration-200"
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <ConsultationCard />
+              </motion.div>
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="transform active:scale-[0.98] transition-transform duration-200"
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <MedicalReportsCard className="bg-[#1C1C1E]/50 backdrop-blur-xl border border-white/[0.08] shadow-lg shadow-black/5" />
+              </motion.div>
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="transform active:scale-[0.98] transition-transform duration-200"
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <DoctorProfileCard className="bg-[#1C1C1E]/50 backdrop-blur-xl border border-white/[0.08] shadow-lg shadow-black/5" />
+              </motion.div>
             </motion.div>
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="transform active:scale-[0.98] transition-transform duration-200"
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <DoctorProfileCard className="bg-[#1C1C1E]/50 backdrop-blur-xl border border-white/[0.08] shadow-lg shadow-black/5" />
-            </motion.div>
-          </motion.div>
-        </div>
-      </main>
-    </div>
+          </div>
+        </main>
+      </div>
+    </RootLayout>
   );
 };
 

@@ -18,6 +18,7 @@
     "@capacitor/ios": "^6.2.0",
     "@hookform/resolvers": "^3.3.4",
     "@jridgewell/sourcemap-codec": "^1.4.15",
+    "@npmcli/fs": "^3.1.0",
     "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/react-alert-dialog": "^1.0.5",
     "@radix-ui/react-aspect-ratio": "^1.0.3",
@@ -51,7 +52,7 @@
     "@react-navigation/native-stack": "^6.9.17",
     "@supabase/auth-ui-react": "^0.4.7",
     "@supabase/auth-ui-shared": "^0.1.8",
-    "@supabase/ssr": "^0.1.0",
+    "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.39.3",
     "@tanstack/react-query": "^5.17.19",
     "@tanstack/react-virtual": "^3.0.2",
@@ -63,7 +64,7 @@
     "date-fns": "^3.0.6",
     "embla-carousel-autoplay": "^8.0.0",
     "embla-carousel-react": "^8.0.0",
-    "expo": "^50.0.4",
+    "expo": "^52.0.27",
     "expo-av": "^13.10.5",
     "expo-status-bar": "^1.11.1",
     "expo-updates": "^0.24.8",
@@ -71,7 +72,7 @@
     "glob": "^10.3.10",
     "i18next": "^23.7.16",
     "input-otp": "^1.0.1",
-    "lru-cache": "^10.1.0",
+    "lru-cache": "^10.2.0",
     "lucide-react": "^0.314.0",
     "lucide-react-native": "^0.314.0",
     "next-themes": "^0.2.1",
@@ -100,8 +101,12 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@babel/plugin-transform-async-generator-functions": "^7.23.4",
     "@babel/plugin-transform-class-properties": "^7.23.3",
     "@babel/plugin-transform-nullish-coalescing-operator": "^7.23.4",
+    "@babel/plugin-transform-numeric-separator": "^7.23.4",
+    "@babel/plugin-transform-object-rest-spread": "^7.23.4",
+    "@babel/plugin-transform-optional-catch-binding": "^7.23.4",
     "@babel/plugin-transform-optional-chaining": "^7.23.4",
     "@eslint/js": "^8.56.0",
     "@react-navigation/stack": "^6.3.20",
@@ -109,9 +114,6 @@
     "@types/node": "^20.11.5",
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",
-    "@types/react-native": "^0.73.0",
-    "@types/react-navigation": "^3.4.0",
-    "@types/react-router-dom": "^5.3.3",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.17",
     "eslint": "^8.56.0",
@@ -130,6 +132,8 @@
   "resolutions": {
     "date-fns": "^3.0.6",
     "@react-navigation/native": "^6.1.9",
-    "@react-navigation/native-stack": "^6.9.17"
+    "@react-navigation/native-stack": "^6.9.17",
+    "react": "^18.2.0",
+    "react-native": "^0.73.2"
   }
 }

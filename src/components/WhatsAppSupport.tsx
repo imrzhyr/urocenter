@@ -1,4 +1,4 @@
-import { Headset } from "lucide-react";
+import { HeadphonesIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
@@ -26,7 +26,7 @@ export const WhatsAppSupport = () => {
           )}
           aria-label={t('get_support')}
         >
-          <Headset className="h-5 w-5 text-primary" />
+          <HeadphonesIcon className="h-5 w-5 text-primary" />
           <span className="text-primary font-medium">{t("help_center")}</span>
         </Button>
       </div>

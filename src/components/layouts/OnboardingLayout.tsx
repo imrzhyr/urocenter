@@ -123,7 +123,7 @@ export const OnboardingLayout = () => {
       <motion.div 
         key={language}
         className={cn(
-          "h-full flex flex-col",
+          "min-h-screen flex flex-col",
           "bg-[#000B1D] text-white",
           isRTL ? "rtl" : "ltr"
         )}
@@ -134,7 +134,7 @@ export const OnboardingLayout = () => {
       >
         <motion.header 
           className={cn(
-            "fixed-header",
+            "sticky top-0 z-50",
             "w-full bg-[#000B1D]/50 backdrop-blur-xl",
             "border-b border-white/[0.08]"
           )}
@@ -236,13 +236,13 @@ export const OnboardingLayout = () => {
         </motion.header>
 
         <motion.main 
-          className="page-content"
+          className="flex-1 flex flex-col"
           variants={contentVariants}
         >
           <AnimatePresence mode="wait">
             <motion.div 
               key={location.pathname}
-              className="container max-w-4xl mx-auto px-4"
+              className="container max-w-4xl mx-auto px-4 flex-1 flex flex-col"
               initial="initial"
               animate="animate"
               exit="exit"
@@ -254,18 +254,10 @@ export const OnboardingLayout = () => {
         </motion.main>
 
         <motion.footer 
-          className={cn(
-            "p-4 text-center text-sm",
-            "text-[#98989D]",
-            "bg-[#000B1D]/50 backdrop-blur-xl",
-            "border-t border-white/[0.08]",
-            "mt-auto"
-          )}
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3, type: "spring", stiffness: 300, damping: 30 }}
+          className="mt-auto py-4 text-center text-sm text-white/60"
+          variants={contentVariants}
         >
-          {language === 'ar' ? '© 2025 جميع الحقوق محفوظة' : '© 2025 All rights reserved'}
+          <p>{t("all_rights_reserved")}</p>
         </motion.footer>
       </motion.div>
     </AnimatePresence>

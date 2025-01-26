@@ -8,6 +8,7 @@ import { I18nextProvider } from "react-i18next";
 import i18n from "./i18n/config";
 import { Toaster } from "sonner";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import { RootLayout } from "./components/layouts/RootLayout";
 
 const queryClient = new QueryClient();
 
@@ -20,15 +21,17 @@ function App() {
             <ThemeProvider>
               <AuthProvider>
                 <CallProvider>
-                  <AppRoutes />
-                  <Toaster 
-                    position="top-center"
-                    expand={false}
-                    richColors
-                    closeButton
-                    duration={2000}
-                    className="!top-4"
-                  />
+                  <RootLayout>
+                    <AppRoutes />
+                    <Toaster 
+                      position="top-center"
+                      expand={false}
+                      richColors
+                      closeButton
+                      duration={2000}
+                      className="!top-4"
+                    />
+                  </RootLayout>
                 </CallProvider>
               </AuthProvider>
             </ThemeProvider>
