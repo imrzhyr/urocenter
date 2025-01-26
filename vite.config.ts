@@ -1,8 +1,14 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
-import { componentTagger } from "lovable-tagger";
 import { VitePWA } from 'vite-plugin-pwa';
+
+let componentTagger;
+try {
+  componentTagger = require("lovable-tagger").componentTagger;
+} catch (e) {
+  componentTagger = () => null;
+}
 
 export default defineConfig(({ mode }) => ({
   server: {
@@ -13,8 +19,7 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(),
-    mode === 'development' &&
-    componentTagger(),
+    mode === 'development' && componentTagger(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: [
