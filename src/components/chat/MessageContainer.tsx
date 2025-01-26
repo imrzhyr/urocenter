@@ -2,8 +2,8 @@ import React from 'react';
 import { MessageList } from './components/messages';
 import { MessageInput } from './components/input';
 import { TypingIndicator } from './components/status';
-import { DoctorChatHeader } from './components/header/DoctorChatHeader';
-import { PatientChatHeader } from './components/header/PatientChatHeader';
+import { DoctorChatHeader } from './doctor/DoctorChatHeader';
+import { PatientChatHeader } from './patient/PatientChatHeader';
 import type { Message, FileInfo } from './types';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -29,16 +29,81 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
   const [isTyping, setIsTyping] = React.useState(false);
   const { t } = useLanguage();
   const { profile } = useProfile();
-  const messagesEndRef = React.useRef<HTMLDivElement>(null);
+  const messageListRef = React.useRef<HTMLDivElement>(null);
+  const [shouldAutoScroll, setShouldAutoScroll] = React.useState(true);
+  const [isSending, setIsSending] = React.useState(false);
 
-  // Scroll to bottom when new messages arrive
-  const scrollToBottom = React.useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const forceScrollToBottom = React.useCallback((smooth = false) => {
+    if (!messageListRef.current) return;
+    
+    const element = messageListRef.current;
+    const scrollToBottom = () => {
+      requestAnimationFrame(() => {
+        element.scrollTo({
+          top: element.scrollHeight,
+          behavior: smooth ? 'smooth' : 'auto'
+        });
+      });
+    };
+
+    // Initial scroll
+    scrollToBottom();
+
+    // Additional scrolls to handle dynamic content
+    if (!smooth) {
+      setTimeout(scrollToBottom, 100);
+      setTimeout(scrollToBottom, 300);
+    }
   }, []);
 
+  // Handle scroll events with more precise bottom detection
+  const handleScroll = React.useCallback(() => {
+    if (!messageListRef.current || isSending) return;
+    
+    const element = messageListRef.current;
+    const isAtBottom = Math.abs(
+      (element.scrollHeight - element.scrollTop - element.clientHeight)
+    ) <= 20; // Slightly more forgiving threshold
+    setShouldAutoScroll(isAtBottom);
+  }, [isSending]);
+
+  // Initial load scroll - use smooth scrolling
   React.useEffect(() => {
-    scrollToBottom();
-  }, [messages, scrollToBottom]);
+    if (!isLoading && messages.length > 0) {
+      // Wait for the next frame to ensure content is rendered
+      requestAnimationFrame(() => {
+        if (messageListRef.current) {
+          messageListRef.current.scrollTo({
+            top: messageListRef.current.scrollHeight,
+            behavior: 'smooth'
+          });
+        }
+      });
+    }
+  }, [isLoading, messages.length]);
+
+  // Auto-scroll on new messages if we're at the bottom
+  React.useEffect(() => {
+    if ((shouldAutoScroll || isSending) && !isLoading && messages.length > 0) {
+      requestAnimationFrame(() => {
+        if (messageListRef.current) {
+          messageListRef.current.scrollTo({
+            top: messageListRef.current.scrollHeight,
+            behavior: 'smooth'
+          });
+        }
+      });
+    }
+  }, [messages, shouldAutoScroll, isSending, isLoading]);
+
+  // Add scroll event listener
+  React.useEffect(() => {
+    const element = messageListRef.current;
+    if (!element) return;
+
+    element.addEventListener('scroll', handleScroll);
+    return () => element.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
 
   const handleReply = React.useCallback((message: Message) => {
     // TODO: Implement reply
@@ -58,6 +123,20 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
     }
   }, []);
 
+  // Handle message sending with smooth auto-scroll
+  const handleSendMessage = async (content: string, fileInfo?: FileInfo) => {
+    try {
+      setIsSending(true);
+      await onSendMessage(content, fileInfo);
+      forceScrollToBottom(true);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      throw error;
+    } finally {
+      setTimeout(() => setIsSending(false), 500);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center h-screen p-4">
@@ -72,7 +151,11 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
       "bg-[#F2F2F7] dark:bg-[#1C1C1E]"
     )}>
       {header}
-      <div className="flex-1 overflow-y-auto flex flex-col justify-end">
+      <div 
+        ref={messageListRef}
+        className="flex-1 overflow-y-auto"
+        onScroll={handleScroll}
+      >
         {!messages || messages.length === 0 ? (
           <div className="flex-1 flex items-center justify-center text-[#8E8E93] dark:text-[#98989D]">
             {t('no_messages_yet')}
@@ -85,13 +168,12 @@ export const MessageContainer: React.FC<MessageContainerProps> = ({
             onReply={handleReply}
           />
         )}
-        <div ref={messagesEndRef} />
       </div>
       {/* Only show typing indicator if there are messages and the other person is typing */}
       {otherPersonIsTyping && messages?.length > 0 && <TypingIndicator />}
       <div className="sticky bottom-0 bg-[#F2F2F7] dark:bg-[#1C1C1E] p-4">
         <MessageInput 
-          onSendMessage={onSendMessage}
+          onSendMessage={handleSendMessage}
           onTyping={setIsTyping}
           isLoading={isLoading}
         />

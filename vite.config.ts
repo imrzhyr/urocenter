@@ -106,11 +106,61 @@ export default defineConfig(({ mode }) => ({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          ui: ['@radix-ui/react-accordion', '@radix-ui/react-alert-dialog', '@radix-ui/react-avatar'],
+        manualChunks: (id) => {
+          // Vendor chunk for node_modules
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+              return 'vendor-react';
+            }
+            if (id.includes('@radix-ui')) {
+              return 'vendor-radix';
+            }
+            if (id.includes('@tanstack') || id.includes('query')) {
+              return 'vendor-query';
+            }
+            if (id.includes('agora-rtc')) {
+              return 'vendor-agora';
+            }
+            if (id.includes('supabase')) {
+              return 'vendor-supabase';
+            }
+            if (id.includes('i18next') || id.includes('translation')) {
+              return 'vendor-i18n';
+            }
+            if (id.includes('wavesurfer') || id.includes('audio') || id.includes('media')) {
+              return 'vendor-media';
+            }
+            if (id.includes('date-fns')) {
+              return 'vendor-date';
+            }
+            if (id.includes('tailwind') || id.includes('css') || id.includes('style')) {
+              return 'vendor-styles';
+            }
+            return 'vendor-other';
+          }
+          // Feature-based chunks
+          if (id.includes('/components/chat/')) {
+            if (id.includes('/audio/') || id.includes('/video/')) {
+              return 'feature-chat-media';
+            }
+            if (id.includes('/messages/')) {
+              return 'feature-chat-messages';
+            }
+            return 'feature-chat-core';
+          }
+          if (id.includes('/components/dashboard/')) {
+            return 'feature-dashboard';
+          }
+          if (id.includes('/components/auth/')) {
+            return 'feature-auth';
+          }
+          // Default chunk
+          return 'main';
         }
       }
-    }
+    },
+    chunkSizeWarningLimit: 1000, // Increase warning limit to 1MB
+    target: 'esnext',  // Use modern JavaScript features
+    minify: 'esbuild'  // Use esbuild for faster builds
   }
 }));

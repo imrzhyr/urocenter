@@ -8,6 +8,7 @@ import { PhotoMessage } from '../media/PhotoMessage';
 import { MessageStatus } from '../status/MessageStatus';
 import { cn } from '@/lib/utils';
 import { useHapticFeedback } from '@/hooks/useHapticFeedback';
+import { supabase } from '@/lib/supabase';
 
 // Safe timestamp formatting function
 const formatTimestamp = (timestamp: string | Date | null | undefined): string => {
@@ -65,20 +66,27 @@ export const MessageContent = React.memo(({ message, fromCurrentUser }: MessageC
   // Add backdrop blur when long pressed
   React.useEffect(() => {
     const chatContainer = document.querySelector('.chat-container');
-    const allMessages = document.querySelectorAll('.message-content');
+    const allMessages = document.querySelectorAll('.message-bubble');
     
     if (isLongPressed) {
-      chatContainer?.classList.add('backdrop-blur-sm', 'transition-all', 'duration-200');
-      // Blur all messages except the current one
+      // Add a semi-transparent overlay to create iOS-like selection effect
+      chatContainer?.classList.add('before:absolute', 'before:inset-0', 'before:bg-black/30', 'before:backdrop-blur-[2px]', 'before:z-10');
+      
+      // Highlight the selected message
+      messageRef.current?.classList.add('z-20', 'scale-[0.98]', 'transition-transform');
+      
+      // Dim other messages
       allMessages.forEach(msg => {
         if (msg !== messageRef.current) {
-          msg.classList.add('opacity-50', 'blur-[1px]', 'transition-all', 'duration-200');
+          msg.classList.add('opacity-50', 'transition-opacity');
         }
       });
     } else {
-      chatContainer?.classList.remove('backdrop-blur-sm', 'transition-all', 'duration-200');
+      // Remove all effects
+      chatContainer?.classList.remove('before:absolute', 'before:inset-0', 'before:bg-black/30', 'before:backdrop-blur-[2px]', 'before:z-10');
+      messageRef.current?.classList.remove('z-20', 'scale-[0.98]', 'transition-transform');
       allMessages.forEach(msg => {
-        msg.classList.remove('opacity-50', 'blur-[1px]', 'transition-all', 'duration-200');
+        msg.classList.remove('opacity-50', 'transition-opacity');
       });
     }
   }, [isLongPressed]);
@@ -91,14 +99,63 @@ export const MessageContent = React.memo(({ message, fromCurrentUser }: MessageC
     setIsLongPressed(false);
   }, []);
 
+  // Handle message deletion
+  const handleDelete = React.useCallback(async () => {
+    if (!message?.id) return;
+    
+    try {
+      // First animate the message out
+      if (messageRef.current) {
+        messageRef.current.style.height = `${messageRef.current.offsetHeight}px`;
+        messageRef.current.style.transition = 'all 0.2s ease-out';
+        
+        // Force a reflow
+        messageRef.current.offsetHeight;
+        
+        // Animate out
+        messageRef.current.style.opacity = '0';
+        messageRef.current.style.transform = 'scale(0.95)';
+        messageRef.current.style.height = '0px';
+        messageRef.current.style.marginTop = '0px';
+        messageRef.current.style.marginBottom = '0px';
+        messageRef.current.style.padding = '0px';
+      }
+
+      // Wait for animation
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      // Then delete from database
+      const { error } = await supabase
+        .from('messages')
+        .delete()
+        .eq('id', message.id);
+      
+      if (error) throw error;
+      
+      // Close the selection UI
+      setIsLongPressed(false);
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      // Reset the animation if there was an error
+      if (messageRef.current) {
+        messageRef.current.style.removeProperty('height');
+        messageRef.current.style.removeProperty('opacity');
+        messageRef.current.style.removeProperty('transform');
+        messageRef.current.style.removeProperty('margin-top');
+        messageRef.current.style.removeProperty('margin-bottom');
+        messageRef.current.style.removeProperty('padding');
+      }
+    }
+  }, [message?.id]);
+
   if (!message) return null;
 
   // Convert timestamp to string
   const timestampString = typeof message.created_at === 'string' 
     ? message.created_at 
-    : message.created_at.toISOString();
+    : (message.created_at as Date).toISOString();
 
-  // Handle text messages
+  // Render text content
   const renderTextContent = () => {
     return (
       <div>
@@ -127,6 +184,42 @@ export const MessageContent = React.memo(({ message, fromCurrentUser }: MessageC
           {fromCurrentUser && <MessageStatus message={message} />}
         </div>
       </div>
+    );
+  };
+
+  // Render action buttons when message is selected
+  const renderActionButtons = () => {
+    if (!isLongPressed) return null;
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className={cn(
+          "absolute bottom-full mb-2",
+          "flex items-center gap-2",
+          "p-1",
+          "rounded-lg",
+          "bg-[#1A1A1A]/90",
+          "backdrop-blur-lg",
+          "shadow-lg",
+          fromCurrentUser ? "right-0" : "left-0"
+        )}
+      >
+        <button
+          onClick={handleDelete}
+          className={cn(
+            "p-2",
+            "rounded-md",
+            "text-red-500",
+            "hover:bg-red-500/10",
+            "active:scale-95",
+            "transition-all"
+          )}
+        >
+          <Trash2 className="w-5 h-5" />
+        </button>
+      </motion.div>
     );
   };
 
@@ -238,35 +331,17 @@ export const MessageContent = React.memo(({ message, fromCurrentUser }: MessageC
   }
 
   const messageContent = (
-    <motion.div 
+    <div 
       ref={messageRef}
-      initial={{ scale: 0.98, opacity: 0 }}
-      animate={{ 
-        scale: isLongPressed ? 0.95 : 1,
-        opacity: isLongPressed ? 1 : 1,
-      }}
-      transition={{ 
-        type: "spring", 
-        stiffness: 500, 
-        damping: 30,
-        scale: {
-          type: "tween",
-          duration: 0.1
-        }
-      }}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-      onTouchMove={handleTouchMove}
-      onTouchCancel={handleTouchEnd}
       className={cn(
-        "relative group message-content",
+        "relative",
+        "message-bubble",
+        "transition-all duration-200",
         "w-fit",
         "max-w-[var(--message-max-width)]",
         "rounded-[18px]",
         "px-3.5 py-[6px]",
         "transform-gpu",
-        "transition-all duration-200",
-        isLongPressed && "scale-95 shadow-lg z-50",
         fromCurrentUser 
           ? [
               "bg-[#3B9EDB]",
@@ -278,61 +353,19 @@ export const MessageContent = React.memo(({ message, fromCurrentUser }: MessageC
               "ml-1",
               "shadow-sm shadow-black/5"
             ]
-      )}>
-      {renderTextContent()}
-      
-      {/* Message actions menu */}
-      <AnimatePresence>
-        {isLongPressed && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/20 backdrop-blur-sm z-10"
-              onClick={() => setIsLongPressed(false)}
-            />
-            <motion.div
-              initial={{ opacity: 0, y: -5, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -5, scale: 0.95 }}
-              transition={{ type: "spring", stiffness: 400, damping: 25 }}
-              className={cn(
-                "absolute -top-14 z-20",
-                "flex items-center",
-                "py-2.5 px-4",
-                "rounded-2xl",
-                "bg-[#1C1C1E]/90",
-                "backdrop-blur-xl",
-                "shadow-lg shadow-black/20",
-                "border border-white/[0.08]",
-                fromCurrentUser ? "right-0" : "left-0"
-              )}
-            >
-              {fromCurrentUser && (
-                <motion.button
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => {
-                    triggerHaptic('medium');
-                    setIsLongPressed(false);
-                    onDelete?.(message.id);
-                  }}
-                  className={cn(
-                    "flex items-center gap-2",
-                    "text-[15px] font-medium",
-                    "text-red-500",
-                    "transition-colors"
-                  )}
-                >
-                  <Trash2 className="w-[18px] h-[18px]" />
-                  <span>Unsend Message</span>
-                </motion.button>
-              )}
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-    </motion.div>
+      )}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onTouchMove={handleTouchMove}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        setIsLongPressed(true);
+        triggerHaptic('medium');
+      }}
+    >
+      {renderActionButtons()}
+      {message.content && renderTextContent()}
+    </div>
   );
 
   return (
@@ -342,7 +375,9 @@ export const MessageContent = React.memo(({ message, fromCurrentUser }: MessageC
       "px-1 sm:px-2",
       "w-full",
       "max-w-screen-lg",
-      "mx-auto"
+      "mx-auto",
+      "overflow-hidden",
+      "transition-all duration-200"
     )}>
       {messageContent}
     </div>

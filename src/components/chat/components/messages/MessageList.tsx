@@ -22,23 +22,24 @@ export const MessageList = React.memo(({ messages, currentUserId, onMessageSeen,
     });
   }, [messages]);
 
-  // Handle scroll
-  const handleScroll = React.useCallback((e: React.UIEvent<HTMLDivElement>) => {
-    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-    const isAtBottom = scrollHeight - scrollTop - clientHeight < 100;
-    setShowScrollButton(!isAtBottom);
-    setAutoScrollEnabled(isAtBottom);
-  }, []);
-
   // Scroll to bottom with smooth animation
   const scrollToBottom = React.useCallback(() => {
     if (containerRef.current) {
-      containerRef.current.scrollTo({
-        top: containerRef.current.scrollHeight,
-        behavior: 'smooth'
+      requestAnimationFrame(() => {
+        containerRef.current!.scrollTo({
+          top: containerRef.current!.scrollHeight,
+          behavior: 'smooth'
+        });
       });
-      setAutoScrollEnabled(true);
     }
+  }, []);
+
+  // Handle scroll with more forgiving bottom detection
+  const handleScroll = React.useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    const isAtBottom = Math.abs(scrollHeight - scrollTop - clientHeight) <= 20;
+    setShowScrollButton(!isAtBottom);
+    setAutoScrollEnabled(isAtBottom);
   }, []);
 
   // Auto scroll on new messages

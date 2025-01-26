@@ -30,6 +30,7 @@ const CallContext = createContext<CallContextType | null>(null);
 
 export const CallProvider = ({ children }: { children: React.ReactNode }) => {
   const { profile } = useProfile();
+  console.log('[CallProvider] Current user profile:', profile);
   const recipientNameRef = useRef<string>('');
   const notificationRef = useRef<Notification | null>(null);
   const {
@@ -215,44 +216,96 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const initiateCall = async (receiverId: string, recipientName: string) => {
+    console.log('[CallProvider] Initiating call:', {
+      caller: profile?.id,
+      receiver: receiverId,
+      recipientName
+    });
+
     if (!profile?.id) {
+      console.error('[CallProvider] Cannot initiate call: User not logged in');
       toast.error('You must be logged in to make calls');
       return;
     }
 
+    if (profile.id === receiverId) {
+      console.error('[CallProvider] Cannot initiate call: Attempting to call self');
+      toast.error('You cannot call yourself');
+      return;
+    }
+
     try {
+      // First check if we're already in a call or calling
+      if (isInCall || isCalling) {
+        console.error('[CallProvider] Cannot initiate call: Already in a call or calling');
+        toast.error('Cannot start a new call while in another call');
+        return;
+      }
+
+      console.log('[CallProvider] Verifying receiver profile:', receiverId);
       const receiverExists = await verifyProfile(receiverId);
       if (!receiverExists) {
+        console.error('[CallProvider] Receiver profile not found');
         toast.error('Cannot initiate call: recipient not found');
         return;
       }
 
+      console.log('[CallProvider] Setting up Agora client');
       const success = await setupAgoraClient();
-      if (!success) return;
+      if (!success) {
+        console.error('[CallProvider] Failed to setup Agora client');
+        return;
+      }
 
-      const { data: call, error } = await supabase
+      // Store recipient name for notifications
+      recipientNameRef.current = recipientName;
+
+      // Create call record first
+      const { data: newCall, error: createError } = await supabase
         .from('calls')
         .insert({
           caller_id: profile.id,
           receiver_id: receiverId,
-          status: 'pending'
+          status: 'ringing'
         })
         .select()
         .single();
 
-      if (error) throw error;
-
-      setCurrentCallId(call.id);
-      recipientNameRef.current = recipientName;
-      setIsCalling(true);
-
-      const joined = await joinChannel(call.id);
-      if (!joined) {
-        throw new Error('Failed to join call');
+      if (createError || !newCall) {
+        throw new Error('Failed to create call record');
       }
+
+      setCurrentCallId(newCall.id);
+      setIsCalling(true);
+      setIsCallEnded(false);
+
+      try {
+        const joined = await joinChannel(newCall.id);
+        if (!joined) {
+          throw new Error('Failed to join call channel');
+        }
+      } catch (error) {
+        // If joining fails, clean up properly
+        console.error('[CallProvider] Failed to join call channel:', error);
+        await leaveChannel();
+        setIsCalling(false);
+        setCurrentCallId(null);
+        
+        // Update call status to failed
+        await supabase
+          .from('calls')
+          .update({ status: 'failed', ended_at: new Date().toISOString() })
+          .eq('id', newCall.id);
+        
+        throw error;
+      }
+
     } catch (error) {
-      console.error('Error in initiateCall:', error);
-      toast.error('Failed to start call');
+      console.error('[CallProvider] Error in call initiation:', error);
+      // Ensure we clean up any ongoing call state
+      setIsCalling(false);
+      setCurrentCallId(null);
+      toast.error('Failed to initiate call. Please try again.');
     }
   };
 

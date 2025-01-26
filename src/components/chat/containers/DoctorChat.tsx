@@ -42,15 +42,17 @@ export const DoctorChat: React.FC<DoctorChatProps> = ({ userId }) => {
   });
 
   // Fetch messages
-  const { data: messages = [], isLoading: isLoadingMessages, refetch: refetchMessages } = useQuery({
+  const { data: messages = [], isLoading, refetch: refetchMessages } = useQuery({
     queryKey: ['messages', userId],
     queryFn: async () => {
       console.log('[DoctorChat] Fetching messages for userId:', userId);
-      // Fetch all messages for this conversation using simple select
+      // Fetch all messages for this conversation:
+      // 1. Messages sent by the patient (user_id = patient's ID and is_from_doctor = false)
+      // 2. Messages sent by the doctor (user_id = doctor's ID and is_from_doctor = true)
       const { data, error } = await supabase
         .from('messages')
         .select('*')
-        .eq('user_id', userId)
+        .or(`and(user_id.eq.${userId},is_from_doctor.eq.false),and(user_id.eq.${profile?.id},is_from_doctor.eq.true)`)
         .order('created_at', { ascending: true });
 
       if (error) {
@@ -63,11 +65,12 @@ export const DoctorChat: React.FC<DoctorChatProps> = ({ userId }) => {
         return [];
       }
 
-      console.log('[DoctorChat] Found', data.length, 'messages in database');
-      console.log('[DoctorChat] First message:', data[0]);
-      console.log('[DoctorChat] Last message:', data[data.length - 1]);
+      console.log('[DoctorChat] Found', data.length, 'messages:', {
+        fromDoctor: data.filter(m => m.is_from_doctor).length,
+        fromPatient: data.filter(m => !m.is_from_doctor).length
+      });
       
-      // Map messages with simpler structure
+      // Map messages with simpler structure and ensure created_at is string
       const mappedMessages = await Promise.all(data.map(async msg => {
         // Handle file URL if present
         let fileUrl = msg.file_url;
@@ -78,41 +81,48 @@ export const DoctorChat: React.FC<DoctorChatProps> = ({ userId }) => {
               .from('messages')
               .getPublicUrl(fileUrl);
             fileUrl = data.publicUrl;
-            console.log('[DoctorChat] Converted to public URL:', fileUrl);
           } catch (error) {
             console.error('[DoctorChat] Error converting file URL:', error);
-            fileUrl = null; // Reset if conversion fails
+            fileUrl = null;
           }
         }
+
+        // Ensure created_at is always a string
+        const created_at = msg.created_at instanceof Date 
+          ? msg.created_at.toISOString()
+          : typeof msg.created_at === 'string' 
+            ? msg.created_at 
+            : new Date().toISOString();
 
         return {
           id: msg.id,
           content: msg.content,
           sender_id: msg.is_from_doctor ? profile?.id : msg.user_id,
           receiver_id: msg.is_from_doctor ? msg.user_id : profile?.id,
-          created_at: msg.created_at,
-          updated_at: msg.updated_at || msg.created_at,
+          created_at,
           status: msg.status || 'sent',
           is_from_doctor: msg.is_from_doctor,
           file_url: fileUrl,
           file_type: msg.file_type,
-          file_name: msg.file_name
+          file_name: msg.file_name,
+          duration: msg.duration,
+          seen_at: msg.seen_at,
+          delivered_at: msg.delivered_at
         };
-      })) as ChatMessage[];
-
-      console.log('[DoctorChat] Mapped messages count:', mappedMessages.length);
-      if (mappedMessages.length > 0) {
-        console.log('[DoctorChat] Sample mapped message:', mappedMessages[0]);
-      }
+      }));
 
       return mappedMessages;
     },
-    refetchInterval: 3000 // Poll every 3 seconds
+    refetchInterval: 3000,
+    staleTime: 2000
   });
 
-  // Add real-time subscription
+  // Add real-time subscription with the same filter
   useEffect(() => {
     console.log('[DoctorChat] Setting up real-time subscription for userId:', userId);
+    const filter = `or(and(user_id.eq.${userId},is_from_doctor.eq.false),and(user_id.eq.${profile?.id},is_from_doctor.eq.true))`;
+    console.log('[DoctorChat] Using filter:', filter);
+    
     const channel = supabase
       .channel(`messages_${userId}`)
       .on(
@@ -121,7 +131,7 @@ export const DoctorChat: React.FC<DoctorChatProps> = ({ userId }) => {
           event: '*',
           schema: 'public',
           table: 'messages',
-          filter: `user_id=eq.${userId}`
+          filter
         },
         (payload) => {
           console.log('[DoctorChat] Received real-time update:', payload);
@@ -134,7 +144,7 @@ export const DoctorChat: React.FC<DoctorChatProps> = ({ userId }) => {
       console.log('[DoctorChat] Cleaning up real-time subscription');
       supabase.removeChannel(channel);
     };
-  }, [userId, refetchMessages]);
+  }, [userId, refetchMessages, profile?.id]);
 
   // Add real-time subscription for typing status
   useEffect(() => {
@@ -165,6 +175,10 @@ export const DoctorChat: React.FC<DoctorChatProps> = ({ userId }) => {
   const handleSendMessage = async (content: string, fileInfo?: FileInfo) => {
     console.log('[DoctorChat] Attempting to send message:', { content, fileInfo });
     try {
+      if (!profile?.id) {
+        throw new Error('Doctor profile not found');
+      }
+
       // First check if we can connect to Supabase
       const { data: testData, error: testError } = await supabase
         .from('messages')
@@ -181,12 +195,13 @@ export const DoctorChat: React.FC<DoctorChatProps> = ({ userId }) => {
       console.log('[DoctorChat] Using valid status:', validStatus);
 
       const newMessage = {
-        user_id: userId,
+        user_id: profile.id,
         content,
         is_from_doctor: true,
         is_read: false,
         created_at: new Date().toISOString(),
         status: validStatus,
+        sender_name: profile.full_name || 'Doctor',
         ...(fileInfo && {
           file_url: fileInfo.url,
           file_type: fileInfo.type,
@@ -216,6 +231,8 @@ export const DoctorChat: React.FC<DoctorChatProps> = ({ userId }) => {
         toast.error('Authentication error. Please check Supabase configuration.');
       } else if (error.message?.includes('check constraint')) {
         toast.error('Invalid message status. Please contact support.');
+      } else if (error.message?.includes('Doctor profile not found')) {
+        toast.error('Please try reloading the page');
       } else {
         toast.error(t('error_sending_message'));
       }
@@ -224,14 +241,14 @@ export const DoctorChat: React.FC<DoctorChatProps> = ({ userId }) => {
 
   // Add logging for render phase
   console.log('[DoctorChat] Render phase - messages length:', messages?.length);
-  console.log('[DoctorChat] Render phase - isLoading:', isLoadingMessages || isLoadingProfile);
+  console.log('[DoctorChat] Render phase - isLoading:', isLoading || isLoadingProfile);
   console.log('[DoctorChat] Render phase - patientProfile:', patientProfile);
 
   return (
     <MessageContainer 
       messages={messages}
       onSendMessage={handleSendMessage}
-      isLoading={isLoadingMessages || isLoadingProfile}
+      isLoading={isLoading || isLoadingProfile}
       otherPersonIsTyping={patientIsTyping}
       header={
         <DoctorChatHeader
@@ -242,4 +259,6 @@ export const DoctorChat: React.FC<DoctorChatProps> = ({ userId }) => {
       }
     />
   );
-}; 
+};
+
+export default DoctorChat; 

@@ -20,4 +20,6 @@ export const UserChat = React.memo(() => {
   return <UserChatContainer userId={profile.id} />;
 });
 
-UserChat.displayName = 'UserChat'; 
+UserChat.displayName = 'UserChat';
+
+export default UserChat; 

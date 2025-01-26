@@ -100,7 +100,7 @@ const Welcome = () => {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#000B1D] overflow-hidden">
+    <div className="relative min-h-screen bg-[#000B1D] overflow-hidden flex flex-col">
       {/* Language Selector */}
       <div className="absolute top-8 right-8 z-30">
         <button
@@ -141,7 +141,7 @@ const Welcome = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
-        className="relative h-[50vh] flex items-center justify-center"
+        className="h-[50vh] flex items-center justify-center"
       >
         <HeroGeometric
           title1={language === 'ar' ? 'د. علي كمال' : 'Dr. Ali Kamal'}
@@ -154,7 +154,7 @@ const Welcome = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.3 }}
-        className="relative px-6 pb-24 -mt-20"
+        className="relative px-6 pb-8 -mt-20"
       >
         <div className="max-w-screen-md mx-auto">
           <motion.h3
@@ -236,7 +236,7 @@ const Welcome = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 1.2 }}
-        className="absolute bottom-8 left-0 right-0 flex flex-col items-center gap-4"
+        className="flex flex-col items-center justify-start gap-4 py-8 mt-4"
       >
         <button
           onClick={() => navigate('/signup')}
@@ -250,23 +250,22 @@ const Welcome = () => {
             ${language === 'ar' ? 'font-arabic' : ''}
           `}
         >
-          {language === 'ar' ? 'ابدأ رحلتك الطبية' : 'Start your medical journey'}
+          {language === 'ar' ? 'ابدأ رحلتك الطبية' : 'Start Your Medical Journey'}
         </button>
-
         <button
           onClick={() => navigate('/signin')}
           className={`
             w-[280px] px-8 py-3.5 rounded-2xl font-medium text-[17px]
+            text-white/90 hover:text-white
             bg-white/[0.08] hover:bg-white/[0.12] active:bg-white/[0.16]
-            text-white
             transform transition-all duration-200
-            shadow-[0_0_0_1px_rgba(255,255,255,0.1)]
+            border border-white/[0.08]
             active:scale-[0.97]
-            backdrop-blur-md
+            backdrop-blur-sm
             ${language === 'ar' ? 'font-arabic' : ''}
           `}
         >
-          {language === 'ar' ? 'لديك حساب؟ تسجيل الدخول' : 'Have an account? Sign in'}
+          {language === 'ar' ? 'تسجيل الدخول' : 'Sign In'}
         </button>
       </motion.div>
     </div>

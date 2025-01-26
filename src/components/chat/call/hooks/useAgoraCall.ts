@@ -2,6 +2,7 @@ import { useRef, useEffect } from 'react';
 import AgoraRTC, { IAgoraRTCClient, IAgoraRTCRemoteUser, ILocalAudioTrack } from 'agora-rtc-sdk-ng';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface UseAgoraCallProps {
   currentCallId: string | null;
@@ -10,12 +11,40 @@ interface UseAgoraCallProps {
 }
 
 export const useAgoraCall = ({ currentCallId, profileId, onCallConnected }: UseAgoraCallProps) => {
+  const { t } = useLanguage();
   const agoraClient = useRef<IAgoraRTCClient | null>(null);
   const localAudioTrack = useRef<ILocalAudioTrack | null>(null);
   const audioContext = useRef<AudioContext | null>(null);
 
+  const requestMicrophonePermission = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Stop the stream immediately as we just needed it for permission
+      stream.getTracks().forEach(track => track.stop());
+      return true;
+    } catch (error) {
+      console.error('Error requesting microphone permission:', error);
+      if (error instanceof DOMException) {
+        if (error.name === 'NotAllowedError') {
+          toast.error(t('error_microphone_permission_denied'));
+        } else if (error.name === 'NotFoundError') {
+          toast.error(t('error_no_microphone_found'));
+        } else {
+          toast.error(t('error_microphone_access'));
+        }
+      }
+      return false;
+    }
+  };
+
   const setupAgoraClient = async () => {
     try {
+      // First check if we have microphone permission
+      const hasMicrophonePermission = await requestMicrophonePermission();
+      if (!hasMicrophonePermission) {
+        throw new Error('Microphone permission denied');
+      }
+
       // Fetch Agora credentials from Edge Function
       const { data, error } = await supabase.functions.invoke('get-agora-credentials');
       
@@ -62,14 +91,26 @@ export const useAgoraCall = ({ currentCallId, profileId, onCallConnected }: UseA
         console.log('Microphone track created successfully');
       } catch (err) {
         console.error('Error creating microphone track:', err);
-        toast.error('Failed to access microphone');
+        if (err instanceof Error) {
+          if (err.message.includes('NotAllowedError')) {
+            toast.error(t('error_microphone_permission_denied'));
+          } else if (err.message.includes('NotFoundError')) {
+            toast.error(t('error_no_microphone_found'));
+          } else {
+            toast.error(t('error_microphone_access'));
+          }
+        }
         throw new Error('Failed to access microphone');
       }
       
       return true;
     } catch (error) {
       console.error('Error in setupAgoraClient:', error);
-      toast.error('Failed to initialize audio call');
+      if (error instanceof Error && error.message === 'Microphone permission denied') {
+        toast.error(t('error_microphone_permission_denied'));
+      } else {
+        toast.error(t('error_initialize_call'));
+      }
       return false;
     }
   };
@@ -116,14 +157,35 @@ export const useAgoraCall = ({ currentCallId, profileId, onCallConnected }: UseA
     if (!agoraClient.current) return;
 
     try {
+      // First unpublish the track if it exists
       if (localAudioTrack.current) {
+        try {
+          await agoraClient.current.unpublish(localAudioTrack.current);
+        } catch (error) {
+          // Ignore unpublish errors as the connection might already be closed
+          console.log('Unpublish skipped:', error);
+        }
+        
+        // Stop and close the local track
         localAudioTrack.current.stop();
         localAudioTrack.current.close();
+        localAudioTrack.current = null;
       }
-      await agoraClient.current.leave();
-      console.log('Left channel successfully');
+
+      // Then leave the channel
+      try {
+        await agoraClient.current.leave();
+      } catch (error) {
+        // Ignore leave errors as we might not be in a channel
+        console.log('Leave skipped:', error);
+      }
+
+      // Reset the client
+      agoraClient.current = null;
+      console.log('Left channel and cleaned up successfully');
     } catch (error) {
-      console.error('Error leaving channel:', error);
+      console.error('Error in leaveChannel cleanup:', error);
+      // Continue with cleanup even if there are errors
     }
   };
 

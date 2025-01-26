@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { MessageContainer } from "./MessageContainer";
-import { DoctorChatHeader } from "./doctor/DoctorChatHeader";
 import { Message as ProfileMessage, Profile } from "@/types/profile";
 import { Message as ChatMessage, FileInfo } from "./types/index";
 import { useQuery } from "@tanstack/react-query";
@@ -10,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LoadingScreen } from '@/components/LoadingScreen';
 import { CallProvider } from './call/CallProvider';
+import { UserChatHeader } from './UserChatHeader';
 import { PatientInfoContainer } from './PatientInfoContainer';
 
 // Admin's UUID for the doctor
@@ -47,30 +47,32 @@ export const UserChatContainer = ({ userId }: { userId: string }) => {
   const { data: messages = [], isLoading: isLoadingMessages, refetch: refetchMessages } = useQuery({
     queryKey: ['messages', userId],
     queryFn: async () => {
-      // Only log on initial load or when there's new data
       const prevLength = messages?.length || 0;
 
+      // Query to get both:
+      // 1. Messages sent by the patient (user_id = patient's ID and is_from_doctor = false)
+      // 2. Messages sent by the doctor (user_id = doctor's ID and is_from_doctor = true)
       const { data, error } = await supabase
         .from('messages')
         .select('*')
-        .or(`or(and(user_id.eq.${userId},is_from_doctor.eq.false),and(user_id.eq.${DOCTOR_ID},is_from_doctor.eq.true))`)
+        .or(`and(user_id.eq.${userId},is_from_doctor.eq.false),and(user_id.eq.${DOCTOR_ID},is_from_doctor.eq.true)`)
         .order('created_at', { ascending: true });
 
       if (error) {
-        console.error('❌ Error loading messages');
+        console.error('❌ Error loading messages:', error);
         toast.error(t('error_loading_messages'));
         return [];
       }
 
       if (!data || data.length === 0) {
-        if (prevLength === 0) console.log('ℹ️ No messages found');
+        console.log('ℹ️ No messages found');
         return [];
       }
 
-      // Only log if it's the initial load or if we have new messages
-      if (prevLength === 0 || data.length !== prevLength) {
-        console.log(`✅ Loaded ${data.length} messages`);
-      }
+      console.log(`✅ Loaded ${data.length} messages:`, {
+        fromDoctor: data.filter(m => m.is_from_doctor).length,
+        fromPatient: data.filter(m => !m.is_from_doctor).length
+      });
 
       // Map messages with simpler structure
       const mappedMessages = await Promise.all(data.map(async msg => {
@@ -124,16 +126,15 @@ export const UserChatContainer = ({ userId }: { userId: string }) => {
 
       return mappedMessages;
     },
-    // Keep the refetchInterval but rely on the real-time subscription for updates
     refetchInterval: 3000,
-    // Add staleTime to prevent unnecessary refetches
     staleTime: 2000
   });
 
-  // Add real-time subscription with modified filter
+  // Add real-time subscription with fixed filter
   useEffect(() => {
+    // Same filter as the query above
     const filter = `or(and(user_id.eq.${userId},is_from_doctor.eq.false),and(user_id.eq.${DOCTOR_ID},is_from_doctor.eq.true))`;
-    console.log('🔄 Setting up message subscription');
+    console.log('🔄 Setting up message subscription with filter:', filter);
 
     const channel = supabase
       .channel(`messages_${userId}`)
@@ -146,7 +147,7 @@ export const UserChatContainer = ({ userId }: { userId: string }) => {
           filter
         },
         async (payload) => {
-          console.log('📨 New message activity');
+          console.log('📨 New message activity:', payload);
           await refetchMessages();
         }
       )
@@ -298,10 +299,9 @@ export const UserChatContainer = ({ userId }: { userId: string }) => {
         isLoading={isLoadingMessages || isLoadingDoctor}
         otherPersonIsTyping={doctorIsTyping}
         header={
-          <DoctorChatHeader
-            patientId={userId}
-            patientName={doctorProfile?.full_name || t('loading')}
-            patientPhone={doctorProfile?.phone}
+          <UserChatHeader
+            doctorId={DOCTOR_ID}
+            doctorName={doctorProfile?.full_name || t('loading')}
             onRefresh={refetchMessages}
           />
         }

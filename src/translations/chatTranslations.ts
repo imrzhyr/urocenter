@@ -16,7 +16,11 @@ export const chatTranslations = {
     "cancel": "Cancel",
     "save": "Save",
     "loading": "Loading...",
-    "no_messages": "No messages yet",
+    "loading_doctor": "Loading doctor profile...",
+    "error_loading_doctor": "Error loading doctor profile",
+    "error_loading_messages": "Error loading messages",
+    "error_sending_message": "Error sending message",
+    "no_messages_yet": "No messages yet",
     "start_conversation": "Start a conversation",
     "message_sent": "Message sent",
     "message_deleted": "Message deleted",
@@ -52,7 +56,13 @@ export const chatTranslations = {
     "patient_testimonials": "Patient Testimonials",
     "testimonial_rating": "Rating",
     "testimonial_from": "from",
-    "testimonial_verified": "Verified Patient"
+    "testimonial_verified": "Verified Patient",
+    "doctor": "Doctor",
+    "doctor_chat": "Doctor Chat",
+    "patient_chat": "Patient Chat",
+    "already_in_call": "Already in a call",
+    "error_initiating_call": "Error initiating call",
+    "doctor_not_available": "Doctor is not available"
   },
   ar: {
     "patient_information": "معلومات المريض",
@@ -71,7 +81,11 @@ export const chatTranslations = {
     "cancel": "إلغاء",
     "save": "حفظ",
     "loading": "جاري التحميل...",
-    "no_messages": "لا توجد رسائل بعد",
+    "loading_doctor": "جاري تحميل ملف الطبيب...",
+    "error_loading_doctor": "خطأ في تحميل ملف الطبيب",
+    "error_loading_messages": "خطأ في تحميل الرسائل",
+    "error_sending_message": "خطأ في إرسال الرسالة",
+    "no_messages_yet": "لا توجد رسائل بعد",
     "start_conversation": "ابدأ محادثة",
     "message_sent": "تم إرسال الرسالة",
     "message_deleted": "تم حذف الرسالة",
@@ -107,6 +121,12 @@ export const chatTranslations = {
     "patient_testimonials": "آراء المرضى",
     "testimonial_rating": "التقييم",
     "testimonial_from": "من",
-    "testimonial_verified": "مريض موثق"
+    "testimonial_verified": "مريض موثق",
+    "doctor": "الطبيب",
+    "doctor_chat": "محادثة الطبيب",
+    "patient_chat": "محادثة المريض",
+    "already_in_call": "أنت بالفعل في مكالمة",
+    "error_initiating_call": "خطأ في بدء المكالمة",
+    "doctor_not_available": "الطبيب غير متاح"
   }
 };
