@@ -1,6 +1,10 @@
-import fs from 'fs';
+import { promises as fs } from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Define required directories
 const REQUIRED_DIRECTORIES = [
@@ -45,13 +49,15 @@ const IMPORT_PATH_UPDATES = {
   '@/translations': '@urocenter/core/translations'
 };
 
-function createDirectoryStructure() {
+async function createDirectoryStructure() {
   console.log('Creating directory structure...');
-  REQUIRED_DIRECTORIES.forEach(dir => {
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
+  for (const dir of REQUIRED_DIRECTORIES) {
+    try {
+      await fs.mkdir(dir, { recursive: true });
+    } catch (error) {
+      console.error(`Error creating directory ${dir}:`, error);
     }
-  });
+  }
 }
 
 function updateImportPaths(content: string): string {
@@ -65,49 +71,54 @@ function updateImportPaths(content: string): string {
   return updatedContent;
 }
 
-function copyDirectory(source: string, target: string) {
-  if (!fs.existsSync(target)) {
-    fs.mkdirSync(target, { recursive: true });
-  }
+async function copyDirectory(source: string, target: string) {
+  try {
+    await fs.mkdir(target, { recursive: true });
+    const files = await fs.readdir(source);
+    
+    for (const file of files) {
+      const sourcePath = path.join(source, file);
+      const targetPath = path.join(target, file);
+      const stat = await fs.stat(sourcePath);
 
-  const files = fs.readdirSync(source);
-  files.forEach(file => {
-    const sourcePath = path.join(source, file);
-    const targetPath = path.join(target, file);
-    const stat = fs.statSync(sourcePath);
-
-    if (stat.isDirectory()) {
-      copyDirectory(sourcePath, targetPath);
-    } else if (file.endsWith('.ts') || file.endsWith('.tsx')) {
-      const content = fs.readFileSync(sourcePath, 'utf8');
-      const updatedContent = updateImportPaths(content);
-      fs.writeFileSync(targetPath, updatedContent);
-    } else {
-      // Copy non-TypeScript files as-is
-      fs.copyFileSync(sourcePath, targetPath);
-    }
-  });
-}
-
-function moveFiles() {
-  console.log('Moving files to new structure...');
-  Object.entries(FILE_MAPPING).forEach(([oldPath, newPath]) => {
-    if (fs.existsSync(oldPath)) {
-      const stat = fs.statSync(oldPath);
-      
       if (stat.isDirectory()) {
-        copyDirectory(oldPath, newPath);
-      } else {
-        const content = fs.readFileSync(oldPath, 'utf8');
+        await copyDirectory(sourcePath, targetPath);
+      } else if (file.endsWith('.ts') || file.endsWith('.tsx')) {
+        const content = await fs.readFile(sourcePath, 'utf8');
         const updatedContent = updateImportPaths(content);
-        fs.mkdirSync(path.dirname(newPath), { recursive: true });
-        fs.writeFileSync(newPath, updatedContent);
+        await fs.writeFile(targetPath, updatedContent);
+      } else {
+        await fs.copyFile(sourcePath, targetPath);
       }
     }
-  });
+  } catch (error) {
+    console.error(`Error copying directory from ${source} to ${target}:`, error);
+  }
 }
 
-function updateTsConfig() {
+async function moveFiles() {
+  console.log('Moving files to new structure...');
+  for (const [oldPath, newPath] of Object.entries(FILE_MAPPING)) {
+    try {
+      if (await fs.stat(oldPath).catch(() => null)) {
+        const stat = await fs.stat(oldPath);
+        
+        if (stat.isDirectory()) {
+          await copyDirectory(oldPath, newPath);
+        } else {
+          const content = await fs.readFile(oldPath, 'utf8');
+          const updatedContent = updateImportPaths(content);
+          await fs.mkdir(path.dirname(newPath), { recursive: true });
+          await fs.writeFile(newPath, updatedContent);
+        }
+      }
+    } catch (error) {
+      console.error(`Error moving file from ${oldPath} to ${newPath}:`, error);
+    }
+  }
+}
+
+async function updateTsConfig() {
   console.log('Updating TypeScript configuration...');
   const tsConfigPath = 'tsconfig.json';
   const tsConfig = {
@@ -136,7 +147,7 @@ function updateTsConfig() {
     include: ["apps/**/*.ts", "apps/**/*.tsx", "packages/**/*.ts", "packages/**/*.tsx"],
     references: [{ path: "./tsconfig.node.json" }]
   };
-  fs.writeFileSync(tsConfigPath, JSON.stringify(tsConfig, null, 2));
+  await fs.writeFile(tsConfigPath, JSON.stringify(tsConfig, null, 2));
 }
 
 async function main() {
@@ -148,9 +159,9 @@ async function main() {
     execSync('git checkout -b backup/pre-reorganization');
 
     // Run migration
-    createDirectoryStructure();
-    moveFiles();
-    updateTsConfig();
+    await createDirectoryStructure();
+    await moveFiles();
+    await updateTsConfig();
 
     // Commit changes
     console.log('Committing changes...');
