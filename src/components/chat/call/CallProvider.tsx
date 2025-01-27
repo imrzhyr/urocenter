@@ -116,8 +116,10 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
 
     try {
       // Immediately stop sounds and hide calling UI
-      callSoundUtils.stopCallingSound();
-      callSoundUtils.stopCallSound();
+      await Promise.all([
+        callSoundUtils.stopCallingSound(),
+        callSoundUtils.stopCallSound()
+      ]);
       setIsCalling(false);
       
       await leaveChannel();
@@ -266,7 +268,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
         .insert({
           caller_id: profile.id,
           receiver_id: receiverId,
-          status: 'ringing'
+          status: 'pending'
         })
         .select()
         .single();

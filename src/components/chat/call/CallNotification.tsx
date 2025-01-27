@@ -28,22 +28,22 @@ export const CallNotification = ({
   useEffect(() => {
     if (open) {
       // Start playing the call sound when the notification opens
-      callSoundUtils.playCallSound();
+      callSoundUtils.playCallSound().catch(console.error);
     }
     
     return () => {
       // Stop the sound when the notification closes
-      callSoundUtils.stopCallSound();
+      callSoundUtils.stopCallSound().catch(console.error);
     };
   }, [open]);
 
-  const handleAccept = () => {
-    callSoundUtils.stopCallSound();
+  const handleAccept = async () => {
+    await callSoundUtils.stopCallSound();
     onAccept();
   };
 
-  const handleReject = () => {
-    callSoundUtils.stopCallSound();
+  const handleReject = async () => {
+    await callSoundUtils.stopCallSound();
     onReject();
   };
 

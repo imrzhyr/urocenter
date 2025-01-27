@@ -14,9 +14,9 @@ export const CallingUI = ({ recipientName }: CallingUIProps) => {
   const [isMinimized, setIsMinimized] = useState(false);
 
   useEffect(() => {
-    callSoundUtils.startCallingSound();
+    callSoundUtils.startCallingSound().catch(console.error);
     return () => {
-      callSoundUtils.stopCallingSound();
+      callSoundUtils.stopCallingSound().catch(console.error);
     };
   }, []);
 

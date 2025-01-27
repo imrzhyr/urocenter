@@ -8,33 +8,39 @@ callSound.loop = true; // Loop the call sound for incoming calls
 callSound.preload = 'auto';
 
 export const callSoundUtils = {
-  startCallingSound: () => {
+  startCallingSound: async () => {
     try {
       callingSound.currentTime = 0;
-      callingSound.play();
+      // Wait for any pending pause operations to complete
+      await new Promise(resolve => setTimeout(resolve, 0));
+      await callingSound.play();
     } catch (error) {
       console.error('Error playing calling sound:', error);
     }
   },
-  stopCallingSound: () => {
+  stopCallingSound: async () => {
     try {
-      callingSound.pause();
+      // Ensure we pause before resetting
+      await callingSound.pause();
       callingSound.currentTime = 0;
     } catch (error) {
       console.error('Error stopping calling sound:', error);
     }
   },
-  playCallSound: () => {
+  playCallSound: async () => {
     try {
       callSound.currentTime = 0;
-      callSound.play();
+      // Wait for any pending pause operations to complete
+      await new Promise(resolve => setTimeout(resolve, 0));
+      await callSound.play();
     } catch (error) {
       console.error('Error playing call sound:', error);
     }
   },
-  stopCallSound: () => {
+  stopCallSound: async () => {
     try {
-      callSound.pause();
+      // Ensure we pause before resetting
+      await callSound.pause();
       callSound.currentTime = 0;
     } catch (error) {
       console.error('Error stopping call sound:', error);
