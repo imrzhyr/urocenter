@@ -183,7 +183,10 @@ export default defineConfig(({ mode }) => ({
           moduleResolution: 'node',
           allowSyntheticDefaultImports: true,
           skipLibCheck: true,
-          noEmit: false
+          noEmit: false,
+          isolatedModules: true,
+          esModuleInterop: true,
+          resolveJsonModule: true
         }
       }
     }
