@@ -182,7 +182,8 @@ export default defineConfig(({ mode }) => ({
           module: 'esnext',
           moduleResolution: 'node',
           allowSyntheticDefaultImports: true,
-          skipLibCheck: true
+          skipLibCheck: true,
+          noEmit: false
         }
       }
     }
