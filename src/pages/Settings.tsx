@@ -19,12 +19,14 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
+import { ChevronRight } from "lucide-react";
 
 const Settings = () => {
   const { t, language } = useLanguage();
   const isRTL = language === 'ar';
   const navigate = useNavigate();
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const [showLanguageMenu, setShowLanguageMenu] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem('userPhone');
@@ -45,13 +47,13 @@ const Settings = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background font-sans">
-      <div className="container max-w-4xl mx-auto p-4">
+    <div className="min-h-screen bg-[#000000]">
+      <div className="container max-w-4xl mx-auto">
         {/* Header */}
-        <header className="w-full mb-6">
+        <header className="p-4">
           <div className="flex items-center gap-2">
             <BackButton />
-            <h1 className="text-2xl font-semibold">{t('settings')}</h1>
+            <h1 className="text-2xl font-semibold text-white">{t('settings')}</h1>
           </div>
         </header>
 
@@ -59,144 +61,76 @@ const Settings = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="space-y-6"
+          className="p-4 space-y-6"
         >
-          <Card className="p-6">
-            <h2 className="text-lg font-medium mb-4">{t('language')}</h2>
+          <Card className="p-6 bg-[#1C1C1E]/50 backdrop-blur-xl border border-white/[0.08]">
+            <h2 className="text-lg font-medium mb-4 text-white">{t('language')}</h2>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Globe className="h-5 w-5" />
-                <span>{t('select_language')}</span>
+                <Globe className="h-5 w-5 text-[#0A84FF]" />
+                <span className="text-gray-300">{t('select_language')}</span>
               </div>
-              <LanguageSelector />
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <h2 className="text-lg font-medium mb-4">{t('notifications')}</h2>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Bell className="h-5 w-5" />
-                <span>{t('push_notifications')}</span>
-              </div>
-              <Switch defaultChecked />
-            </div>
-          </Card>
-
-          <div className="space-y-2">
-            {settingsSections.map((section) => (
-              <Card
-                key={section.title}
-                className={cn(
-                  "p-4 cursor-pointer",
-                  "bg-white dark:bg-[hsl(217,33%,18%)]",
-                  "hover:bg-gray-50 dark:hover:bg-[hsl(217,33%,22%)]",
-                  "border-[#E5E5EA] dark:border-[#38383A]"
-                )}
-                onClick={section.onClick}
+              <button
+                onClick={() => setShowLanguageMenu(true)}
+                className="flex items-center gap-2 p-2 rounded-xl bg-[#1C1C1E]/50 backdrop-blur-xl border border-white/[0.08] hover:bg-white/[0.08] transition-colors"
               >
-                <div className="flex items-center gap-3">
-                  <section.icon className="h-5 w-5" />
+                <Globe className="w-5 h-5 text-[#0A84FF]" />
+              </button>
+            </div>
+          </Card>
+
+          {/* Other settings sections */}
+          {settingsSections.map((section, index) => (
+            <Card 
+              key={index}
+              className="p-6 bg-[#1C1C1E]/50 backdrop-blur-xl border border-white/[0.08]"
+            >
+              <button
+                onClick={section.onClick}
+                className="w-full flex items-center justify-between text-white hover:opacity-80 transition-opacity"
+              >
+                <div className="flex items-center gap-2">
+                  <section.icon className="h-5 w-5 text-[#0A84FF]" />
                   <span>{section.title}</span>
                 </div>
-              </Card>
-            ))}
-          </div>
+                <ChevronRight className="h-5 w-5 text-gray-400" />
+              </button>
+            </Card>
+          ))}
 
-          <Button
-            onClick={() => setShowLogoutDialog(true)}
-            className={cn(
-              "w-full h-11",
-              "rounded-xl",
-              "text-[17px]",
-              "font-normal",
-              "bg-[#FF3B30] dark:bg-[#FF453A]",
-              "hover:bg-[#FF3B30]/90 dark:hover:bg-[#FF453A]/90",
-              "active:bg-[#FF3B30]/80 dark:active:bg-[#FF453A]/80",
-              "text-white",
-              "transition-colors duration-200",
-              "flex items-center gap-2"
-            )}
-          >
-            <LogOut className="w-4 h-4" />
-            {t('logout')}
-          </Button>
+          {/* Logout button */}
+          <Card className="p-6 bg-[#1C1C1E]/50 backdrop-blur-xl border border-white/[0.08]">
+            <button
+              onClick={() => setShowLogoutDialog(true)}
+              className="w-full flex items-center gap-2 text-[#FF453A]"
+            >
+              <LogOut className="h-5 w-5" />
+              <span>{t('sign_out')}</span>
+            </button>
+          </Card>
         </motion.div>
       </div>
 
       <AnimatePresence>
-        {showLogoutDialog && (
-          <AlertDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
-            <AlertDialogContent className={cn(
-              "bg-[#F2F2F7]/95 dark:bg-[#1C1C1E]/95",
-              "backdrop-blur-xl",
-              "border border-[#C6C6C8] dark:border-[#38383A]",
-              "rounded-2xl",
-              "shadow-xl",
-              "p-0",
-              "max-w-[320px]",
-              isRTL ? "rtl" : "ltr"
-            )}>
-              <AlertDialogHeader className="p-6 pb-4">
-                <AlertDialogTitle className={cn(
-                  "text-[17px]",
-                  "font-semibold",
-                  "text-[#1C1C1E] dark:text-white",
-                  "text-center",
-                  "mb-1"
-                )}>
-                  {t('confirm_logout')}
-                </AlertDialogTitle>
-                <AlertDialogDescription className={cn(
-                  "text-[13px]",
-                  "text-[#8E8E93] dark:text-[#98989D]",
-                  "text-center"
-                )}>
-                  {t('logout_confirmation_message')}
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <div className="p-4 pt-0">
-                <AlertDialogFooter className="flex flex-row gap-2">
-                  <AlertDialogCancel className={cn(
-                    "flex-1",
-                    "h-11",
-                    "rounded-xl",
-                    "text-[17px]",
-                    "font-normal",
-                    "bg-[#F2F2F7] dark:bg-[#2C2C2E]",
-                    "hover:bg-[#E5E5EA] dark:hover:bg-[#3A3A3C]",
-                    "active:bg-[#D1D1D6] dark:active:bg-[#48484A]",
-                    "border-[#C6C6C8] dark:border-[#38383A]",
-                    "text-[#007AFF] dark:text-[#0A84FF]",
-                    "transition-colors duration-200",
-                    "m-0"
-                  )}>
-                    {t('cancel')}
-                  </AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleLogout}
-                    className={cn(
-                      "flex-1",
-                      "h-11",
-                      "rounded-xl",
-                      "text-[17px]",
-                      "font-normal",
-                      "bg-[#FF3B30] dark:bg-[#FF453A]",
-                      "hover:bg-[#FF3B30]/90 dark:hover:bg-[#FF453A]/90",
-                      "active:bg-[#FF3B30]/80 dark:active:bg-[#FF453A]/80",
-                      "text-white",
-                      "transition-colors duration-200",
-                      "m-0"
-                    )}
-                  >
-                    {t('logout')}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </div>
-            </AlertDialogContent>
-          </AlertDialog>
+        {showLanguageMenu && (
+          <LanguageSelector onClose={() => setShowLanguageMenu(false)} />
         )}
       </AnimatePresence>
+
+      <AlertDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('confirm_logout')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('logout_confirmation_message')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleLogout}>{t('sign_out')}</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

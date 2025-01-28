@@ -4,6 +4,20 @@ import { Profile } from "@/types/profile";
 import { toast } from "sonner";
 import { useProfileState } from "./useProfileState";
 
+const initialProfileState: Profile = {
+  id: '',
+  full_name: '',
+  gender: '',
+  age: '',
+  complaint: '',
+  phone: '',
+  role: 'patient',
+  payment_status: 'unpaid',
+  payment_approval_status: 'pending',
+  payment_method: '',
+  payment_date: null
+};
+
 export const useProfileQuery = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { setState, profile: cachedProfile } = useProfileState();
@@ -13,8 +27,10 @@ export const useProfileQuery = () => {
       // Don't use cache on force refresh or if we don't have a complete profile
       if (!force && cachedProfile?.id && cachedProfile?.role) {
         const profileId = localStorage.getItem('profileId');
-        // Only use cache if the IDs match
-        if (profileId === cachedProfile.id) {
+        // Only use cache if the IDs match and we have all required fields
+        if (profileId === cachedProfile.id && 
+            cachedProfile.phone && 
+            cachedProfile.role) {
           setIsLoading(false);
           return;
         }
@@ -56,13 +72,14 @@ export const useProfileQuery = () => {
         return;
       }
 
-      // Ensure phone number has the + prefix
+      // Ensure phone number has the + prefix and is URL encoded for the query
       const formattedPhone = userPhone.startsWith('+') ? userPhone : `+${userPhone}`;
+      const encodedPhone = formattedPhone.replace('+', '%2B');
 
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
-        .eq('phone', formattedPhone)
+        .eq('phone', encodedPhone)
         .single();
 
       if (profileError) {
@@ -89,8 +106,7 @@ export const useProfileQuery = () => {
         };
         setState({ profile: newProfile });
       }
-    } catch (error) {
-      console.error("Error in fetchProfile:", error);
+    } catch (error: any) {
       // Only show error toast if it's not a "no profile found" error
       if (error.code !== 'PGRST116') {
         toast.error("Failed to load profile");
@@ -100,61 +116,9 @@ export const useProfileQuery = () => {
     }
   };
 
+  // Only fetch on mount or when forced
   useEffect(() => {
     fetchProfile();
-
-    // Set up realtime subscription using profileId if available
-    const profileId = localStorage.getItem('profileId');
-    if (profileId) {
-      const channel = supabase
-        .channel('profile_changes')
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'profiles',
-            filter: `id=eq.${profileId}`
-          },
-          () => {
-            // Force refresh on profile changes
-            fetchProfile(true);
-          }
-        )
-        .subscribe();
-
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    }
-
-    // Fall back to phone subscription if no profileId
-    const userPhone = localStorage.getItem('userPhone');
-    if (!userPhone) return;
-
-    // Ensure phone number has the + prefix for realtime subscription
-    const formattedPhone = userPhone.startsWith('+') ? userPhone : `+${userPhone}`;
-
-    const channel = supabase
-      .channel('profile_changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'profiles',
-          filter: `phone=eq.${formattedPhone}`
-        },
-        () => {
-          // Force refresh on profile changes
-          fetchProfile(true);
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, []);
 
   return {

@@ -119,30 +119,21 @@ export const OnboardingLayout = () => {
   };
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.div 
-        key={language}
-        className={cn(
-          "min-h-screen flex flex-col",
-          "bg-[#000B1D] text-white",
-          isRTL ? "rtl" : "ltr"
-        )}
-        initial="initial"
-        animate="animate"
-        exit="exit"
-        variants={pageVariants}
+    <motion.div
+      className="min-h-screen flex flex-col bg-[#000B1D]"
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+    >
+      <motion.header 
+        variants={headerVariants}
+        className="sticky top-0 z-50 backdrop-blur-xl bg-[#000B1D]/50 border-b border-white/[0.08]"
       >
-        <motion.header 
-          className={cn(
-            "sticky top-0 z-50",
-            "w-full bg-[#000B1D]/50 backdrop-blur-xl",
-            "border-b border-white/[0.08]"
-          )}
-          variants={contentVariants}
-        >
-          <div className="container max-w-4xl mx-auto p-4 flex items-center">
+        <div className="container max-w-4xl mx-auto">
+          <div className="flex items-center justify-between h-[72px] px-4">
             <motion.div 
-              className="w-[72px]"
+              className="w-[72px] flex items-center"
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 400, damping: 25 }}
             >
@@ -154,112 +145,37 @@ export const OnboardingLayout = () => {
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.1, type: "spring", stiffness: 300, damping: 30 }}
             >
-              <button
-                onClick={() => window.open('https://wa.me/+9647702428154', '_blank')}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#1C1C1E]/50 backdrop-blur-xl border border-white/[0.08] hover:bg-white/[0.08] transition-colors"
-              >
-                <div className="w-5 h-5 text-[#0A84FF]">
-                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 4C7.582 4 4 7.582 4 12C4 16.418 7.582 20 12 20C16.418 20 20 16.418 20 12C20 7.582 16.418 4 12 4Z" fill="currentColor" fillOpacity="0.2"/>
-                    <path d="M12 17C14.7614 17 17 14.7614 17 12C17 9.23858 14.7614 7 12 7C9.23858 7 7 9.23858 7 12C7 14.7614 9.23858 17 12 17Z" fill="currentColor"/>
-                  </svg>
-                </div>
-                <span className="text-[15px] font-medium bg-gradient-to-r from-[#0055D4] to-[#00A3FF] bg-clip-text text-transparent">
-                  {t("help_center")}
-                </span>
-              </button>
+              <WhatsAppSupport />
             </motion.div>
             <motion.div 
-              className="w-[72px] flex justify-end relative z-50"
+              className="w-[72px] flex items-center justify-end"
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 400, damping: 25 }}
             >
-              <Button
-                variant="ghost"
-                size="icon"
-                className="bg-[#1C1C1E]/50 backdrop-blur-xl border border-white/[0.08] text-white hover:bg-white/[0.08] rounded-xl h-10 w-10"
-                onClick={() => setShowLanguageMenu(!showLanguageMenu)}
+              <button
+                onClick={() => setShowLanguageMenu(true)}
+                className="flex items-center gap-2 p-2 rounded-xl bg-[#1C1C1E]/50 backdrop-blur-xl border border-white/[0.08] hover:bg-white/[0.08] transition-colors"
               >
-                <Globe className="h-5 w-5" />
-              </Button>
-              
-              {showLanguageMenu && (
-                <motion.div 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  className="absolute right-0 top-12 bg-[#1C1C1E]/90 backdrop-blur-xl border border-white/[0.08] rounded-xl overflow-hidden shadow-lg w-32"
-                >
-                  <button
-                    onClick={() => {
-                      setLanguage('en');
-                      setShowLanguageMenu(false);
-                    }}
-                    className={cn(
-                      "w-full px-3 py-2 text-left text-[15px] transition-colors",
-                      language === 'en' 
-                        ? "bg-white/[0.08] text-white" 
-                        : "text-white/70 hover:bg-white/[0.08]"
-                    )}
-                  >
-                    English
-                  </button>
-                  <button
-                    onClick={() => {
-                      setLanguage('ar');
-                      setShowLanguageMenu(false);
-                    }}
-                    className={cn(
-                      "w-full px-3 py-2 text-left text-[15px] transition-colors",
-                      language === 'ar' 
-                        ? "bg-white/[0.08] text-white" 
-                        : "text-white/70 hover:bg-white/[0.08]"
-                    )}
-                  >
-                    العربية
-                  </button>
-                </motion.div>
-              )}
+                <Globe className="w-5 h-5 text-[#0A84FF]" />
+              </button>
             </motion.div>
           </div>
-          <motion.div 
-            className="container max-w-4xl mx-auto px-4 pb-6"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, type: "spring", stiffness: 300, damping: 30 }}
-          >
+          <div className="px-4 pb-4">
             <ProgressSteps 
               steps={steps} 
               currentStep={Math.max(currentStep, getCompletedStep())} 
             />
-          </motion.div>
-        </motion.header>
+          </div>
+        </div>
+      </motion.header>
 
-        <motion.main 
-          className="flex-1 flex flex-col"
-          variants={contentVariants}
-        >
-          <AnimatePresence mode="wait">
-            <motion.div 
-              key={location.pathname}
-              className="container max-w-4xl mx-auto px-4 flex-1 flex flex-col"
-              initial="initial"
-              animate="animate"
-              exit="exit"
-              variants={contentVariants}
-            >
-              <Outlet />
-            </motion.div>
-          </AnimatePresence>
-        </motion.main>
+      <AnimatePresence mode="wait">
+        {showLanguageMenu && (
+          <LanguageSelector onClose={() => setShowLanguageMenu(false)} />
+        )}
+      </AnimatePresence>
 
-        <motion.footer 
-          className="mt-auto py-4 text-center text-sm text-white/60"
-          variants={contentVariants}
-        >
-          <p>{t("all_rights_reserved")}</p>
-        </motion.footer>
-      </motion.div>
-    </AnimatePresence>
+      <Outlet />
+    </motion.div>
   );
 };

@@ -30,7 +30,6 @@ const CallContext = createContext<CallContextType | null>(null);
 
 export const CallProvider = ({ children }: { children: React.ReactNode }) => {
   const { profile } = useProfile();
-  console.log('[CallProvider] Current user profile:', profile);
   const recipientNameRef = useRef<string>('');
   const notificationRef = useRef<Notification | null>(null);
   const {
@@ -218,20 +217,12 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const initiateCall = async (receiverId: string, recipientName: string) => {
-    console.log('[CallProvider] Initiating call:', {
-      caller: profile?.id,
-      receiver: receiverId,
-      recipientName
-    });
-
     if (!profile?.id) {
-      console.error('[CallProvider] Cannot initiate call: User not logged in');
       toast.error('You must be logged in to make calls');
       return;
     }
 
     if (profile.id === receiverId) {
-      console.error('[CallProvider] Cannot initiate call: Attempting to call self');
       toast.error('You cannot call yourself');
       return;
     }
@@ -239,23 +230,19 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       // First check if we're already in a call or calling
       if (isInCall || isCalling) {
-        console.error('[CallProvider] Cannot initiate call: Already in a call or calling');
         toast.error('Cannot start a new call while in another call');
         return;
       }
 
-      console.log('[CallProvider] Verifying receiver profile:', receiverId);
       const receiverExists = await verifyProfile(receiverId);
       if (!receiverExists) {
-        console.error('[CallProvider] Receiver profile not found');
         toast.error('Cannot initiate call: recipient not found');
         return;
       }
 
-      console.log('[CallProvider] Setting up Agora client');
       const success = await setupAgoraClient();
       if (!success) {
-        console.error('[CallProvider] Failed to setup Agora client');
+        toast.error('Failed to initialize call');
         return;
       }
 
@@ -303,7 +290,6 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
     } catch (error) {
-      console.error('[CallProvider] Error in call initiation:', error);
       // Ensure we clean up any ongoing call state
       setIsCalling(false);
       setCurrentCallId(null);
