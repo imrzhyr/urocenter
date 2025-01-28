@@ -45,11 +45,16 @@ export default defineConfig({
       }
     }
   },
+  server: {
+    port: 8080,
+    host: true
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      target: 'es2020'
+    }
+  },
   esbuild: {
     logOverride: { 'this-is-undefined-in-esm': 'silent' }
-  },
-  server: {
-    port: 3000,
-    host: true
   }
 });
