@@ -167,6 +167,24 @@ export default defineConfig(({ mode }) => ({
     },
     chunkSizeWarningLimit: 1000,
     target: 'esnext',
-    minify: 'esbuild'
+    minify: 'esbuild',
+    commonjsOptions: {
+      transformMixedEsModules: true
+    },
+    esbuild: {
+      jsxInject: `import React from 'react'`,
+      target: 'esnext',
+      tsconfigRaw: {
+        compilerOptions: {
+          experimentalDecorators: true,
+          jsx: 'preserve',
+          target: 'esnext',
+          module: 'esnext',
+          moduleResolution: 'node',
+          allowSyntheticDefaultImports: true,
+          skipLibCheck: true
+        }
+      }
+    }
   }
 }));
