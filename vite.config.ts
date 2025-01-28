@@ -110,11 +110,8 @@ export default defineConfig(({ mode }) => ({
         manualChunks: (id) => {
           // Vendor chunk for node_modules
           if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router') || id.includes('@radix-ui/react')) {
               return 'vendor-react';
-            }
-            if (id.includes('@radix-ui')) {
-              return 'vendor-radix';
             }
             if (id.includes('@tanstack') || id.includes('query')) {
               return 'vendor-query';
