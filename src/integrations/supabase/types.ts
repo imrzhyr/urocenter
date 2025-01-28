@@ -224,11 +224,14 @@ export type Database = {
       profiles: {
         Row: {
           age: string | null
+          auth_method: string | null
           complaint: string | null
           created_at: string | null
           full_name: string | null
           gender: string | null
           id: string
+          last_login: string | null
+          password: string
           payment_approval_status: string | null
           payment_date: string | null
           payment_method: string | null
@@ -239,11 +242,14 @@ export type Database = {
         }
         Insert: {
           age?: string | null
+          auth_method?: string | null
           complaint?: string | null
           created_at?: string | null
           full_name?: string | null
           gender?: string | null
           id?: string
+          last_login?: string | null
+          password: string
           payment_approval_status?: string | null
           payment_date?: string | null
           payment_method?: string | null
@@ -254,11 +260,14 @@ export type Database = {
         }
         Update: {
           age?: string | null
+          auth_method?: string | null
           complaint?: string | null
           created_at?: string | null
           full_name?: string | null
           gender?: string | null
           id?: string
+          last_login?: string | null
+          password?: string
           payment_approval_status?: string | null
           payment_date?: string | null
           payment_method?: string | null
@@ -271,55 +280,14 @@ export type Database = {
       }
     }
     Views: {
-      rls_policies: {
-        Row: {
-          command: unknown | null
-          policy_expression: string | null
-          policy_name: unknown | null
-          schema_name: unknown | null
-          table_name: unknown | null
-        }
-        Relationships: []
-      }
-      rls_status: {
-        Row: {
-          hasrls: boolean | null
-          schemaname: unknown | null
-          tablename: unknown | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
-      check_rls_policies: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          schema_name: string
-          table_name: string
-          policy_name: string
-          command: string
-          policy_expression: string
-        }[]
-      }
-      check_rls_status: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          schemaname: string
-          tablename: string
-          hasrls: boolean
-        }[]
-      }
-      create_user_profile: {
-        Args: {
-          p_user_id: string
-          p_phone: string
-          p_role: string
-        }
-        Returns: undefined
-      }
       gen_random_uuid: {
         Args: Record<PropertyKey, never>
-        Returns: string
+        Returns: {
+          user_id: string
+        }[]
       }
       get_admin_stats: {
         Args: Record<PropertyKey, never>
@@ -330,29 +298,11 @@ export type Database = {
           resolved_chats: number
         }[]
       }
-      is_admin: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      set_user_context:
-        | {
-            Args: Record<PropertyKey, never>
-            Returns: undefined
-          }
-        | {
-            Args: {
-              user_phone: string
-            }
-            Returns: undefined
-          }
-      verify_rls: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          table_name: string
-          rls_enabled: boolean
-          policies_count: number
-          policies: string[]
-        }[]
+      set_user_context: {
+        Args: {
+          user_phone: string
+        }
+        Returns: undefined
       }
     }
     Enums: {

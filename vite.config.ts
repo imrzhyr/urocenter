@@ -18,13 +18,7 @@ export default defineConfig(({ mode }) => ({
     hmr: true
   },
   plugins: [
-    react({
-      babel: {
-        plugins: [
-          ['@babel/plugin-transform-react-jsx', { runtime: 'automatic' }]
-        ]
-      }
-    }),
+    react(),
     mode === 'development' && componentTagger(),
     VitePWA({
       registerType: 'autoUpdate',
@@ -62,7 +56,7 @@ export default defineConfig(({ mode }) => ({
       },
       workbox: {
         cleanupOutdatedCaches: true,
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -71,7 +65,7 @@ export default defineConfig(({ mode }) => ({
               cacheName: 'google-fonts-cache',
               expiration: {
                 maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
               },
               cacheableResponse: {
                 statuses: [0, 200]
@@ -85,7 +79,7 @@ export default defineConfig(({ mode }) => ({
               cacheName: 'gstatic-fonts-cache',
               expiration: {
                 maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
               },
               cacheableResponse: {
                 statuses: [0, 200]
@@ -110,12 +104,10 @@ export default defineConfig(({ mode }) => ({
     extensions: [".web.tsx", ".web.ts", ".tsx", ".ts", ".web.js", ".js"],
   },
   build: {
-    outDir: 'dist',
-    emptyOutDir: true,
-    sourcemap: true,
     rollupOptions: {
       output: {
         manualChunks: (id) => {
+          // Vendor chunk for node_modules
           if (id.includes('node_modules')) {
             if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
               return 'vendor-react';
@@ -146,6 +138,7 @@ export default defineConfig(({ mode }) => ({
             }
             return 'vendor-other';
           }
+          // Feature-based chunks
           if (id.includes('/components/chat/')) {
             if (id.includes('/audio/') || id.includes('/video/')) {
               return 'feature-chat-media';
@@ -161,34 +154,13 @@ export default defineConfig(({ mode }) => ({
           if (id.includes('/components/auth/')) {
             return 'feature-auth';
           }
+          // Default chunk
           return 'main';
         }
       }
     },
-    chunkSizeWarningLimit: 1000,
-    target: 'esnext',
-    minify: 'esbuild',
-    commonjsOptions: {
-      transformMixedEsModules: true
-    },
-    esbuild: {
-      jsxInject: `import React from 'react'`,
-      target: 'esnext',
-      tsconfigRaw: {
-        compilerOptions: {
-          experimentalDecorators: true,
-          jsx: 'preserve',
-          target: 'esnext',
-          module: 'esnext',
-          moduleResolution: 'node',
-          allowSyntheticDefaultImports: true,
-          skipLibCheck: true,
-          noEmit: false,
-          isolatedModules: true,
-          esModuleInterop: true,
-          resolveJsonModule: true
-        }
-      }
-    }
+    chunkSizeWarningLimit: 1000, // Increase warning limit to 1MB
+    target: 'esnext',  // Use modern JavaScript features
+    minify: 'esbuild'  // Use esbuild for faster builds
   }
 }));
