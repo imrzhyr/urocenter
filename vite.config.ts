@@ -18,7 +18,13 @@ export default defineConfig(({ mode }) => ({
     hmr: true
   },
   plugins: [
-    react(),
+    react({
+      babel: {
+        plugins: [
+          ['@babel/plugin-transform-react-jsx', { runtime: 'automatic' }]
+        ]
+      }
+    }),
     mode === 'development' && componentTagger(),
     VitePWA({
       registerType: 'autoUpdate',
@@ -56,7 +62,7 @@ export default defineConfig(({ mode }) => ({
       },
       workbox: {
         cleanupOutdatedCaches: true,
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -65,7 +71,7 @@ export default defineConfig(({ mode }) => ({
               cacheName: 'google-fonts-cache',
               expiration: {
                 maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+                maxAgeSeconds: 60 * 60 * 24 * 365
               },
               cacheableResponse: {
                 statuses: [0, 200]
@@ -79,7 +85,7 @@ export default defineConfig(({ mode }) => ({
               cacheName: 'gstatic-fonts-cache',
               expiration: {
                 maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+                maxAgeSeconds: 60 * 60 * 24 * 365
               },
               cacheableResponse: {
                 statuses: [0, 200]
@@ -107,7 +113,6 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          // Vendor chunk for node_modules
           if (id.includes('node_modules')) {
             if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
               return 'vendor-react';
@@ -138,7 +143,6 @@ export default defineConfig(({ mode }) => ({
             }
             return 'vendor-other';
           }
-          // Feature-based chunks
           if (id.includes('/components/chat/')) {
             if (id.includes('/audio/') || id.includes('/video/')) {
               return 'feature-chat-media';
@@ -154,13 +158,12 @@ export default defineConfig(({ mode }) => ({
           if (id.includes('/components/auth/')) {
             return 'feature-auth';
           }
-          // Default chunk
           return 'main';
         }
       }
     },
-    chunkSizeWarningLimit: 1000, // Increase warning limit to 1MB
-    target: 'esnext',  // Use modern JavaScript features
-    minify: 'esbuild'  // Use esbuild for faster builds
+    chunkSizeWarningLimit: 1000,
+    target: 'esnext',
+    minify: 'esbuild'
   }
 }));
