@@ -38,10 +38,6 @@ export const UploadSection = ({
   const [isPreviewOpen, setIsPreviewOpen] = React.useState(false);
   const navigate = useNavigate();
 
-  const buttonAnimation = {
-    tap: { scale: 0.98 }
-  };
-
   const handlePreview = (id: string) => {
     const file = files.find(f => f.id === id);
     if (file) {
@@ -172,7 +168,7 @@ export const UploadSection = ({
 
       {/* iOS-style Continue Button */}
       <motion.button
-        variants={buttonAnimation}
+        variants={buttonVariants}
         whileTap="tap"
         onClick={() => {
           if (window.navigator && window.navigator.vibrate) {

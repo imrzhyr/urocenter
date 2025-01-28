@@ -1,17 +1,14 @@
-import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Globe } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
 
 const Terms = () => {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const isRTL = language === 'ar';
-  const [showLanguageMenu, setShowLanguageMenu] = useState(false);
 
   const sections = language === 'ar' ? {
     title: "الشروط والأحكام",
@@ -74,75 +71,35 @@ const Terms = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#000000]">
-      <div className="container max-w-4xl mx-auto p-4 flex items-center">
-        <motion.div 
-          className="w-[72px]"
-          whileTap={{ scale: 0.95 }}
-          transition={{ type: "spring", stiffness: 400, damping: 25 }}
+    <div className="min-h-screen bg-white dark:bg-gray-900">
+      <div className="p-4 flex justify-between items-center">
+        <Button
+          variant="ghost"
+          onClick={() => navigate(-1)}
+          className={cn(
+            "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white",
+            isRTL && "flex-row-reverse"
+          )}
         >
-          <Button
-            variant="ghost"
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2 p-2 rounded-xl bg-[#1C1C1E]/50 backdrop-blur-xl border border-white/[0.08] hover:bg-white/[0.08] transition-colors"
-          >
-            {isRTL ? <ChevronRight className="h-5 w-5 text-[#0A84FF]" /> : <ChevronLeft className="h-5 w-5 text-[#0A84FF]" />}
-          </Button>
-        </motion.div>
-        <motion.div 
-          className="flex-1 flex justify-center"
-          initial={{ scale: 0.95, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.1, type: "spring", stiffness: 300, damping: 30 }}
-        >
-          <button
-            onClick={() => window.open('https://wa.me/+9647702428154', '_blank')}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#1C1C1E]/50 backdrop-blur-xl border border-white/[0.08] hover:bg-white/[0.08] transition-colors"
-          >
-            <div className="w-5 h-5 text-[#0A84FF]">
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 4C7.582 4 4 7.582 4 12C4 16.418 7.582 20 12 20C16.418 20 20 16.418 20 12C20 7.582 16.418 4 12 4Z" fill="currentColor" fillOpacity="0.2"/>
-                <path d="M12 17C14.7614 17 17 14.7614 17 12C17 9.23858 14.7614 7 12 7C9.23858 7 7 9.23858 7 12C7 14.7614 9.23858 17 12 17Z" fill="currentColor"/>
-              </svg>
-            </div>
-            <span className="text-[15px] font-medium bg-gradient-to-r from-[#0055D4] to-[#00A3FF] bg-clip-text text-transparent">
-              Help Center
-            </span>
-          </button>
-        </motion.div>
-        <motion.div 
-          className="w-[72px] flex justify-end"
-          whileTap={{ scale: 0.95 }}
-          transition={{ type: "spring", stiffness: 400, damping: 25 }}
-        >
-          <button
-            onClick={() => setShowLanguageMenu(true)}
-            className="flex items-center gap-2 p-2 rounded-xl bg-[#1C1C1E]/50 backdrop-blur-xl border border-white/[0.08] hover:bg-white/[0.08] transition-colors"
-          >
-            <Globe className="w-5 h-5 text-[#0A84FF]" />
-          </button>
-        </motion.div>
+          {isRTL ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
+          {t("back")}
+        </Button>
+        <LanguageSelector />
       </div>
 
       <div className="max-w-3xl mx-auto px-6 pb-6">
-        <h1 className="text-3xl font-bold mb-2 text-white">{sections.title}</h1>
-        <p className="text-sm text-gray-400 mb-8">{sections.lastUpdated}</p>
+        <h1 className="text-3xl font-bold mb-2">{sections.title}</h1>
+        <p className="text-sm text-gray-500 mb-8">{sections.lastUpdated}</p>
 
         <div className="space-y-8">
           {sections.sections.map((section, index) => (
             <div key={index} className="space-y-2">
-              <h2 className="text-xl font-semibold text-white">{section.title}</h2>
-              <p className="text-gray-300 leading-relaxed">{section.content}</p>
+              <h2 className="text-xl font-semibold">{section.title}</h2>
+              <p className="text-gray-600 leading-relaxed">{section.content}</p>
             </div>
           ))}
         </div>
       </div>
-
-      <AnimatePresence>
-        {showLanguageMenu && (
-          <LanguageSelector onClose={() => setShowLanguageMenu(false)} />
-        )}
-      </AnimatePresence>
     </div>
   );
 };

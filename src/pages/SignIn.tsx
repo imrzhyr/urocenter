@@ -3,38 +3,38 @@ import { PhoneInput } from "@/components/PhoneInput";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, Link } from "react-router-dom";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Loader2, Globe } from "lucide-react";
+import { Eye, EyeOff, Loader2, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { WhatsAppSupport } from "@/components/WhatsAppSupport";
 import { BackButton } from "@/components/BackButton";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useProfileState } from "@/hooks/useProfileState";
-import { OTPVerification } from "@/components/auth/OTPVerification";
-import { Button } from "@/components/ui/button";
 
 const SignIn = () => {
   const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [showOTPVerification, setShowOTPVerification] = useState(false);
   const { t, language, setLanguage } = useLanguage();
   const navigate = useNavigate();
   const { clearState } = useProfileState();
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
-  const [accountNotFound, setAccountNotFound] = useState(false);
   const isRTL = language === 'ar';
 
   // Add validation
   const isValid = useMemo(() => {
     const isPhoneValid = phone.length === 10 && phone.startsWith("7");
-    return isPhoneValid;
-  }, [phone]);
+    const isPasswordValid = password.length >= 6;
+    return isPhoneValid && isPasswordValid;
+  }, [phone, password]);
 
   const handleSignIn = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setIsLoading(true);
-    setAccountNotFound(false);
 
     try {
       // Clear existing profile state
@@ -43,123 +43,70 @@ const SignIn = () => {
       // Format phone number
       const formattedPhone = `+964${phone}`;
       
-      // Check if user exists in profiles table
-      const { data: existingProfile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('phone', formattedPhone)
-        .single();
+      console.log("Attempting sign in with:", { phone: formattedPhone, password });
 
-      if (!existingProfile) {
-        setIsLoading(false);
-        setAccountNotFound(true);
-        toast.error(t("account_not_found"));
-        return;
-      }
-
-      // Start phone verification process
-      const { error: signInError } = await supabase.auth.signInWithOtp({
-        phone: formattedPhone,
-      });
-
-      if (signInError) throw signInError;
-
-      setShowOTPVerification(true);
-    } catch (error) {
-      console.error('Error:', error);
-      toast.error(t("signin_error"));
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleVerificationComplete = async () => {
-    try {
-      setIsLoading(true);
-      const formattedPhone = `+964${phone}`;
-      
-      // Get the user session after OTP verification
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session?.user) {
-        throw new Error('No session after verification');
-      }
-
-      // Try to get existing profile
-      const { data: existingProfile, error: profileError } = await supabase
+      // Get profile data and check password
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', session.user.id)
+        .eq('phone', formattedPhone)
+        .eq('password', password)
         .single();
 
-      // If profile doesn't exist, create it
-      if (!existingProfile && profileError?.code === 'PGRST116') {
-        const { data: newProfile, error: insertError } = await supabase
-          .from('profiles')
-          .insert([
-            {
-              id: session.user.id,
-              phone: formattedPhone,
-              role: 'patient',
-              payment_status: 'unpaid'
-            }
-          ])
-          .select()
-          .single();
-
-        if (insertError) throw insertError;
-        
-        localStorage.setItem('userPhone', formattedPhone);
-        localStorage.setItem('profileId', session.user.id);
-        
-        // New user, redirect to profile completion
-        navigate('/profile', { replace: true });
+      if (profileError || !profileData) {
+        console.error("Profile fetch error:", profileError);
+        toast.error(t("invalid_phone_or_password"));
         return;
       }
 
-      if (profileError && profileError.code !== 'PGRST116') throw profileError;
+      console.log("Found profile:", profileData);
 
-      // Store user info
+      // Store profile ID and phone in localStorage
+      localStorage.setItem('profileId', profileData.id);
       localStorage.setItem('userPhone', formattedPhone);
-      localStorage.setItem('profileId', session.user.id);
 
-      // Navigate based on profile completion and role
-      if (existingProfile.role === 'admin') {
+      // Check role and redirect
+      if (profileData.role === 'admin') {
+        console.log("User is admin, redirecting to admin dashboard");
         navigate("/admin", { replace: true });
-      } else if (!existingProfile.full_name) {
-        navigate('/profile', { replace: true });
-      } else if (!existingProfile.complaint) {
-        navigate('/medical-information', { replace: true });
-      } else if (existingProfile.payment_status === 'unpaid') {
-        navigate('/payment', { replace: true });
       } else {
-        navigate('/dashboard', { replace: true });
+        navigate("/dashboard", { replace: true });
       }
+
     } catch (error) {
-      console.error('Error:', error);
-      toast.error(t("signin_error"));
+      console.error("Sign in error:", error);
+      toast.error(t("invalid_phone_or_password"));
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleResendCode = async () => {
-    try {
-      const formattedPhone = `+964${phone}`;
-      const { error } = await supabase.auth.signInWithOtp({
-        phone: formattedPhone,
-      });
-
-      if (error) throw error;
-
-      toast.success(t("code_resent"));
-    } catch (error) {
-      console.error('Error:', error);
-      toast.error(t("resend_code_error"));
     }
   };
 
   const pageVariants = {
+    initial: { 
+      opacity: 0,
+      scale: 0.98,
+    },
+    animate: { 
+      opacity: 1,
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 30,
+        mass: 1,
+        staggerChildren: 0.1,
+      }
+    },
+    exit: { 
+      opacity: 0,
+      scale: 0.98,
+      transition: {
+        duration: 0.2,
+      }
+    }
+  };
+
+  const childVariants = {
     initial: { 
       opacity: 0,
       y: 20,
@@ -171,29 +118,11 @@ const SignIn = () => {
         type: "spring",
         stiffness: 300,
         damping: 30,
-        mass: 1,
-      }
-    },
-    exit: { 
-      opacity: 0,
-      y: -20,
-      transition: {
-        duration: 0.2,
       }
     }
   };
 
   const inputVariants = {
-    initial: { opacity: 0, y: 10 },
-    animate: { 
-      opacity: 1, 
-      y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 300,
-        damping: 30
-      }
-    },
     focus: { 
       scale: 1.02,
       transition: {
@@ -213,18 +142,17 @@ const SignIn = () => {
   };
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={language}
-        className="min-h-screen flex flex-col bg-[#000B1D]"
+    <div className="min-h-screen bg-[#000B1D] text-white">
+      <motion.div 
+        className="min-h-screen flex flex-col"
         initial="initial"
         animate="animate"
         exit="exit"
         variants={pageVariants}
       >
         <motion.header 
-          className="relative z-10"
-          variants={pageVariants}
+          variants={childVariants}
+          className="sticky top-0 z-50 w-full bg-[#000B1D]/50 backdrop-blur-lg border-b border-white/[0.08]"
         >
           <div className="container max-w-4xl mx-auto p-4 flex items-center">
             <motion.div 
@@ -256,16 +184,56 @@ const SignIn = () => {
               </button>
             </motion.div>
             <motion.div 
-              className="w-[72px] flex justify-end"
+              className="w-[72px] flex justify-end relative"
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 400, damping: 25 }}
             >
-              <button
-                onClick={() => setShowLanguageMenu(true)}
-                className="flex items-center gap-2 p-2 rounded-xl bg-[#1C1C1E]/50 backdrop-blur-xl border border-white/[0.08] hover:bg-white/[0.08] transition-colors"
+              <Button
+                variant="ghost"
+                size="icon"
+                className="bg-[#1C1C1E]/50 backdrop-blur-xl border border-white/[0.08] text-white hover:bg-white/[0.08] rounded-xl h-10 w-10"
+                onClick={() => setShowLanguageMenu(!showLanguageMenu)}
               >
-                <Globe className="w-5 h-5 text-[#0A84FF]" />
-              </button>
+                <Globe className="h-5 w-5" />
+              </Button>
+              
+              {showLanguageMenu && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="absolute right-0 top-12 bg-[#1C1C1E] border border-white/[0.08] rounded-xl overflow-hidden shadow-lg w-32"
+                >
+                  <button
+                    onClick={() => {
+                      setLanguage('en');
+                      setShowLanguageMenu(false);
+                    }}
+                    className={cn(
+                      "w-full px-3 py-2 text-left text-[15px] transition-colors",
+                      language === 'en' 
+                        ? "bg-white/[0.08] text-white" 
+                        : "text-white/70 hover:bg-white/[0.08]"
+                    )}
+                  >
+                    English
+                  </button>
+                  <button
+                    onClick={() => {
+                      setLanguage('ar');
+                      setShowLanguageMenu(false);
+                    }}
+                    className={cn(
+                      "w-full px-3 py-2 text-left text-[15px] transition-colors",
+                      language === 'ar' 
+                        ? "bg-white/[0.08] text-white" 
+                        : "text-white/70 hover:bg-white/[0.08]"
+                    )}
+                  >
+                    العربية
+                  </button>
+                </motion.div>
+              )}
             </motion.div>
           </div>
         </motion.header>
@@ -274,7 +242,7 @@ const SignIn = () => {
           <div className="container max-w-4xl mx-auto">
             <div className="flex-1 flex flex-col p-4 max-w-md w-full mx-auto">
               <motion.h1 
-                variants={pageVariants}
+                variants={childVariants}
                 className="text-4xl font-bold mb-12 text-center"
               >
                 <span className="bg-gradient-to-r from-[#0055D4] to-[#00A3FF] bg-clip-text text-transparent">
@@ -282,112 +250,132 @@ const SignIn = () => {
                 </span>
               </motion.h1>
 
-              <AnimatePresence mode="wait">
-                {showOTPVerification ? (
-                  <OTPVerification
-                    phone={`+964${phone}`}
-                    onVerificationComplete={handleVerificationComplete}
-                    onResendCode={handleResendCode}
+              <motion.div 
+                className="space-y-8"
+                variants={childVariants}
+              >
+                <motion.div 
+                  className="space-y-3"
+                  whileTap="tap"
+                  whileFocus="focus"
+                  variants={inputVariants}
+                >
+                  <label className="text-[15px] font-medium text-[#98989D] px-1">
+                    {t("phoneNumber")}
+                  </label>
+                  <PhoneInput
+                    value={phone}
+                    onChange={setPhone}
+                    className="bg-[#1C1C1E] backdrop-blur-xl border border-white/[0.08] text-white hover:bg-[#1C1C1E]/70 rounded-xl h-12 shadow-lg shadow-black/5 [&_input]:bg-[#1C1C1E] [&_input]:text-white [&_*]:bg-[#1C1C1E] [&_.PhoneInputCountry]:bg-[#1C1C1E]"
                   />
-                ) : (
-                  <motion.div 
-                    className="space-y-8"
-                    variants={pageVariants}
-                  >
-                    <motion.div 
-                      className="space-y-3"
-                      whileTap="tap"
-                      whileFocus="focus"
-                      variants={inputVariants}
-                    >
-                      <label className="text-[15px] font-medium text-[#98989D] px-1">
-                        {t("phoneNumber")}
-                      </label>
-                      <PhoneInput
-                        value={phone}
-                        onChange={setPhone}
-                        className="bg-[#1C1C1E] backdrop-blur-xl border border-white/[0.08] text-white hover:bg-[#1C1C1E]/70 rounded-xl h-12 shadow-lg shadow-black/5 [&_input]:bg-[#1C1C1E] [&_input]:text-white [&_*]:bg-[#1C1C1E] [&_.PhoneInputCountry]:bg-[#1C1C1E]"
-                      />
-                    </motion.div>
+                </motion.div>
 
-                    <motion.div className="space-y-4">
-                      <Button
-                        onClick={handleSignIn}
-                        disabled={!isValid || isLoading}
-                        className={cn(
-                          "w-full",
-                          "h-[44px]",
-                          "text-[17px] font-medium",
-                          "rounded-xl",
-                          "shadow-lg",
-                          "transition-all duration-200",
-                          "disabled:opacity-50",
-                          "active:scale-[0.97]",
-                          isValid && !isLoading
-                            ? "bg-gradient-to-r from-[#0055D4] to-[#00A3FF] hover:opacity-90 text-white"
-                            : "bg-[#1C1C1E]/50 backdrop-blur-xl border border-white/[0.08] text-[#98989D] cursor-not-allowed"
-                        )}
-                      >
-                        <span className={cn(
-                          "flex items-center justify-center gap-2",
-                          isLoading && "opacity-0"
-                        )}>
-                          {t("sign_in")}
-                        </span>
-                        {isLoading && (
-                          <Loader2 className="h-5 w-5 animate-spin absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-                        )}
-                      </Button>
-
-                      {accountNotFound && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="flex flex-col items-center gap-2"
-                        >
-                          <p className="text-[15px] text-[#98989D]">
-                            {t("dont_have_account")}
-                          </p>
-                          <Button
-                            onClick={() => navigate('/signup')}
-                            className="bg-[#1C1C1E]/50 backdrop-blur-xl border border-white/[0.08] text-white hover:bg-white/[0.08] rounded-xl px-6"
-                          >
-                            {t("sign_up")}
-                          </Button>
-                        </motion.div>
+                <motion.div 
+                  className="space-y-3"
+                  whileTap="tap"
+                  whileFocus="focus"
+                  variants={inputVariants}
+                >
+                  <label className="text-[15px] font-medium text-[#98989D] px-1">
+                    {t("enter_password")}
+                  </label>
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder={t("enter_password")}
+                      className={cn(
+                        "h-12 text-base rounded-xl",
+                        "bg-[#1C1C1E] backdrop-blur-xl border border-white/[0.08] text-white",
+                        "hover:bg-[#1C1C1E]/70",
+                        "focus:outline-none focus:ring-0 focus:border-white/[0.08]",
+                        "transition-all duration-200",
+                        "placeholder:text-[#98989D]",
+                        "shadow-lg shadow-black/5"
                       )}
-
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className={cn(
+                        "absolute top-1/2 -translate-y-1/2 text-[#98989D] h-10 w-10 flex items-center justify-center",
+                        isRTL ? "left-3" : "right-3"
+                      )}
+                    >
                       <motion.div
-                        className="text-center mt-4"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.3 }}
+                        whileTap={{ scale: 0.9 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
                       >
-                        <Link
-                          to="/signup"
-                          className="text-[15px] hover:opacity-90 transition-opacity"
-                        >
-                          <span className="text-white">{t("dont_have_account")}</span>{' '}
-                          <span className="bg-gradient-to-r from-[#0055D4] to-[#00A3FF] bg-clip-text text-transparent">
-                            {t("sign_up")}
-                          </span>
-                        </Link>
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </motion.div>
-                    </motion.div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                    </button>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                  className="pt-4"
+                >
+                  <Button
+                    onClick={handleSignIn}
+                    disabled={!isValid || isLoading}
+                    className={cn(
+                      "w-full",
+                      "h-[44px]",
+                      "text-[17px] font-medium",
+                      "rounded-xl",
+                      "shadow-lg",
+                      "transition-all duration-200",
+                      "disabled:opacity-50",
+                      "active:scale-[0.97]",
+                      isValid && !isLoading
+                        ? "bg-gradient-to-r from-[#0055D4] to-[#00A3FF] hover:opacity-90 text-white"
+                        : "bg-[#1C1C1E]/50 backdrop-blur-xl border border-white/[0.08] text-[#98989D] cursor-not-allowed"
+                    )}
+                  >
+                    <span className={cn(
+                      "flex items-center justify-center gap-2",
+                      isLoading && "opacity-0"
+                    )}>
+                      {t("sign_in")}
+                    </span>
+                    {isLoading && (
+                      <Loader2 className="h-5 w-5 animate-spin absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+                    )}
+                  </Button>
+                </motion.div>
+
+                <motion.div
+                  className="text-center"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <Link
+                    to="/signup"
+                    className="text-[15px] hover:opacity-90 transition-opacity"
+                  >
+                    {language === 'ar' ? (
+                      <>
+                        <span className="text-white">ليس لديك حساب؟</span>{' '}
+                        <span className="bg-gradient-to-r from-[#0055D4] to-[#00A3FF] bg-clip-text text-transparent">أنشئ الآن</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-white">Don't have an account?</span>{' '}
+                        <span className="bg-gradient-to-r from-[#0055D4] to-[#00A3FF] bg-clip-text text-transparent">Create now</span>
+                      </>
+                    )}
+                  </Link>
+                </motion.div>
+              </motion.div>
             </div>
           </div>
         </main>
       </motion.div>
-
-      <AnimatePresence>
-        {showLanguageMenu && (
-          <LanguageSelector onClose={() => setShowLanguageMenu(false)} />
-        )}
-      </AnimatePresence>
-    </AnimatePresence>
+    </div>
   );
 };
 
