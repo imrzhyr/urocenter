@@ -26,7 +26,9 @@ interface CallContextType {
   toggleSpeaker: () => Promise<boolean>;
 }
 
+console.log('Creating CallContext');
 const CallContext = createContext<CallContextType | null>(null);
+console.log('CallContext created:', CallContext);
 
 export const CallProvider = ({ children }: { children: React.ReactNode }) => {
   const { profile } = useProfile();
