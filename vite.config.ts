@@ -1,164 +1,55 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import path from "path";
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import path from 'path';
 
-let componentTagger;
-try {
-  componentTagger = require("lovable-tagger").componentTagger;
-} catch (e) {
-  componentTagger = () => null;
-}
-
-export default defineConfig(({ mode }) => ({
-  server: {
-    host: true,
-    port: 8080,
-    strictPort: true,
-    hmr: true,
-    allowedHosts: ['f9e14191-323f-4870-924f-05c92bd189bb.lovableproject.com']
-  },
+export default defineConfig({
   plugins: [
     react(),
-    mode === 'development' && componentTagger(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: [
-        'icons/light/icon-192x192.png',
-        'icons/dark/icon-192x192.png',
-        'icons/light/icon-512x512.png',
-        'icons/dark/icon-512x512.png'
-      ],
+      includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
       manifest: {
-        name: 'UroCenter',
-        short_name: 'UroCenter',
-        description: 'Online Urology Consultation',
-        theme_color: '#0066CC',
-        background_color: '#ffffff',
-        display: 'standalone',
+        name: 'Lovable App',
+        short_name: 'Lovable',
+        theme_color: '#ffffff',
         icons: [
           {
-            src: 'icons/light/icon-192x192.png',
+            src: '/icons/dark/icon-192x192.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: 'icons/light/icon-512x512.png',
+            src: '/icons/dark/icon-512x512.png',
             sizes: '512x512',
             type: 'image/png'
-          },
-          {
-            src: 'icons/light/icon-192x192.png',
-            sizes: '192x192',
-            type: 'image/png',
-            purpose: 'maskable'
-          }
-        ]
-      },
-      workbox: {
-        cleanupOutdatedCaches: true,
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-cache',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'gstatic-fonts-cache',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
           }
         ]
       }
     })
-  ].filter(Boolean),
+  ],
   resolve: {
-    alias: [
-      {
-        find: "@",
-        replacement: path.resolve(__dirname, "./src")
-      },
-      {
-        find: "react-native",
-        replacement: "react-native-web"
-      }
-    ],
-    extensions: [".web.tsx", ".web.ts", ".tsx", ".ts", ".web.js", ".js"],
+    alias: {
+      '@': path.resolve(__dirname, './src')
+    }
   },
   build: {
+    outDir: 'dist',
+    emptyOutDir: true,
+    sourcemap: true,
     rollupOptions: {
       output: {
-        manualChunks: (id) => {
-          // Vendor chunk for node_modules
-          if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router') || id.includes('@radix-ui/react')) {
-              return 'vendor-react';
-            }
-            if (id.includes('@tanstack') || id.includes('query')) {
-              return 'vendor-query';
-            }
-            if (id.includes('agora-rtc')) {
-              return 'vendor-agora';
-            }
-            if (id.includes('supabase')) {
-              return 'vendor-supabase';
-            }
-            if (id.includes('i18next') || id.includes('translation')) {
-              return 'vendor-i18n';
-            }
-            if (id.includes('wavesurfer') || id.includes('audio') || id.includes('media')) {
-              return 'vendor-media';
-            }
-            if (id.includes('date-fns')) {
-              return 'vendor-date';
-            }
-            if (id.includes('tailwind') || id.includes('css') || id.includes('style')) {
-              return 'vendor-styles';
-            }
-            return 'vendor-other';
-          }
-          // Feature-based chunks
-          if (id.includes('/components/chat/')) {
-            if (id.includes('/audio/') || id.includes('/video/')) {
-              return 'feature-chat-media';
-            }
-            if (id.includes('/messages/')) {
-              return 'feature-chat-messages';
-            }
-            return 'feature-chat-core';
-          }
-          if (id.includes('/components/dashboard/')) {
-            return 'feature-dashboard';
-          }
-          if (id.includes('/components/auth/')) {
-            return 'feature-auth';
-          }
-          // Default chunk
-          return 'main';
+        manualChunks: {
+          vendor: ['react', 'react-dom']
         }
       }
-    },
-    chunkSizeWarningLimit: 1000, // Increase warning limit to 1MB
-    target: 'esnext',  // Use modern JavaScript features
-    minify: 'esbuild'  // Use esbuild for faster builds
+    }
+  },
+  esbuild: {
+    logOverride: { 'this-is-undefined-in-esm': 'silent' }
+  },
+  server: {
+    port: 3000,
+    host: true
   }
-}));
+});

@@ -30,11 +30,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (profileId) {
         query = query.eq('id', profileId);
       } else if (userPhone) {
-        const formattedPhone = userPhone.startsWith('+') ? userPhone : `+${userPhone}`;
+        // Ensure proper phone number format and encoding
+        const formattedPhone = userPhone.startsWith('+') ? 
+          userPhone : 
+          `+${userPhone.replace(/^0+/, '')}`;
         query = query.eq('phone', formattedPhone);
       }
 
-      const { data, error } = await query.single();
+      // Use maybeSingle() instead of single() to handle no results gracefully
+      const { data, error } = await query.maybeSingle();
 
       if (error) {
         console.error('Error fetching profile:', error);
@@ -50,6 +54,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Always ensure profileId is in sync
         localStorage.setItem('profileId', data.id);
         setProfile(data);
+      } else {
+        // Handle case where no profile was found
+        setProfile(null);
+        localStorage.removeItem('profileId');
       }
     } catch (error) {
       console.error('Error in fetchProfile:', error);
@@ -102,4 +110,4 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}; 
+};

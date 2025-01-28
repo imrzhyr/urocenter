@@ -45,20 +45,6 @@ export type Database = {
             referencedRelation: "calls"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "call_signals_from_user_fkey"
-            columns: ["from_user"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "call_signals_to_user_fkey"
-            columns: ["to_user"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
         ]
       }
       calls: {
@@ -89,22 +75,7 @@ export type Database = {
           started_at?: string | null
           status?: Database["public"]["Enums"]["call_status"]
         }
-        Relationships: [
-          {
-            foreignKeyName: "calls_caller_id_fkey"
-            columns: ["caller_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "calls_receiver_id_fkey"
-            columns: ["receiver_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       medical_reports: {
         Row: {
@@ -113,8 +84,7 @@ export type Database = {
           file_path: string
           file_type: string | null
           id: string
-          updated_at: string | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string | null
@@ -122,8 +92,7 @@ export type Database = {
           file_path: string
           file_type?: string | null
           id?: string
-          updated_at?: string | null
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string | null
@@ -131,8 +100,7 @@ export type Database = {
           file_path?: string
           file_type?: string | null
           id?: string
-          updated_at?: string | null
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -151,21 +119,18 @@ export type Database = {
           delivered_at: string | null
           duration: number | null
           file_name: string | null
-          file_size: number | null
           file_type: string | null
           file_url: string | null
           id: string
           is_from_doctor: boolean | null
           is_read: boolean | null
           is_resolved: boolean | null
-          referenced_message: Json | null
-          replyTo: Json | null
+          replyto: Json | null
           seen_at: string | null
           sender_name: string | null
-          status: string
-          typing_users: Json | null
+          status: string | null
           updated_at: string | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           content: string
@@ -173,21 +138,18 @@ export type Database = {
           delivered_at?: string | null
           duration?: number | null
           file_name?: string | null
-          file_size?: number | null
           file_type?: string | null
           file_url?: string | null
           id?: string
           is_from_doctor?: boolean | null
           is_read?: boolean | null
           is_resolved?: boolean | null
-          referenced_message?: Json | null
-          replyTo?: Json | null
+          replyto?: Json | null
           seen_at?: string | null
           sender_name?: string | null
-          status?: string
-          typing_users?: Json | null
+          status?: string | null
           updated_at?: string | null
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           content?: string
@@ -195,21 +157,18 @@ export type Database = {
           delivered_at?: string | null
           duration?: number | null
           file_name?: string | null
-          file_size?: number | null
           file_type?: string | null
           file_url?: string | null
           id?: string
           is_from_doctor?: boolean | null
           is_read?: boolean | null
           is_resolved?: boolean | null
-          referenced_message?: Json | null
-          replyTo?: Json | null
+          replyto?: Json | null
           seen_at?: string | null
           sender_name?: string | null
-          status?: string
-          typing_users?: Json | null
+          status?: string | null
           updated_at?: string | null
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -232,12 +191,8 @@ export type Database = {
           id: string
           last_login: string | null
           password: string
-          payment_approval_status: string | null
-          payment_date: string | null
-          payment_method: string | null
-          payment_status: string | null
           phone: string | null
-          role: Database["public"]["Enums"]["user_role"]
+          role: Database["public"]["Enums"]["user_role"] | null
           updated_at: string | null
         }
         Insert: {
@@ -250,12 +205,8 @@ export type Database = {
           id?: string
           last_login?: string | null
           password: string
-          payment_approval_status?: string | null
-          payment_date?: string | null
-          payment_method?: string | null
-          payment_status?: string | null
           phone?: string | null
-          role?: Database["public"]["Enums"]["user_role"]
+          role?: Database["public"]["Enums"]["user_role"] | null
           updated_at?: string | null
         }
         Update: {
@@ -268,26 +219,63 @@ export type Database = {
           id?: string
           last_login?: string | null
           password?: string
-          payment_approval_status?: string | null
-          payment_date?: string | null
-          payment_method?: string | null
-          payment_status?: string | null
           phone?: string | null
-          role?: Database["public"]["Enums"]["user_role"]
+          role?: Database["public"]["Enums"]["user_role"] | null
           updated_at?: string | null
         }
         Relationships: []
       }
     }
     Views: {
-      [_ in never]: never
+      rls_policies: {
+        Row: {
+          command: unknown | null
+          policy_expression: string | null
+          policy_name: unknown | null
+          schema_name: unknown | null
+          table_name: unknown | null
+        }
+        Relationships: []
+      }
+      rls_status: {
+        Row: {
+          hasrls: boolean | null
+          schemaname: unknown | null
+          tablename: unknown | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      gen_random_uuid: {
+      check_rls_policies: {
         Args: Record<PropertyKey, never>
         Returns: {
-          user_id: string
+          schema_name: string
+          table_name: string
+          policy_name: string
+          command: string
+          policy_expression: string
         }[]
+      }
+      check_rls_status: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          schemaname: string
+          tablename: string
+          hasrls: boolean
+        }[]
+      }
+      create_user_profile: {
+        Args: {
+          p_user_id: string
+          p_phone: string
+          p_role: string
+        }
+        Returns: undefined
+      }
+      gen_random_uuid: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       get_admin_stats: {
         Args: Record<PropertyKey, never>
@@ -298,11 +286,153 @@ export type Database = {
           resolved_chats: number
         }[]
       }
-      set_user_context: {
+      get_my_claims: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      get_my_role: {
+        Args: Record<PropertyKey, never>
+        Returns: Database["public"]["Enums"]["user_role"]
+      }
+      handle_phone_sign_in:
+        | {
+            Args: {
+              phone_number: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              phone_number: string
+              pass: string
+            }
+            Returns: Json
+          }
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      mark_messages_delivered: {
         Args: {
-          user_phone: string
+          p_message_ids: string[]
         }
-        Returns: undefined
+        Returns: {
+          content: string
+          created_at: string | null
+          delivered_at: string | null
+          duration: number | null
+          file_name: string | null
+          file_type: string | null
+          file_url: string | null
+          id: string
+          is_from_doctor: boolean | null
+          is_read: boolean | null
+          is_resolved: boolean | null
+          replyto: Json | null
+          seen_at: string | null
+          sender_name: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }[]
+      }
+      mark_messages_seen: {
+        Args: {
+          p_message_ids: string[]
+        }
+        Returns: {
+          content: string
+          created_at: string | null
+          delivered_at: string | null
+          duration: number | null
+          file_name: string | null
+          file_type: string | null
+          file_url: string | null
+          id: string
+          is_from_doctor: boolean | null
+          is_read: boolean | null
+          is_resolved: boolean | null
+          replyto: Json | null
+          seen_at: string | null
+          sender_name: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }[]
+      }
+      resolve_chat: {
+        Args: {
+          p_user_id: string
+        }
+        Returns: {
+          content: string
+          created_at: string | null
+          delivered_at: string | null
+          duration: number | null
+          file_name: string | null
+          file_type: string | null
+          file_url: string | null
+          id: string
+          is_from_doctor: boolean | null
+          is_read: boolean | null
+          is_resolved: boolean | null
+          replyto: Json | null
+          seen_at: string | null
+          sender_name: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }[]
+      }
+      send_message: {
+        Args: {
+          p_content: string
+          p_user_id: string
+          p_is_from_doctor?: boolean
+          p_file_url?: string
+          p_file_name?: string
+          p_file_type?: string
+          p_reply_to?: Json
+        }
+        Returns: {
+          content: string
+          created_at: string | null
+          delivered_at: string | null
+          duration: number | null
+          file_name: string | null
+          file_type: string | null
+          file_url: string | null
+          id: string
+          is_from_doctor: boolean | null
+          is_read: boolean | null
+          is_resolved: boolean | null
+          replyto: Json | null
+          seen_at: string | null
+          sender_name: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+      }
+      set_user_context:
+        | {
+            Args: Record<PropertyKey, never>
+            Returns: undefined
+          }
+        | {
+            Args: {
+              user_phone: string
+            }
+            Returns: undefined
+          }
+      verify_rls: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          table_name: string
+          rls_enabled: boolean
+          policies_count: number
+          policies: string[]
+        }[]
       }
     }
     Enums: {
