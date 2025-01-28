@@ -110,6 +110,9 @@ export default defineConfig(({ mode }) => ({
     extensions: [".web.tsx", ".web.ts", ".tsx", ".ts", ".web.js", ".js"],
   },
   build: {
+    outDir: 'dist',
+    emptyOutDir: true,
+    sourcemap: true,
     rollupOptions: {
       output: {
         manualChunks: (id) => {
