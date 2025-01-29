@@ -3,10 +3,22 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 import { VitePWA } from 'vite-plugin-pwa';
 import { fileURLToPath } from 'url';
+import tailwindcss from 'tailwindcss';
+import tailwindNesting from 'tailwindcss/nesting';
+import autoprefixer from 'autoprefixer';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
+  css: {
+    postcss: {
+      plugins: [
+        tailwindNesting,
+        tailwindcss,
+        autoprefixer
+      ]
+    }
+  },
   server: {
     host: true,
     port: 8080,
