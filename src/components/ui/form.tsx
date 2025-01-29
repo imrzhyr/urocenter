@@ -1,5 +1,4 @@
 import * as React from "react"
-import { createContext } from 'react'
 import * as LabelPrimitive from "@radix-ui/react-label"
 import { Slot } from "@radix-ui/react-slot"
 import {
@@ -23,7 +22,7 @@ type FormFieldContextValue<
   name: TName
 }
 
-const FormFieldContext = createContext<FormFieldContextValue>(
+const FormFieldContext = React.createContext<FormFieldContextValue>(
   {} as FormFieldContextValue
 )
 
@@ -67,7 +66,7 @@ type FormItemContextValue = {
   id: string
 }
 
-const FormItemContext = createContext<FormItemContextValue>(
+const FormItemContext = React.createContext<FormItemContextValue>(
   {} as FormItemContextValue
 )
 
