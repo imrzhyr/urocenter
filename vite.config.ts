@@ -22,12 +22,7 @@ export default defineConfig(({ mode }) => ({
     mode === 'development' && componentTagger(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: [
-        'icons/light/icon-192x192.png',
-        'icons/dark/icon-192x192.png',
-        'icons/light/icon-512x512.png',
-        'icons/dark/icon-512x512.png'
-      ],
+      includeAssets: ['icons/light/icon-192x192.png', 'icons/dark/icon-192x192.png', 'icons/light/icon-512x512.png', 'icons/dark/icon-512x512.png'],
       manifest: {
         name: 'UroCenter',
         short_name: 'UroCenter',
@@ -103,11 +98,16 @@ export default defineConfig(({ mode }) => ({
     ],
     extensions: [".web.tsx", ".web.ts", ".tsx", ".ts", ".web.js", ".js"],
   },
+  optimizeDeps: {
+    esbuildOptions: {
+      target: 'esnext'
+    }
+  },
   build: {
+    target: 'esnext',
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          // Vendor chunk for node_modules
           if (id.includes('node_modules')) {
             if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
               return 'vendor-react';
@@ -138,7 +138,6 @@ export default defineConfig(({ mode }) => ({
             }
             return 'vendor-other';
           }
-          // Feature-based chunks
           if (id.includes('/components/chat/')) {
             if (id.includes('/audio/') || id.includes('/video/')) {
               return 'feature-chat-media';
@@ -154,13 +153,11 @@ export default defineConfig(({ mode }) => ({
           if (id.includes('/components/auth/')) {
             return 'feature-auth';
           }
-          // Default chunk
           return 'main';
         }
       }
     },
-    chunkSizeWarningLimit: 1000, // Increase warning limit to 1MB
-    target: 'esnext',  // Use modern JavaScript features
-    minify: 'esbuild'  // Use esbuild for faster builds
+    chunkSizeWarningLimit: 1000,
+    minify: 'esbuild'
   }
 }));
