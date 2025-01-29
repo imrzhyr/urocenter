@@ -2,15 +2,11 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import { VitePWA } from 'vite-plugin-pwa';
+import { fileURLToPath } from 'url';
 
-let componentTagger;
-try {
-  componentTagger = require("lovable-tagger").componentTagger;
-} catch (e) {
-  componentTagger = () => null;
-}
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-export default defineConfig(({ mode }) => ({
+export default defineConfig({
   server: {
     host: true,
     port: 8080,
@@ -19,7 +15,6 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(),
-    mode === 'development' && componentTagger(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['icons/light/icon-192x192.png', 'icons/dark/icon-192x192.png', 'icons/light/icon-512x512.png', 'icons/dark/icon-512x512.png'],
@@ -84,7 +79,7 @@ export default defineConfig(({ mode }) => ({
         ]
       }
     })
-  ].filter(Boolean),
+  ],
   resolve: {
     alias: [
       {
@@ -107,7 +102,7 @@ export default defineConfig(({ mode }) => ({
     target: 'es2020',
     rollupOptions: {
       output: {
-        manualChunks: (id) => {
+        manualChunks: (id: string) => {
           if (id.includes('node_modules')) {
             if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
               return 'vendor-react';
@@ -160,4 +155,4 @@ export default defineConfig(({ mode }) => ({
     chunkSizeWarningLimit: 1000,
     minify: 'esbuild'
   }
-}));
+});
